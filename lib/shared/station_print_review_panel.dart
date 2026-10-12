@@ -83,7 +83,7 @@ class _StationPrintReviewPanelState extends State<StationPrintReviewPanel> {
         content: Text('Print lease information unavailable. Refresh before reviewing.')));
       return;
     }
-    if (lease != null && lease.isAfter(DateTime.now().toUtc())) {
+    if (lease.isAfter(DateTime.now().toUtc())) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Printing lease is still active. Review after it expires.')));
       return;

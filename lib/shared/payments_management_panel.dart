@@ -20,7 +20,6 @@ class _PaymentsManagementPanelState extends State<PaymentsManagementPanel> {
   // Sort only the authorized, returned source sample; never imply global ranking.
   String _sourceSort = 'original';
   String _cardStatus = 'all';
-  String _cardDate = 'all';
   // Amount filtering uses only server-returned, integer IQD source amounts.
   // It is not a filter on all-method outstanding balances.
   int? _minimumSourceIqd;

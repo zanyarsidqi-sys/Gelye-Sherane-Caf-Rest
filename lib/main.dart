@@ -13,7 +13,7 @@ Future<void> main() async {
   // Fail closed if the build URL does not match its explicitly approved project.
   // Configure an independent expected project ref for each application build.
   final parsedUrl = Uri.tryParse(supabaseUrl);
-  final refIsValid = RegExp(r'^[a-z]{20}$').hasMatch(expectedProjectRef);
+  final refIsValid = RegExp(r'^[a-z0-9]{20}$').hasMatch(expectedProjectRef);
   final endpointIsValid = parsedUrl != null &&
       parsedUrl.scheme == 'https' &&
       parsedUrl.userInfo.isEmpty &&
