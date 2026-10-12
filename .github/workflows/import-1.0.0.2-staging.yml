@@ -4,7 +4,8 @@ on:
     branches:
       - staging/release-1.0.0.2-recovery
     paths:
-      - staging-import/release-1.0.0.2-source.zip
+      - staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
+      - .github/workflows/import-1.0.0.2-staging.yml
 permissions:
   contents: write
 concurrency:
@@ -22,12 +23,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          file=staging-import/release-1.0.0.2-source.zip
+          file=staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
           test -f "$file"
           echo "fc4e6875f7a98ab6c8d91f913aeb60a470ca842687d197b2992097248638f99b  $file" | sha256sum -c -
           python3 - <<'PY'
           import pathlib, zipfile, shutil, stat
-          archive=pathlib.Path('staging-import/release-1.0.0.2-source.zip')
+          archive=pathlib.Path('staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip')
           with zipfile.ZipFile(archive) as z:
               entries=z.infolist()
               assert len(entries)==2675, f'Unexpected entries: {len(entries)}'
@@ -64,7 +65,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git rm -f --ignore-unmatch staging-import/release-1.0.0.2-source.zip
+          git rm -f --ignore-unmatch staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
           git diff --cached --quiet && { echo "::error::No source changes staged"; exit 1; }
           git commit -m 'build(staging): import verified Release 1.0.0.2 Flutter source'
           git push origin HEAD:staging/release-1.0.0.2-recovery
