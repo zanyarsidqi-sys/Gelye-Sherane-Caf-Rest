@@ -1,10 +1,10 @@
-name: Deploy Flutter preview
+name: Deploy Gelye Sherane release
 on:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -18,32 +18,32 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
-      - name: Reassemble and verify Flutter preview
+      - name: Reassemble and verify release 1.0.0.1
         run: |
-          cat preview-parts/part-*.b64 | base64 --decode > preview.tar.gz
-          echo 'cc02871149d7b38e41f0fbec35d49cea74b55a8dce2770774359c8d89e9fe8cf  preview.tar.gz' | sha256sum --check
-          tar -xzf preview.tar.gz
+          cat release-parts/1.0.0.1/part-*.b64 | base64 --decode > release-1.0.0.1.tar.xz
+          echo 'd43f13fc0471f3ee0652df05e2e6e5c7bb397da4ab320bd7401228dc0bb7fe5d  release-1.0.0.1.tar.xz' | sha256sum --check
+          tar -xJf release-1.0.0.1.tar.xz
           node --check site/main.*.dart.js
           node --check site/flutter_bootstrap.js
-      - uses: actions/configure-pages@v5
-        id: pages
-      - name: Apply hosting base path
-        env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        run: |
           python3 - <<'PY'
-          import os, re
+          import json, hashlib
           from pathlib import Path
-          p = Path('site/index.html')
-          base = os.environ.get('PAGES_BASE_PATH', '').rstrip('/') + '/'
-          text, count = re.subn(r'<base href="[^"]*">', '<base href="' + base + '">', p.read_text())
-          assert count == 1
-          p.write_text(text)
-          print('Flutter base path:', base)
+          root=Path('site'); release=json.loads((root/'release.json').read_text())
+          assert release['version']=='1.0.0.1'
+          assert hashlib.sha256((root/release['main']).read_bytes()).hexdigest()==release['sha256']
+          assert '<base href="/">' in (root/'index.html').read_text()
           PY
+      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Publish GitHub release after deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view 1.0.0.1 >/dev/null 2>&1; then
+            gh release create 1.0.0.1 release-1.0.0.1.tar.xz --target "$GITHUB_SHA" --title 'Release 1.0.0.1' --notes-file RELEASE_1.0.0.1.md
+          fi
