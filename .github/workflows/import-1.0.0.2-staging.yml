@@ -41,12 +41,14 @@ jobs:
                   p=pathlib.PurePosixPath(i.filename)
                   assert not p.is_absolute() and '..' not in p.parts and not i.filename.startswith('/'), 'Unsafe path'
                   assert not (i.external_attr >> 16) & 0o170000 == 0o120000, 'Symlink forbidden'
-                  assert not i.filename.startswith(('.git/', '.github/', 'staging-audits/', 'staging-import/')), 'Protected path'
+                  assert not i.filename.startswith(('.git/', 'staging-audits/', 'staging-import/')), 'Protected path'
+                  if i.filename.startswith('.github/'):
+                      assert i.filename in ('.github/workflows/flutter_validation.yml', '.github/workflows/iphone_web_staging.yml'), 'Unexpected protected workflow path'
               assert sum(x.startswith('lib/sections/') and x.endswith('.dart') and x.count('/')==2 for x in names)==35, 'Expected 35 sections'
               for required in ('pubspec.yaml','lib/main.dart','web/index.html'):
                   assert required in names, f'Missing {required}'
               for i in entries:
-                  if i.is_dir(): continue
+                  if i.is_dir() or i.filename.startswith('.github/'): continue
                   p=pathlib.Path(i.filename)
                   p.parent.mkdir(parents=True,exist_ok=True)
                   with z.open(i) as src,p.open('wb') as dst: shutil.copyfileobj(src,dst)
