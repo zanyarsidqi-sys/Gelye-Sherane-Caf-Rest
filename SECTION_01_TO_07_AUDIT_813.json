@@ -1,0 +1,298 @@
+{
+  "baseline": "Upgrade 773",
+  "batch": "774\u2013813",
+  "checkpoints": [
+    {
+      "upgrade": 774,
+      "section": "shared_access",
+      "name": "Session events use authoritative current user",
+      "path": "lib/shared/section_shell.dart",
+      "needle": "final nextUserId = Supabase.instance.client.auth.currentUser?.id;"
+    },
+    {
+      "upgrade": 775,
+      "section": "dashboard",
+      "name": "cash week RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_cash_collections_week"
+    },
+    {
+      "upgrade": 776,
+      "section": "dashboard",
+      "name": "cash today RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_cash_collections_today"
+    },
+    {
+      "upgrade": 777,
+      "section": "dashboard",
+      "name": "order week RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_order_week"
+    },
+    {
+      "upgrade": 778,
+      "section": "dashboard",
+      "name": "summary RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_operational_summary"
+    },
+    {
+      "upgrade": 779,
+      "section": "dashboard",
+      "name": "Baghdad timezone validation",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "Asia/Baghdad"
+    },
+    {
+      "upgrade": 780,
+      "section": "tables",
+      "name": "permission wrapper",
+      "path": "lib/sections/tables.dart",
+      "needle": "sectionId: 'tables'"
+    },
+    {
+      "upgrade": 781,
+      "section": "tables",
+      "name": "table visit opening",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_open_cafe_table_visit_with_customer"
+    },
+    {
+      "upgrade": 782,
+      "section": "tables",
+      "name": "reservation cancellation",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_cancel_reservation"
+    },
+    {
+      "upgrade": 783,
+      "section": "tables",
+      "name": "reservation check-in",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_check_in_cafe_reservation"
+    },
+    {
+      "upgrade": 784,
+      "section": "tables",
+      "name": "transfer financial preflight",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_table_transfer_financial_preflight"
+    },
+    {
+      "upgrade": 785,
+      "section": "tables",
+      "name": "table QR rotation",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_rotate_table_qr"
+    },
+    {
+      "upgrade": 786,
+      "section": "tables",
+      "name": "table movement review",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_request_table_guest_move"
+    },
+    {
+      "upgrade": 787,
+      "section": "table_orders",
+      "name": "permission wrapper",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "sectionId: 'table_orders'"
+    },
+    {
+      "upgrade": 788,
+      "section": "table_orders",
+      "name": "order board pagination",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_staff_table_order_board_page"
+    },
+    {
+      "upgrade": 789,
+      "section": "table_orders",
+      "name": "item fulfillment RPC",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_advance_table_item_fulfillment"
+    },
+    {
+      "upgrade": 790,
+      "section": "table_orders",
+      "name": "replacement quote",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_quote_unaccepted_table_replacement"
+    },
+    {
+      "upgrade": 791,
+      "section": "table_orders",
+      "name": "replacement write",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_replace_unaccepted_table_item"
+    },
+    {
+      "upgrade": 792,
+      "section": "table_orders",
+      "name": "order revision dispatch",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_staff_order_revision_dispatch"
+    },
+    {
+      "upgrade": 793,
+      "section": "table_orders",
+      "name": "kitchen revision acknowledgment",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_acknowledge_table_replacement_kitchen_revision"
+    },
+    {
+      "upgrade": 794,
+      "section": "motel_orders",
+      "name": "permission wrapper",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "sectionId: 'motel_orders'"
+    },
+    {
+      "upgrade": 795,
+      "section": "motel_orders",
+      "name": "room registry",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelRoomRegistryScreen"
+    },
+    {
+      "upgrade": 796,
+      "section": "motel_orders",
+      "name": "scheduled meals",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelScheduledMealsScreen"
+    },
+    {
+      "upgrade": 797,
+      "section": "motel_orders",
+      "name": "food requests",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelFoodRequestsScreen"
+    },
+    {
+      "upgrade": 798,
+      "section": "motel_orders",
+      "name": "billing ledger",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelFoodBillingLedgerScreen"
+    },
+    {
+      "upgrade": 799,
+      "section": "kitchen",
+      "name": "permission wrapper",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "sectionId: 'kitchen'"
+    },
+    {
+      "upgrade": 800,
+      "section": "kitchen",
+      "name": "kitchen orders",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "OrderPreviewWorkspace(kind: 'kitchen')"
+    },
+    {
+      "upgrade": 801,
+      "section": "kitchen",
+      "name": "scheduled motel meals",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "KitchenScheduledMotelMealsPanel"
+    },
+    {
+      "upgrade": 802,
+      "section": "kitchen",
+      "name": "motel food queue",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "KitchenMotelFoodQueuePanel"
+    },
+    {
+      "upgrade": 803,
+      "section": "menu",
+      "name": "permission wrapper",
+      "path": "lib/sections/menu.dart",
+      "needle": "sectionId: 'menu'"
+    },
+    {
+      "upgrade": 804,
+      "section": "menu",
+      "name": "live product create",
+      "path": "lib/sections/menu.dart",
+      "needle": "LiveMenuProductCreate"
+    },
+    {
+      "upgrade": 805,
+      "section": "menu",
+      "name": "live product edit",
+      "path": "lib/sections/menu.dart",
+      "needle": "LiveMenuProductEdit"
+    },
+    {
+      "upgrade": 806,
+      "section": "menu",
+      "name": "recipe management",
+      "path": "lib/sections/menu.dart",
+      "needle": "RecipeManagementPanel"
+    },
+    {
+      "upgrade": 807,
+      "section": "menu",
+      "name": "ingredient units",
+      "path": "lib/sections/menu.dart",
+      "needle": "IngredientUnitSettingsPanel"
+    },
+    {
+      "upgrade": 808,
+      "section": "products_inventory",
+      "name": "permission wrapper",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "sectionId: 'products_inventory'"
+    },
+    {
+      "upgrade": 809,
+      "section": "products_inventory",
+      "name": "overview RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_overview"
+    },
+    {
+      "upgrade": 810,
+      "section": "products_inventory",
+      "name": "adjustment RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_adjust"
+    },
+    {
+      "upgrade": 811,
+      "section": "products_inventory",
+      "name": "minimum RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_set_minimum"
+    },
+    {
+      "upgrade": 812,
+      "section": "products_inventory",
+      "name": "history RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_history"
+    },
+    {
+      "upgrade": 813,
+      "section": "products_inventory",
+      "name": "auth subscription",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "onAuthStateChange"
+    }
+  ],
+  "results": {
+    "before": {
+      "passed": 39,
+      "total": 40
+    },
+    "after": {
+      "passed": 40,
+      "total": 40
+    }
+  },
+  "scope": "static source evidence only",
+  "runtime_tested": false
+}

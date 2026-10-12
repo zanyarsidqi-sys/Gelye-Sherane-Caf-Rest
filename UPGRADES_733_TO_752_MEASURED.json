@@ -1,0 +1,182 @@
+[
+  {
+    "upgrade": 733,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 75,
+    "before": "update(() => message = 'Preview denied or failed: $e');",
+    "after": "update(() => message = 'Preview denied or failed: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 734,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 94,
+    "before": "update(() => message = 'Approval failed: $e');",
+    "after": "update(() => message = 'Approval failed: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 735,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 108,
+    "before": "update(() => message = 'Invoice quote unavailable: $e');",
+    "after": "update(() => message = 'Invoice quote unavailable: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 736,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 122,
+    "before": "update(() => message = 'Payment reconciliation unavailable: $e');",
+    "after": "update(() => message = 'Payment reconciliation unavailable: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 737,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 137,
+    "before": "if (dialogContext.mounted) update(() => message = 'Finalization check failed: $e');",
+    "after": "if (dialogContext.mounted) update(() => message = 'Finalization check failed: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 738,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 161,
+    "before": "if (dialogContext.mounted) update(() => message = 'Locked payable lookup failed: $e');",
+    "after": "if (dialogContext.mounted) update(() => message = 'Locked payable lookup failed: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 739,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 183,
+    "before": "if (dialogContext.mounted) update(() => message = 'Payment preparation blocked: $e');",
+    "after": "if (dialogContext.mounted) update(() => message = 'Payment preparation blocked: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 740,
+    "section": "02",
+    "file": "lib/sections/tables.dart",
+    "original_line": 200,
+    "before": "if (dialogContext.mounted) update(() => message = 'Invoice snapshot blocked: $e');",
+    "after": "if (dialogContext.mounted) update(() => message = 'Invoice snapshot blocked: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 741,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 164,
+    "before": "if (mounted) setState(() { jobs = []; error = 'Unable to load authorized jobs: $e'; });",
+    "after": "if (mounted) setState(() { jobs = []; error = 'Unable to load authorized jobs: Please retry or contact a manager'; });",
+    "passed": true
+  },
+  {
+    "upgrade": 742,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 189,
+    "before": "SnackBar(content: Text('Job action rejected: $e')),",
+    "after": "SnackBar(content: Text('Job action rejected: Please retry or contact a manager')),",
+    "passed": true
+  },
+  {
+    "upgrade": 743,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 314,
+    "before": "SnackBar(content: Text('Replacement recovery record needs review: $e')));",
+    "after": "SnackBar(content: Text('Replacement recovery record needs review: Please retry or contact a manager')));",
+    "passed": true
+  },
+  {
+    "upgrade": 744,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 357,
+    "before": "SnackBar(content: Text('Recovery lookup unavailable: $e')));",
+    "after": "SnackBar(content: Text('Recovery lookup unavailable: Please retry or contact a manager')));",
+    "passed": true
+  },
+  {
+    "upgrade": 745,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 400,
+    "before": "content: Text('Could not load replacement receipts: $e')));",
+    "after": "content: Text('Could not load replacement receipts: Please retry or contact a manager')));",
+    "passed": true
+  },
+  {
+    "upgrade": 746,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 468,
+    "before": "content: Text('Replacement receipt lookup: $e')));",
+    "after": "content: Text('Replacement receipt lookup: Please retry or contact a manager')));",
+    "passed": true
+  },
+  {
+    "upgrade": 747,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 676,
+    "before": "if (mounted && requestVersion == _boardRequestVersion) setState(() { items = []; _boardComplete = false; error = 'Order board unavailable: $e'; });",
+    "after": "if (mounted && requestVersion == _boardRequestVersion) setState(() { items = []; _boardComplete = false; error = 'Order board unavailable: Please retry or contact a manager'; });",
+    "passed": true
+  },
+  {
+    "upgrade": 748,
+    "section": "03",
+    "file": "lib/sections/table_orders.dart",
+    "original_line": 738,
+    "before": "SnackBar(content: Text('Transition rejected: $e')));",
+    "after": "SnackBar(content: Text('Transition rejected: Please retry or contact a manager')));",
+    "passed": true
+  },
+  {
+    "upgrade": 749,
+    "section": "06",
+    "file": "lib/shared/live_menu_product_edit.dart",
+    "original_line": 55,
+    "before": "if (mounted) setState(() => _message = 'Unable to load products: $e');",
+    "after": "if (mounted) setState(() => _message = 'Unable to load products: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 750,
+    "section": "06",
+    "file": "lib/shared/live_menu_product_edit.dart",
+    "original_line": 110,
+    "before": "if (mounted) setState(() => _message = 'Update failed: $e');",
+    "after": "if (mounted) setState(() => _message = 'Update failed: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 751,
+    "section": "06",
+    "file": "lib/shared/live_order_create_panel.dart",
+    "original_line": 134,
+    "before": "if (mounted) setState(() => _barcodeFeedback = 'Barcode lookup failed: $error');",
+    "after": "if (mounted) setState(() => _barcodeFeedback = 'Barcode lookup failed: Please retry or contact a manager');",
+    "passed": true
+  },
+  {
+    "upgrade": 752,
+    "section": "05",
+    "file": "lib/shared/live_kitchen_panel.dart",
+    "original_line": 172,
+    "before": "content: Text('Kitchen update rejected: $error'),",
+    "after": "content: Text('Kitchen update rejected: Please retry or contact a manager'),",
+    "passed": true
+  }
+]

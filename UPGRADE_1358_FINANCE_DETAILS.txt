@@ -1,0 +1,8 @@
+Upgrade 1358: Finance source drill-down
+
+Added a read-only posted motel invoice line-audit action in the Pending Payment list.
+Reuses existing permission-checked gs_staff_motel_food_finance_line_audit RPC.
+Standing Cash itemized details preserved. No new payment mutations.
+Linked sections reviewed: Dashboard payment deep-link, Payments Management, Motel finance handoff, source-audit RPC.
+Still pending: schema-verified online delivery address/phone, requested delivery time, per-item timestamps, individual customers, linked motel employee/status UI.
+Validation: archive integrity, original-file preservation except intended panel, source assertions. Flutter build and live Supabase not run.

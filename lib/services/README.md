@@ -1,0 +1,1 @@
+INTEGRATION TODO: implement Supabase API client, SQLite/Drift for native devices, browser-compatible persistence for web, local LAN server connection, idempotent sync and conflict reconciliation. None implemented in this UI starter.

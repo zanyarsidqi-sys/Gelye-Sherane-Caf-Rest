@@ -1,0 +1,345 @@
+{
+  "batch": "974\u20131013",
+  "source": "973",
+  "checkpoints": 40,
+  "implemented_fixes": 3,
+  "existing_source_contracts": 37,
+  "measurement": "Static source checks only; not verified feature completion",
+  "before_pass": 37,
+  "after_pass": 40,
+  "section_check_counts": {
+    "products_inventory": 31,
+    "dashboard": 1,
+    "tables": 1,
+    "table_orders": 1,
+    "motel_orders": 1,
+    "kitchen": 1,
+    "menu": 1,
+    "shared_security": 3
+  },
+  "section_completion": null,
+  "flutter_compiled": false,
+  "live_supabase_tested": false,
+  "checks": [
+    {
+      "upgrade": 974,
+      "section": "products_inventory",
+      "name": "Catalog auth event subscription",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "onAuthStateChange.listen",
+      "type": "code_fix"
+    },
+    {
+      "upgrade": 975,
+      "section": "products_inventory",
+      "name": "Catalog session-aware UI guard",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "currentUser?.id != _loadedEmployeeId",
+      "type": "code_fix"
+    },
+    {
+      "upgrade": 976,
+      "section": "products_inventory",
+      "name": "Catalog error detail redaction",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "Catalog could not be loaded. Check permissions",
+      "type": "code_fix"
+    },
+    {
+      "upgrade": 977,
+      "section": "products_inventory",
+      "name": "Catalog auth subscription cleanup",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "_authSubscription?.cancel()",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 978,
+      "section": "products_inventory",
+      "name": "Catalog refresh resets employee identity",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "_loadedEmployeeId = Supabase.instance.client.auth.currentUser?.id;",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 979,
+      "section": "products_inventory",
+      "name": "Catalog read requires signed-in employee",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "throw StateError('Sign in to view the product catalog.')",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 980,
+      "section": "products_inventory",
+      "name": "Catalog response rechecks employee",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "Employee session changed. Reload the catalog.",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 981,
+      "section": "products_inventory",
+      "name": "Catalog pages have deterministic ordering",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": ".order('id', ascending: true)",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 982,
+      "section": "products_inventory",
+      "name": "Catalog pages bounded",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "const maximumRows = 5000;",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 983,
+      "section": "products_inventory",
+      "name": "Catalog uses range paging",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": ".range(offset, offset + pageSize - 1)",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 984,
+      "section": "products_inventory",
+      "name": "Catalog warns when at row limit",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "Limit reached: some products may be missing",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 985,
+      "section": "products_inventory",
+      "name": "Catalog keeps stock separate",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "This is not a stock ledger",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 986,
+      "section": "products_inventory",
+      "name": "Catalog distinguishes missing prices",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "case 'missing_price':",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 987,
+      "section": "products_inventory",
+      "name": "Catalog distinguishes inactive products",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "case 'inactive':",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 988,
+      "section": "products_inventory",
+      "name": "Catalog supports barcode search",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "row['barcode'] ?? ''",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 989,
+      "section": "products_inventory",
+      "name": "Catalog is read-only",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "Read-only \u00b7 paginated catalog",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 990,
+      "section": "products_inventory",
+      "name": "Inventory overview backend RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "rpc('gs_inventory_overview')",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 991,
+      "section": "products_inventory",
+      "name": "Inventory history backend RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "rpc('gs_inventory_history'",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 992,
+      "section": "products_inventory",
+      "name": "Inventory adjustment backend RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "rpc('gs_inventory_adjust'",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 993,
+      "section": "products_inventory",
+      "name": "Inventory minimum backend RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "rpc('gs_inventory_set_minimum'",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 994,
+      "section": "products_inventory",
+      "name": "Inventory rejects negative stock",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "value >= 0 ? value : null",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 995,
+      "section": "products_inventory",
+      "name": "Inventory parses signed movements",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "RegExp(r'^-?[0-9]+$')",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 996,
+      "section": "products_inventory",
+      "name": "Inventory rejects malformed history rows",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "Invalid stock history response. Reopen history.",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 997,
+      "section": "products_inventory",
+      "name": "Inventory rejects malformed movement deltas",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "Invalid stock history movement. Reopen history.",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 998,
+      "section": "products_inventory",
+      "name": "Inventory history tied to employee",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "historyEmployeeId",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 999,
+      "section": "products_inventory",
+      "name": "Inventory mutation tied to employee",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "editorUserId",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1000,
+      "section": "products_inventory",
+      "name": "Inventory auth subscription disposed",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "_authSubscription.cancel()",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1001,
+      "section": "products_inventory",
+      "name": "Inventory shows low stock filter",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "r['is_low'] == true",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1002,
+      "section": "dashboard",
+      "name": "Section uses permission shell",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "SectionShell(",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1003,
+      "section": "tables",
+      "name": "Section uses permission shell",
+      "path": "lib/sections/tables.dart",
+      "needle": "SectionShell(",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1004,
+      "section": "table_orders",
+      "name": "Section uses permission shell",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "SectionShell(",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1005,
+      "section": "motel_orders",
+      "name": "Section uses permission shell",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "SectionShell(",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1006,
+      "section": "kitchen",
+      "name": "Section uses permission shell",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "SectionShell(",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1007,
+      "section": "menu",
+      "name": "Section uses permission shell",
+      "path": "lib/sections/menu.dart",
+      "needle": "SectionShell(",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1008,
+      "section": "shared_security",
+      "name": "Permission check requires active employee",
+      "path": "lib/shared/section_shell.dart",
+      "needle": "profile['is_active'] != true",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1009,
+      "section": "shared_security",
+      "name": "Permission check compares current user",
+      "path": "lib/shared/section_shell.dart",
+      "needle": "client.auth.currentUser?.id != user.id",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1010,
+      "section": "shared_security",
+      "name": "Permission access rechecked on auth changes",
+      "path": "lib/shared/section_shell.dart",
+      "needle": "onAuthStateChange.listen",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1011,
+      "section": "products_inventory",
+      "name": "Inventory SQL enforces edit permission",
+      "path": "supabase/migrations/20261009_026_inventory_ledger.sql",
+      "needle": "gs_can_access('products_inventory','can_edit')",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1012,
+      "section": "products_inventory",
+      "name": "Inventory SQL blocks negative stock",
+      "path": "supabase/migrations/20261009_026_inventory_ledger.sql",
+      "needle": "quantity+p_delta>=0",
+      "type": "source_contract"
+    },
+    {
+      "upgrade": 1013,
+      "section": "products_inventory",
+      "name": "Inventory history SQL enforces view permission",
+      "path": "supabase/migrations/20261009_028_inventory_history.sql",
+      "needle": "gs_can_access('products_inventory','can_view')",
+      "type": "source_contract"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "batch": "53-56",
+  "application": "Rest",
+  "modifications": [
+    "navigation single-flight",
+    "immutable route permission snapshot",
+    "protected widget identity change fail-closed",
+    "disposed protected screen guard"
+  ],
+  "source_changed": true,
+  "flutter_compilation": "not run: SDK unavailable"
+}

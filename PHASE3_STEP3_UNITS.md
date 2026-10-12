@@ -1,0 +1,2 @@
+# Recipe unit safety — migration 030
+Deploy migrations 026–030 in order. Explicit units: piece, gram, milliliter. No automatic conversion of preexisting quantities. Set unit before adding recipe ingredients using `gs_set_inventory_unit` (requires edit permission). Existing stock must be reconciled before first configuration. A guard rejects new recipe ingredients without a configured unit. Recipe UI labels each quantity by ingredient unit. This does not yet provide a dedicated unit-setting Flutter screen or fractional quantities. Validate in staging before production.

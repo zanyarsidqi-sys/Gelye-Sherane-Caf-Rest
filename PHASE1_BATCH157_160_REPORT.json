@@ -1,0 +1,14 @@
+{
+  "steps": "157-160",
+  "project": "Rest",
+  "changes": [
+    "Close serialized physical printer queue on lifecycle stop",
+    "Prevent queued writes after logout",
+    "Return uncertain instead of silently dropping queued jobs",
+    "Add two Dart regression tests"
+  ],
+  "offline_checks": 6,
+  "dart_tests_executed": false,
+  "flutter_compiled": false,
+  "hardware_tested": false
+}

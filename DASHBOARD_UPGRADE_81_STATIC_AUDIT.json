@@ -1,0 +1,75 @@
+{
+  "milestone": 81,
+  "source": "Upgrade 80",
+  "total_archive_entries": 379,
+  "dart_files": 118,
+  "sql_files": 75,
+  "redefined_function_names": {
+    "cafe_can_manage_website": [
+      "20261009_005_website_settings.sql",
+      "20261009_website_settings.sql"
+    ],
+    "gs_consume_stock_when_served": [
+      "20261009_029_recipe_ingredient_consumption.sql",
+      "20261009_027_kitchen_inventory_consumption.sql"
+    ],
+    "gs_create_cart_order": [
+      "20261009_019_atomic_cart_orders.sql",
+      "20261009_020_cart_integrity_guards.sql",
+      "20261009_052_visit_bound_cart_order_draft.sql"
+    ],
+    "gs_dashboard_overview": [
+      "20261009_033_dashboard_tables_and_trends.sql",
+      "20261009_034_dashboard_alerts_cash_trends.sql",
+      "20261009_031_dashboard_live_overview.sql",
+      "20261009_032_dashboard_accuracy_permissions.sql"
+    ],
+    "gs_dashboard_week": [
+      "20261009_033_dashboard_tables_and_trends.sql",
+      "20261009_034_dashboard_alerts_cash_trends.sql"
+    ],
+    "gs_record_cash_payment": [
+      "20261009_021_cash_payment_ledger.sql",
+      "20261009_062_cash_payment_interlock_draft.sql"
+    ],
+    "gs_staff_review_public_request": [
+      "20261009_010_reservation_capacity_guard.sql",
+      "20261009_012_public_order_kitchen_bridge.sql",
+      "20261009_009_staff_public_request_review.sql"
+    ],
+    "gs_submit_public_order": [
+      "20261009_008_public_order_requests.sql",
+      "20261009_011_public_request_validation.sql",
+      "20261009_014_customer_order_tracking.sql"
+    ],
+    "gs_submit_reservation_request": [
+      "20261009_011_public_request_validation.sql",
+      "20261009_007_public_reservation_requests.sql"
+    ],
+    "gs_update_cafe_table": [
+      "20261009_016_live_tables.sql",
+      "20261009_018_table_release_order_guard.sql",
+      "20261009_045_checkout_cleaning_safety_draft.sql"
+    ]
+  },
+  "static_checks": {
+    "payment_transfer_execution_fail_closed": "requires manual inspection: filename differs",
+    "owner_review_draft_present": true,
+    "motel_qr_foundation_present": true,
+    "offline_upgrade_notes_present": true,
+    "all_archive_names_unique": true,
+    "all_archive_entries_crc_valid": true
+  },
+  "verified": "ZIP CRC and static inventory only",
+  "not_verified": [
+    "Flutter analyzer",
+    "Flutter iOS build",
+    "Flutter Windows build",
+    "Flutter web build",
+    "Supabase migration apply",
+    "RLS policy behavior",
+    "financial transaction concurrency",
+    "offline reconnect",
+    "live end-to-end testing"
+  ]
+}

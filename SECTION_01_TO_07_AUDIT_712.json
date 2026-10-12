@@ -1,0 +1,155 @@
+{
+  "scope": "20 source-contract verification milestones; NOT 20 independently deployed runtime features",
+  "baseline": "New 20-check audit introduced in this batch; no prior comparable baseline",
+  "verified_completion_percent": null,
+  "flutter_analyze": "not_run_flutter_sdk_unavailable",
+  "live_supabase": "not_run",
+  "sections": {
+    "01 Dashboard": {
+      "passed": 3,
+      "total": 3,
+      "items": [
+        {
+          "upgrade": 693,
+          "check": "screen wired",
+          "passed": true
+        },
+        {
+          "upgrade": 694,
+          "check": "permission wrapper",
+          "passed": true
+        },
+        {
+          "upgrade": 695,
+          "check": "shared auth change invalidation",
+          "passed": true
+        }
+      ]
+    },
+    "02 Tables": {
+      "passed": 3,
+      "total": 3,
+      "items": [
+        {
+          "upgrade": 696,
+          "check": "screen wired",
+          "passed": true
+        },
+        {
+          "upgrade": 697,
+          "check": "permission wrapper",
+          "passed": true
+        },
+        {
+          "upgrade": 698,
+          "check": "shared identity recheck",
+          "passed": true
+        }
+      ]
+    },
+    "03 Table Orders": {
+      "passed": 3,
+      "total": 3,
+      "items": [
+        {
+          "upgrade": 699,
+          "check": "screen wired",
+          "passed": true
+        },
+        {
+          "upgrade": 700,
+          "check": "recovery integration",
+          "passed": true
+        },
+        {
+          "upgrade": 701,
+          "check": "shared permission revalidation",
+          "passed": true
+        }
+      ]
+    },
+    "04 Motel Orders": {
+      "passed": 3,
+      "total": 3,
+      "items": [
+        {
+          "upgrade": 702,
+          "check": "motel screen wired",
+          "passed": true
+        },
+        {
+          "upgrade": 703,
+          "check": "food billing ledger linked",
+          "passed": true
+        },
+        {
+          "upgrade": 704,
+          "check": "food requests linked",
+          "passed": true
+        }
+      ]
+    },
+    "05 Kitchen": {
+      "passed": 3,
+      "total": 3,
+      "items": [
+        {
+          "upgrade": 705,
+          "check": "kitchen screen wired",
+          "passed": true
+        },
+        {
+          "upgrade": 706,
+          "check": "motel food queue linked",
+          "passed": true
+        },
+        {
+          "upgrade": 707,
+          "check": "scheduled meals linked",
+          "passed": true
+        }
+      ]
+    },
+    "06 Menu": {
+      "passed": 2,
+      "total": 2,
+      "items": [
+        {
+          "upgrade": 708,
+          "check": "live menu editing",
+          "passed": true
+        },
+        {
+          "upgrade": 709,
+          "check": "tourism price entry",
+          "passed": true
+        }
+      ]
+    },
+    "07 Inventory": {
+      "passed": 3,
+      "total": 3,
+      "items": [
+        {
+          "upgrade": 710,
+          "check": "session-bound overview",
+          "passed": true
+        },
+        {
+          "upgrade": 711,
+          "check": "session-bound stock history",
+          "passed": true
+        },
+        {
+          "upgrade": 712,
+          "check": "safe user-facing errors",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "functional_changes": [
+    "Shared SectionShell permission cache invalidates on employee changes and checks user identity after async permission lookup",
+    "Inventory user-visible errors no longer expose raw Supabase exception text"
+  ]
+}

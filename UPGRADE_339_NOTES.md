@@ -1,0 +1,1 @@
+Upgrade 339: Added initial Arabic, Badini and Sorani translations for Motel Orders tabs, room registry labels, and scheduled meal form labels through existing global AppLanguage context. Remaining descriptive/error text, customer QR experience and other section translations are not yet localized. Flutter SDK and live Supabase were unavailable for testing.

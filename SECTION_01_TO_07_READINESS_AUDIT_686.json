@@ -1,0 +1,208 @@
+{
+  "checkpoint": 686,
+  "basis": "Source presence checks across each section and its explicitly listed shared components. These do not establish correctness or completeness.",
+  "runtime_gates": {
+    "flutter_analyze": "not_run_flutter_sdk_unavailable",
+    "flutter_test": "not_run_flutter_sdk_unavailable",
+    "supabase_migrations": "not_applied",
+    "supabase_integration": "not_run",
+    "ios_windows_device_tests": "not_run"
+  },
+  "sections": {
+    "01 \u2014 Dashboard": {
+      "inspected_paths": [
+        "lib/sections/dashboard.dart",
+        "lib/screens/dashboard/ (22 Dart files)"
+      ],
+      "source_evidence": {
+        "screen": true,
+        "backend_rpc": true,
+        "error_handling": true,
+        "loading_state": true,
+        "financial_summary": true,
+        "permissions": true
+      },
+      "source_evidence_passed": 6,
+      "source_evidence_total": 6,
+      "source_evidence_pct": 100,
+      "verified_completion_pct": null,
+      "previous_estimated_completion_pct": null,
+      "percentage_point_change": null,
+      "blocking_gates": [
+        "Flutter analyzer",
+        "Supabase migration execution",
+        "end-to-end workflow tests",
+        "cross-section financial and kitchen reconciliation",
+        "iPhone and Windows acceptance tests"
+      ]
+    },
+    "02 \u2014 Tables": {
+      "inspected_paths": [
+        "lib/sections/tables.dart",
+        "lib/shared/ (67 Dart files)"
+      ],
+      "source_evidence": {
+        "screen": true,
+        "backend_rpc": true,
+        "error_handling": true,
+        "reservation": true,
+        "table_assignment": true,
+        "permissions": true
+      },
+      "source_evidence_passed": 6,
+      "source_evidence_total": 6,
+      "source_evidence_pct": 100,
+      "verified_completion_pct": null,
+      "previous_estimated_completion_pct": null,
+      "percentage_point_change": null,
+      "blocking_gates": [
+        "Flutter analyzer",
+        "Supabase migration execution",
+        "end-to-end workflow tests",
+        "cross-section financial and kitchen reconciliation",
+        "iPhone and Windows acceptance tests"
+      ]
+    },
+    "03 \u2014 Table Orders": {
+      "inspected_paths": [
+        "lib/sections/table_orders.dart",
+        "lib/shared/order_preview_workspace.dart"
+      ],
+      "source_evidence": {
+        "screen": true,
+        "backend_rpc": true,
+        "error_handling": true,
+        "replacement_receipts": true,
+        "kitchen_link": true,
+        "permissions": true
+      },
+      "source_evidence_passed": 6,
+      "source_evidence_total": 6,
+      "source_evidence_pct": 100,
+      "verified_completion_pct": null,
+      "previous_estimated_completion_pct": 76,
+      "percentage_point_change": null,
+      "blocking_gates": [
+        "Flutter analyzer",
+        "Supabase migration execution",
+        "end-to-end workflow tests",
+        "cross-section financial and kitchen reconciliation",
+        "iPhone and Windows acceptance tests"
+      ]
+    },
+    "04 \u2014 Motel Orders": {
+      "inspected_paths": [
+        "lib/sections/motel_orders.dart",
+        "lib/shared/motel_room_registry_screen.dart",
+        "lib/shared/motel_food_requests_screen.dart",
+        "lib/shared/motel_food_billing_ledger_screen.dart"
+      ],
+      "source_evidence": {
+        "screen": true,
+        "backend_rpc": true,
+        "error_handling": true,
+        "room_registry": true,
+        "food_billing": true,
+        "permissions": true
+      },
+      "source_evidence_passed": 6,
+      "source_evidence_total": 6,
+      "source_evidence_pct": 100,
+      "verified_completion_pct": null,
+      "previous_estimated_completion_pct": null,
+      "percentage_point_change": null,
+      "blocking_gates": [
+        "Flutter analyzer",
+        "Supabase migration execution",
+        "end-to-end workflow tests",
+        "cross-section financial and kitchen reconciliation",
+        "iPhone and Windows acceptance tests"
+      ]
+    },
+    "05 \u2014 Kitchen": {
+      "inspected_paths": [
+        "lib/sections/kitchen.dart",
+        "lib/shared/live_kitchen_panel.dart",
+        "lib/shared/kitchen_motel_food_queue_panel.dart",
+        "lib/shared/kitchen_scheduled_motel_meals_panel.dart"
+      ],
+      "source_evidence": {
+        "screen": true,
+        "backend_rpc": true,
+        "error_handling": true,
+        "scheduled_meals": true,
+        "food_requests": true,
+        "permissions": true
+      },
+      "source_evidence_passed": 6,
+      "source_evidence_total": 6,
+      "source_evidence_pct": 100,
+      "verified_completion_pct": null,
+      "previous_estimated_completion_pct": null,
+      "percentage_point_change": null,
+      "blocking_gates": [
+        "Flutter analyzer",
+        "Supabase migration execution",
+        "end-to-end workflow tests",
+        "cross-section financial and kitchen reconciliation",
+        "iPhone and Windows acceptance tests"
+      ]
+    },
+    "06 \u2014 Menu": {
+      "inspected_paths": [
+        "lib/sections/menu.dart",
+        "lib/shared/live_menu_product_create.dart",
+        "lib/shared/live_menu_product_edit.dart",
+        "lib/shared/recipe_management_panel.dart"
+      ],
+      "source_evidence": {
+        "screen": true,
+        "backend_rpc": true,
+        "error_handling": true,
+        "tourism_pricing": true,
+        "live_editor": true,
+        "permissions": true
+      },
+      "source_evidence_passed": 6,
+      "source_evidence_total": 6,
+      "source_evidence_pct": 100,
+      "verified_completion_pct": null,
+      "previous_estimated_completion_pct": null,
+      "percentage_point_change": null,
+      "blocking_gates": [
+        "Flutter analyzer",
+        "Supabase migration execution",
+        "end-to-end workflow tests",
+        "cross-section financial and kitchen reconciliation",
+        "iPhone and Windows acceptance tests"
+      ]
+    },
+    "07 \u2014 Products & Inventory": {
+      "inspected_paths": [
+        "lib/sections/products_inventory.dart",
+        "lib/shared/ (67 Dart files)"
+      ],
+      "source_evidence": {
+        "screen": true,
+        "backend_rpc": true,
+        "error_handling": true,
+        "stock_adjustment": true,
+        "stock_history": true,
+        "permissions": true
+      },
+      "source_evidence_passed": 6,
+      "source_evidence_total": 6,
+      "source_evidence_pct": 100,
+      "verified_completion_pct": null,
+      "previous_estimated_completion_pct": null,
+      "percentage_point_change": null,
+      "blocking_gates": [
+        "Flutter analyzer",
+        "Supabase migration execution",
+        "end-to-end workflow tests",
+        "cross-section financial and kitchen reconciliation",
+        "iPhone and Windows acceptance tests"
+      ]
+    }
+  }
+}

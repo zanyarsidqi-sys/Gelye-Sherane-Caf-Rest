@@ -1,0 +1,22 @@
+{
+  "application": "Rest",
+  "milestones": [
+    69,
+    70,
+    71,
+    72
+  ],
+  "scope": "Actual source changes in cafe_app.dart; no Flutter compiler available",
+  "tests": {
+    "heartbeat catches errors": true,
+    "heartbeat resets busy in finally": true,
+    "access review stops telemetry": true,
+    "retry foreground guard": true,
+    "navigation foreground guard": true,
+    "original imports preserved": true
+  },
+  "source_sha256_before": "7e986465b04f0797be113c797fed70eb9b14ec244df3311c8fdc9fca205b0a82",
+  "source_sha256_after": "ac8d76c902fd0fa6be7e99a2f92f2b32482c23588aa4dfaabf190508bee8761c",
+  "flutter_compile": "not_run",
+  "supabase_integration": "not_run"
+}

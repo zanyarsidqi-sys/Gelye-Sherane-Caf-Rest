@@ -1,0 +1,2 @@
+# Upgrade 299
+Added a read-only public availability RPC and customer Flutter table multi-select with capacity display, refresh, date/duration reload and failure feedback. Customer submission remains disabled until secure Turnstile token acquisition and end-to-end testing are complete. Availability is advisory; backend submission and approval must recheck conflicts. No live Supabase or Flutter compilation performed.

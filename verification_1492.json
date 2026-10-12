@@ -1,0 +1,150 @@
+{
+  "checkpoint": 1492,
+  "source_archive_sha256": "bf51b664c168788a712e61a90d2b928798075755f99e0148ae29b5920f10a57f",
+  "flutter": "3.47.7",
+  "dart": "3.13.5",
+  "analysis": {
+    "before_errors": 70,
+    "after_errors": 0,
+    "warnings": 23,
+    "info": 338
+  },
+  "flutter_tests_passed": 68,
+  "new_session_tests": 12,
+  "python_source_checks_passed": 5,
+  "javascript_release_build": "passed with synthetic config; not a live-backend verification",
+  "live_database_verified": false,
+  "native_builds_verified": false,
+  "changed_existing_files": [
+    {
+      "path": "pubspec.lock",
+      "before_sha256": "8cddd30d24dc9ed22ac6167b012bf7924fda59b91f9e9b2e3f2a8c9e1bef2264",
+      "after_sha256": "f146d4e52d2b5fa44f09a639bb2f9589e7e1cff5da45f1369c17401059474b96"
+    },
+    {
+      "path": "CODING_PROGRESS.md",
+      "before_sha256": "ff0a15c1631402f9715b29b5ab1b28708fbf604e44d3c93b0b68c572d114e470",
+      "after_sha256": "2981d05c30fb9902f42d5e6972e7e4380fb2466d99f258d256cd358b577f0643"
+    },
+    {
+      "path": "pubspec.yaml",
+      "before_sha256": "0468b5580fd677393aa88713974fd330c57382fd9d2c7d4ff866abe2d6e6be2a",
+      "after_sha256": "6e9b8b08cc07b1a31c5976b325e114502527fd43da6309d084547171e56a49d0"
+    },
+    {
+      "path": "test/credit_draft_validation_test.dart",
+      "before_sha256": "80112cc93a5ee9816db2fe7263ef33cc27bf7a23cc8f60f18ce158cd18f6ac31",
+      "after_sha256": "f1e2d59ebf40907481c5ea813a89eac34c225f5a9ecae85dcf8e45d7d9841b90"
+    },
+    {
+      "path": "test/payment_confirmation_models_test.dart",
+      "before_sha256": "2459a62ad79ebeb598f9f2306418437a7be2dec116081572b1bbd84de3237377",
+      "after_sha256": "d05cde39090f968a78929518df9a782b78b1e0d99ed971a8d946073516a40068"
+    },
+    {
+      "path": "test/sections_test.dart",
+      "before_sha256": "497b56e2fc1163303c02de48546016633ad706a3946170878905029e1ff2f0bc",
+      "after_sha256": "b3875bb977f9ff01267294d3f01a4bbfc308d44601e07bb3f2c405ff32704704"
+    },
+    {
+      "path": "test/credit_request_state_test.dart",
+      "before_sha256": "d05e886cce54297e572905a0e8cbd2a1e375d01cd1e2fdabbea1ef3872cf09e2",
+      "after_sha256": "ab68f5cc924b741c712e15654c5cb50f082dbdef5dd46cb6a179549d3bf0577b"
+    },
+    {
+      "path": "test/tourism_pricing_service_test.dart",
+      "before_sha256": "f0c043b3ceafa0aba191e1b826f00c23cd836798538c71957e3fd84a4d2b3f2c",
+      "after_sha256": "0143784efe0d7047035b1fd8ace56b17f9b44cbd7a10c636b343eec8b53684a6"
+    },
+    {
+      "path": "test/credit_submission_gate_test.dart",
+      "before_sha256": "3e2b2b42c88b8c5e33e53fdf09b799d39d0a0623002e80727c58f23081a15843",
+      "after_sha256": "2ae6995f57d87affe96fe580c530d1e51369ad9a1fbfc6ed7787fb8dc0024eb8"
+    },
+    {
+      "path": "lib/services/saved_session_service.dart",
+      "before_sha256": "40fe68e386500e4f3de74ed80e5ff1e7dc7fd139dbcdcaf16f27d813161dd464",
+      "after_sha256": "297f9f8ec450f1673ff57d3a74948e6c1de60f389aa6c5867a6230f8409a1f92"
+    },
+    {
+      "path": "lib/services/employee_permission_service.dart",
+      "before_sha256": "2bd11466f03b72309de279e8e112d7797f5b3a93270eb83b9eb0bd4bec71e3dd",
+      "after_sha256": "7f380859bdc60335e2c595bd6385b5d5aea01f69f8f138ba21fa9508e8d08dec"
+    },
+    {
+      "path": "lib/shared/motel_room_registry_screen.dart",
+      "before_sha256": "3d3f9fdeb0bc349fe941f376e53dff2d179ef7543bca4830a625d44ad5117f5d",
+      "after_sha256": "a6398297b6b17685b740cdd0ea5e56f977e6bf71504e5fafc21d366bc55fad9c"
+    },
+    {
+      "path": "lib/shared/credit_identity_review_panel.dart",
+      "before_sha256": "3afba7eb0a786d5fe8f57ec711bba126acd4edb6caebb7f933e938795101113b",
+      "after_sha256": "8e997dbd38b66191290481de2c143c4ba0dcf233e76a7975bd254a155e35ea9f"
+    },
+    {
+      "path": "lib/shared/public_reservation_screen.dart",
+      "before_sha256": "897c9bd0f75200f7b388eb6f7c32631b52586009fd1bc2bb2bcef83f9fdf7fb0",
+      "after_sha256": "9c1d26be174afaf11830a19f83757d76f9022b604f49f92ec1e851d0a1882c97"
+    },
+    {
+      "path": "lib/shared/live_order_create_panel.dart",
+      "before_sha256": "8206493d7fa9663f555e93f123bee698481fd9bb517e18228478f69d684bbf55",
+      "after_sha256": "970fcbd1fdc7f5b12e2f2756c3a5d6b0bbe0fac796b2bf5f5c5df3f99906ba64"
+    },
+    {
+      "path": "lib/shared/staff_reservation_management_screen.dart",
+      "before_sha256": "46f694fef00c9ba79e6b3fa3fdac18578186bee823ab1ba701f82107603634ef",
+      "after_sha256": "2d599181351a5614eb15e7d7301597af4a951b4ee776601a05f651c6a0548707"
+    },
+    {
+      "path": "lib/shared/payments_management_panel.dart",
+      "before_sha256": "b05cd7ac440d945d87fe8d76f1c88465b3e8751ff2bc1a5d31643bee51f7acd0",
+      "after_sha256": "92d437b35d70222df363c90fb7e7184ef03de6284775dc8f0f213aedca98e466"
+    },
+    {
+      "path": "lib/shared/customer_table_feedback_screen.dart",
+      "before_sha256": "f71ba2e69a8486b2d06ea00595091a02b588cb05ca432ed06e0c64477a4f9258",
+      "after_sha256": "ce3f4af4d083c5e3028e3af76a51d0acaf3446e980c4fe68c55f1c91cbc33f96"
+    },
+    {
+      "path": "lib/shared/credit_identity_customer_acknowledgement_panel.dart",
+      "before_sha256": "ba9ca53df16cae0efd8b784391c6bea023ac19449684c4609ebbda4cfeae82c7",
+      "after_sha256": "0137b0aceb166b69710326d866ea76014b8ab6d5709057a4457bc2b11b3a5901"
+    },
+    {
+      "path": "lib/shared/motel_food_finance_handoff_panel.dart",
+      "before_sha256": "8646a31f50a0b3a3b4382b77a8df56d8b5acce87545816c4001a448ce670cb6b",
+      "after_sha256": "80b255005598df00aa8960a42fdc1b5022d4e2ab0ca063f6e629ac2b2346b9c2"
+    },
+    {
+      "path": "lib/shared/customer_call_employee_screen.dart",
+      "before_sha256": "8e4ddd1c070b2fec799e52b16efbbd223c0c26c5cb5afb61c5ff68d6dc4d9afa",
+      "after_sha256": "8a2a481ca795ddf9f48d37e9bd4a0e0db1d4ab2e08d3d92b2af90ae87f1b7343"
+    },
+    {
+      "path": "lib/shared/kitchen_delivery_tasks_panel.dart",
+      "before_sha256": "67d9093d3a8a21f4a3c448e4d4ab65c0307fcd810cf6eff96fed2e28cbdd4734",
+      "after_sha256": "418100235ffeae2eb0276f581a66737f769efceb6560e4b03e690d747e762ce1"
+    },
+    {
+      "path": "lib/sections/customers.dart",
+      "before_sha256": "ca8f5e37b7fac770d26c6e31777537b15e67bc32945c337463aafbfe4726246c",
+      "after_sha256": "b9e2d8a35d76c4280e9d28cdf908e08a551c2ae6e303cb274cfbe17ea2a2a107"
+    },
+    {
+      "path": "lib/sections/table_orders.dart",
+      "before_sha256": "7130cb7d5e41e61441c009ebf4de4a77a6bda02b7d6c0d0b02ae1e38157ebf51",
+      "after_sha256": "12c22cf006b6580263d5037e9ee9d7ac35efa2c1e116b7508f0def3c23ed6b87"
+    },
+    {
+      "path": "lib/screens/dashboard/cash_reconciliation_panel.dart",
+      "before_sha256": "9f0cf5227ff9a61e9ee2c2e69f0972c7cbdd3efd079e4bdd08287672a887b0d1",
+      "after_sha256": "4c721c6e42f53f77c1d2d7afb6a12d667673a48243c9933e89476a01eca0f63f"
+    },
+    {
+      "path": "lib/screens/dashboard/dashboard_screen.dart",
+      "before_sha256": "6b39d0c89dbf12cc97455893b561320d7e23fcca7dc1c644e22880eb1dd847a7",
+      "after_sha256": "c9633f1ea42c4519da8bf2d1689eca2a7c9e40754cb7d8a0630ddcc4e9cc42b2"
+    }
+  ]
+}

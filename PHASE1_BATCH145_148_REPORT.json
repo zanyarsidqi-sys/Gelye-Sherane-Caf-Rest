@@ -1,0 +1,28 @@
+{
+  "application": "Rest",
+  "steps": [
+    145,
+    146,
+    147,
+    148
+  ],
+  "source_file": "lib/services/secure_station_ticket_resolver.dart",
+  "changes": [
+    "Reject invalid claim identities before network resolution",
+    "Verify snapshot order ID against claim",
+    "Validate optional item fields before casts and limit snapshot size",
+    "Add five deterministic Dart snapshot parser tests"
+  ],
+  "dart_tests_added": 5,
+  "dart_executed": false,
+  "flutter_compiled": false,
+  "offline_checks": {
+    "parser_extracted": true,
+    "order_bound": true,
+    "bounded_items": true,
+    "safe_guest": true,
+    "test_cases": true,
+    "original_print_worker_retained": true,
+    "sql_migrations_retained": true
+  }
+}

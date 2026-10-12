@@ -1,0 +1,1 @@
+Upgrade 267: Read-only staff order revision history via permission-checked RPC. Displays before/after snapshots, employee ID, timestamp, revision number. Requires migration 265/266. Printing and notification delivery not implemented. Flutter and Supabase deployment untested.

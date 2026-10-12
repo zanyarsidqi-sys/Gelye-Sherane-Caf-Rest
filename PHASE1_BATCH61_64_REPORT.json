@@ -1,0 +1,28 @@
+{
+  "project": "Rest",
+  "phase": 1,
+  "steps": [
+    61,
+    62,
+    63,
+    64
+  ],
+  "changes": [
+    "Ensure initial authorization denial displays locked state instead of indefinite spinner",
+    "Provide explicit access recheck action without signing out",
+    "Clarify queued authorization recheck behavior",
+    "Disable duplicate sign-out button while sign-out is running"
+  ],
+  "checks": {
+    "denied_state_stops_spinner": true,
+    "retry_access_button": true,
+    "retry_blocked_on_logout": true,
+    "logout_double_click_disabled": true,
+    "original_management_routes_preserved": true,
+    "sql_files_unchanged": true
+  },
+  "flutter_compilation": "not run; SDK unavailable",
+  "live_supabase": "not run",
+  "source_sha256_before": "7334b8732d2820848847465b41d63477784bdb8b65cee54738e02ea51205beef",
+  "source_sha256_after": "8bb9410954aad3358cf6a4193ce17d3a13d82ed30ddf03f117611ec068264b0f"
+}

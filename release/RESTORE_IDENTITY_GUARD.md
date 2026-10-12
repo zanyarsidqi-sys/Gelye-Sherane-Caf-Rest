@@ -1,0 +1,1 @@
+Staging-only: prevent a saved-session restore result from unlocking the dashboard if the Supabase session ID changes during async checks, even for the same user. Requires Flutter compilation and real browser testing. No production changes.\n

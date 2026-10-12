@@ -1,0 +1,18 @@
+{
+  "application": "Rest",
+  "steps": [
+    101,
+    102,
+    103,
+    104
+  ],
+  "changes": [
+    "Isolated local POS device registration namespace by application",
+    "Prevented late POS selection and heartbeat crossing employee sessions",
+    "Corrected host-specific native bootstrap platform selection",
+    "Added Android debug build job and executable POS regression preflight"
+  ],
+  "flutter_compiled": false,
+  "live_supabase_tested": false,
+  "note": "Existing saved POS selection must be reselected under new application-specific namespace."
+}

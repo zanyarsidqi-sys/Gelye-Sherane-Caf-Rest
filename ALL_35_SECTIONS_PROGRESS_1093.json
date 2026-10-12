@@ -1,0 +1,328 @@
+{
+  "batch": "1054\u20131093",
+  "code_fixes": 5,
+  "source_checkpoints": 35,
+  "checks_passed": 40,
+  "section_source_files": 35,
+  "section_shell_wrappers": 35,
+  "flutter_compiled": false,
+  "live_supabase_tested": false,
+  "overall_completion": "not verified",
+  "sections": [
+    {
+      "upgrade": 1059,
+      "section": "dashboard",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1060,
+      "section": "tables",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1061,
+      "section": "table_orders",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1062,
+      "section": "motel_orders",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1063,
+      "section": "kitchen",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1064,
+      "section": "menu",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1065,
+      "section": "products_inventory",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1066,
+      "section": "customers",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1067,
+      "section": "cost",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1068,
+      "section": "revenue",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1069,
+      "section": "invoices_payments",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1070,
+      "section": "employees",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1071,
+      "section": "maintenance",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1072,
+      "section": "notifications",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1073,
+      "section": "reports",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1074,
+      "section": "backup_restore",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1075,
+      "section": "settings_rules",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1076,
+      "section": "analytics",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1077,
+      "section": "action_center",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1078,
+      "section": "pay_now",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1079,
+      "section": "discount_management",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1080,
+      "section": "payments_management",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1081,
+      "section": "credit_management",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1082,
+      "section": "device_layout_mode",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1083,
+      "section": "appearance_dark_mode",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1084,
+      "section": "dictionary_language_management",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1085,
+      "section": "websites_management",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1086,
+      "section": "general_information",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1087,
+      "section": "invoice_design_customization",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1088,
+      "section": "security_access_control",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1089,
+      "section": "offline_mode_synchronization",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1090,
+      "section": "app_publishing_updates",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1091,
+      "section": "system_health_monitoring",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1092,
+      "section": "test_mode_real_mode",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    },
+    {
+      "upgrade": 1093,
+      "section": "nargile_management",
+      "source_exists": true,
+      "registered": true,
+      "section_shell": true,
+      "source_check": "passed",
+      "runtime_verified": false
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "project": "Rest",
+  "steps": [
+    49,
+    50,
+    51,
+    52
+  ],
+  "changed_source": "gelye_cafe_rest/lib/app/cafe_app.dart",
+  "original_sha256": "96478987f51196bafa85ec8be0d235c9853a5ce0df0b9e7305467a9a14bebd26",
+  "updated_sha256": "f72601e5a05a02ffb5ceff69cb68f33c9f8bdcf4eb1f673629138a81eb14f08d",
+  "verification": "offline source assertions; no Flutter SDK or live Supabase execution",
+  "checks": {
+    "staff identity bound": true,
+    "staff MFA rechecked": true,
+    "dashboard permission gate": true,
+    "favorite write snapshot": true,
+    "concurrent epoch invalidation": true,
+    "protected terminal lock": true,
+    "original section registry preserved": true,
+    "no original migrations removed": true
+  }
+}

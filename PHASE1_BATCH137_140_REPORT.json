@@ -1,0 +1,16 @@
+{
+  "app": "Rest",
+  "steps": "137-140",
+  "changes": [
+    "Track printed ticket attempts in process",
+    "Reject duplicate claimed attempts before printer call",
+    "Prevent duplicate acknowledgments after successful ACK",
+    "Add two Dart regression tests and offline preflight"
+  ],
+  "dart_tests_executed": false,
+  "flutter_compiled": false,
+  "limitations": [
+    "Process-local replay guard does not survive app restart; server must enforce claim/ack idempotency",
+    "Printer hardware and live Supabase unverified"
+  ]
+}

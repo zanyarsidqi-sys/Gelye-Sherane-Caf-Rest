@@ -1,0 +1,16 @@
+{
+  "application": "Rest",
+  "steps": [
+    109,
+    110,
+    111,
+    112
+  ],
+  "changes": [
+    "Reject invalid station ticket metadata before formatting",
+    "Contain diagnostic callback exceptions during worker polling",
+    "Preserve manual-review behavior for uncertain printing",
+    "Add executable offline regression assertions"
+  ],
+  "verification": "offline checks only; Flutter/Dart unavailable"
+}

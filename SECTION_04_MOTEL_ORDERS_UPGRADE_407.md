@@ -1,0 +1,2 @@
+# Upgrade 407 — Credit Evidence Review Audit
+Adds a staff evidence-review note workflow to pending motel-food credit verification requests. Notes distinguish evidence requested/received, need for authoritative balance provider, and need for customer consent. Every review event stores reviewer and timestamp in a locked-down table, with permission-gated RPCs. No ownership/balance verification or payment approval is claimed. Existing credit payment eligibility remains blocked. Requires Supabase migration and real-device/Flutter tests.

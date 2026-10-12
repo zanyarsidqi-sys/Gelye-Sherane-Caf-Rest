@@ -1,0 +1,18 @@
+✔ valid supported subscription accepted (0.905895ms)
+✔ SSRF and malformed endpoint variants rejected (0.541627ms)
+✔ invalid encryption key rejected (0.185529ms)
+✔ expired and overlong device expiry rejected (0.647967ms)
+✔ release payload carries validated version only (0.927468ms)
+✔ iPhone ordinary tab gets install guidance without asking permission (2.254608ms)
+✔ permission request precedes worker registration (1.23375ms)
+✔ failed registration at server unsubscribes browser (1.103583ms)
+✔ denied permission never subscribes (0.904593ms)
+✔ release push shows version and ignores attacker-supplied click URL (1.498769ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.146747

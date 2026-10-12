@@ -1,0 +1,20 @@
+{
+  "steps": [
+    141,
+    142,
+    143,
+    144
+  ],
+  "project": "Rest",
+  "changes": [
+    "Require positive integer order_id in claimed print job before resolver/printer",
+    "Always compare resolved ticket orderId against claimed orderId",
+    "Add 3 Dart regression tests for missing, noninteger, and mismatched order IDs",
+    "Add runnable offline preflight and preserve existing migration files"
+  ],
+  "limitations": [
+    "Dart/Flutter SDK not available; Dart tests not executed",
+    "Server-side print idempotency not proven against live Supabase",
+    "Physical printer not tested"
+  ]
+}

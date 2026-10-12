@@ -1,0 +1,5 @@
+# Upgrade 1219 — Customer request station routing
+
+Customer service requests (`gs_customer_staff_calls`) now route by `call_type` through an editable supervisor mapping, independent of product preparation stations. A station can receive both types, but requests remain in a separate queue. One employee may belong to several stations. Each newly routed request generates durable, deduplicated in-app alert rows for active station assignees. Unmapped or disabled destinations go to a supervisor-only queue, not to an arbitrary station.
+
+RPCs: `gs_set_request_station_route_1219`, `gs_my_service_station_requests_1219`, `gs_my_service_station_alerts_1219`. The latter are station-scoped on the server. The existing unrestricted `gs_list_customer_staff_calls` RPC must be reviewed and restricted before claiming complete data isolation across all screens. Printer delivery for service requests, mark-as-seen UI, re-routing existing requests after mappings change, and customer-specific request types beyond the existing enum remain pending. No physical printer or live database test was performed.

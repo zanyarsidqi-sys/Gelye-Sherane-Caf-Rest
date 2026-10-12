@@ -1,0 +1,3 @@
+# Upgrade 393 — Verified finance source bridge foundation
+
+Adds `gs_motel_finance_source_bridge`, a UUID-based, guest-stay-scoped record of a reconciled motel-food finance invoice. The `gs_staff_register_motel_finance_source(uuid)` RPC requires employee permissions, locks the invoice, rechecks its source-line reconciliation, and is idempotent for an unchanged invoice. The bridge intentionally forbids non-null legacy `gs_orders.id` mappings until a separately proven relationship can be implemented. No payment posting or credit deduction is enabled. Deploy migration 393 after earlier migrations; test against a staging Supabase project before production. Flutter and live database execution have not been verified.

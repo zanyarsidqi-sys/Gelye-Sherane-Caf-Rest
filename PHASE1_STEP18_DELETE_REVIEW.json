@@ -1,0 +1,84 @@
+{
+  "phase": 1,
+  "step": 18,
+  "project": "Rest",
+  "scope": "static review only; no live DB or RLS tests",
+  "reviewed_delete_occurrences": 6,
+  "reviewed_sql_files": [
+    "20261009_029_recipe_ingredient_consumption.sql",
+    "20261010_183_counter_draft_item_removal.sql",
+    "20261010_197_worker_job_capabilities.sql",
+    "20261010_199_active_job_capability_guards.sql",
+    "20261010_294_event_scope_safety.sql"
+  ],
+  "checks": [
+    {
+      "check": "recipe_permission",
+      "passed": true,
+      "file": "20261009_029_recipe_ingredient_consumption.sql"
+    },
+    {
+      "check": "recipe_target_scope",
+      "passed": true,
+      "file": "20261009_029_recipe_ingredient_consumption.sql"
+    },
+    {
+      "check": "counter_permission",
+      "passed": true,
+      "file": "20261010_183_counter_draft_item_removal.sql"
+    },
+    {
+      "check": "counter_pending_guard",
+      "passed": true,
+      "file": "20261010_183_counter_draft_item_removal.sql"
+    },
+    {
+      "check": "counter_item_scope",
+      "passed": true,
+      "file": "20261010_183_counter_draft_item_removal.sql"
+    },
+    {
+      "check": "worker_permission",
+      "passed": true,
+      "file": "20261010_199_active_job_capability_guards.sql"
+    },
+    {
+      "check": "worker_active_jobs_guard",
+      "passed": true,
+      "file": "20261010_199_active_job_capability_guards.sql"
+    },
+    {
+      "check": "worker_audit_event",
+      "passed": true,
+      "file": "20261010_199_active_job_capability_guards.sql"
+    },
+    {
+      "check": "event_permission",
+      "passed": true,
+      "file": "20261010_294_event_scope_safety.sql"
+    },
+    {
+      "check": "event_pending_guard",
+      "passed": true,
+      "file": "20261010_294_event_scope_safety.sql"
+    },
+    {
+      "check": "event_lock",
+      "passed": true,
+      "file": "20261010_294_event_scope_safety.sql"
+    },
+    {
+      "check": "event_capacity_guard",
+      "passed": true,
+      "file": "20261010_294_event_scope_safety.sql"
+    }
+  ],
+  "notes": [
+    "Earlier worker capability function is superseded by the later active-job guard; verify actual migration order in database.",
+    "Event table assignments are deleted and reinserted inside a function; verify transaction rollback and audit logging in disposable PostgreSQL.",
+    "Permission helper implementations, SECURITY DEFINER execution grants, audit coverage and RLS must be verified in live integration tests.",
+    "No production SQL is changed by this review."
+  ],
+  "script_test_exit_code": 0,
+  "script_test_output": "PASS recipe edit permission\nPASS counter pending guard\nPASS active jobs guard\nPASS event permission\n"
+}

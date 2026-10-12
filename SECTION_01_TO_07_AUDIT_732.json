@@ -1,0 +1,212 @@
+{
+  "scope": "20 source acceptance checkpoints, not 20 runtime feature upgrades",
+  "criteria": [
+    {
+      "upgrade": 713,
+      "section": "01 Dashboard",
+      "criterion": "Operational server summary",
+      "source": "lib/sections/dashboard.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 714,
+      "section": "01 Dashboard",
+      "criterion": "Cash collection server source",
+      "source": "lib/sections/dashboard.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 715,
+      "section": "01 Dashboard",
+      "criterion": "Weekly trend server source",
+      "source": "lib/sections/dashboard.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 716,
+      "section": "02 Tables",
+      "criterion": "Server-side table state",
+      "source": "lib/sections/tables.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 717,
+      "section": "02 Tables",
+      "criterion": "Reservation cancellation",
+      "source": "lib/sections/tables.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 718,
+      "section": "02 Tables",
+      "criterion": "Table transfer financial preflight",
+      "source": "lib/sections/tables.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 719,
+      "section": "03 Table Orders",
+      "criterion": "Server-side board pagination",
+      "source": "lib/sections/table_orders.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 720,
+      "section": "03 Table Orders",
+      "criterion": "Idempotent replacement confirmation",
+      "source": "lib/sections/table_orders.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 721,
+      "section": "03 Table Orders",
+      "criterion": "Kitchen replacement receipt status",
+      "source": "lib/sections/table_orders.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 722,
+      "section": "04 Motel Orders",
+      "criterion": "Room registry integrated",
+      "source": "lib/sections/motel_orders.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 723,
+      "section": "04 Motel Orders",
+      "criterion": "Food ledger integrated",
+      "source": "lib/sections/motel_orders.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 724,
+      "section": "04 Motel Orders",
+      "criterion": "Scheduled meals integrated",
+      "source": "lib/sections/motel_orders.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 725,
+      "section": "05 Kitchen",
+      "criterion": "Live kitchen status RPC",
+      "source": "lib/shared/live_kitchen_panel.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 726,
+      "section": "05 Kitchen",
+      "criterion": "Scheduled motel meals queue",
+      "source": "lib/sections/kitchen.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 727,
+      "section": "05 Kitchen",
+      "criterion": "Motel food requests queue",
+      "source": "lib/sections/kitchen.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 728,
+      "section": "06 Menu",
+      "criterion": "Live product creation RPC",
+      "source": "lib/shared/live_menu_product_create.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 729,
+      "section": "06 Menu",
+      "criterion": "Tourism price field",
+      "source": "lib/shared/live_menu_product_create.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 730,
+      "section": "06 Menu",
+      "criterion": "Safe public failure message",
+      "source": "lib/shared/live_menu_product_create.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 731,
+      "section": "07 Products & Inventory",
+      "criterion": "Server inventory overview",
+      "source": "lib/sections/products_inventory.dart",
+      "passed": true,
+      "verification": "source contract only"
+    },
+    {
+      "upgrade": 732,
+      "section": "07 Products & Inventory",
+      "criterion": "Server inventory adjustment",
+      "source": "lib/sections/products_inventory.dart",
+      "passed": true,
+      "verification": "source contract only"
+    }
+  ],
+  "sections": {
+    "01 Dashboard": {
+      "passed": 3,
+      "total": 3,
+      "completion_percent": null,
+      "runtime_verified": false
+    },
+    "02 Tables": {
+      "passed": 3,
+      "total": 3,
+      "completion_percent": null,
+      "runtime_verified": false
+    },
+    "03 Table Orders": {
+      "passed": 3,
+      "total": 3,
+      "completion_percent": null,
+      "runtime_verified": false
+    },
+    "04 Motel Orders": {
+      "passed": 3,
+      "total": 3,
+      "completion_percent": null,
+      "runtime_verified": false
+    },
+    "05 Kitchen": {
+      "passed": 3,
+      "total": 3,
+      "completion_percent": null,
+      "runtime_verified": false
+    },
+    "06 Menu": {
+      "passed": 3,
+      "total": 3,
+      "completion_percent": null,
+      "runtime_verified": false
+    },
+    "07 Products & Inventory": {
+      "passed": 2,
+      "total": 2,
+      "completion_percent": null,
+      "runtime_verified": false
+    }
+  },
+  "verified_completion_percent": null,
+  "flutter_compiled": false,
+  "live_supabase_tested": false
+}

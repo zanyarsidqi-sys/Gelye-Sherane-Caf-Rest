@@ -1,0 +1,361 @@
+WARNING|STATIC_WARNING|UNUSED_IMPORT|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|1|8|47|Unused import: '../../shared/professional_mobile_widgets.dart'.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|48|11|22|The value of the field '_preferenceSyncMessage' isn't used.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|PROJECT_ROOT/lib/sections/customers.dart|309|16|16|The declaration '_showCashHistory' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/sections/table_orders.dart|208|20|14|The value of the field '_boardPageSize' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/sections/table_orders.dart|209|20|18|The value of the field '_boardMaximumItems' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/sections/table_orders.dart|210|8|14|The value of the field '_boardComplete' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/sections/table_orders.dart|362|7|16|The value of the field '_loadedPageCount' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/sections/table_orders.dart|363|7|15|The value of the field '_loadedRowCount' isn't used.
+WARNING|STATIC_WARNING|UNNECESSARY_NULL_COMPARISON|PROJECT_ROOT/lib/sections/table_orders.dart|519|71|7|The operand can't be 'null', so the condition is always 'true'.
+WARNING|STATIC_WARNING|UNNECESSARY_NON_NULL_ASSERTION|PROJECT_ROOT/lib/sections/table_orders.dart|659|48|1|The '!' will have no effect because the receiver can't be null.
+WARNING|STATIC_WARNING|UNNECESSARY_NON_NULL_ASSERTION|PROJECT_ROOT/lib/sections/table_orders.dart|660|58|1|The '!' will have no effect because the receiver can't be null.
+WARNING|STATIC_WARNING|UNNECESSARY_CAST|PROJECT_ROOT/lib/sections/table_orders.dart|1175|15|13|Unnecessary cast.
+WARNING|STATIC_WARNING|UNNECESSARY_CAST|PROJECT_ROOT/lib/shared/customer_call_employee_screen.dart|99|31|12|Unnecessary cast.
+WARNING|STATIC_WARNING|UNNECESSARY_TYPE_CHECK|PROJECT_ROOT/lib/shared/inventory_catalog_panel.dart|55|11|13|Unnecessary type check; the result is always 'false'.
+WARNING|STATIC_WARNING|UNNECESSARY_TYPE_CHECK|PROJECT_ROOT/lib/shared/inventory_catalog_panel.dart|57|13|11|Unnecessary type check; the result is always 'false'.
+WARNING|STATIC_WARNING|UNNECESSARY_TYPE_CHECK|PROJECT_ROOT/lib/shared/inventory_catalog_panel.dart|57|50|14|Unnecessary type check; the result is always 'false'.
+WARNING|STATIC_WARNING|UNUSED_LOCAL_VARIABLE|PROJECT_ROOT/lib/shared/inventory_catalog_panel.dart|134|17|7|The value of the local variable 'visible' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/shared/payments_management_panel.dart|23|10|9|The value of the field '_cardDate' isn't used.
+WARNING|STATIC_WARNING|UNNECESSARY_NULL_COMPARISON|PROJECT_ROOT/lib/shared/payments_management_panel.dart|364|16|7|The operand can't be 'null', so the condition is always 'true'.
+WARNING|STATIC_WARNING|UNNECESSARY_NULL_COMPARISON|PROJECT_ROOT/lib/shared/payments_management_panel.dart|364|32|7|The operand can't be 'null', so the condition is always 'true'.
+WARNING|STATIC_WARNING|UNNECESSARY_NULL_COMPARISON|PROJECT_ROOT/lib/shared/payments_management_panel.dart|364|51|7|The operand can't be 'null', so the condition is always 'true'.
+WARNING|STATIC_WARNING|UNUSED_FIELD|PROJECT_ROOT/lib/shared/section_shell.dart|655|8|21|The value of the field '_verificationExpanded' isn't used.
+WARNING|STATIC_WARNING|UNNECESSARY_NULL_COMPARISON|PROJECT_ROOT/lib/shared/station_print_review_panel.dart|86|15|7|The operand can't be 'null', so the condition is always 'true'.
+INFO|LINT|PREFER_INTERPOLATION_TO_COMPOSE_STRINGS|PROJECT_ROOT/lib/app/cafe_app.dart|98|55|18|Use interpolation to compose strings and values.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/app/cafe_app.dart|427|42|11|'userDeleted' is deprecated and shouldn't be used. Was never in use and might be removed in the future.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|479|78|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|496|78|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|540|40|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|565|79|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|570|81|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|583|41|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|598|77|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|604|77|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|613|41|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|762|78|7|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/app/cafe_app.dart|1151|42|11|'userDeleted' is deprecated and shouldn't be used. Was never in use and might be removed in the future.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|1191|78|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/app/cafe_app.dart|1250|78|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|35|41|21|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|55|64|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|58|48|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|65|52|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|67|28|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|69|52|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|71|31|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|292|41|21|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|300|41|21|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|358|37|547|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|427|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|441|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/cash_reconciliation_panel.dart|456|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|154|20|106|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|170|20|94|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|593|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|695|24|99|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|816|51|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|871|70|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|885|66|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|1061|66|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|1087|62|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|1098|48|12|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/dashboard_screen.dart|2011|43|9|'onReorder' is deprecated and shouldn't be used. Use the onReorderItem callback instead. The onReorderItem callback adjusts the newIndex parameter for a removed item at the oldIndex. This feature was deprecated after v3.41.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/guest_engagement_cards.dart|126|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/guest_engagement_cards.dart|148|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/guest_engagement_models.dart|20|39|42|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/guest_engagement_review_panel.dart|81|55|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/motel_meal_offers_panel.dart|47|34|183|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/owner_guest_offers_panel.dart|25|32|172|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/provider_verification_queue.dart|29|32|197|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/service_task_notification_inbox.dart|63|32|180|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/table_service_tasks_panel.dart|134|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/table_service_tasks_panel.dart|140|44|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/table_service_tasks_panel.dart|145|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/screens/dashboard/table_service_tasks_panel.dart|200|11|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/screens/dashboard/table_service_tasks_panel.dart|213|34|260|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/customers.dart|34|20|112|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/customers.dart|256|30|111|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/dashboard.dart|357|87|11|'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/dashboard.dart|598|57|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/dashboard.dart|891|41|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/dashboard.dart|945|41|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/dashboard.dart|1011|64|9|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/dashboard.dart|1108|41|12|Statements in an if should be enclosed in a block.
+INFO|LINT|UNNECESSARY_CONST|PROJECT_ROOT/lib/sections/kitchen.dart|39|11|5|Unnecessary 'const' keyword.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/offline_mode_synchronization.dart|110|68|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/products_inventory.dart|143|72|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/products_inventory.dart|266|30|122|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/products_inventory.dart|303|26|164|Statements in an if should be enclosed in a block.
+INFO|LINT|UNNECESSARY_CONST|PROJECT_ROOT/lib/sections/table_orders.dart|30|24|5|Unnecessary 'const' keyword.
+INFO|LINT|UNNECESSARY_CONST|PROJECT_ROOT/lib/sections/table_orders.dart|162|11|5|Unnecessary 'const' keyword.
+INFO|LINT|UNNECESSARY_CONST|PROJECT_ROOT/lib/sections/table_orders.dart|163|11|5|Unnecessary 'const' keyword.
+INFO|LINT|PREFER_FINAL_FIELDS|PROJECT_ROOT/lib/sections/table_orders.dart|210|8|22|The private field _boardComplete could be 'final'.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|264|20|143|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|382|65|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|432|20|143|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|475|20|151|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|501|76|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|543|20|142|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|587|41|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|775|44|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|802|46|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|813|20|135|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|833|51|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|853|20|104|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|879|32|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|884|22|143|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|900|22|156|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|903|22|100|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|924|51|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|938|29|57|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/table_orders.dart|988|21|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/table_orders.dart|989|21|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/table_orders.dart|1042|56|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1060|53|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1084|20|203|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1161|22|126|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1178|20|119|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1197|51|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1378|20|142|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1381|20|113|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1422|20|110|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1457|20|110|Statements in an if should be enclosed in a block.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/table_orders.dart|1602|46|13|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1605|46|132|Statements in an if should be enclosed in a block.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/table_orders.dart|1642|46|13|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1645|46|131|Statements in an if should be enclosed in a block.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/table_orders.dart|1721|50|13|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1724|50|146|Statements in an if should be enclosed in a block.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/table_orders.dart|1780|50|13|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1783|50|148|Statements in an if should be enclosed in a block.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/table_orders.dart|1839|50|13|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1842|50|136|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1869|20|122|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|1961|31|7|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/table_orders.dart|2175|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/table_orders.dart|2515|65|11|'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/table_orders.dart|2706|20|120|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|213|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|334|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|341|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|347|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|420|20|171|Statements in an if should be enclosed in a block.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/tables.dart|548|39|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|PROJECT_ROOT/lib/sections/tables.dart|570|36|12|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|585|21|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|670|22|154|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|692|17|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|732|22|126|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|774|20|123|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|844|20|131|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|895|46|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|937|20|144|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|1003|20|189|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|1040|17|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|1047|17|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|1126|20|124|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|1173|46|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|1177|51|111|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|1180|46|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|1184|51|116|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|1195|73|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|1233|32|147|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|1607|56|89|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2028|49|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2277|51|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2278|19|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2460|34|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2461|23|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2487|32|119|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2683|34|142|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2686|48|100|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2768|20|71|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2799|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2827|30|144|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2868|43|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2876|61|217|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|2882|43|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2957|36|137|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2972|34|127|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/sections/tables.dart|2985|34|271|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|3180|13|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|3181|13|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/sections/tables.dart|3187|13|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/services/employee_permission_service.dart|74|9|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/admin_event_reservations_screen.dart|24|20|113|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/counter_orders_workspace.dart|41|20|106|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/counter_orders_workspace.dart|173|9|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/counter_orders_workspace.dart|220|39|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_account_registration_panel.dart|63|20|93|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_customer_acknowledgement_panel.dart|27|20|108|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_onboarding_panel.dart|31|20|108|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_onboarding_panel.dart|57|20|101|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_onboarding_panel.dart|74|20|153|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_onboarding_panel.dart|133|22|130|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_onboarding_panel.dart|469|20|79|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_onboarding_panel.dart|498|20|84|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_review_panel.dart|28|20|140|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_review_panel.dart|107|20|106|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_review_panel.dart|214|20|111|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/credit_identity_review_panel.dart|345|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_review_panel.dart|373|20|123|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/credit_identity_review_panel.dart|403|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/credit_identity_review_panel.dart|429|20|98|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_call_employee_screen.dart|101|42|22|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/customer_call_employee_screen.dart|121|41|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_motel_room_qr_screen.dart|37|49|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_motel_room_qr_screen.dart|63|49|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_motel_room_qr_screen.dart|103|20|128|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_motel_room_qr_screen.dart|125|20|117|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_motel_room_qr_screen.dart|145|49|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_motel_room_qr_screen.dart|213|20|117|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_table_bill_screen.dart|225|50|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_table_feedback_screen.dart|76|20|150|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/customer_table_feedback_screen.dart|116|13|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/customer_table_qr_menu_screen.dart|73|25|134|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/gelye_invoice_templates.dart|27|55|46|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/kitchen_delivery_tasks_panel.dart|29|53|112|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/kitchen_delivery_tasks_panel.dart|42|20|112|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/kitchen_delivery_tasks_panel.dart|62|60|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/kitchen_motel_food_queue_panel.dart|67|93|147|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/kitchen_service_tasks_panel.dart|79|37|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_kitchen_panel.dart|296|75|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_kitchen_panel.dart|374|52|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_kitchen_panel.dart|401|20|151|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_kitchen_panel.dart|424|50|11|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_kitchen_panel.dart|453|41|11|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_order_create_panel.dart|471|37|17|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_order_create_panel.dart|472|22|19|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/live_records_panel.dart|276|31|197|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_billing_ledger_screen.dart|180|20|104|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_billing_ledger_screen.dart|215|20|107|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_billing_ledger_screen.dart|249|20|109|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|58|49|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|68|98|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|70|125|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|72|79|13|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|79|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|100|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|111|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|120|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|151|53|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|153|76|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|752|20|117|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|818|20|105|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|851|20|112|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|888|20|108|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|925|20|107|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|973|20|105|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1017|20|114|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1056|20|120|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1087|20|121|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1104|17|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1132|20|135|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1135|20|105|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1170|20|121|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1215|20|120|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1271|20|119|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1296|20|145|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1299|20|104|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1340|20|120|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1387|20|114|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1414|20|114|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1456|20|108|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1491|20|113|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1524|20|111|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1533|20|126|Statements in an if should be enclosed in a block.
+INFO|LINT|SORT_CHILD_PROPERTIES_LAST|PROJECT_ROOT/lib/shared/motel_food_finance_handoff_panel.dart|1687|24|35|The 'child' argument should be last in widget constructor invocations.
+INFO|LINT|PREFER_FINAL_FIELDS|PROJECT_ROOT/lib/shared/payments_management_panel.dart|23|10|17|The private field _cardDate could be 'final'.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|62|50|13|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/payments_management_panel.dart|124|39|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/payments_management_panel.dart|142|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|265|48|98|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|267|48|80|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|271|42|109|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|337|44|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|425|56|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|444|44|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|459|48|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|463|58|12|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|481|30|100|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|500|27|106|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|595|52|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|638|44|213|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|673|34|104|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|842|34|108|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|882|56|96|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|884|56|76|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|897|48|179|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|936|48|110|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|938|48|81|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|1054|34|106|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|1101|30|126|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|1131|45|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|1864|20|168|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2079|20|260|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2174|20|185|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2262|20|185|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2358|20|198|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2455|20|176|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2518|47|67|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2541|20|167|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2613|20|180|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/payments_management_panel.dart|2984|56|13|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/product_station_mapping_panel.dart|58|68|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/product_station_mapping_panel.dart|82|20|156|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/professional_mobile_widgets.dart|21|49|11|'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/professional_mobile_widgets.dart|113|51|11|'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/professional_mobile_widgets.dart|148|42|11|'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/public_event_request_screen.dart|114|36|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/public_event_request_screen.dart|126|31|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/public_event_request_screen.dart|127|9|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/public_event_request_screen.dart|130|35|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/public_event_request_screen.dart|131|9|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/public_event_request_screen.dart|174|39|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/public_reservation_screen.dart|40|20|123|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/public_reservation_screen.dart|55|20|116|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/public_reservation_screen.dart|92|20|149|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/section_shell.dart|624|43|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/section_shell.dart|629|71|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/section_shell.dart|720|87|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/section_shell.dart|740|85|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/section_shell.dart|755|77|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/section_shell.dart|766|88|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_customer_calls_screen.dart|76|20|155|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_event_request_screen.dart|44|32|7|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_event_request_screen.dart|138|31|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_event_request_screen.dart|139|9|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_event_request_screen.dart|141|35|10|'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_event_request_screen.dart|142|9|9|'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_order_guest_editor.dart|40|70|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_order_guest_editor.dart|84|68|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_product_recommendations.dart|23|20|116|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_product_recommendations.dart|73|20|122|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_product_recommendations.dart|90|15|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_product_recommendations.dart|126|44|116|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_reservation_management_screen.dart|48|47|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_reservation_management_screen.dart|59|44|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/staff_specific_reservation_screen.dart|35|20|107|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_specific_reservation_screen.dart|90|38|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_specific_reservation_screen.dart|94|41|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/staff_specific_reservation_screen.dart|101|38|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_assignment_panel.dart|66|73|7|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/station_assignment_panel.dart|113|9|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_device_gate.dart|82|27|155|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_device_panel.dart|96|20|124|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_device_panel.dart|99|20|117|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/station_device_panel.dart|113|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/station_device_panel.dart|120|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/station_device_panel.dart|131|7|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/station_management_panel.dart|44|17|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_management_panel.dart|77|20|143|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_management_panel.dart|92|20|160|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_print_review_panel.dart|63|72|7|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_print_review_panel.dart|152|40|33|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/station_print_review_panel.dart|155|52|17|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/table_orders_replacement_delivery_progress.dart|84|53|425|Statements in an if should be enclosed in a block.
+INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|PROJECT_ROOT/lib/shared/table_orders_replacement_delivery_progress.dart|92|53|104|Statements in an if should be enclosed in a block.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/wrong_order_correction_workspace.dart|101|36|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/wrong_order_correction_workspace.dart|103|39|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|HINT|DEPRECATED_MEMBER_USE|PROJECT_ROOT/lib/shared/wrong_order_correction_workspace.dart|109|37|5|'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre.
+INFO|LINT|AVOID_RELATIVE_LIB_IMPORTS|PROJECT_ROOT/test/guest_engagement_models_test.dart|2|8|55|Can't use a relative path to import a library in 'lib'.

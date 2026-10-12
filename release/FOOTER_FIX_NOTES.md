@@ -1,0 +1,1 @@
+Footer deduplication: guard against nested CafeApp MaterialApp builders. Requires Flutter compilation and browser verification. Device-session preference exists but persistent login remains unverified; no security bypass added.

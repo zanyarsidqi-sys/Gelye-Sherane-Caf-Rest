@@ -1,0 +1,8 @@
+Upgrade 1359: Linked motel finance source products
+
+Added nested source-order product inspection to posted motel invoice line drill-down.
+Uses existing permission-scoped gs_finance_itemized_order_detail RPC and validates numeric source order IDs.
+Shows actual item name, quantity, unit/line prices, order timestamps and optional customer/delivery fields; null is shown as Not recorded.
+No payment or delivery mutation. Linked Standing Cash, Pending Payment, motel invoice and backend schema considered.
+Online delivery phone/address and per-item timestamps are not established by current RPC; motel request employee/status needs separate request-ID linkage.
+Validation: ZIP CRC, original file retention, source contract. Flutter compilation/live Supabase not run.

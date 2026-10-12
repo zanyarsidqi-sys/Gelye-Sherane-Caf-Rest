@@ -1,0 +1,36 @@
+PASS anonymous default execute privilege revoked
+PASS create draft
+PASS idempotent create
+PASS idempotency payload mismatch
+PASS null retry payload rejected
+PASS malformed version rejected
+PASS invalid checksum rejected
+PASS unapproved URL rejected
+PASS credentials URL rejected
+PASS duplicate version rejected
+PASS cannot publish unreviewed draft
+PASS incomplete review rejected
+PASS complete review advances state
+PASS stale revision rejected
+PASS publication retry is idempotent
+PASS retry does not increment revision
+PASS published stable update notice
+PASS publication supersedes previous atomically
+PASS rollback restores previous catalog record
+PASS notice follows rollback
+PASS downgrade publication rejected
+PASS unpublished release withdrawal
+PASS test channel does not notify stable users
+PASS direct update blocked
+PASS audit deletion blocked
+PASS AAL1 cannot read release records
+PASS AAL1 cannot create
+PASS AAL1 cannot read notice
+PASS read-only employee cannot create
+PASS read-only employee cannot modify
+PASS revoked section permission hides records
+PASS active employee receives minimal update notice without release-management permission
+PASS inactive employee cannot receive notices
+PASS business-data sentinel unchanged
+PASS only committed mutations produce audit entries
+35 checks passed. Isolated PostgreSQL-compatible test database; not live Supabase.

@@ -1,0 +1,16 @@
+{
+  "app": "Rest",
+  "milestones": [
+    57,
+    58,
+    59,
+    60
+  ],
+  "source_modified": "lib/app/cafe_app.dart",
+  "before_sha256": "e92b7e0856bb4d7a9ba374eb01a6521eb3ecdb84b0972dc509909c2c5e5bcdcb",
+  "after_sha256": "7334b8732d2820848847465b41d63477784bdb8b65cee54738e02ea51205beef",
+  "preflight_output": "PASS timer does not invalidate in-flight review\nPASS session change terminates protected route\nPASS dashboard callback checks permission snapshot\nPASS saved permission snapshot immutable\nPASS protected route checks AAL2\nPASS all relative imports resolve\nPASS delimiter balance\n",
+  "preflight_passed": true,
+  "flutter_compiled": false,
+  "live_supabase_tested": false
+}

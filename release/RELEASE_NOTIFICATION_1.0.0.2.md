@@ -1,0 +1,8 @@
+# Release notifications — staging candidate 1.0.0.2
+
+Existing `supabase/setup/browser_push.sql` enqueues Web Push jobs from authoritative `publish` events, deduplicated by `(subscription_id,source_table,source_id)`. The Edge Function validates published stable web releases and active subscriptions before dispatch; it requires a separately configured scheduled dispatcher and VAPID credentials. This upgrade adds a transactional publication gate requiring an explicit `deployment_verified=true` plus five release checks in the **publish request** and an MFA-protected release history RPC surfaced in Notifications. The gate checks attestation, not independent proof of website availability. The deployment pipeline must perform real smoke tests before setting the flag. A failure to insert the event rolls back publication in the same transaction. Apply 1494 only after 1493 and browser_push.sql in isolated staging. Do not apply to production without approval. Flutter build and actual Web Push delivery have not been tested here.
+
+Integration correction: release jobs now require Notifications section permission at dispatch, matching the release-history RPC. The dispatcher also explicitly refuses release delivery if eligibility fails. This is source-level validation only; staging migration and live push are still pending.
+
+## Upgrade 1497: review evidence binding
+Publication notification gating now also compares the five publish-time review checks with the stored ready-state review checks, and binds event identity/version to the current release. Apply migration only in isolated staging; static tests do not establish database or Web Push delivery.

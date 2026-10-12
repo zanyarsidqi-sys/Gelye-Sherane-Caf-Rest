@@ -1,0 +1,1 @@
+Staging only: removed ineffective inherited-widget footer boundary and retained one explicit footer placement. This is not a verified visual fix. Flutter compilation, login persistence and Web Push delivery remain pending. Production unchanged; explicit Update approval required.

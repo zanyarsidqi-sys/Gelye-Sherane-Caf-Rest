@@ -1,0 +1,493 @@
+{
+  "batch": "814-853",
+  "scope": "Static source contract checks only; 39 revalidations and one new source correction",
+  "checks": [
+    {
+      "upgrade": 814,
+      "section": "products_inventory",
+      "name": "Reject malformed stock-history ledger rows instead of silently dropping them",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "row is! Map || row.keys.any((key) => key is! String)",
+      "type": "source_fix"
+    },
+    {
+      "upgrade": 815,
+      "section": "dashboard",
+      "name": "Revalidate: cash week RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_cash_collections_week",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 816,
+      "section": "dashboard",
+      "name": "Revalidate: cash today RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_cash_collections_today",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 817,
+      "section": "dashboard",
+      "name": "Revalidate: order week RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_order_week",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 818,
+      "section": "dashboard",
+      "name": "Revalidate: summary RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_operational_summary",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 819,
+      "section": "dashboard",
+      "name": "Revalidate: Baghdad timezone validation",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "Asia/Baghdad",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 820,
+      "section": "tables",
+      "name": "Revalidate: permission wrapper",
+      "path": "lib/sections/tables.dart",
+      "needle": "sectionId: 'tables'",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 821,
+      "section": "tables",
+      "name": "Revalidate: table visit opening",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_open_cafe_table_visit_with_customer",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 822,
+      "section": "tables",
+      "name": "Revalidate: reservation cancellation",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_cancel_reservation",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 823,
+      "section": "tables",
+      "name": "Revalidate: reservation check-in",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_check_in_cafe_reservation",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 824,
+      "section": "tables",
+      "name": "Revalidate: transfer financial preflight",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_table_transfer_financial_preflight",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 825,
+      "section": "tables",
+      "name": "Revalidate: table QR rotation",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_rotate_table_qr",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 826,
+      "section": "tables",
+      "name": "Revalidate: table movement review",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_request_table_guest_move",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 827,
+      "section": "table_orders",
+      "name": "Revalidate: permission wrapper",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "sectionId: 'table_orders'",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 828,
+      "section": "table_orders",
+      "name": "Revalidate: order board pagination",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_staff_table_order_board_page",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 829,
+      "section": "table_orders",
+      "name": "Revalidate: item fulfillment RPC",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_advance_table_item_fulfillment",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 830,
+      "section": "table_orders",
+      "name": "Revalidate: replacement quote",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_quote_unaccepted_table_replacement",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 831,
+      "section": "table_orders",
+      "name": "Revalidate: replacement write",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_replace_unaccepted_table_item",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 832,
+      "section": "table_orders",
+      "name": "Revalidate: order revision dispatch",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_staff_order_revision_dispatch",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 833,
+      "section": "table_orders",
+      "name": "Revalidate: kitchen revision acknowledgment",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_acknowledge_table_replacement_kitchen_revision",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 834,
+      "section": "motel_orders",
+      "name": "Revalidate: permission wrapper",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "sectionId: 'motel_orders'",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 835,
+      "section": "motel_orders",
+      "name": "Revalidate: room registry",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelRoomRegistryScreen",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 836,
+      "section": "motel_orders",
+      "name": "Revalidate: scheduled meals",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelScheduledMealsScreen",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 837,
+      "section": "motel_orders",
+      "name": "Revalidate: food requests",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelFoodRequestsScreen",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 838,
+      "section": "motel_orders",
+      "name": "Revalidate: billing ledger",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelFoodBillingLedgerScreen",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 839,
+      "section": "kitchen",
+      "name": "Revalidate: permission wrapper",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "sectionId: 'kitchen'",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 840,
+      "section": "kitchen",
+      "name": "Revalidate: kitchen orders",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "OrderPreviewWorkspace(kind: 'kitchen')",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 841,
+      "section": "kitchen",
+      "name": "Revalidate: scheduled motel meals",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "KitchenScheduledMotelMealsPanel",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 842,
+      "section": "kitchen",
+      "name": "Revalidate: motel food queue",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "KitchenMotelFoodQueuePanel",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 843,
+      "section": "menu",
+      "name": "Revalidate: permission wrapper",
+      "path": "lib/sections/menu.dart",
+      "needle": "sectionId: 'menu'",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 844,
+      "section": "menu",
+      "name": "Revalidate: live product create",
+      "path": "lib/sections/menu.dart",
+      "needle": "LiveMenuProductCreate",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 845,
+      "section": "menu",
+      "name": "Revalidate: live product edit",
+      "path": "lib/sections/menu.dart",
+      "needle": "LiveMenuProductEdit",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 846,
+      "section": "menu",
+      "name": "Revalidate: recipe management",
+      "path": "lib/sections/menu.dart",
+      "needle": "RecipeManagementPanel",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 847,
+      "section": "menu",
+      "name": "Revalidate: ingredient units",
+      "path": "lib/sections/menu.dart",
+      "needle": "IngredientUnitSettingsPanel",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 848,
+      "section": "products_inventory",
+      "name": "Revalidate: permission wrapper",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "sectionId: 'products_inventory'",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 849,
+      "section": "products_inventory",
+      "name": "Revalidate: overview RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_overview",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 850,
+      "section": "products_inventory",
+      "name": "Revalidate: adjustment RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_adjust",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 851,
+      "section": "products_inventory",
+      "name": "Revalidate: minimum RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_set_minimum",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 852,
+      "section": "products_inventory",
+      "name": "Revalidate: history RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_history",
+      "type": "carried_forward_regression"
+    },
+    {
+      "upgrade": 853,
+      "section": "shared_access",
+      "name": "Revalidate: auth event uses current user",
+      "path": "lib/shared/section_shell.dart",
+      "needle": "final nextUserId = Supabase.instance.client.auth.currentUser?.id;",
+      "type": "carried_forward_regression"
+    }
+  ],
+  "results": [
+    {
+      "upgrade": 814,
+      "pass": true
+    },
+    {
+      "upgrade": 815,
+      "pass": true
+    },
+    {
+      "upgrade": 816,
+      "pass": true
+    },
+    {
+      "upgrade": 817,
+      "pass": true
+    },
+    {
+      "upgrade": 818,
+      "pass": true
+    },
+    {
+      "upgrade": 819,
+      "pass": true
+    },
+    {
+      "upgrade": 820,
+      "pass": true
+    },
+    {
+      "upgrade": 821,
+      "pass": true
+    },
+    {
+      "upgrade": 822,
+      "pass": true
+    },
+    {
+      "upgrade": 823,
+      "pass": true
+    },
+    {
+      "upgrade": 824,
+      "pass": true
+    },
+    {
+      "upgrade": 825,
+      "pass": true
+    },
+    {
+      "upgrade": 826,
+      "pass": true
+    },
+    {
+      "upgrade": 827,
+      "pass": true
+    },
+    {
+      "upgrade": 828,
+      "pass": true
+    },
+    {
+      "upgrade": 829,
+      "pass": true
+    },
+    {
+      "upgrade": 830,
+      "pass": true
+    },
+    {
+      "upgrade": 831,
+      "pass": true
+    },
+    {
+      "upgrade": 832,
+      "pass": true
+    },
+    {
+      "upgrade": 833,
+      "pass": true
+    },
+    {
+      "upgrade": 834,
+      "pass": true
+    },
+    {
+      "upgrade": 835,
+      "pass": true
+    },
+    {
+      "upgrade": 836,
+      "pass": true
+    },
+    {
+      "upgrade": 837,
+      "pass": true
+    },
+    {
+      "upgrade": 838,
+      "pass": true
+    },
+    {
+      "upgrade": 839,
+      "pass": true
+    },
+    {
+      "upgrade": 840,
+      "pass": true
+    },
+    {
+      "upgrade": 841,
+      "pass": true
+    },
+    {
+      "upgrade": 842,
+      "pass": true
+    },
+    {
+      "upgrade": 843,
+      "pass": true
+    },
+    {
+      "upgrade": 844,
+      "pass": true
+    },
+    {
+      "upgrade": 845,
+      "pass": true
+    },
+    {
+      "upgrade": 846,
+      "pass": true
+    },
+    {
+      "upgrade": 847,
+      "pass": true
+    },
+    {
+      "upgrade": 848,
+      "pass": true
+    },
+    {
+      "upgrade": 849,
+      "pass": true
+    },
+    {
+      "upgrade": 850,
+      "pass": true
+    },
+    {
+      "upgrade": 851,
+      "pass": true
+    },
+    {
+      "upgrade": 852,
+      "pass": true
+    },
+    {
+      "upgrade": 853,
+      "pass": true
+    }
+  ],
+  "new_corrections": 1,
+  "previously_passing_revalidations": 39,
+  "flutter_compiled": false,
+  "supabase_live_tested": false,
+  "section_completion": "not established"
+}

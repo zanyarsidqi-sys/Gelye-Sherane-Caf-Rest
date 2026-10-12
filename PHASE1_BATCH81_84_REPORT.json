@@ -1,0 +1,24 @@
+{
+  "batch": "81-84",
+  "project": "Rest",
+  "source": "gelye_cafe_rest/lib/app/cafe_app.dart",
+  "changes": [
+    "81 bind management dashboard to original employee identity",
+    "82 reject auth events from a different employee",
+    "83 await protected route completion before allowing another navigation",
+    "84 suppress revalidation after protected route session termination"
+  ],
+  "checks": {
+    "opening employee initialized": true,
+    "initial employee enforced": true,
+    "async employee enforced": true,
+    "auth change employee enforced": true,
+    "dashboard navigation awaited": true,
+    "route completion awaited": true,
+    "terminated route does not requeue": true
+  },
+  "original_source_sha256": "b570ecb6a0b9ad21b8290d8bafe94b0b74124752c15522b2684707693b558804",
+  "updated_source_sha256": "64a2d8b8fbeba51c3d0a2def346325bace81833ad9cb699fcd358d418d786492",
+  "flutter_compilation": "not run: SDK unavailable",
+  "live_supabase": "not run"
+}

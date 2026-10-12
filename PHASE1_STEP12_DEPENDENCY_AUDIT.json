@@ -1,0 +1,15 @@
+{
+  "app": "Rest",
+  "phase": "1 step 12",
+  "method": "conservative static regex scan; does not parse SQL or prove deployability",
+  "migrations": 475,
+  "sha256_verified": 475,
+  "missing": [],
+  "hash_mismatch": [],
+  "forward_foreign_key_candidates": [],
+  "forward_alter_index_candidates": [],
+  "forward_fk_count": 0,
+  "forward_alter_index_count": 0,
+  "deployment_safe": false,
+  "live_database_checked": false
+}

@@ -1,0 +1,146 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/app_release_test.dart
+00:00 +0: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/app_release_test.dart: four-part numeric versions compare correctly
+00:00 +1: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/app_release_test.dart: draft rejects invalid versions, URLs and checksums
+00:01 +2: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/sections_test.dart: exactly 35 unique management sections
+00:01 +3: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_draft_validation_test.dart: amount must be positive whole IQD
+00:01 +4: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_draft_validation_test.dart: motel order always resolves to tourism mode
+00:01 +5: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_draft_validation_test.dart: barcode is masked in review
+00:01 +6: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/tourism_pricing_service_test.dart: Tables default to normal pricing
+00:01 +7: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/tourism_pricing_service_test.dart: Tourism table and motel use same product with tourism price
+00:01 +8: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/tourism_pricing_service_test.dart: Order line total uses captured price and quantity
+00:01 +9: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/serialized_station_printer_test.dart: shared printer serializes original and revision jobs
+00:01 +10: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/serialized_station_printer_test.dart: closing queue prevents queued second physical print
+00:01 +11: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/serialized_station_printer_test.dart: closed queue refuses new physical print requests
+00:01 +12: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/serialized_station_printer_test.dart: failed physical print does not block next queued print
+00:01 +13: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: unchanged AAL2 session receives permitted sections
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PERMISSIONS DIAGNOSTIC: rows=1, dashboardRow=true, dashboardCanView=true
+PERMISSIONS DIAGNOSTIC: dashboardAllowed=true, allowedCount=1
+00:01 +14: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: AAL1 cannot query employee data
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal1, nextAal=AuthenticatorAssuranceLevels.aal1
+00:01 +15: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: profile belonging to another employee cannot authorize
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+00:01 +16: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: inactive employee cannot authorize
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=false
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+00:01 +17: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: pending permissions rejected after other employee
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+00:01 +18: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: pending permissions rejected after same employee new token
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+00:01 +19: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: pending permissions rejected after MFA lost
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal1, nextAal=AuthenticatorAssuranceLevels.aal1
+00:01 +20: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: pending permissions rejected after sign out
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+00:02 +21: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: unresponsive profile request times out
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+00:02 +22: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/payment_confirmation_models_test.dart: pending credit requires receiver verification
+00:02 +23: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session restores when identity and permissions match
+00:02 +24: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session restores when identity and permissions match
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+00:02 +25: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session restores when identity and permissions match
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PROFILE DIAGNOSTIC: found=true, active=true
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+AUTH DIAGNOSTIC: authenticated=true, currentAal=AuthenticatorAssuranceLevels.aal2, nextAal=AuthenticatorAssuranceLevels.aal2
+PERMISSIONS DIAGNOSTIC: rows=1, dashboardRow=true, dashboardCanView=true
+PERMISSIONS DIAGNOSTIC: dashboardAllowed=true, allowedCount=1
+Saved Session: Authorized with 1 sections.
+00:02 +26: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: confirmed print is acknowledged once
+00:02 +26: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session denies a different server user
+Saved Session: No authenticated user.
+00:02 +27: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: confirmed print is acknowledged once
+00:02 +28: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+00:02 +29: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+00:02 +30: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+00:02 +31: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+00:02 +32: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+00:02 +33: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+00:02 +34: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+Saved Session: Verification failed: TimeoutException
+00:02 +35: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/employee_permission_session_test.dart: saved session timeout ends startup without authorizing
+00:02 +36: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: confirmed print during logout remains protected after worker restart
+00:02 +37: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: stop during confirmed printer failure also holds ticket
+00:02 +38: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: stop during ticket resolution prevents printing
+00:02 +39: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: malformed claimed station is held for manual review
+00:02 +40: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: invalid attempt retains valid claim identity for review
+00:02 +41: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: formatter rejects oversized item lists before building receipt
+00:02 +42: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: unsafe queue identifiers are rejected before polling
+00:02 +43: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: overlong item notes are rejected before printer output
+00:02 +44: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: overlong station metadata is rejected
+00:02 +45: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: direct polling rejects unsafe queue before server claim
+00:02 +46: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: claim with invisible station character is held without printing
+00:02 +47: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: formatter rejects ambiguous station identifiers
+00:02 +48: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: duplicate server claim after printed ACK does not print twice
+00:02 +49: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: confirmed failure ACK is not repeated for duplicate claim
+00:02 +50: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: missing order identity cannot reach resolver or physical printer
+00:02 +51: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: noninteger order identity is rejected before resolution
+00:02 +52: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/station_print_worker_test.dart: claimed order mismatch cannot print even when ticket id matches
+00:02 +53: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_request_state_test.dart: draft can only request approval or cancel
+00:02 +54: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_request_state_test.dart: rejected and cancelled requests cannot post
+00:02 +55: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_request_state_test.dart: only posted transactions are settled
+00:02 +56: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_request_state_test.dart: posted request can only be reversed
+00:02 +57: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: valid immutable snapshot parses without a Supabase connection
+00:02 +58: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: different order identity is rejected
+00:02 +59: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: invalid guest metadata is rejected without cast exceptions
+00:02 +60: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: oversized immutable item list is rejected
+00:02 +61: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: missing and invalid station identity are rejected
+00:02 +62: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: unsupported immutable ticket kind is rejected before printing
+00:02 +63: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: valid revision kind is accepted
+00:02 +64: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/secure_station_ticket_resolver_test.dart: total receipt size is bounded at snapshot parsing
+00:02 +65: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/guest_engagement_models_test.dart: guest name is optional
+00:02 +66: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_submission_gate_test.dart: local drafts cannot submit a withdrawal
+00:02 +67: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_submission_gate_test.dart: local drafts cannot submit a withdrawal
+00:02 +68: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_submission_gate_test.dart: local drafts cannot submit a withdrawal
+00:02 +69: /workspace/scratch/5c0a5d9f4a8b/current-source/project/gelye_cafe_rest/test/credit_submission_gate_test.dart: submission checklist covers server balance and duplicate posting
+00:02 +70: All tests passed!
+The Flutter CLI developer tool uses Google Analytics to report usage and diagnostic
+data along with package dependencies, and crash reporting to send basic crash
+reports. This data is used to help improve the Dart platform, Flutter framework,
+and related tools.
+
+Telemetry is not sent on the very first run. To disable reporting of telemetry,
+run this terminal command:
+
+    flutter --disable-analytics
+
+If you opt out of telemetry, an opt-out event will be sent, and then no further
+information will be sent. This data is collected in accordance with the Google
+Privacy Policy (https://policies.google.com/privacy).
+

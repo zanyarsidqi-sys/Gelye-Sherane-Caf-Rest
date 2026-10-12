@@ -1,0 +1,22 @@
+{
+  "steps": [
+    65,
+    66,
+    67,
+    68
+  ],
+  "project": "Rest",
+  "checks": {
+    "retry_guard": true,
+    "identity_bound_retry": true,
+    "foreground_auth_event": true,
+    "no_retry_terminated": true,
+    "session_ended_message": true,
+    "original_route_guard": true
+  },
+  "source_sha256_before": "8bb9410954aad3358cf6a4193ce17d3a13d82ed30ddf03f117611ec068264b0f",
+  "source_sha256_after": "7e986465b04f0797be113c797fed70eb9b14ec244df3311c8fdc9fca205b0a82",
+  "flutter_compiled": false,
+  "live_supabase_tested": false,
+  "notes": "Static source checks only; requires flutter analyze and integration tests."
+}

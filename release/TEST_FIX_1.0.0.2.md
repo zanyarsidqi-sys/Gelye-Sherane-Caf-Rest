@@ -1,0 +1,1 @@
+Staging-only test repair. Node VM browser mock now exposes Notification on window, matching real browsers; previous harness omitted it and failed before exercising API responses. Added checks for 204 empty success, 200 empty success, and HTTP 500 rejection. This does not establish real browser delivery or Flutter compilation. No production changes.

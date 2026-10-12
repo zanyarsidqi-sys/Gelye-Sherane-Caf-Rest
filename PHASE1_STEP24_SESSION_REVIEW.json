@@ -1,0 +1,19 @@
+{
+  "step": 24,
+  "project": "Rest",
+  "checks": {
+    "startup_catches_supabase_init": true,
+    "saved_session_rechecks_identity": true,
+    "saved_session_requires_dashboard": true,
+    "saved_session_rechecks_mfa": true,
+    "app_rechecks_restoration": true,
+    "app_fails_closed": true
+  },
+  "live_flutter_compilation": "unavailable",
+  "live_supabase_auth": "unavailable",
+  "modified_sources": [
+    "gelye_cafe_rest/lib/main.dart",
+    "gelye_cafe_rest/lib/services/saved_session_service.dart",
+    "gelye_cafe_rest/lib/app/cafe_app.dart"
+  ]
+}

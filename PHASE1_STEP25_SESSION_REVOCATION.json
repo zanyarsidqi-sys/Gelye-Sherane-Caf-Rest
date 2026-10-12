@@ -1,0 +1,22 @@
+{
+  "step": 25,
+  "application": "Rest",
+  "checks": {
+    "monitor_60s": true,
+    "auth_listener": true,
+    "logout_locks": true,
+    "revocation": true,
+    "mfa": true,
+    "stale_response": true,
+    "dispose": true,
+    "dashboard": true
+  },
+  "limitations": [
+    "Static tests only; Flutter SDK and live Supabase are not available",
+    "A 60-second UI refresh does not instantly revoke already-open pages; server-side RLS is mandatory",
+    "Logout network failure may leave a remote session valid; re-authentication and server-side controls remain required"
+  ],
+  "modified": [
+    "gelye_cafe_rest/lib/app/cafe_app.dart"
+  ]
+}

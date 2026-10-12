@@ -1,0 +1,17 @@
+{
+  "app": "Rest",
+  "steps": [
+    93,
+    94,
+    95,
+    96
+  ],
+  "changes": [
+    "Serialize favorites persistence to prevent out-of-order disk writes",
+    "Require matching employee for favorites reset",
+    "Add executable offline verification",
+    "Add Flutter analyze/test/web build CI workflow"
+  ],
+  "flutter_compiled": false,
+  "native_scaffolding_generated": false
+}

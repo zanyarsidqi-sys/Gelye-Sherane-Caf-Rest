@@ -1,0 +1,2 @@
+# Upgrade 307 — Customer table assistance
+Added Long Wait, Pick Up Used Dishes, and Clean Table to customer QR assistance and staff queue labels/icons. All three use the existing visit-bound RPC, hourly throttle, duplicate prevention, staff assignment and status tracking. Requests do not alter food order state or automatically apply charges. Flutter compilation and live Supabase deployment have not been tested.

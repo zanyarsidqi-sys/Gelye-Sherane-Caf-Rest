@@ -1,0 +1,2391 @@
+{
+  "app": "Rest",
+  "phase": "1 step 11",
+  "migration_count": 475,
+  "original_collision_groups": {
+    "20261009": 126,
+    "20261010": 284,
+    "20261011": 65
+  },
+  "proposed_unique_versions": 475,
+  "source_sql_modified": false,
+  "production_migration_history_checked": false,
+  "deployment_authorized": false,
+  "mapping": [
+    {
+      "original": "20261009_001_phase3_order_foundation.sql",
+      "proposed_for_fresh_database_only": "20261009000001_001_phase3_order_foundation.sql",
+      "sha256": "6299960f2cdac193c1a18ff5399cd2da3ef5d0bfd662c177d83ba5a2434f84c3"
+    },
+    {
+      "original": "20261009_002_kitchen_status.sql",
+      "proposed_for_fresh_database_only": "20261009000002_002_kitchen_status.sql",
+      "sha256": "8a323ab885e6d94892418e7e67ef95eea17353f8647253cd74583e355449a83e"
+    },
+    {
+      "original": "20261009_003_menu_product_admin.sql",
+      "proposed_for_fresh_database_only": "20261009000003_003_menu_product_admin.sql",
+      "sha256": "787d90b591b99121a5c2932fe0d7b34106f6515dda502467d2ba5e759e36538f"
+    },
+    {
+      "original": "20261009_004_menu_product_edit.sql",
+      "proposed_for_fresh_database_only": "20261009000004_004_menu_product_edit.sql",
+      "sha256": "952a30ac78462803701423ea34d1738e769cd9e6935768e60acf116d9de97459"
+    },
+    {
+      "original": "20261009_005_website_settings.sql",
+      "proposed_for_fresh_database_only": "20261009000005_005_website_settings.sql",
+      "sha256": "bb676cdeb128f75c4f3ff1d3f9fcac9b1d136a37c2abd8c0ccd256f2a0bab496"
+    },
+    {
+      "original": "20261009_006_public_menu.sql",
+      "proposed_for_fresh_database_only": "20261009000006_006_public_menu.sql",
+      "sha256": "98f0f9f6af2c459e60550ead7fbb72540edf0601b229acd730db748b20756686"
+    },
+    {
+      "original": "20261009_007_public_reservation_requests.sql",
+      "proposed_for_fresh_database_only": "20261009000007_007_public_reservation_requests.sql",
+      "sha256": "d3d6cd8de4f31d0258f54b554cbf955e9666cce5f53440d7d4acdb19eb998ed2"
+    },
+    {
+      "original": "20261009_008_public_order_requests.sql",
+      "proposed_for_fresh_database_only": "20261009000008_008_public_order_requests.sql",
+      "sha256": "3942a4d193c4f1eccff3eb6239008e950262469bda0635cc3e7dae0857603d7e"
+    },
+    {
+      "original": "20261009_009_staff_public_request_review.sql",
+      "proposed_for_fresh_database_only": "20261009000009_009_staff_public_request_review.sql",
+      "sha256": "94daca4563be8bfef858205be1c708fa437fe7cab1362a6dca7397cb88ac36bf"
+    },
+    {
+      "original": "20261009_010_reservation_capacity_guard.sql",
+      "proposed_for_fresh_database_only": "20261009000010_010_reservation_capacity_guard.sql",
+      "sha256": "e401fe11c5e3704220644b0c6ee65f7d5917eb5f2df17d7253aab561aef3eae2"
+    },
+    {
+      "original": "20261009_011_public_request_validation.sql",
+      "proposed_for_fresh_database_only": "20261009000011_011_public_request_validation.sql",
+      "sha256": "b3e1fb173517745c5a99280faa2544ef79458d5d736a1355615a812f376ce35e"
+    },
+    {
+      "original": "20261009_012_public_order_kitchen_bridge.sql",
+      "proposed_for_fresh_database_only": "20261009000012_012_public_order_kitchen_bridge.sql",
+      "sha256": "ba76afc91ec2c6a071548bf9d07f0a77dfb263b7b53b26c6f96ea1793eddf010"
+    },
+    {
+      "original": "20261009_013_kitchen_fulfillment_sync.sql",
+      "proposed_for_fresh_database_only": "20261009000013_013_kitchen_fulfillment_sync.sql",
+      "sha256": "0498de48a35f6fca1fa992131a2b6d844ed4239fe17a823e8f5c7907afe19c2b"
+    },
+    {
+      "original": "20261009_014_customer_order_tracking.sql",
+      "proposed_for_fresh_database_only": "20261009000014_014_customer_order_tracking.sql",
+      "sha256": "2b738882649dc52a136cf880a5ddd48838b502a774bcaa57afcc2936d29dcf93"
+    },
+    {
+      "original": "20261009_016_live_tables.sql",
+      "proposed_for_fresh_database_only": "20261009000015_016_live_tables.sql",
+      "sha256": "4eecfed45a1e57bf94e80856a6dbca9677041293e37d97335a35e1013c8f3dfb"
+    },
+    {
+      "original": "20261009_017_table_order_mode_enforcement.sql",
+      "proposed_for_fresh_database_only": "20261009000016_017_table_order_mode_enforcement.sql",
+      "sha256": "6403edd20cbb32f93a03b92a381e1a6f22fa29e94fc1bba83e84e35a01ddc7e1"
+    },
+    {
+      "original": "20261009_018_table_release_order_guard.sql",
+      "proposed_for_fresh_database_only": "20261009000017_018_table_release_order_guard.sql",
+      "sha256": "c98fb6f76f8155832e019d5c9579e27447216492ee0488a439581b9d5d63bd36"
+    },
+    {
+      "original": "20261009_019_atomic_cart_orders.sql",
+      "proposed_for_fresh_database_only": "20261009000018_019_atomic_cart_orders.sql",
+      "sha256": "dad1da2c2be23be8a20eb044128bdb00668c31ecd99bb116287f81cf89488716"
+    },
+    {
+      "original": "20261009_020_cart_integrity_guards.sql",
+      "proposed_for_fresh_database_only": "20261009000019_020_cart_integrity_guards.sql",
+      "sha256": "9965d0c70c443f77cd698a236d3663fda9b863455f4e12ddb7e182cd0418ca77"
+    },
+    {
+      "original": "20261009_021_cash_payment_ledger.sql",
+      "proposed_for_fresh_database_only": "20261009000020_021_cash_payment_ledger.sql",
+      "sha256": "f33edafa2cc8901e1716bb48cc98d93b7ec882dad00ad3438114d13f62d446ec"
+    },
+    {
+      "original": "20261009_022_cash_reconciliation.sql",
+      "proposed_for_fresh_database_only": "20261009000021_022_cash_reconciliation.sql",
+      "sha256": "b8bbb1c65e5f18413e96d931c977cba92a9b131d18f743252d0d1880ad1cbff8"
+    },
+    {
+      "original": "20261009_023_cash_receipts.sql",
+      "proposed_for_fresh_database_only": "20261009000022_023_cash_receipts.sql",
+      "sha256": "4b8271cd1abb49d95834fc6fa8972b76235a9bb436c5b272bbb307f7ade96cca"
+    },
+    {
+      "original": "20261009_024_table_transfers_reservation_cancellation.sql",
+      "proposed_for_fresh_database_only": "20261009000023_024_table_transfers_reservation_cancellation.sql",
+      "sha256": "323f501d23b3a382d899f8612c794d34004a80e8cc4ad2140b310484270f065e"
+    },
+    {
+      "original": "20261009_025_order_cash_payment_summary.sql",
+      "proposed_for_fresh_database_only": "20261009000024_025_order_cash_payment_summary.sql",
+      "sha256": "2399c35aaa18f268a1ac2afa2eb323f7bdcc0452257ea37dce43e1d19e56c68a"
+    },
+    {
+      "original": "20261009_026_inventory_ledger.sql",
+      "proposed_for_fresh_database_only": "20261009000025_026_inventory_ledger.sql",
+      "sha256": "cc83b709c072637934958a064cbc68b87f1adc4c44efc67504865dfe25e40b5a"
+    },
+    {
+      "original": "20261009_027_kitchen_inventory_consumption.sql",
+      "proposed_for_fresh_database_only": "20261009000026_027_kitchen_inventory_consumption.sql",
+      "sha256": "fa74b7a858b3f3c4e7273d4961b8d88f58bfb7e0124d9cab623aaae27ccbe1a7"
+    },
+    {
+      "original": "20261009_028_inventory_history.sql",
+      "proposed_for_fresh_database_only": "20261009000027_028_inventory_history.sql",
+      "sha256": "1d78ca350eb3eaa1c79ef35e74d6ed5f32f8ad2844b8f24bacf6086f0ad9a81c"
+    },
+    {
+      "original": "20261009_029_recipe_ingredient_consumption.sql",
+      "proposed_for_fresh_database_only": "20261009000028_029_recipe_ingredient_consumption.sql",
+      "sha256": "0d077fb56db4bef641f68e97dc22ca680bb77b86d9834e317e4125b747f4c995"
+    },
+    {
+      "original": "20261009_030_ingredient_stock_units.sql",
+      "proposed_for_fresh_database_only": "20261009000029_030_ingredient_stock_units.sql",
+      "sha256": "6157c027361fd4752907a8bba7de2608c59b19e2d17c01704b3997c33f2e4c6a"
+    },
+    {
+      "original": "20261009_031_dashboard_live_overview.sql",
+      "proposed_for_fresh_database_only": "20261009000030_031_dashboard_live_overview.sql",
+      "sha256": "a06f80ff377ab188dea324db494c02b80c86f464dcbe92aae3e0ba987de1b061"
+    },
+    {
+      "original": "20261009_032_dashboard_accuracy_permissions.sql",
+      "proposed_for_fresh_database_only": "20261009000031_032_dashboard_accuracy_permissions.sql",
+      "sha256": "fa25e2678e489d130250382407fa5afc24166ab456b9fcbfdae8a54512bd2cff"
+    },
+    {
+      "original": "20261009_033_dashboard_tables_and_trends.sql",
+      "proposed_for_fresh_database_only": "20261009000032_033_dashboard_tables_and_trends.sql",
+      "sha256": "2ac3b4d200784ee6582a78243d529b78899d9b6c75071c2d60693920e0af7de6"
+    },
+    {
+      "original": "20261009_034_dashboard_alerts_cash_trends.sql",
+      "proposed_for_fresh_database_only": "20261009000033_034_dashboard_alerts_cash_trends.sql",
+      "sha256": "4067722d20f6691c82fd1da4c25d563d46b06ccfb2ef947e1dc417bd17c2ee03"
+    },
+    {
+      "original": "20261009_035_guest_engagement_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000034_035_guest_engagement_draft.sql",
+      "sha256": "b188441dd6a05fa788da332ac97435982afb3249236fe1a4681a58090c990b75"
+    },
+    {
+      "original": "20261009_036_dashboard_audit_foundation.sql",
+      "proposed_for_fresh_database_only": "20261009000035_036_dashboard_audit_foundation.sql",
+      "sha256": "2e7fd13f32273c3ce70b4ce8f5cb0d86293ce320f9a5078a634e57b758dd39d5"
+    },
+    {
+      "original": "20261009_037_dashboard_operational_metrics_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000036_037_dashboard_operational_metrics_draft.sql",
+      "sha256": "8ade1b68052767a315abf0cf36a01119d4262736853d9d5b316c30191cd9fabc"
+    },
+    {
+      "original": "20261009_038_dashboard_preferences_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000037_038_dashboard_preferences_draft.sql",
+      "sha256": "f0425e982ebde08fed204478e81baa89f039dc4304fbc55d3d0544feb11e569b"
+    },
+    {
+      "original": "20261009_039_table_service_tasks_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000038_039_table_service_tasks_draft.sql",
+      "sha256": "c1e9d9283362c2379df369dfedf6c6a6723e09cd5f3bd989d540893d22877d71"
+    },
+    {
+      "original": "20261009_040_service_task_actions_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000039_040_service_task_actions_draft.sql",
+      "sha256": "e3c7958485b91ba1f2db0146b026b0548476265d46b351b0322ab529f9d87fec"
+    },
+    {
+      "original": "20261009_042_service_employee_picker_notifications_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000040_042_service_employee_picker_notifications_draft.sql",
+      "sha256": "dff765382f909e1b5e34b4158fa2967a26ad2cb46a6155fe9fff8cdc3ca80346"
+    },
+    {
+      "original": "20261009_044_service_request_creation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000041_044_service_request_creation_draft.sql",
+      "sha256": "c5dabe1a14ebe7b983f21e056ac03005614859a3773249e6ef7b24b30e2178cd"
+    },
+    {
+      "original": "20261009_045_checkout_cleaning_safety_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000042_045_checkout_cleaning_safety_draft.sql",
+      "sha256": "e1232d9aeed746d89553272b83179f92758417f85825e072005e4657d5ab227f"
+    },
+    {
+      "original": "20261009_046_guarded_table_release_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000043_046_guarded_table_release_draft.sql",
+      "sha256": "47fe1403fff73cc8d3fc4329eed12b6b00e668fbf03a64163edcd396ccce4b87"
+    },
+    {
+      "original": "20261009_047_service_notification_tracking_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000044_047_service_notification_tracking_draft.sql",
+      "sha256": "1e94cb33d7140696973621a72f6b84c4be51688569df29d82eaa941bb7385c40"
+    },
+    {
+      "original": "20261009_048_motel_meal_offers_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000045_048_motel_meal_offers_draft.sql",
+      "sha256": "57d677782858f3471c9691a7900b20657748a7c0245af98b474590a52a43a6a0"
+    },
+    {
+      "original": "20261009_049_owner_guest_offers_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000046_049_owner_guest_offers_draft.sql",
+      "sha256": "fcd1fb6079da667ba7fd2311519a1368ec76d0dffe4af15ea8d34e5ca7b321a6"
+    },
+    {
+      "original": "20261009_051_table_visit_session_foundation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000047_051_table_visit_session_foundation_draft.sql",
+      "sha256": "f57f3ae6cb7f0a7098dc1ec4c71c5c48cbbf502944f6d11b3b4eb38a4061bf0f"
+    },
+    {
+      "original": "20261009_052_visit_bound_cart_order_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000048_052_visit_bound_cart_order_draft.sql",
+      "sha256": "34c7a4bf7db2dfad5157ca9bbab997c98a1ff5e9032c99987ffb68022bb375ac"
+    },
+    {
+      "original": "20261009_053_open_table_visit_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000049_053_open_table_visit_draft.sql",
+      "sha256": "baf141a0b408b03e4eec390de58052475ff1b4d161ef00276e1f5c556166180a"
+    },
+    {
+      "original": "20261009_054_visit_cash_reconciliation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000050_054_visit_cash_reconciliation_draft.sql",
+      "sha256": "583a54276c5fa308d13567a0c5bbc717cc4de688eda3fa04f5ea8325ab271be9"
+    },
+    {
+      "original": "20261009_055_visit_cleaning_safety_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000051_055_visit_cleaning_safety_draft.sql",
+      "sha256": "641bdedfdadbe802702b726b6c22dfdd6f89c95f6b1c56e85287241a2c051190"
+    },
+    {
+      "original": "20261009_056_owner_guest_request_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000052_056_owner_guest_request_draft.sql",
+      "sha256": "e9166afa7d911ef82b02f7dc823f0ffe439d01b53edbe020aa8229c6c0e1c800"
+    },
+    {
+      "original": "20261009_057_motel_meals_table_join_foundation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000053_057_motel_meals_table_join_foundation_draft.sql",
+      "sha256": "585cde969b77cc1f7eb29504c2f06d5493986c4c174a27a19a4bd76d422ea40f"
+    },
+    {
+      "original": "20261009_058_notification_cursor_sync_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000054_058_notification_cursor_sync_draft.sql",
+      "sha256": "6ffc321152aae0e263dfe914c7cd9c17bdcc970df640a38d441b45d3fd7134a5"
+    },
+    {
+      "original": "20261009_059_table_bill_transfer_preview_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000055_059_table_bill_transfer_preview_draft.sql",
+      "sha256": "f0ed0b73b59d3710762b81e3525217972e862d44a89af3d8d28a9355bb98144f"
+    },
+    {
+      "original": "20261009_060_bill_transfer_request_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000056_060_bill_transfer_request_draft.sql",
+      "sha256": "6624d7a5a6237967a24e426637be2fd6c2577759deac9b13082f4408ec8f9c2d"
+    },
+    {
+      "original": "20261009_061_settlement_safety_foundation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000057_061_settlement_safety_foundation_draft.sql",
+      "sha256": "8ca74089a308a111f4e77298d71e0e2740ff3fb407bc436a925d59e339c632e7"
+    },
+    {
+      "original": "20261009_062_cash_payment_interlock_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000058_062_cash_payment_interlock_draft.sql",
+      "sha256": "5ff363454623a20af85d2ef0471cc014cf96df2151b88a965d00d724c36c0933"
+    },
+    {
+      "original": "20261009_063_transfer_financial_preflight_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000059_063_transfer_financial_preflight_draft.sql",
+      "sha256": "9999bb903f411aa318f160dec3e8bc2b7d066adeb6d884aa1570a04ce2be68da"
+    },
+    {
+      "original": "20261009_064_bill_transfer_allocation_plan_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000100_064_bill_transfer_allocation_plan_draft.sql",
+      "sha256": "f2c557429cd89ba1d31a8b02662b9d3db5932e6a44051725c6f4e0a78778fdc8"
+    },
+    {
+      "original": "20261009_065_order_financial_integrity_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000101_065_order_financial_integrity_draft.sql",
+      "sha256": "53ed58e8c45c664f050a95a6694cd43dc44ed6007da2f916cb6bfd2daf9c3d6e"
+    },
+    {
+      "original": "20261009_066_payment_verification_intake_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000102_066_payment_verification_intake_draft.sql",
+      "sha256": "0182b0bb24e903495d22ae1029ed5497ac8d383d731ad681ecb83066bbd84167"
+    },
+    {
+      "original": "20261009_067_unified_payment_ledger_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000103_067_unified_payment_ledger_draft.sql",
+      "sha256": "0ad205b284635dc22706f4dcc09838d9042fcb79276056825ea471f1113fb318"
+    },
+    {
+      "original": "20261009_068_bill_transfer_execution_gate_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000104_068_bill_transfer_execution_gate_draft.sql",
+      "sha256": "1a33a75599dcccf0ab4c7f7e98532c277cfd702784b3380099a7a86f54babdd1"
+    },
+    {
+      "original": "20261009_069_guest_move_request_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000105_069_guest_move_request_draft.sql",
+      "sha256": "ca1f02b0f486b1807e922a60d93b8010c6626e17fce6dee30a77fba016eac42f"
+    },
+    {
+      "original": "20261009_070_owner_mfa_review_attestation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000106_070_owner_mfa_review_attestation_draft.sql",
+      "sha256": "5eb699fb90aba4fb644a9e3ff7297630e85da856829cc75f3911dbeb670eed22"
+    },
+    {
+      "original": "20261009_071_motel_meal_detail_review_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000107_071_motel_meal_detail_review_draft.sql",
+      "sha256": "0fe6c05c7e2b5a564a2287e9886f7b9b328cff3af8a1609aac2ee45f766b392b"
+    },
+    {
+      "original": "20261009_075_cash_ledger_reconciliation_crosswalk_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000108_075_cash_ledger_reconciliation_crosswalk_draft.sql",
+      "sha256": "b0d8b699f7829146d040d1d4f13d6cc04945dbd9840e68f116f3370e12537494"
+    },
+    {
+      "original": "20261009_076_item_level_transfer_preflight_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000109_076_item_level_transfer_preflight_draft.sql",
+      "sha256": "5b32060536b3c89afc38aeb46ef8a55d786b5beb655b49504990c6b0093799c7"
+    },
+    {
+      "original": "20261009_077_guest_move_cancel_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000110_077_guest_move_cancel_draft.sql",
+      "sha256": "44f1abfb76622884d3808723e5682af68aedbdb2e7448c7418b7f3c37bf76aa9"
+    },
+    {
+      "original": "20261009_078_owner_guest_financial_readiness_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000111_078_owner_guest_financial_readiness_draft.sql",
+      "sha256": "00ba25099a4d298474a70c0253e0d4b0d69b9f0f9a60a24976cca4a978f3b14a"
+    },
+    {
+      "original": "20261009_079_motel_qr_lookup_foundation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000112_079_motel_qr_lookup_foundation_draft.sql",
+      "sha256": "8e44c96d5bbcc1a466ae391c80bf99c01b0c2aec95eed5b1475ae3c2b12c74be"
+    },
+    {
+      "original": "20261009_082_payment_integrity_audit_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000113_082_payment_integrity_audit_draft.sql",
+      "sha256": "d6cb8ce6c3792f7d627982c3519e7904cc267867c2f1e568edc59f0dd158ac9a"
+    },
+    {
+      "original": "20261009_083_cash_ledger_crosswalk_integrity_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000114_083_cash_ledger_crosswalk_integrity_draft.sql",
+      "sha256": "68d7bad6a88a8e83ad99c7b27e19d4c865284bc6891ec22f1fa0c5036972256f"
+    },
+    {
+      "original": "20261009_084_append_only_ledger_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000115_084_append_only_ledger_draft.sql",
+      "sha256": "a1c4b5b90cdc8cc123d0a0e1101fc62a1d50959dfafac454ece052d04c1cf195"
+    },
+    {
+      "original": "20261009_085_cumulative_reversal_guard_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000116_085_cumulative_reversal_guard_draft.sql",
+      "sha256": "a33eb00f536dbe2b29c87ff2b7ba0ae598a52688209b6e2141b2ea1e60df605c"
+    },
+    {
+      "original": "20261009_086_reversal_exposure_diagnostic_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000117_086_reversal_exposure_diagnostic_draft.sql",
+      "sha256": "e867d9a00b571e792c43f21e770ae24ae41b9e597c9bd4e065d8e9b856496122"
+    },
+    {
+      "original": "20261009_087_payment_provenance_diagnostic_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000118_087_payment_provenance_diagnostic_draft.sql",
+      "sha256": "1dc1fc23cef467187edd7ac134af262da8889d01c49f975a552f21cd09df026f"
+    },
+    {
+      "original": "20261009_088_ledger_provenance_insert_guard_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000119_088_ledger_provenance_insert_guard_draft.sql",
+      "sha256": "aa91c578462cb8e8165d38acea001ecff1b38c82cb424fc98c8f8c9a33eb1a19"
+    },
+    {
+      "original": "20261009_089_conservative_payment_reconciliation_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000120_089_conservative_payment_reconciliation_draft.sql",
+      "sha256": "67778a21e60328db755525494633907d6482d82a385b70ccd8b49096d6c4c711"
+    },
+    {
+      "original": "20261009_090_reconciliation_mismatch_guard_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000121_090_reconciliation_mismatch_guard_draft.sql",
+      "sha256": "b3f3e6954ea234bb1589173ff6a205833fa30e3b963e0b82c8d9359f2ff4cef6"
+    },
+    {
+      "original": "20261009_091_order_settlement_gate_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000122_091_order_settlement_gate_draft.sql",
+      "sha256": "238ad28e5c074e385709e78fb13aebcd457991a7de33ca5a4534610c53b421d9"
+    },
+    {
+      "original": "20261009_092_visit_settlement_gate_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000123_092_visit_settlement_gate_draft.sql",
+      "sha256": "904d66f0dbd17424279bf07e346782bf7bf544d98851c42ce1e8c726f58fe513"
+    },
+    {
+      "original": "20261009_093_table_checkout_readiness_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000124_093_table_checkout_readiness_draft.sql",
+      "sha256": "49926d400a3c96b88b9d69d0116e1f9d1e8e8f512f2702c2e60c3a1bec1b747e"
+    },
+    {
+      "original": "20261009_094_visit_scoped_checkout_guard_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000125_094_visit_scoped_checkout_guard_draft.sql",
+      "sha256": "ec2f52f3654fee4b02cfc25ec720fed87375d6fa6b2b400a276717f69d9cef60"
+    },
+    {
+      "original": "20261009_095_disable_legacy_cash_checkout_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000126_095_disable_legacy_cash_checkout_draft.sql",
+      "sha256": "62aefbe0b743b825e4c27e79bca55fa16baee1efd6c8ba75eb77fe30e89947b6"
+    },
+    {
+      "original": "20261009_096_block_legacy_table_release_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000127_096_block_legacy_table_release_draft.sql",
+      "sha256": "c801c351a67d186918aff430854fe30e61a7b63ec86ce28056595a2b4064fdac"
+    },
+    {
+      "original": "20261009_097_visit_settlement_aggregation_fix.sql",
+      "proposed_for_fresh_database_only": "20261009000128_097_visit_settlement_aggregation_fix.sql",
+      "sha256": "d8e038f32d8d1fc5fd8d53b7d37d137d0844ca15f97fd322aae75de7d4b3a99b"
+    },
+    {
+      "original": "20261009_098_legacy_cash_append_only.sql",
+      "proposed_for_fresh_database_only": "20261009000129_098_legacy_cash_append_only.sql",
+      "sha256": "0112c61bc976419e7cb3b2fcfcdae6f05ebb8959eb90b5087ad1d1f020bc94ee"
+    },
+    {
+      "original": "20261009_099_cash_receipt_correction_requests_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000130_099_cash_receipt_correction_requests_draft.sql",
+      "sha256": "868a752f53f843b5c04144685e9e1e215e00cb71d51970a639087d8ee8cb3645"
+    },
+    {
+      "original": "20261009_100_cash_correction_finance_review_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000131_100_cash_correction_finance_review_draft.sql",
+      "sha256": "2d073c9c4e615f0220957c8b4675a9c498625c7926945a41b86e887397d395c5"
+    },
+    {
+      "original": "20261009_101_cash_correction_posting_preflight_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000132_101_cash_correction_posting_preflight_draft.sql",
+      "sha256": "fd54e244689120c4da4d43da193b6139263740d8c4dce86d29e54b86efe7744e"
+    },
+    {
+      "original": "20261009_102_cash_correction_posting_intent_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000133_102_cash_correction_posting_intent_draft.sql",
+      "sha256": "4418a06ec794e30e55c84f9426bff606add777ed4362bdcbf4e2919f4e6347c3"
+    },
+    {
+      "original": "20261009_103_cash_correction_accounting_posting_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000134_103_cash_correction_accounting_posting_draft.sql",
+      "sha256": "8eed0e144eb5fcbd036fd4014a88942ecd74efd71fd12b92dff56a3c0c195fae"
+    },
+    {
+      "original": "20261009_104_correction_reconciliation_integration.sql",
+      "proposed_for_fresh_database_only": "20261009000135_104_correction_reconciliation_integration.sql",
+      "sha256": "c67e6aeb12e88c72bfeeffac36a0bcaa20f5095f41fac69ffbe32accdeb8f4d4"
+    },
+    {
+      "original": "20261009_107_complete_visit_service_task_draft.sql",
+      "proposed_for_fresh_database_only": "20261009000136_107_complete_visit_service_task_draft.sql",
+      "sha256": "aa164236482199278aa5d33d2b01048d9de3522b06f574e92c161973093eac69"
+    },
+    {
+      "original": "20261009_108_visit_departure_and_service_tasks.sql",
+      "proposed_for_fresh_database_only": "20261009000137_108_visit_departure_and_service_tasks.sql",
+      "sha256": "52350f5260d2d2c095ad3ff5cfc1ab27e57d76f8c022e01b91caa928dd68b5aa"
+    },
+    {
+      "original": "20261009_109_visit_cleaning_task_list.sql",
+      "proposed_for_fresh_database_only": "20261009000138_109_visit_cleaning_task_list.sql",
+      "sha256": "fde84f3dcfc1ce1144b968ba20e552bcd70115656aef4a9b195a533e8b6cfd80"
+    },
+    {
+      "original": "20261009_110_physical_checkout_status.sql",
+      "proposed_for_fresh_database_only": "20261009000139_110_physical_checkout_status.sql",
+      "sha256": "c3bcaed8008e5bd8a7c1ab76eb76d24a29ef292fa4bba3dc1b367b1b0820d0ad"
+    },
+    {
+      "original": "20261009_112_visit_checkout_integrity_fix.sql",
+      "proposed_for_fresh_database_only": "20261009000140_112_visit_checkout_integrity_fix.sql",
+      "sha256": "218e2a3fe5d7b3a78d6bec2aa26e4e3d646512282c7a65dc1d35de43fe58e228"
+    },
+    {
+      "original": "20261009_113_cash_only_settlement_attestation.sql",
+      "proposed_for_fresh_database_only": "20261009000141_113_cash_only_settlement_attestation.sql",
+      "sha256": "bbf7102da8cba9411703f6db448049e82a55e19870788d573370efb57484cadf"
+    },
+    {
+      "original": "20261009_114_protect_cash_attested_orders.sql",
+      "proposed_for_fresh_database_only": "20261009000142_114_protect_cash_attested_orders.sql",
+      "sha256": "3d68f7b29865a9f193d4ebc6a3b28142ebb477dc83e07c6783c557a84b670f6c"
+    },
+    {
+      "original": "20261009_115_cash_only_visit_release.sql",
+      "proposed_for_fresh_database_only": "20261009000143_115_cash_only_visit_release.sql",
+      "sha256": "30678e41a8d9955e9bc1d7e442d8076a5594cf9d174b1cbb557180e83e48b34c"
+    },
+    {
+      "original": "20261009_117_order_visit_checkout_race_guard.sql",
+      "proposed_for_fresh_database_only": "20261009000144_117_order_visit_checkout_race_guard.sql",
+      "sha256": "d933a93cc03e6ab3ff11c8c66a7d1f1d670c6b0163f5229f9a2f9246db6e24a8"
+    },
+    {
+      "original": "20261009_118_order_detachment_guard.sql",
+      "proposed_for_fresh_database_only": "20261009000145_118_order_detachment_guard.sql",
+      "sha256": "10c4973c285e0ef689059f7ebf4a96e4d09ed3d6375d62a9dee418537ad2f3a1"
+    },
+    {
+      "original": "20261009_119_attested_cross_order_guard_fix.sql",
+      "proposed_for_fresh_database_only": "20261009000146_119_attested_cross_order_guard_fix.sql",
+      "sha256": "6b6f1f35f7a8c37503594480f34bbf71542fd16b99eba0df64fb43f1f338647a"
+    },
+    {
+      "original": "20261009_120_checkout_attestation_snapshot_guard.sql",
+      "proposed_for_fresh_database_only": "20261009000147_120_checkout_attestation_snapshot_guard.sql",
+      "sha256": "bbf97ab4e6304ac2c5fc0dbbddbef2e662f96437952b19ebf4e8347edb2b56d3"
+    },
+    {
+      "original": "20261009_121_checkout_authorization_hardening.sql",
+      "proposed_for_fresh_database_only": "20261009000148_121_checkout_authorization_hardening.sql",
+      "sha256": "53c9fa997d94aee365f9ee9121f62134c3c0a217a498771a32a948ddd1bd6b5c"
+    },
+    {
+      "original": "20261009_123_cash_ledger_mirror_settlement_fix.sql",
+      "proposed_for_fresh_database_only": "20261009000149_123_cash_ledger_mirror_settlement_fix.sql",
+      "sha256": "5a133b76cdc65294970a3cde713f131aa529723c2a174a1a18021df2fe68a971"
+    },
+    {
+      "original": "20261009_125_unlinked_table_order_checkout_guard.sql",
+      "proposed_for_fresh_database_only": "20261009000150_125_unlinked_table_order_checkout_guard.sql",
+      "sha256": "9b84247d8c1d31503040e0b198b2c67ca3fce8bf27af6795b7c7ff3dea6a2814"
+    },
+    {
+      "original": "20261009_126_no_orders_after_departure.sql",
+      "proposed_for_fresh_database_only": "20261009000151_126_no_orders_after_departure.sql",
+      "sha256": "d6c87fa6002397f74ad2641d8dd123090436f2a9e74bf0a2e22a3ac2702218a3"
+    },
+    {
+      "original": "20261009_127_cancelled_order_checkout_evidence_fix.sql",
+      "proposed_for_fresh_database_only": "20261009000152_127_cancelled_order_checkout_evidence_fix.sql",
+      "sha256": "4ac81c72c797ba27a3c63980f70ea7d24ff1331c7b916a5e55e4fde31a37c0d9"
+    },
+    {
+      "original": "20261009_128_attested_transfer_request_guard.sql",
+      "proposed_for_fresh_database_only": "20261009000153_128_attested_transfer_request_guard.sql",
+      "sha256": "861205e3c2faf264f6bc589f8a79e26317b7d4a44b08a40177bfc072f82df338"
+    },
+    {
+      "original": "20261009_130_trusted_provider_event_intake.sql",
+      "proposed_for_fresh_database_only": "20261009000154_130_trusted_provider_event_intake.sql",
+      "sha256": "0d3e1ceca01d733cf6eb827431694c3111f8aab0e60e5ad019a3722d2bd14d94"
+    },
+    {
+      "original": "20261009_131_verified_provider_ledger_posting.sql",
+      "proposed_for_fresh_database_only": "20261009000155_131_verified_provider_ledger_posting.sql",
+      "sha256": "5e3d64bece96b7db619c9612f818e15045882e0ca1d24788d6d311fab5376a01"
+    },
+    {
+      "original": "20261009_132_provider_transaction_dedup.sql",
+      "proposed_for_fresh_database_only": "20261009000156_132_provider_transaction_dedup.sql",
+      "sha256": "2464e4abb861f07d9c61ced8042659208d42ca1c520774d389c3285153c0c92d"
+    },
+    {
+      "original": "20261009_133_mixed_payment_finance_attestation.sql",
+      "proposed_for_fresh_database_only": "20261009000157_133_mixed_payment_finance_attestation.sql",
+      "sha256": "bdc902f0e3128869e9061e82a5dbebae1ca8a6a1afb5c1fe0fdbef14fb900512"
+    },
+    {
+      "original": "20261009_134_mixed_attestation_mutation_guards.sql",
+      "proposed_for_fresh_database_only": "20261009000158_134_mixed_attestation_mutation_guards.sql",
+      "sha256": "adb6632e8d4c4f69082c068fe76d88ea8b3c57dd0772f3530131fde701aa949f"
+    },
+    {
+      "original": "20261009_136_mixed_visit_checkout_preflight.sql",
+      "proposed_for_fresh_database_only": "20261009000159_136_mixed_visit_checkout_preflight.sql",
+      "sha256": "45f693bd641a4c153dd22cc5a0615c38cac1c790e2afa6fbcb06702bde61ae21"
+    },
+    {
+      "original": "20261009_137_guarded_mixed_table_release.sql",
+      "proposed_for_fresh_database_only": "20261009000200_137_guarded_mixed_table_release.sql",
+      "sha256": "60e59e0319cb22dcbcc0ff7c9cb3bbc1f4187273127851e6c2a3659c0e3d6b12"
+    },
+    {
+      "original": "20261009_139_attestation_conflict_guards.sql",
+      "proposed_for_fresh_database_only": "20261009000201_139_attestation_conflict_guards.sql",
+      "sha256": "549063f682d541f3c6cf1f4ae7f5f9eb3f68f04a2b034b137afc28dba626a52e"
+    },
+    {
+      "original": "20261009_140_mixed_checkout_financial_integrity.sql",
+      "proposed_for_fresh_database_only": "20261009000202_140_mixed_checkout_financial_integrity.sql",
+      "sha256": "fd968e7976cc1a4cc57e0a5a37aac5700227ea3721d6d4298e09539a527ea907"
+    },
+    {
+      "original": "20261009_141_reapply_hardened_mixed_release.sql",
+      "proposed_for_fresh_database_only": "20261009000203_141_reapply_hardened_mixed_release.sql",
+      "sha256": "b7f2a4a8441cb88bfa0d3fec3588d721f928fae7a3b42a287126f1c2236b083a"
+    },
+    {
+      "original": "20261009_142_checkout_schema_compatibility_preflight.sql",
+      "proposed_for_fresh_database_only": "20261009000204_142_checkout_schema_compatibility_preflight.sql",
+      "sha256": "72c9c8bba9ece216b40a172ab0546ae6a1089ff54ad1db81a1026ea862443df7"
+    },
+    {
+      "original": "20261009_144_mixed_checkout_deployment_diagnostics.sql",
+      "proposed_for_fresh_database_only": "20261009000205_144_mixed_checkout_deployment_diagnostics.sql",
+      "sha256": "05dd063488e2e3cc07247bb4ec6ca87b29b8479ce8cb2c61df363de7808c19e3"
+    },
+    {
+      "original": "20261009_website_settings.sql",
+      "proposed_for_fresh_database_only": "20261009000206_website_settings.sql",
+      "sha256": "46a9e7e79a63681c7cf667ffa26d1e491adb92330f5f658a25d1088d05fa684b"
+    },
+    {
+      "original": "20261010_1142_kitchen_served_item_integrity.sql",
+      "proposed_for_fresh_database_only": "20261010000001_1142_kitchen_served_item_integrity.sql",
+      "sha256": "43e42a05eff9fddb40292dcb6de29ed1dabc660097e1d53be4151c78652c27fc"
+    },
+    {
+      "original": "20261010_1143_kitchen_served_item_row_locks.sql",
+      "proposed_for_fresh_database_only": "20261010000002_1143_kitchen_served_item_row_locks.sql",
+      "sha256": "b435eea225e530823347a4a83f36ab0f3bad4bab50ed8177f0a518e75da21d90"
+    },
+    {
+      "original": "20261010_1144_kitchen_served_item_immutability.sql",
+      "proposed_for_fresh_database_only": "20261010000003_1144_kitchen_served_item_immutability.sql",
+      "sha256": "0101a2d3a0fdd28d27d8143648b0fe2498594d5b7ab9b62e5fe89d1d206a576d"
+    },
+    {
+      "original": "20261010_151_reservation_aware_table_seating.sql",
+      "proposed_for_fresh_database_only": "20261010000004_151_reservation_aware_table_seating.sql",
+      "sha256": "b638a425dc452748f1c8e48451a4971842f9fbb3abd355955892c5ad80a23fce"
+    },
+    {
+      "original": "20261010_152_reservation_checkin.sql",
+      "proposed_for_fresh_database_only": "20261010000005_152_reservation_checkin.sql",
+      "sha256": "a169c01995801f3f4a684d2d8026c29f92e8289406d72c9fae6f594c1c038472"
+    },
+    {
+      "original": "20261010_153_reservation_checkin_list.sql",
+      "proposed_for_fresh_database_only": "20261010000006_153_reservation_checkin_list.sql",
+      "sha256": "caca0304252156b23dea05767249fdc3ac1431f48df4a3e4e7bc1ec4db9ed2be"
+    },
+    {
+      "original": "20261010_154_reservation_cancellation_queue.sql",
+      "proposed_for_fresh_database_only": "20261010000007_154_reservation_cancellation_queue.sql",
+      "sha256": "e39f48f69a226c8210d0afee9bc5768f934e3afc259bbedc3844003fa688853d"
+    },
+    {
+      "original": "20261010_156_execute_guest_count_only_move.sql",
+      "proposed_for_fresh_database_only": "20261010000008_156_execute_guest_count_only_move.sql",
+      "sha256": "d72ac33b9c7356cd006c70f4197668c7a6d76bcb230fe18f80029313f27dec92"
+    },
+    {
+      "original": "20261010_157_list_pending_guest_moves.sql",
+      "proposed_for_fresh_database_only": "20261010000009_157_list_pending_guest_moves.sql",
+      "sha256": "824872d16f58c8fa0bd6b062bd0c25d08667d9d96e7ea29a5587c7b254348681"
+    },
+    {
+      "original": "20261010_160_bill_transfer_review_queue.sql",
+      "proposed_for_fresh_database_only": "20261010000010_160_bill_transfer_review_queue.sql",
+      "sha256": "8cdf6ddeb87873ad35aafc991c0e9dd063ac15611f3e2f5c7ed486a82d7c27b0"
+    },
+    {
+      "original": "20261010_161_transfer_request_financial_validation.sql",
+      "proposed_for_fresh_database_only": "20261010000011_161_transfer_request_financial_validation.sql",
+      "sha256": "52851086b25aa2dea73468b9293c3945e9587d3d8bf1951d385ba74771b7ddc8"
+    },
+    {
+      "original": "20261010_163_disable_unsafe_legacy_table_transfer.sql",
+      "proposed_for_fresh_database_only": "20261010000012_163_disable_unsafe_legacy_table_transfer.sql",
+      "sha256": "1ba4e883393b3f8946108380196022e3fa057b1df844e2539245e41673803a2a"
+    },
+    {
+      "original": "20261010_164_harden_transfer_request_payment_guards.sql",
+      "proposed_for_fresh_database_only": "20261010000013_164_harden_transfer_request_payment_guards.sql",
+      "sha256": "1b0c311a342ad86d59dfaf31de145539385b0997804320a791533396be40c211"
+    },
+    {
+      "original": "20261010_165_transfer_approval_preparation.sql",
+      "proposed_for_fresh_database_only": "20261010000014_165_transfer_approval_preparation.sql",
+      "sha256": "9430e37c8f85213293274775b5e28202678044c3dec22802bff74381ffa79b3d"
+    },
+    {
+      "original": "20261010_167_independent_transfer_finance_review.sql",
+      "proposed_for_fresh_database_only": "20261010000015_167_independent_transfer_finance_review.sql",
+      "sha256": "c3bcaefe0c995bfaa5b1ecd3b42246d291d09ea455bab0dea8c7e97110da3ad1"
+    },
+    {
+      "original": "20261010_169_transfer_finance_review_history.sql",
+      "proposed_for_fresh_database_only": "20261010000016_169_transfer_finance_review_history.sql",
+      "sha256": "134664f02f6804a580193bf2100686c44a9a03c5b0a4daa3ad3d37feeb4669a9"
+    },
+    {
+      "original": "20261010_170_audited_table_chair_adjustments.sql",
+      "proposed_for_fresh_database_only": "20261010000017_170_audited_table_chair_adjustments.sql",
+      "sha256": "c22c8e0d95d4e98c66c9a1b1b2699e2410603df6af84574bf482f052e6ee884f"
+    },
+    {
+      "original": "20261010_172_table_qr_identity_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000018_172_table_qr_identity_foundation.sql",
+      "sha256": "93f22e923880529de0e0157e88e0b7f1dfaeff54bd687db93b0ac84576aee0ee"
+    },
+    {
+      "original": "20261010_174_item_payment_allocation_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000019_174_item_payment_allocation_foundation.sql",
+      "sha256": "94bc157b9e9a5b61d552ebf3a2000b11a9694787043cfe5a2fe266fdbbcb8933"
+    },
+    {
+      "original": "20261010_175_unassigned_table_jobs.sql",
+      "proposed_for_fresh_database_only": "20261010000020_175_unassigned_table_jobs.sql",
+      "sha256": "bd48a5e9b60574256ccc172d90852de4d8e515f68ece13e3a6ce6f18f8227e88"
+    },
+    {
+      "original": "20261010_177_cashier_reservation_requests.sql",
+      "proposed_for_fresh_database_only": "20261010000021_177_cashier_reservation_requests.sql",
+      "sha256": "afbaf8550108171fa86809f1c0f3c4abdda167bd3e80b1df63cc7fe9c79619f6"
+    },
+    {
+      "original": "20261010_178_table_item_cash_overview.sql",
+      "proposed_for_fresh_database_only": "20261010000022_178_table_item_cash_overview.sql",
+      "sha256": "3e6b29cbdd73012cd093a1d36ffaf587f63814a0225169a76c12796593e4f3b9"
+    },
+    {
+      "original": "20261010_179_counter_order_intake.sql",
+      "proposed_for_fresh_database_only": "20261010000023_179_counter_order_intake.sql",
+      "sha256": "fb43e1936fb679f2913abb237a843e901745f67086434c4d6b59347dc895ceec"
+    },
+    {
+      "original": "20261010_180_counter_menu_draft_items.sql",
+      "proposed_for_fresh_database_only": "20261010000024_180_counter_menu_draft_items.sql",
+      "sha256": "2b977cc7335cc7842ec2e1c24151269917b33a05ca734ad2be4da1aee9b825ef"
+    },
+    {
+      "original": "20261010_182_counter_menu_search.sql",
+      "proposed_for_fresh_database_only": "20261010000025_182_counter_menu_search.sql",
+      "sha256": "8c6dc70fb0de9a93e903aa23dfc47b41eed51f1512f5487f9c0e0409d4ca5460"
+    },
+    {
+      "original": "20261010_183_counter_draft_item_removal.sql",
+      "proposed_for_fresh_database_only": "20261010000026_183_counter_draft_item_removal.sql",
+      "sha256": "47dd85939a43440198eed186f96fe03278167928f2986a7ed161042e16aa4592"
+    },
+    {
+      "original": "20261010_184_counter_review_submission.sql",
+      "proposed_for_fresh_database_only": "20261010000027_184_counter_review_submission.sql",
+      "sha256": "0f027eef33f1091e288e2d08b35cdd390ff63baac6010108a8ae2c9e6c801f45"
+    },
+    {
+      "original": "20261010_185_create_table_with_chairs.sql",
+      "proposed_for_fresh_database_only": "20261010000028_185_create_table_with_chairs.sql",
+      "sha256": "52a2ebc712c10be503adff18967d479a17fb5eeff8a5a724bf3c4667cd61c6df"
+    },
+    {
+      "original": "20261010_186_item_fulfillment_transitions.sql",
+      "proposed_for_fresh_database_only": "20261010000029_186_item_fulfillment_transitions.sql",
+      "sha256": "1756d403aff1fe6a35e52c66436703330b5224c1908032461bb28c3d8c7cbbd2"
+    },
+    {
+      "original": "20261010_187_fulfillment_notification_outbox.sql",
+      "proposed_for_fresh_database_only": "20261010000030_187_fulfillment_notification_outbox.sql",
+      "sha256": "99ae15dd6171e6bb094d2a0b324d1eb13c7b0585805e569df9c06d71f1410110"
+    },
+    {
+      "original": "20261010_189_my_table_jobs.sql",
+      "proposed_for_fresh_database_only": "20261010000031_189_my_table_jobs.sql",
+      "sha256": "596ff4632a29e3d25708dca2f8b3b31f97582012a5927131e44b24cd86055d63"
+    },
+    {
+      "original": "20261010_190_verified_item_delivery_jobs.sql",
+      "proposed_for_fresh_database_only": "20261010000032_190_verified_item_delivery_jobs.sql",
+      "sha256": "96a3201748075b173e6b82cc2afb34d37acfbbb195a475fb91f03ebe184f1e6a"
+    },
+    {
+      "original": "20261010_191_delivery_job_item_link.sql",
+      "proposed_for_fresh_database_only": "20261010000033_191_delivery_job_item_link.sql",
+      "sha256": "a1b098ff63ef096b290bb7ee62634b0a4a85a0d7e0e71676f0d6e4e4dce339d8"
+    },
+    {
+      "original": "20261010_192_table_notification_read_receipts.sql",
+      "proposed_for_fresh_database_only": "20261010000034_192_table_notification_read_receipts.sql",
+      "sha256": "2ac6583773c3133d58dfab293a4adedfe9d12115d5156b1030d53a8221cfcda8"
+    },
+    {
+      "original": "20261010_193_job_notification_inbox_routing.sql",
+      "proposed_for_fresh_database_only": "20261010000035_193_job_notification_inbox_routing.sql",
+      "sha256": "4b742a9a9fc385505639480d51c3f54a91ae3262d70b2088062b7ca1ad317914"
+    },
+    {
+      "original": "20261010_194_job_reassignment.sql",
+      "proposed_for_fresh_database_only": "20261010000036_194_job_reassignment.sql",
+      "sha256": "6458399aa693ec02f52c1d9240d407a73057d4cb043968e644140850cd6ae0e7"
+    },
+    {
+      "original": "20261010_196_active_worker_assignment_guards.sql",
+      "proposed_for_fresh_database_only": "20261010000037_196_active_worker_assignment_guards.sql",
+      "sha256": "abf8f65cad20d7581e74e3ee4c5fd7ac051b0d1ce7058677a562eee750d3d107"
+    },
+    {
+      "original": "20261010_197_worker_job_capabilities.sql",
+      "proposed_for_fresh_database_only": "20261010000038_197_worker_job_capabilities.sql",
+      "sha256": "cb3fddfdc44ee3b59362aa2efb0c5848cf01fcb12845047d481f39122af3c34f"
+    },
+    {
+      "original": "20261010_198_manager_capability_directory.sql",
+      "proposed_for_fresh_database_only": "20261010000039_198_manager_capability_directory.sql",
+      "sha256": "487dd00025cf7efa6bfb6ddea1de1944db61b30850c5a143a678cde0e0dd48af"
+    },
+    {
+      "original": "20261010_199_active_job_capability_guards.sql",
+      "proposed_for_fresh_database_only": "20261010000040_199_active_job_capability_guards.sql",
+      "sha256": "6a77b8c32e533c416deb8bb9de9710ed2f3f29e4b5b6b49133e51c61ce07c4b1"
+    },
+    {
+      "original": "20261010_200_eligible_worker_workload.sql",
+      "proposed_for_fresh_database_only": "20261010000041_200_eligible_worker_workload.sql",
+      "sha256": "001b60136af14e2d46e4c298b3d9b58f2a07d4982899690da51af812cda1a394"
+    },
+    {
+      "original": "20261010_201_table_job_workload_limits.sql",
+      "proposed_for_fresh_database_only": "20261010000042_201_table_job_workload_limits.sql",
+      "sha256": "0a6317c8fe4b49d37001a5f3eca024fe3c798812abc693ae5865d4856c8255cc"
+    },
+    {
+      "original": "20261010_202_worker_capacity_indicators.sql",
+      "proposed_for_fresh_database_only": "20261010000043_202_worker_capacity_indicators.sql",
+      "sha256": "081c3671ee4fece46396dfa9308d776f8396aa5d91420245a8a05ffcf69abcb9"
+    },
+    {
+      "original": "20261010_203_my_job_capacity.sql",
+      "proposed_for_fresh_database_only": "20261010000044_203_my_job_capacity.sql",
+      "sha256": "c096f73c5c093555460b510101810ecca29a5ccc05311e31e259de28a47169a9"
+    },
+    {
+      "original": "20261010_204_customer_directory_visits.sql",
+      "proposed_for_fresh_database_only": "20261010000045_204_customer_directory_visits.sql",
+      "sha256": "9cef3966b77843356c813598bc28edb39bbe814ccfe7a3ac688e2bb6652d84d2"
+    },
+    {
+      "original": "20261010_205_customer_linked_table_checkin.sql",
+      "proposed_for_fresh_database_only": "20261010000046_205_customer_linked_table_checkin.sql",
+      "sha256": "bcbd0c3f194563caff7f7f4111eb5b7c7d7882b182893553ff5c71ddccb41b47"
+    },
+    {
+      "original": "20261010_206_customer_reservation_history.sql",
+      "proposed_for_fresh_database_only": "20261010000047_206_customer_reservation_history.sql",
+      "sha256": "5e62d29774b8a7457b66c05e0c775cd0bbd2329226033287c2e311cd3d8d884f"
+    },
+    {
+      "original": "20261010_207_customer_attested_cash_ranking.sql",
+      "proposed_for_fresh_database_only": "20261010000048_207_customer_attested_cash_ranking.sql",
+      "sha256": "cfecc4fb2ddc4df5259b0967394345908d170f91b471c4cc6f4aa3a86d92e1ac"
+    },
+    {
+      "original": "20261010_208_customer_monthly_rankings.sql",
+      "proposed_for_fresh_database_only": "20261010000049_208_customer_monthly_rankings.sql",
+      "sha256": "c4163013cb9031445bd455457914d38fb229c6574ce8a1c9e816223d59898f76"
+    },
+    {
+      "original": "20261010_210_customer_performance_analytics.sql",
+      "proposed_for_fresh_database_only": "20261010000050_210_customer_performance_analytics.sql",
+      "sha256": "d9151224d9665749661c692c7fe78e980dac79455531c3a8de0fed85d9cc57ef"
+    },
+    {
+      "original": "20261010_212_manager_job_overview.sql",
+      "proposed_for_fresh_database_only": "20261010000051_212_manager_job_overview.sql",
+      "sha256": "e3372df54a3035a2bdb178592ccf75e5807e62bb4cd2f923b142ab3ba87f00b5"
+    },
+    {
+      "original": "20261010_215_service_duration_report.sql",
+      "proposed_for_fresh_database_only": "20261010000052_215_service_duration_report.sql",
+      "sha256": "740b66dcb0b0f818012b2fbb9025eb7e579c7d7f04562ef503d0fd75344bda32"
+    },
+    {
+      "original": "20261010_216_employee_performance.sql",
+      "proposed_for_fresh_database_only": "20261010000053_216_employee_performance.sql",
+      "sha256": "b58a4a429180477db83d918096f1f0dac83ab51648c124021b1b7857eda7c094"
+    },
+    {
+      "original": "20261010_217_partial_quantity_delivery.sql",
+      "proposed_for_fresh_database_only": "20261010000054_217_partial_quantity_delivery.sql",
+      "sha256": "ec0319903c34d16fa75774ba528942884d4eb1afc0410ee7725c69f90a3a1e35"
+    },
+    {
+      "original": "20261010_218_partial_delivery_ui_snapshot.sql",
+      "proposed_for_fresh_database_only": "20261010000055_218_partial_delivery_ui_snapshot.sql",
+      "sha256": "9e6ad981d8eb03729133864d59f3f6c18f0f8403b3f21faa66f605a5b2a44f9f"
+    },
+    {
+      "original": "20261010_219_unified_delivery_workflow.sql",
+      "proposed_for_fresh_database_only": "20261010000056_219_unified_delivery_workflow.sql",
+      "sha256": "0525369a344f683074116a21bd74bfeafc6939f486af5ba73210ba8aad5c09ff"
+    },
+    {
+      "original": "20261010_220_guest_move_safety_preview.sql",
+      "proposed_for_fresh_database_only": "20261010000057_220_guest_move_safety_preview.sql",
+      "sha256": "e3ccb0d7aaabf50a033ca162392595ab31f3ae4884edc25e8b0d1b39f399ad05"
+    },
+    {
+      "original": "20261010_221_reservation_guest_move_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000058_221_reservation_guest_move_guard.sql",
+      "sha256": "d0a4be88f2eeec79fe8d63f97f9014ce9437844eaade0c65e4c2a30b99724b59"
+    },
+    {
+      "original": "20261010_222_printer_registry_queue.sql",
+      "proposed_for_fresh_database_only": "20261010000059_222_printer_registry_queue.sql",
+      "sha256": "10d0f7729f574c2a99ae733d25cb5b25c0cbdcd880739039e51706f8516e3af3"
+    },
+    {
+      "original": "20261010_223_print_submission.sql",
+      "proposed_for_fresh_database_only": "20261010000100_223_print_submission.sql",
+      "sha256": "16915b7a6a565e028bbd577560a1f92e9c257c3407c65a632324a968b688b2f3"
+    },
+    {
+      "original": "20261010_224_pos_devices_routing_policy.sql",
+      "proposed_for_fresh_database_only": "20261010000101_224_pos_devices_routing_policy.sql",
+      "sha256": "d1c874811bd3ee54966c65f5b8520b749e91bb129e77b9e20e093b5da4b97a6d"
+    },
+    {
+      "original": "20261010_225_pos_device_enable_controls.sql",
+      "proposed_for_fresh_database_only": "20261010000102_225_pos_device_enable_controls.sql",
+      "sha256": "67ae707f1b559d6b0e7f7e5c4bf59e5d41687464e2716b84c66454e8c6613ad3"
+    },
+    {
+      "original": "20261010_226_pos_device_heartbeat.sql",
+      "proposed_for_fresh_database_only": "20261010000103_226_pos_device_heartbeat.sql",
+      "sha256": "cbf4e48e6801343a9eeff734869d9c82b683c39f0fc5f99b091268f5aff6663e"
+    },
+    {
+      "original": "20261010_228_scoped_pos_heartbeat.sql",
+      "proposed_for_fresh_database_only": "20261010000104_228_scoped_pos_heartbeat.sql",
+      "sha256": "d7726011cc00f38fee9c300b6858dcdc240fd61106b2c3d3062145fd4e978c3c"
+    },
+    {
+      "original": "20261010_229_preparation_station_routing.sql",
+      "proposed_for_fresh_database_only": "20261010000105_229_preparation_station_routing.sql",
+      "sha256": "926e317d38bfafd78f1df37ba4ebc454b018a3314e8d042b106ba67b38037e47"
+    },
+    {
+      "original": "20261010_230_qr_menu_presence.sql",
+      "proposed_for_fresh_database_only": "20261010000106_230_qr_menu_presence.sql",
+      "sha256": "3a9a406e48215dec39723b12eb2209db9505344cd56cd61b581891f4869b7028"
+    },
+    {
+      "original": "20261010_231_auto_station_ticket_acceptance.sql",
+      "proposed_for_fresh_database_only": "20261010000107_231_auto_station_ticket_acceptance.sql",
+      "sha256": "b249da91ea5b037d280e3eaabd288de210a10f1b10440d828d49222ad7875816"
+    },
+    {
+      "original": "20261010_232_station_ticket_dispatch.sql",
+      "proposed_for_fresh_database_only": "20261010000108_232_station_ticket_dispatch.sql",
+      "sha256": "539edfe26935f25ee017cb9c6c4dd06d4ad765cc6a97c2605227f3b2c75820e2"
+    },
+    {
+      "original": "20261010_233_dispatch_center_feed.sql",
+      "proposed_for_fresh_database_only": "20261010000109_233_dispatch_center_feed.sql",
+      "sha256": "70d0e0bed3fdc3e8c3313b4acbc0969818cd2a567de26b4d511b40ff5c07d244"
+    },
+    {
+      "original": "20261010_234_station_ticket_content.sql",
+      "proposed_for_fresh_database_only": "20261010000110_234_station_ticket_content.sql",
+      "sha256": "ef7a9edf9d57f33e6da0b79f658b01da22d4ea7a0036a5bb3027ace66d6baa7c"
+    },
+    {
+      "original": "20261010_235_preparation_instructions.sql",
+      "proposed_for_fresh_database_only": "20261010000111_235_preparation_instructions.sql",
+      "sha256": "4f7fb5512965c8668ac9574f9bcabbc5d1d33df3158750c7e21ab3f31d3fd88b"
+    },
+    {
+      "original": "20261010_237_admin_discount_mode_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000112_237_admin_discount_mode_foundation.sql",
+      "sha256": "1c30b19bbd5789c554f74a142e19ffcdafffd2135c0e2ff0fa92a4e76b833228"
+    },
+    {
+      "original": "20261010_239_atomic_cart_discount_pricing.sql",
+      "proposed_for_fresh_database_only": "20261010000113_239_atomic_cart_discount_pricing.sql",
+      "sha256": "4945f2865cedbbf2f9b672e1e6811b05688f5893c951638cdf76da8bbfcffcc2"
+    },
+    {
+      "original": "20261010_240_admin_bill_discount_draft.sql",
+      "proposed_for_fresh_database_only": "20261010000114_240_admin_bill_discount_draft.sql",
+      "sha256": "2ae574c906a73b984e9352a9964e0c15a708935c6d813f3fe48ab1d5d7581ab3"
+    },
+    {
+      "original": "20261010_241_admin_discount_invoice_quote.sql",
+      "proposed_for_fresh_database_only": "20261010000115_241_admin_discount_invoice_quote.sql",
+      "sha256": "acfc332fd0908f688c3b8848241ba738befdf793f2c65f29b85e2b1bb6643e1c"
+    },
+    {
+      "original": "20261010_242_admin_discount_payment_reconciliation.sql",
+      "proposed_for_fresh_database_only": "20261010000116_242_admin_discount_payment_reconciliation.sql",
+      "sha256": "7cf714aa88a66cea334e69d232f3a5c362e463afb19282f6fa0f270ff68a024e"
+    },
+    {
+      "original": "20261010_243_admin_discount_finalization_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000117_243_admin_discount_finalization_readiness.sql",
+      "sha256": "0708fbc6d1851819b7f5c5e5985cbdc4c76d5d5f488d267a059ff1f99b347b4b"
+    },
+    {
+      "original": "20261010_244_admin_discount_invoice_snapshot.sql",
+      "proposed_for_fresh_database_only": "20261010000118_244_admin_discount_invoice_snapshot.sql",
+      "sha256": "185436157edf0078f37ba17d357582996048c915aa92aebbd4c5b04cfc5db928"
+    },
+    {
+      "original": "20261010_245_locked_discount_invoice_guards.sql",
+      "proposed_for_fresh_database_only": "20261010000119_245_locked_discount_invoice_guards.sql",
+      "sha256": "2d9887ccd134870847769f6803c2ff78ca29be820824b4c5d8c89b285e76cc47"
+    },
+    {
+      "original": "20261010_246_locked_discount_payment_preparation.sql",
+      "proposed_for_fresh_database_only": "20261010000120_246_locked_discount_payment_preparation.sql",
+      "sha256": "cbd47dfcf26a9152772f43f94bc442a161eb2af703d93cec48fde3a51540ef49"
+    },
+    {
+      "original": "20261010_247_payment_source_audit_and_contract_fix.sql",
+      "proposed_for_fresh_database_only": "20261010000121_247_payment_source_audit_and_contract_fix.sql",
+      "sha256": "81d617c75eb11b1fa1ff40566312c0c83da31a94d7044057c2cb3ab142dd21b9"
+    },
+    {
+      "original": "20261010_248_locked_invoice_cash_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000122_248_locked_invoice_cash_guard.sql",
+      "sha256": "efe4fa4dabaa9124e46fada936c887f896162e0f23180194ec58f1b80a1e7a85"
+    },
+    {
+      "original": "20261010_249_legacy_payment_writer_interlocks.sql",
+      "proposed_for_fresh_database_only": "20261010000123_249_legacy_payment_writer_interlocks.sql",
+      "sha256": "61f7ee0df5b1df9d1811637fa4dd9f9ed619c783d64d29d8ab1be455f89f345e"
+    },
+    {
+      "original": "20261010_250_locked_discount_payment_mutation_guards.sql",
+      "proposed_for_fresh_database_only": "20261010000124_250_locked_discount_payment_mutation_guards.sql",
+      "sha256": "4a76c720fcad8ab6be1e22b4f00bd892746384c9b40de3233ea151aaa4cc9a8f"
+    },
+    {
+      "original": "20261010_255_table_checkout_mode_reset.sql",
+      "proposed_for_fresh_database_only": "20261010000125_255_table_checkout_mode_reset.sql",
+      "sha256": "47de7b66845f2fcb046bcc7dcd4cbf0434bcbe7d6e07ec98535732d757a0ed2b"
+    },
+    {
+      "original": "20261010_256_staff_table_order_board.sql",
+      "proposed_for_fresh_database_only": "20261010000126_256_staff_table_order_board.sql",
+      "sha256": "6b10413c96f79f5426052c6af57100ff8aa23cd2cc9b3dcf05814ebc6e23b1ad"
+    },
+    {
+      "original": "20261010_257_public_table_mode_menu.sql",
+      "proposed_for_fresh_database_only": "20261010000127_257_public_table_mode_menu.sql",
+      "sha256": "6c05266048538e082ff554f9e0f5ce0ecfe78e363f082d22e2ba5667306c4056"
+    },
+    {
+      "original": "20261010_261_audited_unaccepted_instruction_edits.sql",
+      "proposed_for_fresh_database_only": "20261010000128_261_audited_unaccepted_instruction_edits.sql",
+      "sha256": "268279db0cac8d20395047f7f5be68fc9972ac09c83fffe2cc89577f359790c3"
+    },
+    {
+      "original": "20261010_263_staff_item_timeline.sql",
+      "proposed_for_fresh_database_only": "20261010000129_263_staff_item_timeline.sql",
+      "sha256": "fee048def2827f61753acd06a3d74ebd71ee8afa2fa8d2bfee9e72463f356cb5"
+    },
+    {
+      "original": "20261010_264_item_added_timestamp.sql",
+      "proposed_for_fresh_database_only": "20261010000130_264_item_added_timestamp.sql",
+      "sha256": "34450b1948fe613b59ae79904e6b09413080e73abc525894f2799eb356550903"
+    },
+    {
+      "original": "20261010_265_order_revision_outbox_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000131_265_order_revision_outbox_foundation.sql",
+      "sha256": "463543206323c279e922d0886b297d9bfec04954133e92c9fe737d62d14a33a0"
+    },
+    {
+      "original": "20261010_266_instruction_revision_dispatch.sql",
+      "proposed_for_fresh_database_only": "20261010000132_266_instruction_revision_dispatch.sql",
+      "sha256": "4efb0ef893d77b8e44cf87b29dbf837863d090320362aad388d830523af6210d"
+    },
+    {
+      "original": "20261010_267_staff_order_revision_history.sql",
+      "proposed_for_fresh_database_only": "20261010000133_267_staff_order_revision_history.sql",
+      "sha256": "f958f3050c4d1dc0235cbfa339b1a88c9942ae6a898251928d5852df9548d62b"
+    },
+    {
+      "original": "20261010_268_staff_revision_dispatch_status.sql",
+      "proposed_for_fresh_database_only": "20261010000134_268_staff_revision_dispatch_status.sql",
+      "sha256": "194b0fd29bb3d72ef59e6d798a968f8a089b85e4e15038f31551e331346ecf80"
+    },
+    {
+      "original": "20261010_269_station_revision_preview.sql",
+      "proposed_for_fresh_database_only": "20261010000135_269_station_revision_preview.sql",
+      "sha256": "50cf51d5f4d2dce0f24a625d0763e58b7ab7f14d57c9ee569f0c5d6076dc41ce"
+    },
+    {
+      "original": "20261010_271_recommendation_staff_workflow.sql",
+      "proposed_for_fresh_database_only": "20261010000136_271_recommendation_staff_workflow.sql",
+      "sha256": "b74dd1ed6221aaba7b9ada2cacb2467ef200077986cfc09bf310182ea6c7c84e"
+    },
+    {
+      "original": "20261010_272_customer_feedback_intake_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000137_272_customer_feedback_intake_foundation.sql",
+      "sha256": "4d7c1e9be6a6601b0bb1a36b268a5dd89535409045ace92ce818bd5ee3841039"
+    },
+    {
+      "original": "20261010_276_customer_visit_sessions_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000138_276_customer_visit_sessions_foundation.sql",
+      "sha256": "df2cf588053c83254ac714d468814d9d316fe1597943677245f6df40d3adfa35"
+    },
+    {
+      "original": "20261010_278_customer_feedback_secure_submission.sql",
+      "proposed_for_fresh_database_only": "20261010000139_278_customer_feedback_secure_submission.sql",
+      "sha256": "efcb38b41bf92e127fcc2d410b09269fe087a239de3747188d8eebd2afa8e920"
+    },
+    {
+      "original": "20261010_279_specific_table_reservations.sql",
+      "proposed_for_fresh_database_only": "20261010000140_279_specific_table_reservations.sql",
+      "sha256": "72f3a924076900efd8c7b16b73be52dc35020291c64c35d6edb2f3eb66e23ca7"
+    },
+    {
+      "original": "20261010_280_staff_reservation_changes.sql",
+      "proposed_for_fresh_database_only": "20261010000141_280_staff_reservation_changes.sql",
+      "sha256": "8e28fe813cf65dfb43ce0697653e4aa10a78951c642b7407d237d80168451c2f"
+    },
+    {
+      "original": "20261010_283_staff_reservation_listing.sql",
+      "proposed_for_fresh_database_only": "20261010000142_283_staff_reservation_listing.sql",
+      "sha256": "9db4499ead141b86a04af9194815f4ea6a3d9eda61becb964dc97dcf7adc0bf6"
+    },
+    {
+      "original": "20261010_284_event_reservation_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000143_284_event_reservation_foundation.sql",
+      "sha256": "fb8e153886b3cddbff391af54d1a9e85e11195829c8367f89cdad426f8c6ec2e"
+    },
+    {
+      "original": "20261010_285_event_admin_review.sql",
+      "proposed_for_fresh_database_only": "20261010000144_285_event_admin_review.sql",
+      "sha256": "db4c304dc67d7af9f3f67b27993e5a9b2fe28f1b1f9a6fa61b2a2e09d668e63f"
+    },
+    {
+      "original": "20261010_286_event_table_conflict_hardening.sql",
+      "proposed_for_fresh_database_only": "20261010000145_286_event_table_conflict_hardening.sql",
+      "sha256": "aa9f00ce49ec8837e35b5936a39639a799d2cf9f7413bf0bb7b6473f2a888a4d"
+    },
+    {
+      "original": "20261010_287_event_admin_queue.sql",
+      "proposed_for_fresh_database_only": "20261010000146_287_event_admin_queue.sql",
+      "sha256": "55588d30286724d7ef85a4e3ebc14429f148452816c777a7531cfc7833e341a3"
+    },
+    {
+      "original": "20261010_289_atomic_staff_event_submission.sql",
+      "proposed_for_fresh_database_only": "20261010000147_289_atomic_staff_event_submission.sql",
+      "sha256": "e38698aebc9ab3750eabe20f848a213cfabce0f90ea8a741562d60652a4378c6"
+    },
+    {
+      "original": "20261010_290_staff_event_table_options.sql",
+      "proposed_for_fresh_database_only": "20261010000148_290_staff_event_table_options.sql",
+      "sha256": "71c79bf237afcec634e7a4b3df4f3a7e500802d737148a6326019148eb167f41"
+    },
+    {
+      "original": "20261010_293_event_venue_scope.sql",
+      "proposed_for_fresh_database_only": "20261010000149_293_event_venue_scope.sql",
+      "sha256": "ee4a765f7b751c2ba0865eb9f6768dcd053b3b372b4467b607e8a0e56c1e14d1"
+    },
+    {
+      "original": "20261010_294_event_scope_safety.sql",
+      "proposed_for_fresh_database_only": "20261010000150_294_event_scope_safety.sql",
+      "sha256": "423651e45491bc43a63e9637bf21d1d9fe7d1df911e6eda88914d02c8bff8f15"
+    },
+    {
+      "original": "20261010_295_event_conflict_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000151_295_event_conflict_guard.sql",
+      "sha256": "62ee686b20bb330a000d7dfb9adf0c133a8f152e866dd45ddb7aa004d86d13a7"
+    },
+    {
+      "original": "20261010_296_staff_scoped_events.sql",
+      "proposed_for_fresh_database_only": "20261010000152_296_staff_scoped_events.sql",
+      "sha256": "10190c6fb8b7c3fd449926a40f09be0aef36648c09cf1edb0bf994c5593988a6"
+    },
+    {
+      "original": "20261010_297_public_event_intake_gate.sql",
+      "proposed_for_fresh_database_only": "20261010000153_297_public_event_intake_gate.sql",
+      "sha256": "641d79fa041db38ffb95f9068af1ed777e66aca6df0ef2d01e94f66f5898f6dc"
+    },
+    {
+      "original": "20261010_298_public_event_atomic_intake.sql",
+      "proposed_for_fresh_database_only": "20261010000154_298_public_event_atomic_intake.sql",
+      "sha256": "66dd2d412c3d374d06759e4f12fef3cfde14637f1094648e4e7fce1e3d4a031c"
+    },
+    {
+      "original": "20261010_299_public_event_availability.sql",
+      "proposed_for_fresh_database_only": "20261010000155_299_public_event_availability.sql",
+      "sha256": "c3e24b9fa297ff61b35f9b8dccfd058cb64509ee1dc94ad8b12dc3f09e56ffe7"
+    },
+    {
+      "original": "20261010_301_public_whole_venue_availability.sql",
+      "proposed_for_fresh_database_only": "20261010000156_301_public_whole_venue_availability.sql",
+      "sha256": "862c887ed7a524a99d231f6bb2fcc25b01808d37303e3f987debb4d9fa63d7a7"
+    },
+    {
+      "original": "20261010_303_customer_staff_calls.sql",
+      "proposed_for_fresh_database_only": "20261010000157_303_customer_staff_calls.sql",
+      "sha256": "7b2de95e03973c474df2bd79daa8a2355fc1e46bcea8da9a879d329d78f4d415"
+    },
+    {
+      "original": "20261010_304_customer_bill_snapshot.sql",
+      "proposed_for_fresh_database_only": "20261010000158_304_customer_bill_snapshot.sql",
+      "sha256": "728665d50d3f6e1e3b7b5159a2ecf0e88094578cd164cec4d95b989bafce0aa7"
+    },
+    {
+      "original": "20261010_305_customer_special_requests.sql",
+      "proposed_for_fresh_database_only": "20261010000159_305_customer_special_requests.sql",
+      "sha256": "0f25eab2a42f3cd1cc22a465dc91686f0b0a501818439e803ac7fc4de07b49be"
+    },
+    {
+      "original": "20261010_307_customer_table_service_requests.sql",
+      "proposed_for_fresh_database_only": "20261010000200_307_customer_table_service_requests.sql",
+      "sha256": "3ddad5d6ddc8c47c68b4b1b1de99d61b9eea4c7e4cf147c6128c0974234a2851"
+    },
+    {
+      "original": "20261010_310_customer_request_type_alignment.sql",
+      "proposed_for_fresh_database_only": "20261010000201_310_customer_request_type_alignment.sql",
+      "sha256": "2b4d48ebd4c7d2ac7227d3d8c643fe4283cc5d7a731267231e791b2228e5a671"
+    },
+    {
+      "original": "20261010_311_customer_call_audit.sql",
+      "proposed_for_fresh_database_only": "20261010000202_311_customer_call_audit.sql",
+      "sha256": "90854ef5929b8db72c6e44b61b337d415e348bd6972666c01c2d2b1087ed2b5c"
+    },
+    {
+      "original": "20261010_312_customer_call_status_detail.sql",
+      "proposed_for_fresh_database_only": "20261010000203_312_customer_call_status_detail.sql",
+      "sha256": "ecf4af5d53b2ad5189bf6820f2a3939ea56369cb9986a38b5c7c48fb6422316f"
+    },
+    {
+      "original": "20261010_313_customer_call_cancel.sql",
+      "proposed_for_fresh_database_only": "20261010000204_313_customer_call_cancel.sql",
+      "sha256": "a4c4af444cd393daa85a0124dcf95bf84670792fa97ebea0c26e12ddb473c6df"
+    },
+    {
+      "original": "20261010_315_customer_call_edit_permission.sql",
+      "proposed_for_fresh_database_only": "20261010000205_315_customer_call_edit_permission.sql",
+      "sha256": "628a07fa2844a28f61805ac56706c3d95d56a434f66b9437c69256ac9fbd2390"
+    },
+    {
+      "original": "20261010_318_customer_bill_full_product_coverage.sql",
+      "proposed_for_fresh_database_only": "20261010000206_318_customer_bill_full_product_coverage.sql",
+      "sha256": "d0959146211cdbcd3a79730d8877f009adfa61822ef50f99daaafd30b4a59f77"
+    },
+    {
+      "original": "20261010_334_motel_room_qr_identity.sql",
+      "proposed_for_fresh_database_only": "20261010000207_334_motel_room_qr_identity.sql",
+      "sha256": "b3e12ec5e71f47310f1da5f19fe21d9493d9673bfcd7ebf438cb79c735dc3dfd"
+    },
+    {
+      "original": "20261010_335_motel_room_registry.sql",
+      "proposed_for_fresh_database_only": "20261010000208_335_motel_room_registry.sql",
+      "sha256": "8450cbb5bbe5ec2101369e4783672780bf9d6bb0a4e1ee6c0c3af394e06bcede"
+    },
+    {
+      "original": "20261010_336_motel_scheduled_meals.sql",
+      "proposed_for_fresh_database_only": "20261010000209_336_motel_scheduled_meals.sql",
+      "sha256": "f97d35107d2d9c9abdd94883fd8110cdf35abe298ba33143283c9fd97cec5ad4"
+    },
+    {
+      "original": "20261010_340_motel_public_room_details.sql",
+      "proposed_for_fresh_database_only": "20261010000210_340_motel_public_room_details.sql",
+      "sha256": "16be7897c5f3659941d0aa29acb2d0005c06c694b99ffe2e38400a123d7ec3a1"
+    },
+    {
+      "original": "20261010_341_motel_guest_stay_sessions.sql",
+      "proposed_for_fresh_database_only": "20261010000211_341_motel_guest_stay_sessions.sql",
+      "sha256": "f3d3ab8ecba14f6dad11ed03285b67fbed2ab8ab72867e9b49c989c55a517b83"
+    },
+    {
+      "original": "20261010_343_guest_scheduled_meal_requests.sql",
+      "proposed_for_fresh_database_only": "20261010000212_343_guest_scheduled_meal_requests.sql",
+      "sha256": "53896e75dc77c22a24ca5c9bf71a0f976d481f46e1fd03bd081466d79e81ccd8"
+    },
+    {
+      "original": "20261010_344_motel_meal_staff_decisions.sql",
+      "proposed_for_fresh_database_only": "20261010000213_344_motel_meal_staff_decisions.sql",
+      "sha256": "887b0fae76cd184726e0e21a9dd2f8c9ed7d840e8d911f0e46ad5f5408448ea1"
+    },
+    {
+      "original": "20261010_345_guest_meal_status.sql",
+      "proposed_for_fresh_database_only": "20261010000214_345_guest_meal_status.sql",
+      "sha256": "efaf6cdb67e4d48c49dda648c715058571ef75ee41ae7e8866e8af99989ba2d1"
+    },
+    {
+      "original": "20261010_346_motel_meal_fulfillment_status.sql",
+      "proposed_for_fresh_database_only": "20261010000215_346_motel_meal_fulfillment_status.sql",
+      "sha256": "d80650c9c5070a24ad244e71863d6a98492b0033cccf6b278ab1503d576c51ae"
+    },
+    {
+      "original": "20261010_349_kitchen_scheduled_motel_visibility.sql",
+      "proposed_for_fresh_database_only": "20261010000216_349_kitchen_scheduled_motel_visibility.sql",
+      "sha256": "9e6cb1a26ba088864591faa381fa50630791fbbeac0e271b30d1e1ec077599cc"
+    },
+    {
+      "original": "20261010_350_kitchen_scheduled_meal_progress.sql",
+      "proposed_for_fresh_database_only": "20261010000217_350_kitchen_scheduled_meal_progress.sql",
+      "sha256": "5f7fbb9beff82e83a000e949c0c7ca6fc435c01e1cefc3f36c7a5c2f9cb0cbf2"
+    },
+    {
+      "original": "20261010_351_motel_guest_tourism_menu.sql",
+      "proposed_for_fresh_database_only": "20261010000218_351_motel_guest_tourism_menu.sql",
+      "sha256": "a42b298729084e06c398fbacb900beb98287dcd5a01c5fc9e44b86725f0bccc5"
+    },
+    {
+      "original": "20261010_352_motel_guest_food_requests.sql",
+      "proposed_for_fresh_database_only": "20261010000219_352_motel_guest_food_requests.sql",
+      "sha256": "0f7f7327b2bc6bbfe2409982bbcca7a2faa2552fb7c1f791eae0aab70f09f3bb"
+    },
+    {
+      "original": "20261010_353_motel_food_staff_review.sql",
+      "proposed_for_fresh_database_only": "20261010000220_353_motel_food_staff_review.sql",
+      "sha256": "a0c9b58b147e5eafd762039cab1429d7bc9656e1d8a3e0e306db2f819bee47d9"
+    },
+    {
+      "original": "20261010_354_kitchen_motel_food_queue.sql",
+      "proposed_for_fresh_database_only": "20261010000221_354_kitchen_motel_food_queue.sql",
+      "sha256": "ac2853de09dfd98cf59feb1a82099bf4fce7ad244a6d44580fb9f007a4fe3543"
+    },
+    {
+      "original": "20261010_355_motel_food_kitchen_progress.sql",
+      "proposed_for_fresh_database_only": "20261010000222_355_motel_food_kitchen_progress.sql",
+      "sha256": "b3053a0161f7b75fd435d06b8d5cf5f8712c38619c44c7dde2cfc1e60cba2f1e"
+    },
+    {
+      "original": "20261010_356_motel_guest_food_status.sql",
+      "proposed_for_fresh_database_only": "20261010000223_356_motel_guest_food_status.sql",
+      "sha256": "1782b7ab64f37bb21b35a083206dc7407cd38043cc81f0f97e73611a3a77447c"
+    },
+    {
+      "original": "20261010_357_motel_food_delivery.sql",
+      "proposed_for_fresh_database_only": "20261010000224_357_motel_food_delivery.sql",
+      "sha256": "4526f488b7d3f79cb8919ce55118c60ec9bd507d38136a6118f9f2388a6716d3"
+    },
+    {
+      "original": "20261010_358_motel_food_bill_preview.sql",
+      "proposed_for_fresh_database_only": "20261010000225_358_motel_food_bill_preview.sql",
+      "sha256": "2fa79d657453ffe7dddbab1e6bde6768af82ae8162ef29c5ce50267b4e70ce81"
+    },
+    {
+      "original": "20261010_359_motel_food_billing_ledger.sql",
+      "proposed_for_fresh_database_only": "20261010000226_359_motel_food_billing_ledger.sql",
+      "sha256": "43a93d151d014ca932bd57df91642a03c281b397003b5640deda78a0d4c427b1"
+    },
+    {
+      "original": "20261010_360_motel_food_ledger_reconciliation.sql",
+      "proposed_for_fresh_database_only": "20261010000227_360_motel_food_ledger_reconciliation.sql",
+      "sha256": "93f7c40af97e9e914ba43fa8f7a5c86f6f003e494ee423ee40cf708bf66ddc28"
+    },
+    {
+      "original": "20261010_361_motel_food_invoice_preflight.sql",
+      "proposed_for_fresh_database_only": "20261010000228_361_motel_food_invoice_preflight.sql",
+      "sha256": "cc129eb6c349d1a2ec8e276ec6c9c51c4a4fff6b7ce1c6dcd53ccaed8b6617bc"
+    },
+    {
+      "original": "20261010_362_motel_food_invoice_draft.sql",
+      "proposed_for_fresh_database_only": "20261010000229_362_motel_food_invoice_draft.sql",
+      "sha256": "6f7491c8ee07c852bd936cc220304932d1e739ca586e4c221b0b714854a7ab33"
+    },
+    {
+      "original": "20261010_363_motel_food_invoice_draft_details.sql",
+      "proposed_for_fresh_database_only": "20261010000230_363_motel_food_invoice_draft_details.sql",
+      "sha256": "65c15ed92d2c485aa1f1c4006611964cb5ff0c60c37c3e718bbf27f7e313ae67"
+    },
+    {
+      "original": "20261010_364_motel_food_invoice_review_signoff.sql",
+      "proposed_for_fresh_database_only": "20261010000231_364_motel_food_invoice_review_signoff.sql",
+      "sha256": "61bf84b87eda1f94ceec1b8002838694e3d82a2cc296c9a565f736f3ecfd99ee"
+    },
+    {
+      "original": "20261010_365_motel_food_review_completeness.sql",
+      "proposed_for_fresh_database_only": "20261010000232_365_motel_food_review_completeness.sql",
+      "sha256": "b59c5faa005785c20feacecb794c1364e27f740a01a4f2a94f440e40550b8f9c"
+    },
+    {
+      "original": "20261010_366_motel_food_audited_rereview.sql",
+      "proposed_for_fresh_database_only": "20261010000233_366_motel_food_audited_rereview.sql",
+      "sha256": "5dd67457afa4aea5391b5d8417a06f51203f5a2963c3c5968229b61f13ddc3fc"
+    },
+    {
+      "original": "20261010_367_motel_invoice_architecture_check.sql",
+      "proposed_for_fresh_database_only": "20261010000234_367_motel_invoice_architecture_check.sql",
+      "sha256": "577c239c201cf0981a16aa110e2cb8ce02f478e8783724b76a14dfbba82d8d6d"
+    },
+    {
+      "original": "20261010_368_motel_food_draft_order_identity.sql",
+      "proposed_for_fresh_database_only": "20261010000235_368_motel_food_draft_order_identity.sql",
+      "sha256": "42b49279d3db3b958a85a2f15f67c253aecea1f00c0c12884c182e0afd764a17"
+    },
+    {
+      "original": "20261010_369_motel_food_invoice_handoff_manifest.sql",
+      "proposed_for_fresh_database_only": "20261010000236_369_motel_food_invoice_handoff_manifest.sql",
+      "sha256": "5a945dda82dcb6a35711c544a199627fee9189f52163cbd3825e21d693808925"
+    },
+    {
+      "original": "20261010_370_motel_food_invoice_crosswalk_preview.sql",
+      "proposed_for_fresh_database_only": "20261010000237_370_motel_food_invoice_crosswalk_preview.sql",
+      "sha256": "b10134299c89aa329df01988a1b28372b7aa938c554851e7791654a13cd1d651"
+    },
+    {
+      "original": "20261010_371_motel_food_invoice_source_reservations.sql",
+      "proposed_for_fresh_database_only": "20261010000238_371_motel_food_invoice_source_reservations.sql",
+      "sha256": "305ba3bdf5bfb4796bd778ce8a0e9fa6c5b644872ec9df8b14f401f9cf3ba291"
+    },
+    {
+      "original": "20261010_373_motel_invoice_reservation_reconciliation.sql",
+      "proposed_for_fresh_database_only": "20261010000239_373_motel_invoice_reservation_reconciliation.sql",
+      "sha256": "e9e3151b5df7049394955004e195c5cffdbe5da922d5ece1a837e565556f3a5f"
+    },
+    {
+      "original": "20261010_374_motel_food_invoice_register.sql",
+      "proposed_for_fresh_database_only": "20261010000240_374_motel_food_invoice_register.sql",
+      "sha256": "15ed5feb81f60ae8ffb662f8fc50a3eeaeb1bbbcd17c72335907ace1a0335346"
+    },
+    {
+      "original": "20261010_376_motel_food_finance_handoff.sql",
+      "proposed_for_fresh_database_only": "20261010000241_376_motel_food_finance_handoff.sql",
+      "sha256": "3dd0231e8b2bf0d439b628696350267949a4b14faf92ea30191ae483ccc3f887"
+    },
+    {
+      "original": "20261010_377_motel_food_finance_line_audit.sql",
+      "proposed_for_fresh_database_only": "20261010000242_377_motel_food_finance_line_audit.sql",
+      "sha256": "784976fef0ed8cbb6336281a47fa867e3fdf3d25acfd6bd8f2f8eacec1aafe7d"
+    },
+    {
+      "original": "20261010_378_motel_food_invoice_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000243_378_motel_food_invoice_readiness.sql",
+      "sha256": "cbe0acb47a3f6b26f77896141d253c24ad194b0349dcc7b63a1bc522d344ba5b"
+    },
+    {
+      "original": "20261010_379_motel_food_finance_handoff_attestation.sql",
+      "proposed_for_fresh_database_only": "20261010000244_379_motel_food_finance_handoff_attestation.sql",
+      "sha256": "b892cdd24c5325b11d4a67853fdbc843bd786bdca278013fbae59c6594723f3a"
+    },
+    {
+      "original": "20261010_380_motel_food_attestation_status.sql",
+      "proposed_for_fresh_database_only": "20261010000245_380_motel_food_attestation_status.sql",
+      "sha256": "4efd574591fe91afc135b23e9f044fb1725e9de286fe078bf06678b8834e73d6"
+    },
+    {
+      "original": "20261010_381_motel_food_unified_invoice_intake.sql",
+      "proposed_for_fresh_database_only": "20261010000246_381_motel_food_unified_invoice_intake.sql",
+      "sha256": "1d0cf1bc23c78eb000c778a497114901a2d336ab3ebf269803dde50560a7c4ca"
+    },
+    {
+      "original": "20261010_382_motel_food_intake_integrity.sql",
+      "proposed_for_fresh_database_only": "20261010000247_382_motel_food_intake_integrity.sql",
+      "sha256": "335ccbb56247d4adea733b976ee7adb218eae03207d4c2a1832732f9097cd0af"
+    },
+    {
+      "original": "20261010_383_motel_food_finance_posting.sql",
+      "proposed_for_fresh_database_only": "20261010000248_383_motel_food_finance_posting.sql",
+      "sha256": "e212a5b16b990273d2a2909fc5271a821dc9360f31428c170f22267edefad3ee"
+    },
+    {
+      "original": "20261010_384_motel_food_finance_invoice_listing.sql",
+      "proposed_for_fresh_database_only": "20261010000249_384_motel_food_finance_invoice_listing.sql",
+      "sha256": "573a5c92c326ebe002543ea31b87d6b66d3c3cf8edb36dd329741488178e62a1"
+    },
+    {
+      "original": "20261010_385_motel_food_finance_invoice_reconciliation.sql",
+      "proposed_for_fresh_database_only": "20261010000250_385_motel_food_finance_invoice_reconciliation.sql",
+      "sha256": "2aa279b6d248281d46bd50a1840c383e55bcfdb357ada44fdad320f4e73952f9"
+    },
+    {
+      "original": "20261010_386_motel_food_finance_invoice_line_details.sql",
+      "proposed_for_fresh_database_only": "20261010000251_386_motel_food_finance_invoice_line_details.sql",
+      "sha256": "18573a7da43c44791992584b544ea1c745e5df1d19e126886e0e22d6381bb3bd"
+    },
+    {
+      "original": "20261010_387_motel_food_payment_eligibility.sql",
+      "proposed_for_fresh_database_only": "20261010000252_387_motel_food_payment_eligibility.sql",
+      "sha256": "5f44fd1458d3c0d5eefee41bfef8f935bf849e630166b2db086787da00a0cae2"
+    },
+    {
+      "original": "20261010_388_motel_food_payment_intent_draft.sql",
+      "proposed_for_fresh_database_only": "20261010000253_388_motel_food_payment_intent_draft.sql",
+      "sha256": "c544863033d92a57bd298b192bb9e2075f8b11eefb1b741358a4199c1eb44c69"
+    },
+    {
+      "original": "20261010_389_motel_payment_draft_cancellation.sql",
+      "proposed_for_fresh_database_only": "20261010000254_389_motel_payment_draft_cancellation.sql",
+      "sha256": "4ac030bcb52696a9ff36a872722bb97701a271a75e8ba90840fa475dd78de6ab"
+    },
+    {
+      "original": "20261010_390_motel_payment_draft_integrity.sql",
+      "proposed_for_fresh_database_only": "20261010000255_390_motel_payment_draft_integrity.sql",
+      "sha256": "c77a19b60211ab7a9ba14da19e8e03e002470caebf939d4bf8f6bbe3e3c6090b"
+    },
+    {
+      "original": "20261010_391_motel_payment_draft_history.sql",
+      "proposed_for_fresh_database_only": "20261010000256_391_motel_payment_draft_history.sql",
+      "sha256": "6e56ceeed4f3fdc206da51bd3f194ae0895f253a2d4fc50261b5ffbb4751f619"
+    },
+    {
+      "original": "20261010_392_motel_payment_ledger_compatibility.sql",
+      "proposed_for_fresh_database_only": "20261010000257_392_motel_payment_ledger_compatibility.sql",
+      "sha256": "a771419a54b31928098a1e3c3dc05d49d76d515e9f1af92bfc414159667d53bd"
+    },
+    {
+      "original": "20261010_393_motel_finance_source_bridge.sql",
+      "proposed_for_fresh_database_only": "20261010000258_393_motel_finance_source_bridge.sql",
+      "sha256": "6faeb74513430586f78e23e645b5140046a63e4a8925f2c05b1e6fde28fc8ea6"
+    },
+    {
+      "original": "20261010_394_motel_finance_source_mapping_ui.sql",
+      "proposed_for_fresh_database_only": "20261010000259_394_motel_finance_source_mapping_ui.sql",
+      "sha256": "ef87bbc90b3bf57975f46e43b85cc4d84078db61d38b787af1019ba17bf1fcbc"
+    },
+    {
+      "original": "20261010_395_motel_payment_source_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000300_395_motel_payment_source_readiness.sql",
+      "sha256": "0b7886f7f5c590d62c09c87af5c8ed2aecc82237d040d1a30d132973a3ab8c45"
+    },
+    {
+      "original": "20261010_396_motel_uuid_allocation_review_plan.sql",
+      "proposed_for_fresh_database_only": "20261010000301_396_motel_uuid_allocation_review_plan.sql",
+      "sha256": "9685732e918263968cc9b5c45aa7757b1ffac161ede97347862268a958ffc235"
+    },
+    {
+      "original": "20261010_397_motel_cash_confirmation_review.sql",
+      "proposed_for_fresh_database_only": "20261010000302_397_motel_cash_confirmation_review.sql",
+      "sha256": "a99f015a6e34a6f0c37980c0bef90be43eba498a9d6b30ddf2b60de75c908940"
+    },
+    {
+      "original": "20261010_398_motel_cash_receipt_attestation.sql",
+      "proposed_for_fresh_database_only": "20261010000303_398_motel_cash_receipt_attestation.sql",
+      "sha256": "083d501db9081aece8b046fe44b4c18bf1af3c440dba83342d912e1be4c96afd"
+    },
+    {
+      "original": "20261010_399_motel_cash_settlement.sql",
+      "proposed_for_fresh_database_only": "20261010000304_399_motel_cash_settlement.sql",
+      "sha256": "4e0c457306632205421c34afa91958c8ee20988c61536ff9a2605f69ca1bce2c"
+    },
+    {
+      "original": "20261010_400_motel_cash_settlement_report.sql",
+      "proposed_for_fresh_database_only": "20261010000305_400_motel_cash_settlement_report.sql",
+      "sha256": "f8a07405278379d2a1dda14feda69d9549a538f9f1af92f3c4eb5eed85b51a8d"
+    },
+    {
+      "original": "20261010_401_motel_credit_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000306_401_motel_credit_readiness.sql",
+      "sha256": "f5aeb603b80e78840e54a434ba4a15d4c846b9c2ade07a7efaff76c77267fc3e"
+    },
+    {
+      "original": "20261010_402_motel_credit_barcode_lookup.sql",
+      "proposed_for_fresh_database_only": "20261010000307_402_motel_credit_barcode_lookup.sql",
+      "sha256": "30d75546f2a2583349626e57e3b4196fb7e3a535e17ca068eea821d65cfb081b"
+    },
+    {
+      "original": "20261010_403_motel_credit_verification_requests.sql",
+      "proposed_for_fresh_database_only": "20261010000308_403_motel_credit_verification_requests.sql",
+      "sha256": "b500c971d9eef1db59c1624e3efa797ca1f7f51aae2766d0c1c9249563aa0277"
+    },
+    {
+      "original": "20261010_404_motel_credit_verification_review.sql",
+      "proposed_for_fresh_database_only": "20261010000309_404_motel_credit_verification_review.sql",
+      "sha256": "0058a8086db8bafeb3b408e6c2d65eeeb46469ce80703fdaceb24f390eb0b464"
+    },
+    {
+      "original": "20261010_405_motel_credit_backend_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000310_405_motel_credit_backend_readiness.sql",
+      "sha256": "a32a868fa298e2619e0b8dbd86c9681f4f0f30fba3ba5647d7c8d72935054a1d"
+    },
+    {
+      "original": "20261010_406_motel_credit_provider_contract.sql",
+      "proposed_for_fresh_database_only": "20261010000311_406_motel_credit_provider_contract.sql",
+      "sha256": "15d8f6b0cfe4619b44580c3181a81cc6c5a6f0450cfb52a6c74fd5d01a0dd45d"
+    },
+    {
+      "original": "20261010_407_credit_verification_evidence_review.sql",
+      "proposed_for_fresh_database_only": "20261010000312_407_credit_verification_evidence_review.sql",
+      "sha256": "f86500592c8e395fcb7fed2bd2d3d58c705c4945ab88ff6d076ff39bb35cfe88"
+    },
+    {
+      "original": "20261010_409_motel_credit_verification_gate.sql",
+      "proposed_for_fresh_database_only": "20261010000313_409_motel_credit_verification_gate.sql",
+      "sha256": "3ef8a507132f23ec79fa207bceb66e666ab914ff58e90293ed4f859842da813f"
+    },
+    {
+      "original": "20261010_410_credit_schema_inventory.sql",
+      "proposed_for_fresh_database_only": "20261010000314_410_credit_schema_inventory.sql",
+      "sha256": "d421a629a211467bbb91129f121f227a8108228059b93751c5005da192bfd5ad"
+    },
+    {
+      "original": "20261010_411_credit_integration_requirements.sql",
+      "proposed_for_fresh_database_only": "20261010000315_411_credit_integration_requirements.sql",
+      "sha256": "39b5c0190c0122b613a212bae7235f7251dcd275c88ffd8e2120e915bd0299f8"
+    },
+    {
+      "original": "20261010_412_credit_account_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000316_412_credit_account_foundation.sql",
+      "sha256": "b6729b8b812ba6deeda27ae0809b341c491fe8e2dc0883428485a4d2dcbaf488"
+    },
+    {
+      "original": "20261010_413_credit_account_registration.sql",
+      "proposed_for_fresh_database_only": "20261010000317_413_credit_account_registration.sql",
+      "sha256": "b76e0b992584d32b3744773500f85d3d378402c3816b540208bc5b773c3d7d30"
+    },
+    {
+      "original": "20261010_414_credit_identity_review.sql",
+      "proposed_for_fresh_database_only": "20261010000318_414_credit_identity_review.sql",
+      "sha256": "c533fc3501547ebd8d022e475320a7fff6ed2148a1866d2deff98194c1ad0088"
+    },
+    {
+      "original": "20261010_415_credit_link_approval_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000319_415_credit_link_approval_readiness.sql",
+      "sha256": "b17cb1dc3ccf620dd5d140f2341355d43df559ad798ec063baf245b5d0dfd1f8"
+    },
+    {
+      "original": "20261010_416_credit_link_revocation.sql",
+      "proposed_for_fresh_database_only": "20261010000320_416_credit_link_revocation.sql",
+      "sha256": "c202a38d3e66a20737c54efdd8e8a765516cbecf67ccb6d3b435b73b4807eb84"
+    },
+    {
+      "original": "20261010_417_credit_link_revocation_history.sql",
+      "proposed_for_fresh_database_only": "20261010000321_417_credit_link_revocation_history.sql",
+      "sha256": "b4a7ca251d236c1b2bf82621609481eebb5e4789dc0e937c3b339083e23eb26c"
+    },
+    {
+      "original": "20261010_418_credit_review_stale_link_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000322_418_credit_review_stale_link_guard.sql",
+      "sha256": "92fa781c6a3ade3fa1c517bfaab6d19c97cb6623d8b3e762b2b07bd2b503d81e"
+    },
+    {
+      "original": "20261010_419_credit_identity_review_eligibility.sql",
+      "proposed_for_fresh_database_only": "20261010000323_419_credit_identity_review_eligibility.sql",
+      "sha256": "47efa5343d767ff0fc9440a410d195d0112063e929c834c75d4a34eda4f4033f"
+    },
+    {
+      "original": "20261010_420_credit_consent_outreach.sql",
+      "proposed_for_fresh_database_only": "20261010000324_420_credit_consent_outreach.sql",
+      "sha256": "aea46c3dbb299a4cf9fd38c06424c95a77efe9b897c380eba8765f1074b2e0f0"
+    },
+    {
+      "original": "20261010_421_credit_customer_authorization_request.sql",
+      "proposed_for_fresh_database_only": "20261010000325_421_credit_customer_authorization_request.sql",
+      "sha256": "c2605278b4f2e28004a241af93d2ef6656363192b290b619416df460221eb013"
+    },
+    {
+      "original": "20261010_422_credit_authorization_cancellation.sql",
+      "proposed_for_fresh_database_only": "20261010000326_422_credit_authorization_cancellation.sql",
+      "sha256": "3eeebcafa075be4d17b7b2a675c6752c65f6fde0db7507e0a00d269fac393053"
+    },
+    {
+      "original": "20261010_423_credit_authorization_invoice_checks.sql",
+      "proposed_for_fresh_database_only": "20261010000327_423_credit_authorization_invoice_checks.sql",
+      "sha256": "c36828df588d2c2865ebca705ea577f59c9d2a436682ef56691a664a4cd9a454"
+    },
+    {
+      "original": "20261010_424_credit_authorization_invoice_enforcement.sql",
+      "proposed_for_fresh_database_only": "20261010000328_424_credit_authorization_invoice_enforcement.sql",
+      "sha256": "ea38413026e92c885d5d83f30cd2be31d608fcbc31dfeabe878fa82647bd4c1d"
+    },
+    {
+      "original": "20261010_425_credit_authorization_expiration.sql",
+      "proposed_for_fresh_database_only": "20261010000329_425_credit_authorization_expiration.sql",
+      "sha256": "efa5301038e8b3e9e331076976de7ee07474ee24e2fbf926a780add7bd383b76"
+    },
+    {
+      "original": "20261010_426_credit_authorization_effective_status.sql",
+      "proposed_for_fresh_database_only": "20261010000330_426_credit_authorization_effective_status.sql",
+      "sha256": "1ddc6c5da7c0a4dcff1a90a2ed92cbcfb7ddcd6711a177490f823b363f0fbcaa"
+    },
+    {
+      "original": "20261010_428_credit_authorization_preflight.sql",
+      "proposed_for_fresh_database_only": "20261010000331_428_credit_authorization_preflight.sql",
+      "sha256": "e59bd6c335cc5746e517a0aa8981cb0aba991e6a92ba83d4deea566e63f9df74"
+    },
+    {
+      "original": "20261010_429_credit_invoice_conflict_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000332_429_credit_invoice_conflict_guard.sql",
+      "sha256": "196a6afb35ed07c7b0d60907f3ebe0c66bfceacbe603bdc5f00a9d85b1a6f97c"
+    },
+    {
+      "original": "20261010_430_credit_authorization_retry_fix.sql",
+      "proposed_for_fresh_database_only": "20261010000333_430_credit_authorization_retry_fix.sql",
+      "sha256": "f1b0c26858dde5c2dc2c94fec829d7e44a227c56d2482912cf8250b532b9d861"
+    },
+    {
+      "original": "20261010_431_credit_customer_auth_binding_foundation.sql",
+      "proposed_for_fresh_database_only": "20261010000334_431_credit_customer_auth_binding_foundation.sql",
+      "sha256": "db6eae66b352c6182b0e10dafd3e15c19fd73dec171a68eec456a43e98935ef8"
+    },
+    {
+      "original": "20261010_432_credit_identity_onboarding_requests.sql",
+      "proposed_for_fresh_database_only": "20261010000335_432_credit_identity_onboarding_requests.sql",
+      "sha256": "5e338619c3d7bd09c8951ae36d2235ee8b32ebc2166260bee765add4af3ef7de"
+    },
+    {
+      "original": "20261010_433_credit_identity_onboarding_staff_review.sql",
+      "proposed_for_fresh_database_only": "20261010000336_433_credit_identity_onboarding_staff_review.sql",
+      "sha256": "3f05f4e82cba23dee6b61b23e3dd9309b5682a7301177db26c8a0e0121233be2"
+    },
+    {
+      "original": "20261010_434_credit_identity_independent_evidence_review.sql",
+      "proposed_for_fresh_database_only": "20261010000337_434_credit_identity_independent_evidence_review.sql",
+      "sha256": "ab630e0fd46c0de01b82dfb037a93906cdf0bd9c64c5eb07e47a177d80fc6705"
+    },
+    {
+      "original": "20261010_435_credit_identity_customer_acknowledgement.sql",
+      "proposed_for_fresh_database_only": "20261010000338_435_credit_identity_customer_acknowledgement.sql",
+      "sha256": "b95cf98b668b9654b450f42b52fd5da854c6899acbc4da0cb77c99591fff746a"
+    },
+    {
+      "original": "20261010_436_credit_identity_dispute_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000339_436_credit_identity_dispute_guard.sql",
+      "sha256": "276d50919ff49659afa97f261c7b52603436cfd16db01a36e9d10109b9feda98"
+    },
+    {
+      "original": "20261010_438_credit_identity_approval_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000340_438_credit_identity_approval_readiness.sql",
+      "sha256": "c9a0bc032f4bbacffbe1831d3cfa389caebcad818abd82e928e02a126d91363f"
+    },
+    {
+      "original": "20261010_439_credit_identity_final_assessment.sql",
+      "proposed_for_fresh_database_only": "20261010000341_439_credit_identity_final_assessment.sql",
+      "sha256": "01fefe10382bd035200391de5ff5d4f3f65edac31418cb17635b04c1e79d8883"
+    },
+    {
+      "original": "20261010_440_credit_identity_external_evidence_intake.sql",
+      "proposed_for_fresh_database_only": "20261010000342_440_credit_identity_external_evidence_intake.sql",
+      "sha256": "90bf9b015a24e66b9ec047d3616654bb1e07a4399f2ea8195218fbca5ddf9c88"
+    },
+    {
+      "original": "20261010_441_credit_external_evidence_independent_review.sql",
+      "proposed_for_fresh_database_only": "20261010000343_441_credit_external_evidence_independent_review.sql",
+      "sha256": "9841e4d2216a4c38f61e6da7342606d1271b5c44d702e0de4a13bca46f469b26"
+    },
+    {
+      "original": "20261010_442_credit_external_identity_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000344_442_credit_external_identity_readiness.sql",
+      "sha256": "42964d8acd590ae42d7a761075f109772e7350653e516b2458c92c6077a8561c"
+    },
+    {
+      "original": "20261010_444_credit_identity_provider_evidence_safety.sql",
+      "proposed_for_fresh_database_only": "20261010000345_444_credit_identity_provider_evidence_safety.sql",
+      "sha256": "2252fc007f45ab035cb0ffad56b3c5064c055f37cdbc98384466b8b17524ea32"
+    },
+    {
+      "original": "20261010_446_credit_external_evidence_latest_review_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000346_446_credit_external_evidence_latest_review_guard.sql",
+      "sha256": "b56b131706445f15cdf7bc7aa011c25f4b95623f76896b03b45d8649d4b0a22c"
+    },
+    {
+      "original": "20261010_448_customer_identity_safety_hold.sql",
+      "proposed_for_fresh_database_only": "20261010000347_448_customer_identity_safety_hold.sql",
+      "sha256": "f792423706db9bbb9f98ced750e1a4149ae0888379c4eb38caa606cb61444e96"
+    },
+    {
+      "original": "20261010_449_credit_identity_safety_hold_all_reviews.sql",
+      "proposed_for_fresh_database_only": "20261010000348_449_credit_identity_safety_hold_all_reviews.sql",
+      "sha256": "8a3a85f7ef3dbde6eff81c42d3b26c6bbf705a2220529eb16ca0f2d20cb4348a"
+    },
+    {
+      "original": "20261010_450_credit_identity_binding_activation_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000349_450_credit_identity_binding_activation_guard.sql",
+      "sha256": "836dd643baa832d0c6dc105830c34909a2cfbf0ecff7d7c07285ec6f15ecc383"
+    },
+    {
+      "original": "20261010_452_credit_onboarding_historical_safety_hold.sql",
+      "proposed_for_fresh_database_only": "20261010000350_452_credit_onboarding_historical_safety_hold.sql",
+      "sha256": "1f4fd66273d5262f07087f7c93c24c34ac112a1e9bcbd0d4ac8054792b99e3b5"
+    },
+    {
+      "original": "20261010_454_credit_onboarding_request_hold_status.sql",
+      "proposed_for_fresh_database_only": "20261010000351_454_credit_onboarding_request_hold_status.sql",
+      "sha256": "fcc5c6e4e9028ec31fc6fbfc330ef3c08fc875327b9e7ffc5b5b69481c8d77bb"
+    },
+    {
+      "original": "20261010_456_credit_customer_identity_safety_overview.sql",
+      "proposed_for_fresh_database_only": "20261010000352_456_credit_customer_identity_safety_overview.sql",
+      "sha256": "3abc520f397dde83f402de7c63809b9b50cceff4f14b26b3c63ecd81472436b1"
+    },
+    {
+      "original": "20261010_457_credit_customer_request_hold_status.sql",
+      "proposed_for_fresh_database_only": "20261010000353_457_credit_customer_request_hold_status.sql",
+      "sha256": "56720ea5728e2fd8c5b8a3fe93b80397af26f2201a61615fde878e5a6cda18c1"
+    },
+    {
+      "original": "20261010_458_credit_customer_hold_acknowledgement_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000354_458_credit_customer_hold_acknowledgement_guard.sql",
+      "sha256": "1cceb153c82adae9f90b0f4c3ab5afae9eac3b63616f1b5e53da886050814334"
+    },
+    {
+      "original": "20261010_459_customer_dispute_auto_safety_hold.sql",
+      "proposed_for_fresh_database_only": "20261010000355_459_customer_dispute_auto_safety_hold.sql",
+      "sha256": "464250ab228ae729c56139804122f1a3edb6936e9cf54fa75641f9d5eed466d8"
+    },
+    {
+      "original": "20261010_460_credit_authorization_historical_hold_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000356_460_credit_authorization_historical_hold_guard.sql",
+      "sha256": "4ddbe16df976f80d55a6b9f4ed80f6929e7de8ff9f519868ab870c1233ef1055"
+    },
+    {
+      "original": "20261010_461_credit_authorization_hold_check_ui.sql",
+      "proposed_for_fresh_database_only": "20261010000357_461_credit_authorization_hold_check_ui.sql",
+      "sha256": "639a488172a47361f53e9426b5374d78f21c8bd34b634a90fa784d77718cf1c3"
+    },
+    {
+      "original": "20261010_462_credit_customer_authorization_visibility.sql",
+      "proposed_for_fresh_database_only": "20261010000358_462_credit_customer_authorization_visibility.sql",
+      "sha256": "fafbc66146720efb5d4fe322f47f7577d7c2f01651908172cb3ec2f65d53fa3b"
+    },
+    {
+      "original": "20261010_463_credit_customer_authorization_effective_status.sql",
+      "proposed_for_fresh_database_only": "20261010000359_463_credit_customer_authorization_effective_status.sql",
+      "sha256": "98b446a06617a06fe64745e592020b081adef5815c6fef6ad78da1370a3cb604"
+    },
+    {
+      "original": "20261010_464_credit_customer_authorization_readiness.sql",
+      "proposed_for_fresh_database_only": "20261010000400_464_credit_customer_authorization_readiness.sql",
+      "sha256": "c570f64ef32423451884e988661a551330a6b502cc525213f84c1bacf948769b"
+    },
+    {
+      "original": "20261010_465_credit_authorization_customer_concern.sql",
+      "proposed_for_fresh_database_only": "20261010000401_465_credit_authorization_customer_concern.sql",
+      "sha256": "e417469e010b8d5569dbf591679df78f1e7c706945f4c2d54764e7622702768a"
+    },
+    {
+      "original": "20261010_466_credit_authorization_customer_concern_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000402_466_credit_authorization_customer_concern_guard.sql",
+      "sha256": "7e4803ddacc925c2f142d0028f43d590fe03c4a764faa14772d839f7a3fec6fc"
+    },
+    {
+      "original": "20261010_471_dashboard_operational_summary.sql",
+      "proposed_for_fresh_database_only": "20261010000403_471_dashboard_operational_summary.sql",
+      "sha256": "6b5ab4395712165d2abd99fbdc0dde610b5b1cbae08d7d0bde158921405044a4"
+    },
+    {
+      "original": "20261010_472_dashboard_permission_scoped_summary.sql",
+      "proposed_for_fresh_database_only": "20261010000404_472_dashboard_permission_scoped_summary.sql",
+      "sha256": "4fdcf3c68fc5d79df5ee2f9b4bdc654eb5ab97208e4e3b65e2b3b5ed11ce1b8b"
+    },
+    {
+      "original": "20261010_474_dashboard_weekly_order_activity.sql",
+      "proposed_for_fresh_database_only": "20261010000405_474_dashboard_weekly_order_activity.sql",
+      "sha256": "e87a39e849c4dac8bb3ad1dd24dafd86fa4e1b90e8e8b3ab28043191c5a0535e"
+    },
+    {
+      "original": "20261010_478_dashboard_weekly_activity_date_fix.sql",
+      "proposed_for_fresh_database_only": "20261010000406_478_dashboard_weekly_activity_date_fix.sql",
+      "sha256": "da33fc9fcefb78b36ce127cc4f31ab945ad21011465427cd3d496d3fee1188a6"
+    },
+    {
+      "original": "20261010_484_dashboard_cash_collections_readonly.sql",
+      "proposed_for_fresh_database_only": "20261010000407_484_dashboard_cash_collections_readonly.sql",
+      "sha256": "fd4d28d2175e76eed3cab91c1a6df1bbf25eeb441375556061a1271ee502d9f4"
+    },
+    {
+      "original": "20261010_488_dashboard_weekly_cash_trend.sql",
+      "proposed_for_fresh_database_only": "20261010000408_488_dashboard_weekly_cash_trend.sql",
+      "sha256": "bd7ee93c127f7f294a052df6991b361f32ca21574f6257960c70d72892dfb7ea"
+    },
+    {
+      "original": "20261010_509_staff_item_instruction_read.sql",
+      "proposed_for_fresh_database_only": "20261010000409_509_staff_item_instruction_read.sql",
+      "sha256": "eca5326a681626154f209a5edcc3f9d8272f572e30286f1694e1f3a62023a6d7"
+    },
+    {
+      "original": "20261010_519_staff_order_board_pagination.sql",
+      "proposed_for_fresh_database_only": "20261010000410_519_staff_order_board_pagination.sql",
+      "sha256": "d364c31f90fdf4a3e472b292fba6c3522e55dc899564adcaecffdea45ea59697"
+    },
+    {
+      "original": "20261010_522_unaccepted_quantity_correction.sql",
+      "proposed_for_fresh_database_only": "20261010000411_522_unaccepted_quantity_correction.sql",
+      "sha256": "cbc230727b7e6ca5cfd4dc878f4f3f5893b06f389ab1253b66f5a9f501d0cf29"
+    },
+    {
+      "original": "20261010_524_quantity_price_integrity.sql",
+      "proposed_for_fresh_database_only": "20261010000412_524_quantity_price_integrity.sql",
+      "sha256": "f09c238d953e30db4e206afebf9678ec2c85e0b57f9d7675bc388abc3957c085"
+    },
+    {
+      "original": "20261010_527_quantity_correction_reason.sql",
+      "proposed_for_fresh_database_only": "20261010000413_527_quantity_correction_reason.sql",
+      "sha256": "526cb7e4ea1b9f5f2d20fa981bd72b094ae12443fd31228ad7bf750ab7b871c3"
+    },
+    {
+      "original": "20261010_528_quantity_payment_reconciliation_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000414_528_quantity_payment_reconciliation_guard.sql",
+      "sha256": "06ecec73efeb3ef73289ec5990a4e38bc7c145576a411553b18f193e748e375f"
+    },
+    {
+      "original": "20261010_529_quantity_financial_preview.sql",
+      "proposed_for_fresh_database_only": "20261010000415_529_quantity_financial_preview.sql",
+      "sha256": "ec3818778089a90d37af56416b4d71420f2bbacb43b56558f4b190468da05fa8"
+    },
+    {
+      "original": "20261010_530_quantity_preview_identity.sql",
+      "proposed_for_fresh_database_only": "20261010000416_530_quantity_preview_identity.sql",
+      "sha256": "43bb26b759d82145e0f7c5f9e9efc7bf1bf756488706e72de840fe26f659b943"
+    },
+    {
+      "original": "20261010_535_unaccepted_product_replacement.sql",
+      "proposed_for_fresh_database_only": "20261010000417_535_unaccepted_product_replacement.sql",
+      "sha256": "aa91131d9ee1be0735f109f736f998d013ac2404bd7ffd2eb7ea15e7c99664d7"
+    },
+    {
+      "original": "20261010_537_replacement_catalog_search.sql",
+      "proposed_for_fresh_database_only": "20261010000418_537_replacement_catalog_search.sql",
+      "sha256": "be4079ecb522066bd8a79161f1bb85de803bab23391ddf9afcef45f5eebe8ec1"
+    },
+    {
+      "original": "20261010_538_confirmed_replacement_quote.sql",
+      "proposed_for_fresh_database_only": "20261010000419_538_confirmed_replacement_quote.sql",
+      "sha256": "171a59ecf0ef1d65c800b47d3fee68a8fe0a5478cb86e05dff5398078ab9ca47"
+    },
+    {
+      "original": "20261010_539_kitchen_revision_acknowledgement.sql",
+      "proposed_for_fresh_database_only": "20261010000420_539_kitchen_revision_acknowledgement.sql",
+      "sha256": "cd3bf69f844cad79c360a297fdd889375a66bb2bc92061c5239352ab7f64998e"
+    },
+    {
+      "original": "20261010_540_kitchen_revision_retry.sql",
+      "proposed_for_fresh_database_only": "20261010000421_540_kitchen_revision_retry.sql",
+      "sha256": "a83d8f2c21c47f3916ce76bb8dd7918ab87a74d28b8c3848ad5051db4d082811"
+    },
+    {
+      "original": "20261010_541_kitchen_revision_delivery_visibility.sql",
+      "proposed_for_fresh_database_only": "20261010000422_541_kitchen_revision_delivery_visibility.sql",
+      "sha256": "96967747e6239834711825221fc3ebb76c81769288e5212d43cca63b92cc153f"
+    },
+    {
+      "original": "20261010_544_kitchen_receipt_failed_dispatch_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000423_544_kitchen_receipt_failed_dispatch_guard.sql",
+      "sha256": "5dbdd0dbec5f7852c8250d9d5b5ef5fb2f2c91b8d8c9e80db0ac554a162f2f07"
+    },
+    {
+      "original": "20261010_545_kitchen_receipt_audit_integrity.sql",
+      "proposed_for_fresh_database_only": "20261010000424_545_kitchen_receipt_audit_integrity.sql",
+      "sha256": "7c8320edc5837e8ab903092263683bae1f89c12e9b9649eaa52832cdcd77af43"
+    },
+    {
+      "original": "20261010_546_kitchen_revision_reconciliation.sql",
+      "proposed_for_fresh_database_only": "20261010000425_546_kitchen_revision_reconciliation.sql",
+      "sha256": "b3e3a2ff397276e55e05df3b94736103301e21c4ebb75efeebea9fc2c6cb547c"
+    },
+    {
+      "original": "20261010_549_kitchen_revision_exception_cases.sql",
+      "proposed_for_fresh_database_only": "20261010000426_549_kitchen_revision_exception_cases.sql",
+      "sha256": "2b8ba93a9e0d28c34dc1c02e1ebb88d51106104f296dfdbd24151b714ae41086"
+    },
+    {
+      "original": "20261010_550_kitchen_revision_case_resolution.sql",
+      "proposed_for_fresh_database_only": "20261010000427_550_kitchen_revision_case_resolution.sql",
+      "sha256": "20c8f088ac35e2227493dbee25f445309d644cef2519cf53b515b294902031d9"
+    },
+    {
+      "original": "20261010_551_kitchen_exception_reopen.sql",
+      "proposed_for_fresh_database_only": "20261010000428_551_kitchen_exception_reopen.sql",
+      "sha256": "4405dd3742454b27a29599a1b20cfa99db18d8e4e2ee4dddd755e425687545e9"
+    },
+    {
+      "original": "20261010_552_kitchen_exception_closure_gate.sql",
+      "proposed_for_fresh_database_only": "20261010000429_552_kitchen_exception_closure_gate.sql",
+      "sha256": "429369c2a58aea1327949bf1957005a661fab8186527657830803aaf9963b88a"
+    },
+    {
+      "original": "20261010_554_disable_legacy_replacement_bypass.sql",
+      "proposed_for_fresh_database_only": "20261010000430_554_disable_legacy_replacement_bypass.sql",
+      "sha256": "96e43f1954d3ca3ec5f90f8abfef469adb8f73e4f6fdd742edf7de4e28a73fc4"
+    },
+    {
+      "original": "20261010_555_replacement_revision_serialization.sql",
+      "proposed_for_fresh_database_only": "20261010000431_555_replacement_revision_serialization.sql",
+      "sha256": "9c9906332e93ec116c86a047eff0fe8884106ae81c05bf10a7d5851512f504ba"
+    },
+    {
+      "original": "20261010_556_missing_kitchen_dispatch_guard.sql",
+      "proposed_for_fresh_database_only": "20261010000432_556_missing_kitchen_dispatch_guard.sql",
+      "sha256": "2eafcd06279a047a9410ba90aa549e1498bd4a1721a80db340452bc58f1e0c24"
+    },
+    {
+      "original": "20261010_557_replacement_input_consistency.sql",
+      "proposed_for_fresh_database_only": "20261010000433_557_replacement_input_consistency.sql",
+      "sha256": "2723fa7525758f77ec2dac7d89039abb55b40c9c70803d209caf0a3f5ca43aa7"
+    },
+    {
+      "original": "20261010_560_replacement_quantity_confirmation.sql",
+      "proposed_for_fresh_database_only": "20261010000434_560_replacement_quantity_confirmation.sql",
+      "sha256": "3f4cf4e0e97d9bc9fec6cd52ee57e517c124b226940106d65fa77a6bbe5c6262"
+    },
+    {
+      "original": "20261010_561_replacement_mode_confirmation.sql",
+      "proposed_for_fresh_database_only": "20261010000435_561_replacement_mode_confirmation.sql",
+      "sha256": "7f7246b160ee7a33b8bab6f4c62ea9caf96026bda05eaf9268846856848eb9f9"
+    },
+    {
+      "original": "20261010_565_replacement_idempotency.sql",
+      "proposed_for_fresh_database_only": "20261010000436_565_replacement_idempotency.sql",
+      "sha256": "e7cad7c039671a8212eab4aebd4d6523eab4332043fb38ec8c681f5795acf11a"
+    },
+    {
+      "original": "20261010_566_replacement_request_integrity.sql",
+      "proposed_for_fresh_database_only": "20261010000437_566_replacement_request_integrity.sql",
+      "sha256": "5ae40263a93cbdf7b1a904bc6369cadc0f477184c06413df06a6293fe6a2ac5a"
+    },
+    {
+      "original": "20261010_568_replacement_receipt_history.sql",
+      "proposed_for_fresh_database_only": "20261010000438_568_replacement_receipt_history.sql",
+      "sha256": "cb2a045e5f74e008f585038ef4546e07028b6cc616c1214dd32448125b360658"
+    },
+    {
+      "original": "20261010_570_replacement_receipt_reconciliation.sql",
+      "proposed_for_fresh_database_only": "20261010000439_570_replacement_receipt_reconciliation.sql",
+      "sha256": "735f58c4ed2fbc3019e5918185a87d6cc67340331b3b5f5d863b2812c9c360ff"
+    },
+    {
+      "original": "20261010_571_replacement_reconciliation_guidance.sql",
+      "proposed_for_fresh_database_only": "20261010000440_571_replacement_reconciliation_guidance.sql",
+      "sha256": "c849bdc38c82bf9d6a555275e3fa8c7b1c84fdfc86506433332ee0d9a760fcca"
+    },
+    {
+      "original": "20261010_572_replacement_kitchen_receipt_status.sql",
+      "proposed_for_fresh_database_only": "20261010000441_572_replacement_kitchen_receipt_status.sql",
+      "sha256": "737adda9c542deb9b044cd3bb2191d9b28673257f2c25edc0179a1ec6b3cb07b"
+    },
+    {
+      "original": "20261010_573_replacement_dispatch_completeness.sql",
+      "proposed_for_fresh_database_only": "20261010000442_573_replacement_dispatch_completeness.sql",
+      "sha256": "2ded64eeab27b7c3ab3bcea57fbe9a9739f31491aa4aef436cc2ccb250cfdcfd"
+    },
+    {
+      "original": "20261010_574_replacement_revision_identity.sql",
+      "proposed_for_fresh_database_only": "20261010000443_574_replacement_revision_identity.sql",
+      "sha256": "789248a544c8e4d1ead9e0aade9ca8eb6af2e205a763dfba622304f75573489f"
+    },
+    {
+      "original": "20261010_575_replacement_revision_full_identity.sql",
+      "proposed_for_fresh_database_only": "20261010000444_575_replacement_revision_full_identity.sql",
+      "sha256": "02c33a44f75bfaf06a91de33c49482ff356b5270de85d59f7130133d765801b9"
+    },
+    {
+      "original": "20261011_1170_kitchen_terminal_order_item_immutability.sql",
+      "proposed_for_fresh_database_only": "20261011000001_1170_kitchen_terminal_order_item_immutability.sql",
+      "sha256": "4a41c7f0139d70f01dc81094a4b29f7d5c327ad180e69b0e72bc89b085838ac7"
+    },
+    {
+      "original": "20261011_1174_kitchen_item_station_labels.sql",
+      "proposed_for_fresh_database_only": "20261011000002_1174_kitchen_item_station_labels.sql",
+      "sha256": "a6378006994cf4ba94ab2ee2e441e1faf6994c12cf045bfd47b10fdc1e63e168"
+    },
+    {
+      "original": "20261011_1175_kitchen_required_acceptance_eta.sql",
+      "proposed_for_fresh_database_only": "20261011000003_1175_kitchen_required_acceptance_eta.sql",
+      "sha256": "b6505fbaea3053072baafe9e3b95003ceb88a2313b2cdc1a2b04907250f597b3"
+    },
+    {
+      "original": "20261011_1176_kitchen_completed_history.sql",
+      "proposed_for_fresh_database_only": "20261011000004_1176_kitchen_completed_history.sql",
+      "sha256": "0ebb5d812ffda2e1c2a3724c58bb4136c522cbafda53a1c1587a331d4ff238c7"
+    },
+    {
+      "original": "20261011_1177_kitchen_status_audit.sql",
+      "proposed_for_fresh_database_only": "20261011000005_1177_kitchen_status_audit.sql",
+      "sha256": "7fc3857ff64289003809c9a14cdfce15cf41dba65a3e59314f84177f15f73e0b"
+    },
+    {
+      "original": "20261011_1178_kitchen_pickup_delivery.sql",
+      "proposed_for_fresh_database_only": "20261011000006_1178_kitchen_pickup_delivery.sql",
+      "sha256": "1c37f79be5f7717f931334cb1cfdd402b5a72b8dfdc1e24ff2b33deb81fd495d"
+    },
+    {
+      "original": "20261011_1179_kitchen_guest_item_instructions.sql",
+      "proposed_for_fresh_database_only": "20261011000007_1179_kitchen_guest_item_instructions.sql",
+      "sha256": "f02fd264e50efe95157428cc7258b25bc4cc19b3b071ae1192381c03d1288036"
+    },
+    {
+      "original": "20261011_1180_staff_guest_instructions_editor.sql",
+      "proposed_for_fresh_database_only": "20261011000008_1180_staff_guest_instructions_editor.sql",
+      "sha256": "584f1b5b63d1cce3ef4318bc7c09a3ac757a0f34243ce592835e4c30169f9670"
+    },
+    {
+      "original": "20261011_1181_kitchen_station_ticket_queue.sql",
+      "proposed_for_fresh_database_only": "20261011000009_1181_kitchen_station_ticket_queue.sql",
+      "sha256": "7eb16720ef60fde7b35d4ba33ec137d5e31b3d0a832b493062b5ed1d9291fd92"
+    },
+    {
+      "original": "20261011_1182_station_ticket_guest_details.sql",
+      "proposed_for_fresh_database_only": "20261011000010_1182_station_ticket_guest_details.sql",
+      "sha256": "e5f8502c5e105b4f4856db03ecbb87d114b6a17eb5fa7aa6134815abc46dd335"
+    },
+    {
+      "original": "20261011_1183_station_acceptance_eta.sql",
+      "proposed_for_fresh_database_only": "20261011000011_1183_station_acceptance_eta.sql",
+      "sha256": "525c13b7c6bcacc3de44cb561dc49309ce0edb5891e3706cef5c99768bd71d92"
+    },
+    {
+      "original": "20261011_1184_station_preparation_ready.sql",
+      "proposed_for_fresh_database_only": "20261011000012_1184_station_preparation_ready.sql",
+      "sha256": "cea2b1254b1b4c33ce66be219d396d96e08c6dcfb1b9191d3d1582ce9fb1fd6a"
+    },
+    {
+      "original": "20261011_1185_station_pickup_delivery.sql",
+      "proposed_for_fresh_database_only": "20261011000013_1185_station_pickup_delivery.sql",
+      "sha256": "b906fa05eaf7086dc415cdf9f65cbe2edb8cf2b1754b778c6074811c2c88d2e6"
+    },
+    {
+      "original": "20261011_1186_customer_station_tracking.sql",
+      "proposed_for_fresh_database_only": "20261011000014_1186_customer_station_tracking.sql",
+      "sha256": "64255358e8d1ec79db86b59abe7618dd8fb43c46708705663dc71f40296f69d4"
+    },
+    {
+      "original": "20261011_1188_station_overdue_alerts.sql",
+      "proposed_for_fresh_database_only": "20261011000015_1188_station_overdue_alerts.sql",
+      "sha256": "bf3bd12f7446506f08ed84717c46101ae5b74ff2d60c83c19969284b0fe32492"
+    },
+    {
+      "original": "20261011_1189_station_employee_access.sql",
+      "proposed_for_fresh_database_only": "20261011000016_1189_station_employee_access.sql",
+      "sha256": "4d2c1f0494961483596ef21c0914114be30e79e292f4d5c75e27649f75772e1d"
+    },
+    {
+      "original": "20261011_1190_station_assignment_admin_ui.sql",
+      "proposed_for_fresh_database_only": "20261011000017_1190_station_assignment_admin_ui.sql",
+      "sha256": "a61590926ed3c570dceabc436ced75e6fc5729f007ad5436d579548eaaab0f04"
+    },
+    {
+      "original": "20261011_1191_station_device_registry.sql",
+      "proposed_for_fresh_database_only": "20261011000018_1191_station_device_registry.sql",
+      "sha256": "d3af56798e8ad97f637d0153268b246d7a7f3943b10e54111801671ecdd8e236"
+    },
+    {
+      "original": "20261011_1192_station_device_authorization.sql",
+      "proposed_for_fresh_database_only": "20261011000019_1192_station_device_authorization.sql",
+      "sha256": "7e19c21a28b286e90fd8d3b93a661590807896e3b09c6df0b9c64f5cf0787b4b"
+    },
+    {
+      "original": "20261011_1193_station_service_tasks.sql",
+      "proposed_for_fresh_database_only": "20261011000020_1193_station_service_tasks.sql",
+      "sha256": "176ae2fe23ef33bef0dd7df3e21785e160db3b8e0b5f43cb76941e2522334879"
+    },
+    {
+      "original": "20261011_1194_customer_cashier_service_bridge.sql",
+      "proposed_for_fresh_database_only": "20261011000021_1194_customer_cashier_service_bridge.sql",
+      "sha256": "692183e1b521e4b1abb173fead8df792f77d51c8b056426c74fe35b277a87298"
+    },
+    {
+      "original": "20261011_1195_customer_call_task_status_sync.sql",
+      "proposed_for_fresh_database_only": "20261011000022_1195_customer_call_task_status_sync.sql",
+      "sha256": "1710d5f5829b427f25c83dfb45d2711731c371b0ae97d017291eece6927bc6d7"
+    },
+    {
+      "original": "20261011_1196_checkout_service_queue_bridge.sql",
+      "proposed_for_fresh_database_only": "20261011000023_1196_checkout_service_queue_bridge.sql",
+      "sha256": "685e8a98d75dbe34b71fecfd47888f6605b5b97586bf44700fa358d7b5b50aeb"
+    },
+    {
+      "original": "20261011_1197_ready_delivery_assignments.sql",
+      "proposed_for_fresh_database_only": "20261011000024_1197_ready_delivery_assignments.sql",
+      "sha256": "bd26fdc425bdbe21ea0fa6e266e3e8d68b273a8dc44fb59886bb3d78cb719ee8"
+    },
+    {
+      "original": "20261011_1198_wrong_order_correction_foundation.sql",
+      "proposed_for_fresh_database_only": "20261011000025_1198_wrong_order_correction_foundation.sql",
+      "sha256": "2adf2fb48f8e94d0c1f78f11fb32ca5874d339dd881daac6945c9c2472f24f79"
+    },
+    {
+      "original": "20261011_1199_correction_adjusted_bill_and_payment_guard.sql",
+      "proposed_for_fresh_database_only": "20261011000026_1199_correction_adjusted_bill_and_payment_guard.sql",
+      "sha256": "70038b63abf328a50b58e40c64b438e38f8f89cc4b15a6deb4f4d47c00006cff"
+    },
+    {
+      "original": "20261011_1200_corrected_invoice_cash_and_replacement.sql",
+      "proposed_for_fresh_database_only": "20261011000027_1200_corrected_invoice_cash_and_replacement.sql",
+      "sha256": "d57d46f1aba3db6af50842de28d50dcb45c3edee590318f9ada5501927305985"
+    },
+    {
+      "original": "20261011_1201_staff_wrong_order_waste_workspace.sql",
+      "proposed_for_fresh_database_only": "20261011000028_1201_staff_wrong_order_waste_workspace.sql",
+      "sha256": "1a13a0dcdbfc500a431e9e8ee683947a46826ec1729327358e883d2c3a14cde4"
+    },
+    {
+      "original": "20261011_1202_correction_station_revision_queue.sql",
+      "proposed_for_fresh_database_only": "20261011000029_1202_correction_station_revision_queue.sql",
+      "sha256": "37d0c822206c720014ed4097d6fbb4cdcad149cb3119a776b18b314eeeff2131"
+    },
+    {
+      "original": "20261011_1204_replacement_preparation_delivery.sql",
+      "proposed_for_fresh_database_only": "20261011000030_1204_replacement_preparation_delivery.sql",
+      "sha256": "3343c979c25a469db859493f30bfdffe7ebd84fd74b48bd5ca5583b4acd5025c"
+    },
+    {
+      "original": "20261011_1205_replacement_delivery_alerts.sql",
+      "proposed_for_fresh_database_only": "20261011000031_1205_replacement_delivery_alerts.sql",
+      "sha256": "bf8a9f7cdd01ad3339dfa22fc7c6cfe50838498266aac1e779b0f7c611a43da0"
+    },
+    {
+      "original": "20261011_1206_delivery_counts_escalation.sql",
+      "proposed_for_fresh_database_only": "20261011000032_1206_delivery_counts_escalation.sql",
+      "sha256": "2156a3ae3cbef58061fa3c24d2f525e716c08abe992f006355e651a3c609c990"
+    },
+    {
+      "original": "20261011_1207_delivery_priority_names.sql",
+      "proposed_for_fresh_database_only": "20261011000033_1207_delivery_priority_names.sql",
+      "sha256": "677469bff884f055dd30ba4b49456eb89e53c284ef876cbdc4cbf1ee6a351e2a"
+    },
+    {
+      "original": "20261011_1208_delivery_alert_ack.sql",
+      "proposed_for_fresh_database_only": "20261011000034_1208_delivery_alert_ack.sql",
+      "sha256": "0237f5ca796c9e217fa8dbbc0efb4fe88ecd2621f2be99d6ce23eebb17b4399a"
+    },
+    {
+      "original": "20261011_1209_table_orders_replacement_delivery_visibility.sql",
+      "proposed_for_fresh_database_only": "20261011000035_1209_table_orders_replacement_delivery_visibility.sql",
+      "sha256": "2fbc4d97184ac4036f111bb745213416adb19e473cb04b09baeca78ee3068f2a"
+    },
+    {
+      "original": "20261011_1210_table_orders_delivery_notifications.sql",
+      "proposed_for_fresh_database_only": "20261011000036_1210_table_orders_delivery_notifications.sql",
+      "sha256": "482418b08973b5fa7db439c4ea86583ac50e25e51b37b863ec41197e7027f5d7"
+    },
+    {
+      "original": "20261011_1211_replacement_handoff_history.sql",
+      "proposed_for_fresh_database_only": "20261011000037_1211_replacement_handoff_history.sql",
+      "sha256": "e86b83c0888340de219ea7e060e948a4c5cca60b934fca5ffce342b45018d1e5"
+    },
+    {
+      "original": "20261011_1212_replacement_delivery_consistency.sql",
+      "proposed_for_fresh_database_only": "20261011000038_1212_replacement_delivery_consistency.sql",
+      "sha256": "b8553cd40279ef7d369889a4951a97275f23ef8ed597799a3e704735c3fb73fb"
+    },
+    {
+      "original": "20261011_1217_custom_station_management.sql",
+      "proposed_for_fresh_database_only": "20261011000039_1217_custom_station_management.sql",
+      "sha256": "cf8e6f1b257a8914d7e86f1fcdf54369c89fcd7b4b5bbe2fb385b1e8ed8c6eeb"
+    },
+    {
+      "original": "20261011_1218_station_notifications.sql",
+      "proposed_for_fresh_database_only": "20261011000040_1218_station_notifications.sql",
+      "sha256": "068fcb30adfe6fb7757af5485898e7938c65d387433fea49fbba10c44cccce8c"
+    },
+    {
+      "original": "20261011_1219_customer_request_station_routing.sql",
+      "proposed_for_fresh_database_only": "20261011000041_1219_customer_request_station_routing.sql",
+      "sha256": "7b98d81302e193790b266c3f7d464dfa1ef129f6d3143946734778254323ab7c"
+    },
+    {
+      "original": "20261011_1220_station_requests_inbox.sql",
+      "proposed_for_fresh_database_only": "20261011000042_1220_station_requests_inbox.sql",
+      "sha256": "affac8f752043b09300697d5e07cb157b28b26525dbfc30f1eda600707f4dc87"
+    },
+    {
+      "original": "20261011_1221_customer_pricing_requests.sql",
+      "proposed_for_fresh_database_only": "20261011000043_1221_customer_pricing_requests.sql",
+      "sha256": "822d2effa37ba0c8d377606639e28a369a959596d947fb4be7a896ee63ee360e"
+    },
+    {
+      "original": "20261011_1222_station_account_provisioning.sql",
+      "proposed_for_fresh_database_only": "20261011000044_1222_station_account_provisioning.sql",
+      "sha256": "5936c426491e8a09d72192948ae0e7fb41780c9e13161cce3ae2fac0a93c115f"
+    },
+    {
+      "original": "20261011_1223_station_device_login.sql",
+      "proposed_for_fresh_database_only": "20261011000045_1223_station_device_login.sql",
+      "sha256": "769a1993de7dbe6202a48af00f05f5f8c7a33b0c318284985a3ba7adb44367b1"
+    },
+    {
+      "original": "20261011_1224_station_login_rate_limit_fix.sql",
+      "proposed_for_fresh_database_only": "20261011000046_1224_station_login_rate_limit_fix.sql",
+      "sha256": "ddd7baf8ad934ac215bc3de44721f7efcdafa70421536f0e09fbbc8aff1f3a9c"
+    },
+    {
+      "original": "20261011_1226_station_device_logout.sql",
+      "proposed_for_fresh_database_only": "20261011000047_1226_station_device_logout.sql",
+      "sha256": "12181f226829a15d866fea00d0c5078da85bf44c36662f60dbfa60b5bbd072f0"
+    },
+    {
+      "original": "20261011_1227_device_print_dispatch.sql",
+      "proposed_for_fresh_database_only": "20261011000048_1227_device_print_dispatch.sql",
+      "sha256": "214ffd01412b381bb26a7cdb1e91508a714191bbef6ead1317633b9cb99fb632"
+    },
+    {
+      "original": "20261011_1230_station_ticket_snapshots.sql",
+      "proposed_for_fresh_database_only": "20261011000049_1230_station_ticket_snapshots.sql",
+      "sha256": "10d5b9f60a39e17aba61c2b9fd8aac217db66f59157cc012d2c0aa28ef041ef3"
+    },
+    {
+      "original": "20261011_1231_transactional_print_snapshots.sql",
+      "proposed_for_fresh_database_only": "20261011000050_1231_transactional_print_snapshots.sql",
+      "sha256": "1f9369b1218c3a6f28f9a5036f69743499d10fde9c0e029e1c742ca385676336"
+    },
+    {
+      "original": "20261011_1232_station_revision_dispatch.sql",
+      "proposed_for_fresh_database_only": "20261011000051_1232_station_revision_dispatch.sql",
+      "sha256": "c07e27aa9c8954778516c699caba4701adae7b2ed04896f813699c3947323cce"
+    },
+    {
+      "original": "20261011_1233_revision_print_worker.sql",
+      "proposed_for_fresh_database_only": "20261011000052_1233_revision_print_worker.sql",
+      "sha256": "9a4d228d5de4eee3360707d36594afd48315dd2e54ad4ba82f43687369b7c429"
+    },
+    {
+      "original": "20261011_1236_revision_idempotency_hardening.sql",
+      "proposed_for_fresh_database_only": "20261011000053_1236_revision_idempotency_hardening.sql",
+      "sha256": "b531bf37fc5a7adbfbaca520cc7bf4de9cc4b03052481fb9a8e7244cc0065401"
+    },
+    {
+      "original": "20261011_1237_station_print_manual_review.sql",
+      "proposed_for_fresh_database_only": "20261011000054_1237_station_print_manual_review.sql",
+      "sha256": "32045288586c179559569053e3622b6cad3f2252f6e56e247a5233ff3c0bd520"
+    },
+    {
+      "original": "20261011_1238_print_review_audit_integrity.sql",
+      "proposed_for_fresh_database_only": "20261011000055_1238_print_review_audit_integrity.sql",
+      "sha256": "a8ae2c0fddba8e90f3b6bb07bd193bc7523b42693a6ae4e0e0f92297bddebb95"
+    },
+    {
+      "original": "20261011_1242_station_creation.sql",
+      "proposed_for_fresh_database_only": "20261011000056_1242_station_creation.sql",
+      "sha256": "6de03d977b0b4abca915ab23c9a6b2e3114a27b711a0a0750fd413a2bb53756f"
+    },
+    {
+      "original": "20261011_1245_kitchen_station_account_directory.sql",
+      "proposed_for_fresh_database_only": "20261011000057_1245_kitchen_station_account_directory.sql",
+      "sha256": "f1ef1facb8441586179f6f54a0869733edf7dbf6334ef9a6c5831826418e620d"
+    },
+    {
+      "original": "20261011_1246_station_scoped_admin.sql",
+      "proposed_for_fresh_database_only": "20261011000058_1246_station_scoped_admin.sql",
+      "sha256": "30a6cc7a4e31f875e1f9e15cbfe7ff322f1b05197dc5c19fa4c2d5fe52bf4672"
+    },
+    {
+      "original": "20261011_1247_legacy_station_admin_hardening.sql",
+      "proposed_for_fresh_database_only": "20261011000059_1247_legacy_station_admin_hardening.sql",
+      "sha256": "172ec38971d6b2143b018ccdfb1f04d777f73d1c509fa47061443bb881c3fe4b"
+    },
+    {
+      "original": "20261011_1248_station_rpc_caller_role.sql",
+      "proposed_for_fresh_database_only": "20261011000100_1248_station_rpc_caller_role.sql",
+      "sha256": "0aba695f8a084e492ff950db98a404b9f52f64151c073b497a8291af46d8b292"
+    },
+    {
+      "original": "20261011_1249_revision_rpc_and_review_security.sql",
+      "proposed_for_fresh_database_only": "20261011000101_1249_revision_rpc_and_review_security.sql",
+      "sha256": "8c95bd5510f1b4f8ba44bbdd4eb97d4b7be749baf22627265ec1444eaee27916"
+    },
+    {
+      "original": "20261011_1251_authorized_finance_invoice_read.sql",
+      "proposed_for_fresh_database_only": "20261011000102_1251_authorized_finance_invoice_read.sql",
+      "sha256": "76810aa3d79def2d3fda9680dbac9361bac6f17e1fff709a1a7f62ee643475cf"
+    },
+    {
+      "original": "20261011_1253_station_ticket_guest_scope.sql",
+      "proposed_for_fresh_database_only": "20261011000103_1253_station_ticket_guest_scope.sql",
+      "sha256": "549c1db862767136104f5e99821f1b57338819b86cc6a454b593ffe4859db53f"
+    },
+    {
+      "original": "20261011_1254_station_queue_revision_scope.sql",
+      "proposed_for_fresh_database_only": "20261011000104_1254_station_queue_revision_scope.sql",
+      "sha256": "e0406ab36ed31c0274645d52c0cc0b858fd30d8142a2d9788542e6fa1927a5eb"
+    },
+    {
+      "original": "20261011_1255_station_session_print_boundaries.sql",
+      "proposed_for_fresh_database_only": "20261011000105_1255_station_session_print_boundaries.sql",
+      "sha256": "ce60faff9088e32ceca19273dcc90c0d137ca8adb59f68ed1ed51d33a384fe12"
+    }
+  ]
+}

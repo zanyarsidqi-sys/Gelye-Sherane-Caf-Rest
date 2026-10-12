@@ -1,0 +1,160 @@
+{
+  "verification": "static source checks only; Flutter, Supabase and device tests NOT performed",
+  "sections": {
+    "01 Dashboard": {
+      "source_exists": true,
+      "bytes": 416,
+      "section_shell": true,
+      "section_id_present": true,
+      "rpc_references": 0,
+      "literal_rpc_names": [],
+      "rpc_not_declared_in_migrations": []
+    },
+    "02 Tables": {
+      "source_exists": true,
+      "bytes": 179632,
+      "section_shell": true,
+      "section_id_present": true,
+      "rpc_references": 82,
+      "literal_rpc_names": [
+        "gs_adjust_table_chairs",
+        "gs_admin_bill_discount_invoice_quote",
+        "gs_admin_discount_finalization_readiness",
+        "gs_admin_discount_payment_reconciliation",
+        "gs_advance_table_item_fulfillment",
+        "gs_approve_admin_bill_discount_draft",
+        "gs_bind_cafe_pos_device_employee",
+        "gs_cafe_pos_heartbeat_for_device",
+        "gs_cancel_reservation",
+        "gs_cashier_create_customer_reservation",
+        "gs_check_in_cafe_reservation",
+        "gs_claim_table_service_job",
+        "gs_commit_admin_discount_invoice_snapshot",
+        "gs_create_cafe_table",
+        "gs_dashboard_active_table_visits",
+        "gs_execute_guest_count_only_move",
+        "gs_get_locked_discount_payable",
+        "gs_get_table_qr",
+        "gs_list_active_table_qr_sessions",
+        "gs_list_approved_cafe_reservations",
+        "gs_list_cafe_customers",
+        "gs_list_cafe_discount_modes",
+        "gs_list_cafe_pos_devices",
+        "gs_list_cafe_print_jobs",
+        "gs_list_cafe_print_routing_policy",
+        "gs_list_cafe_printers",
+        "gs_list_cancellable_cafe_reservations",
+        "gs_list_eligible_table_job_workers",
+        "gs_list_my_table_jobs",
+        "gs_list_my_table_notifications",
+        "gs_list_pending_guest_moves",
+        "gs_list_station_dispatch_alerts",
+        "gs_list_station_dispatch_tickets",
+        "gs_list_table_bill_transfer_reviews",
+        "gs_list_table_capability_employees",
+        "gs_list_table_job_workload_limits",
+        "gs_list_table_transfer_finance_reviews",
+        "gs_list_table_worker_active_job_counts",
+        "gs_list_table_worker_capabilities",
+        "gs_list_unassigned_table_jobs",
+        "gs_manager_table_employee_performance",
+        "gs_manager_table_job_overview",
+        "gs_manager_table_service_duration_report",
+        "gs_mark_my_table_notification_read",
+        "gs_my_bound_cafe_pos_devices",
+        "gs_my_table_delivery_quantity_status",
+        "gs_my_table_job_capacity",
+        "gs_open_cafe_table_visit_with_customer",
+        "gs_prepare_locked_discount_payment",
+        "gs_prepare_table_bill_transfer_approval",
+        "gs_preview_admin_bill_discount",
+        "gs_preview_guest_move_safety",
+        "gs_preview_table_bill_transfer",
+        "gs_reassign_table_service_job",
+        "gs_record_table_item_delivery_quantity",
+        "gs_record_table_transfer_finance_review",
+        "gs_register_cafe_pos_device",
+        "gs_request_table_bill_transfer",
+        "gs_request_table_guest_move",
+        "gs_retry_station_ticket",
+        "gs_rotate_table_qr",
+        "gs_set_cafe_discount_mode",
+        "gs_set_cafe_pos_device_enabled",
+        "gs_set_cafe_print_routing_policy",
+        "gs_set_table_job_workload_limit",
+        "gs_set_table_worker_capability",
+        "gs_submit_cafe_print_job",
+        "gs_table_item_money_overview",
+        "gs_table_transfer_financial_preflight",
+        "gs_update_my_table_job",
+        "gs_validate_table_bill_transfer_request"
+      ],
+      "rpc_not_declared_in_migrations": []
+    },
+    "03 Table Orders": {
+      "source_exists": true,
+      "bytes": 21694,
+      "section_shell": true,
+      "section_id_present": true,
+      "rpc_references": 8,
+      "literal_rpc_names": [
+        "gs_advance_table_item_fulfillment",
+        "gs_list_my_table_jobs",
+        "gs_manager_table_job_overview",
+        "gs_staff_order_revision_dispatch",
+        "gs_staff_table_item_timeline",
+        "gs_staff_table_order_board",
+        "gs_staff_table_order_revisions",
+        "gs_update_my_table_job"
+      ],
+      "rpc_not_declared_in_migrations": []
+    },
+    "04 Motel Orders": {
+      "source_exists": true,
+      "bytes": 1419,
+      "section_shell": true,
+      "section_id_present": true,
+      "rpc_references": 0,
+      "literal_rpc_names": [],
+      "rpc_not_declared_in_migrations": []
+    }
+  },
+  "migrations": {
+    "count": 365,
+    "duplicate_filenames": []
+  },
+  "tests": {
+    "dart_test_files": 7
+  },
+  "rpc_scan_note": "Unresolved names are review candidates; functions may be provided externally or by earlier deployment. This does not establish a runtime failure.",
+  "sql_function_declarations": 439,
+  "integration_reference_inventory": {
+    "table_reservation": {
+      "gs_cancel_reservation": {
+        "flutter_literal_reference": true,
+        "sql_declaration_present": true
+      },
+      "gs_check_in_cafe_reservation": {
+        "flutter_literal_reference": true,
+        "sql_declaration_present": true
+      }
+    },
+    "table_order_fulfillment": {
+      "gs_staff_table_order_board": {
+        "flutter_literal_reference": true,
+        "sql_declaration_present": true
+      },
+      "gs_advance_table_item_fulfillment": {
+        "flutter_literal_reference": true,
+        "sql_declaration_present": true
+      }
+    },
+    "motel_credit_security": {
+      "gs_credit_my_authorization_requests": {
+        "flutter_literal_reference": true,
+        "sql_declaration_present": true
+      }
+    }
+  },
+  "integration_note": "Reference inventory is not a runtime integration test; live database and device verification still required."
+}

@@ -1,0 +1,17 @@
+{
+  "application": "Rest",
+  "steps": [
+    97,
+    98,
+    99,
+    100
+  ],
+  "changes": [
+    "Invalidate pending favorites reads on toggle",
+    "Invalidate pending favorites reads on reset",
+    "Invalidate pending favorites reads on reorder",
+    "Guard reset completion notification against account changes; add executable regression assertions"
+  ],
+  "flutter_compilation": "not run: Flutter SDK unavailable",
+  "live_supabase": "not run"
+}

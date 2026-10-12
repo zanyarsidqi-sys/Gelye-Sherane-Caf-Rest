@@ -1,0 +1,17 @@
+{
+  "project": "Rest",
+  "step": 22,
+  "migration_count": 475,
+  "source_integrity": true,
+  "offline_checks": {
+    "baseline": true,
+    "distinct_project_refs": true,
+    "same_ref_rejected": true,
+    "execute_rejected": true,
+    "duplicate_history_rejected": true
+  },
+  "actual_project_refs_supplied": false,
+  "actual_history_supplied": false,
+  "live_verification": false,
+  "deployment_authorized": false
+}

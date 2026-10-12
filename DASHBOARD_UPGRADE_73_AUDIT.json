@@ -1,0 +1,21 @@
+{
+  "upgrade": 73,
+  "source_archive": "Gelye_Cafe_Dashboard_Coding_72.zip",
+  "files": 365,
+  "dart_files": 118,
+  "sql_migrations": 70,
+  "duplicate_function_names_requiring_review": [
+    "cafe_can_manage_website",
+    "gs_consume_stock_when_served",
+    "gs_create_cart_order",
+    "gs_dashboard_overview",
+    "gs_dashboard_week",
+    "gs_record_cash_payment",
+    "gs_staff_review_public_request",
+    "gs_submit_public_order",
+    "gs_submit_reservation_request",
+    "gs_update_cafe_table"
+  ],
+  "test_status": "not compiled, not deployed, not live tested",
+  "dashboard_status": "review milestone only, not production complete"
+}

@@ -1,0 +1,13 @@
+{
+  "phase": 1,
+  "step": 19,
+  "application": "Rest",
+  "result": "static checks passed; negative mutation correctly rejected",
+  "checks": 11,
+  "database_executed": false,
+  "limitations": [
+    "Regex checks are not SQL execution or security proof",
+    "Supabase migration conflicts remain",
+    "Live authorization, rollback and audit behavior require disposable database testing"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "application": "Rest",
+  "steps": [
+    105,
+    106,
+    107,
+    108
+  ],
+  "changes": [
+    "Distinct station-ticket branding per app",
+    "Reject print after worker shutdown during async resolution",
+    "Validate ticket order identity when claim supplies order_id",
+    "Validate print queue name and positive polling interval"
+  ],
+  "limitations": [
+    "No Flutter/Dart SDK available",
+    "No physical printer test",
+    "No native runners generated"
+  ],
+  "source": "lib/services/station_print_worker.dart"
+}

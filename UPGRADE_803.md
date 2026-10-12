@@ -1,0 +1,9 @@
+# Upgrade 803 — permission wrapper
+
+Section: menu
+
+Acceptance checkpoint: verify `sectionId: 'menu'` in `lib/sections/menu.dart`.
+
+Result: PASS in static source inspection. This does not establish Flutter runtime behavior, Supabase security, or production readiness.
+
+No application code change for this checkpoint; it is a newly recorded acceptance assertion.

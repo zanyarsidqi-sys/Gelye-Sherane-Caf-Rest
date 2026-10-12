@@ -1,0 +1,2 @@
+# Upgrade 402 — Credit Barcode Identity Lookup
+Adds a restricted registry of SHA-256 hashed customer barcodes, an authorized Credit Management provisioning RPC, and an employee credit-draft barcode lookup interface. Barcode input is not persisted in the Flutter interface; account reference and status are returned, never a balance. Registry entries default to pending verification. No balance/ownership check or credit deduction is implemented. Supabase migration must be applied and tested. Flutter build and live database tests not performed.

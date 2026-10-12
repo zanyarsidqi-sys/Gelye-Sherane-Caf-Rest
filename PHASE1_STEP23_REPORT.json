@@ -1,0 +1,24 @@
+{
+  "project": "Rest",
+  "phase": 1,
+  "step": 23,
+  "static_and_synthetic_checks_passed": 13,
+  "test_output": [
+    "PASS: expected project ref is build-time constant",
+    "PASS: strict project host comparison",
+    "PASS: HTTPS required",
+    "PASS: credentials not included in errors",
+    "PASS: no hardcoded project URL",
+    "PASS: service role not in startup",
+    "PASS: synthetic matching",
+    "PASS: synthetic cross-project",
+    "PASS: synthetic http",
+    "PASS: synthetic subdomain",
+    "PASS: synthetic credentials",
+    "PASS: synthetic query",
+    "PASS: synthetic missing-ref"
+  ],
+  "runtime_dart_compilation": "not run (Flutter SDK unavailable)",
+  "live_project_identity": "unverified",
+  "original_migration_bytes_preserved": true
+}

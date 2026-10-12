@@ -1,0 +1,12 @@
+{
+  "batch": "161-164",
+  "project": "Rest",
+  "fixes": [
+    "Preserve printed-attempt identity across stop/restart after confirmed physical printing",
+    "Prevent replay after shutdown even without ACK"
+  ],
+  "dart_tests_added": 1,
+  "dart_tests_executed": false,
+  "flutter_compiled": false,
+  "sql_live_verified": false
+}

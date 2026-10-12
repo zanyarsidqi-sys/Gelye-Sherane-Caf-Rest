@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateProviderReceipt,validateRequest} from '../supabase/functions/verify-prepaid-receipt/receipt_contract.mjs';
+const invoice='f47ac10b-58cc-4372-a567-0e02b2c3d479';
+const transaction_id='txn-confirmed-123';
+const good={status:'confirmed',currency:'IQD',invoice_id:invoice,transaction_id,amount_iqd:5000,confirmed_at:'2026-10-12T09:00:00Z'};
+test('accepts provider-confirmed matching IQD receipt',()=>assert.equal(validateProviderReceipt(good,transaction_id,invoice).amount_iqd,5000));
+test('rejects pending',()=>assert.throws(()=>validateProviderReceipt({...good,status:'pending'},transaction_id,invoice)));
+test('rejects wrong invoice',()=>assert.throws(()=>validateProviderReceipt({...good,invoice_id:'other'},transaction_id,invoice)));
+test('rejects wrong transaction',()=>assert.throws(()=>validateProviderReceipt({...good,transaction_id:'other'},transaction_id,invoice)));
+test('rejects wrong currency',()=>assert.throws(()=>validateProviderReceipt({...good,currency:'USD'},transaction_id,invoice)));
+test('rejects negative amount',()=>assert.throws(()=>validateProviderReceipt({...good,amount_iqd:-1},transaction_id,invoice)));
+test('rejects fractional amount',()=>assert.throws(()=>validateProviderReceipt({...good,amount_iqd:1.5},transaction_id,invoice)));
+test('rejects future confirmation',()=>assert.throws(()=>validateProviderReceipt({...good,confirmed_at:'2099-10-12T09:00:00Z'},transaction_id,invoice)));
+test('validates request',()=>assert.deepEqual(validateRequest({invoice_id:invoice,transaction_id}),{invoice_id:invoice,transaction_id}));
+test('rejects malformed request',()=>assert.throws(()=>validateRequest({invoice_id:'1',transaction_id:'a'})));

@@ -1,0 +1,10 @@
+{
+  "upgrade": 1483,
+  "project": "rest",
+  "shared_change": "Bound each of three employee-permission network operations to 12 seconds; timeout denies access across all 35 sections",
+  "registered_sections": 35,
+  "financial_change": "Read-only staging schema preflight only; no settlement writes",
+  "live_staging_executed": false,
+  "flutter_compiled": false,
+  "financial_certified": false
+}

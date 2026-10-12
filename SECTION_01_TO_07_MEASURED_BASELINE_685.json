@@ -1,0 +1,458 @@
+{
+  "checkpoint": 685,
+  "previous_checkpoint": 665,
+  "upgrades": [
+    {
+      "upgrade": 666,
+      "section": "06",
+      "change": "Reject excessively large normal demo prices",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 667,
+      "section": "06",
+      "change": "Reject excessively large tourism demo prices",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 668,
+      "section": "06",
+      "change": "Prevent whitespace-variant duplicate barcodes",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 669,
+      "section": "06",
+      "change": "Normalize barcode search input for demo orders",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 670,
+      "section": "06",
+      "change": "Reject preview names over 200 characters",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 671,
+      "section": "06",
+      "change": "Reject preview barcodes over 100 characters",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 672,
+      "section": "06",
+      "change": "Validate preview name length in form",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 673,
+      "section": "06",
+      "change": "Validate preview barcode length in form",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 674,
+      "section": "06",
+      "change": "Avoid stale local menu search case mismatch",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 675,
+      "section": "06",
+      "change": "Clarify preview form validation limits",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 676,
+      "section": "07",
+      "change": "Reject invalid inventory product identifiers",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 677,
+      "section": "07",
+      "change": "Reject invalid history product identifiers",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 678,
+      "section": "07",
+      "change": "Reject whitespace-only movement reasons",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 679,
+      "section": "07",
+      "change": "Require boolean stock direction before write",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 680,
+      "section": "07",
+      "change": "Reject negative or fractional overview quantities",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 681,
+      "section": "07",
+      "change": "Reject invalid minimum stock values in overview",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 682,
+      "section": "07",
+      "change": "Use exact integer quantities in movement history",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 683,
+      "section": "07",
+      "change": "Flag fractional movement history as unknown",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 684,
+      "section": "07",
+      "change": "Prevent post-session-change inventory success notification",
+      "verification": "source assertion"
+    },
+    {
+      "upgrade": 685,
+      "section": "07",
+      "change": "Avoid exposing stock-update failure details after employee change",
+      "verification": "source assertion"
+    }
+  ],
+  "section_readiness_source_checks": {
+    "dashboard": {
+      "source_checks_passed_before": 10,
+      "source_checks_passed_after": 10,
+      "source_checks_total": 10,
+      "checks": [
+        {
+          "name": "Screen exists",
+          "pass": true
+        },
+        {
+          "name": "Permission shell",
+          "pass": true
+        },
+        {
+          "name": "Operational RPC",
+          "pass": true
+        },
+        {
+          "name": "Cash reporting",
+          "pass": true
+        },
+        {
+          "name": "Refresh action",
+          "pass": true
+        },
+        {
+          "name": "Lifecycle resume",
+          "pass": true
+        },
+        {
+          "name": "Loading state",
+          "pass": true
+        },
+        {
+          "name": "Error handling",
+          "pass": true
+        },
+        {
+          "name": "Table link",
+          "pass": true
+        },
+        {
+          "name": "Kitchen link",
+          "pass": true
+        }
+      ]
+    },
+    "tables": {
+      "source_checks_passed_before": 10,
+      "source_checks_passed_after": 10,
+      "source_checks_total": 10,
+      "checks": [
+        {
+          "name": "Screen exists",
+          "pass": true
+        },
+        {
+          "name": "Permission shell",
+          "pass": true
+        },
+        {
+          "name": "Booking support",
+          "pass": true
+        },
+        {
+          "name": "Invoice quote",
+          "pass": true
+        },
+        {
+          "name": "Payment inspection",
+          "pass": true
+        },
+        {
+          "name": "Finalization guard",
+          "pass": true
+        },
+        {
+          "name": "Order reference",
+          "pass": true
+        },
+        {
+          "name": "Dialog actions",
+          "pass": true
+        },
+        {
+          "name": "Error handling",
+          "pass": true
+        },
+        {
+          "name": "Backend access",
+          "pass": true
+        }
+      ]
+    },
+    "table_orders": {
+      "source_checks_passed_before": 10,
+      "source_checks_passed_after": 10,
+      "source_checks_total": 10,
+      "checks": [
+        {
+          "name": "Screen exists",
+          "pass": true
+        },
+        {
+          "name": "Permission shell",
+          "pass": true
+        },
+        {
+          "name": "Quote replacement",
+          "pass": true
+        },
+        {
+          "name": "Idempotent commit",
+          "pass": true
+        },
+        {
+          "name": "Tourism pricing",
+          "pass": true
+        },
+        {
+          "name": "Receipt recovery",
+          "pass": true
+        },
+        {
+          "name": "Kitchen revision",
+          "pass": true
+        },
+        {
+          "name": "Order status",
+          "pass": true
+        },
+        {
+          "name": "Error handling",
+          "pass": true
+        },
+        {
+          "name": "Backend access",
+          "pass": true
+        }
+      ]
+    },
+    "motel_orders": {
+      "source_checks_passed_before": 10,
+      "source_checks_passed_after": 10,
+      "source_checks_total": 10,
+      "checks": [
+        {
+          "name": "Screen exists",
+          "pass": true
+        },
+        {
+          "name": "Permission shell",
+          "pass": true
+        },
+        {
+          "name": "Motel order workspace",
+          "pass": true
+        },
+        {
+          "name": "Rooms tab",
+          "pass": true
+        },
+        {
+          "name": "Scheduled meals",
+          "pass": true
+        },
+        {
+          "name": "Food requests",
+          "pass": true
+        },
+        {
+          "name": "Billing ledger",
+          "pass": true
+        },
+        {
+          "name": "Tab navigation",
+          "pass": true
+        },
+        {
+          "name": "Language support",
+          "pass": true
+        },
+        {
+          "name": "Multiple tab views",
+          "pass": true
+        }
+      ]
+    },
+    "kitchen": {
+      "source_checks_passed_before": 10,
+      "source_checks_passed_after": 10,
+      "source_checks_total": 10,
+      "checks": [
+        {
+          "name": "Screen exists",
+          "pass": true
+        },
+        {
+          "name": "Permission shell",
+          "pass": true
+        },
+        {
+          "name": "Order queue",
+          "pass": true
+        },
+        {
+          "name": "Scheduled meals",
+          "pass": true
+        },
+        {
+          "name": "Motel requests",
+          "pass": true
+        },
+        {
+          "name": "Tab navigation",
+          "pass": true
+        },
+        {
+          "name": "Order preview",
+          "pass": true
+        },
+        {
+          "name": "Multiple views",
+          "pass": true
+        },
+        {
+          "name": "Kitchen tab",
+          "pass": true
+        },
+        {
+          "name": "Motel tab",
+          "pass": true
+        }
+      ]
+    },
+    "menu": {
+      "source_checks_passed_before": 10,
+      "source_checks_passed_after": 10,
+      "source_checks_total": 10,
+      "checks": [
+        {
+          "name": "Screen exists",
+          "pass": true
+        },
+        {
+          "name": "Permission shell",
+          "pass": true
+        },
+        {
+          "name": "Normal price",
+          "pass": true
+        },
+        {
+          "name": "Tourism price",
+          "pass": true
+        },
+        {
+          "name": "Barcode input",
+          "pass": true
+        },
+        {
+          "name": "Product create",
+          "pass": true
+        },
+        {
+          "name": "Product edit",
+          "pass": true
+        },
+        {
+          "name": "Recipe panel",
+          "pass": true
+        },
+        {
+          "name": "Search",
+          "pass": true
+        },
+        {
+          "name": "Local preview label",
+          "pass": true
+        }
+      ]
+    },
+    "products_inventory": {
+      "source_checks_passed_before": 10,
+      "source_checks_passed_after": 10,
+      "source_checks_total": 10,
+      "checks": [
+        {
+          "name": "Screen exists",
+          "pass": true
+        },
+        {
+          "name": "Permission shell",
+          "pass": true
+        },
+        {
+          "name": "Overview RPC",
+          "pass": true
+        },
+        {
+          "name": "History RPC",
+          "pass": true
+        },
+        {
+          "name": "Adjustment RPC",
+          "pass": true
+        },
+        {
+          "name": "Minimum RPC",
+          "pass": true
+        },
+        {
+          "name": "Low-stock filter",
+          "pass": true
+        },
+        {
+          "name": "Out-of-stock filter",
+          "pass": true
+        },
+        {
+          "name": "Employee check",
+          "pass": true
+        },
+        {
+          "name": "Error state",
+          "pass": true
+        }
+      ]
+    }
+  },
+  "note": "Source-check coverage is not feature completion or runtime readiness. No Flutter SDK or Supabase environment available."
+}
