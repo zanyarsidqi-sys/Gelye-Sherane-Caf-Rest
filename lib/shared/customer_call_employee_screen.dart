@@ -96,7 +96,7 @@ class _CustomerCallEmployeeScreenState extends State<CustomerCallEmployeeScreen>
         final nextStatus = (rows as List).isEmpty
           ? 'unavailable' : (rows.first as Map)['status'].toString();
         setState(() { status = nextStatus; error = null;
-          employeeAssigned = (rows as List).isNotEmpty && (rows.first as Map)['employee_assigned'] == true; });
+          employeeAssigned = rows.isNotEmpty && (rows.first as Map)['employee_assigned'] == true; });
         if (nextStatus == 'completed' || nextStatus == 'cancelled' ||
             nextStatus == 'unavailable') _statusPoll?.cancel();
       }
