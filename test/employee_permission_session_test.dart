@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gelye_cafe_rest/services/employee_permission_service.dart';
+import 'package:gelye_cafe_rest/services/device_session_preference.dart';
 import 'package:gelye_cafe_rest/services/saved_session_service.dart';
 
 // Synthetic sessions and an in-memory HTTP transport: no backend is contacted.
@@ -18,7 +20,8 @@ String session(String id, {String aal = 'aal2', String nonce = 'first'}) {
   final expiry = DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600;
   return jsonEncode({
     'access_token': '${part({'alg': 'HS256', 'typ': 'JWT'})}.'
-        '${part({'sub': id, 'exp': expiry, 'aal': aal, 'jti': nonce})}.test',
+        '${part({'sub': id, 'exp': expiry, 'aal': aal, 'jti': nonce,
+          'session_id': 'session-$nonce'})}.test',
     'refresh_token': 'test-refresh', 'token_type': 'bearer',
     'expires_in': 3600, 'expires_at': expiry, 'user': user(id),
   });
@@ -30,7 +33,26 @@ void main() {
   late SupabaseClient client;
   late Future<http.Response> Function(http.Request) handle;
   late List<http.Request> requests;
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    requests = [];
+    handle = (_) async => response({});
+    await Supabase.initialize(
+      url: 'https://example.supabase.co',
+      anonKey: 'test-public-key',
+      authOptions: const FlutterAuthClientOptions(autoRefreshToken: false),
+      httpClient: MockClient((request) async {
+        requests.add(request);
+        final result = await handle(request);
+        return http.Response(result.body, result.statusCode,
+            headers: result.headers, request: request);
+      }),
+    );
+    client = Supabase.instance.client;
+  });
   setUp(() async {
+    await client.auth.signOut(scope: SignOutScope.local);
+    await DeviceSessionPreference.clear();
     requests = [];
     handle = (request) async {
       if (request.url.path.endsWith('/user')) return response(user('employee-a'));
@@ -43,17 +65,16 @@ void main() {
       }
       return response({});
     };
-    client = SupabaseClient('https://example.supabase.co', 'test-public-key',
-      authOptions: const AuthClientOptions(autoRefreshToken: false),
-      httpClient: MockClient((request) async {
-        requests.add(request);
-        final result = await handle(request);
-        return http.Response(result.body, result.statusCode,
-            headers: result.headers, request: request);
-      }));
     await client.auth.recoverSession(session('employee-a'));
+    final active = client.auth.currentSession;
+    if (active == null) throw StateError('Synthetic session was not restored');
+    await DeviceSessionPreference.save(active, 0);
   });
-  tearDown(() async => await client.dispose());
+  tearDown(() async {
+    await client.auth.signOut(scope: SignOutScope.local);
+    await DeviceSessionPreference.clear();
+  });
+  tearDownAll(() async => await client.dispose());
 
   test('unchanged AAL2 session receives permitted sections', () async {
     expect(await EmployeePermissionService(client: client).getAllowedSections(),
