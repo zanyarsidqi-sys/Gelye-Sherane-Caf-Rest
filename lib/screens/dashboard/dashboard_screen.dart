@@ -1,4 +1,3 @@
-import '../../shared/professional_mobile_widgets.dart';
 import 'dashboard_integration_review.dart';
 import 'owner_guest_offers_panel.dart';
 import 'motel_meal_offers_panel.dart';
@@ -45,7 +44,6 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   final Set<String> _hiddenCards = {};
   bool _editingCards = false;
   final _cloudPreferences = DashboardCloudPreferences();
-  String? _preferenceSyncMessage;
   // Focus mode changes presentation order only. It never grants access to data.
   String _focusMode = 'manager';
   static const _focusModes = <String, String>{
@@ -146,13 +144,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
         }
         final hidden = parsed['hidden'];
         if (hidden is List) _hiddenCards.addAll(hidden.whereType<String>());
-        _preferenceSyncMessage = 'Cloud preferences loaded';
       });
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefsKey, jsonEncode(parsed));
     } catch (_) {
-      if (mounted) setState(() => _preferenceSyncMessage =
-          'Cloud layout unavailable; local preferences retained');
+      // Cloud sync is best-effort; the local dashboard preferences remain usable.
     }
   }
 
@@ -165,10 +161,8 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
     await prefs.setString(_prefsKey, jsonEncode(snapshot));
     try {
       await _cloudPreferences.save(snapshot);
-      if (mounted) setState(() => _preferenceSyncMessage = 'Layout synced');
     } catch (_) {
-      if (mounted) setState(() => _preferenceSyncMessage =
-          'Saved on this device; cloud sync pending');
+      // Local preferences were already saved; cloud sync can be retried later.
     }
   }
 

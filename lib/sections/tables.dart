@@ -545,6 +545,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
     bool saving = false;
     String? error;
     try {
+      if (!mounted) return;
       await showDialog<void>(context: context, builder: (dialogContext) =>
         StatefulBuilder(builder: (context, change) {
           Future<void> save() async {
@@ -565,7 +566,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
                 'p_party_size': count,
                 'p_notes': notes.text.trim(),
               });
-              if (!dialogContext.mounted) return;
+              if (!dialogContext.mounted || !mounted) return;
               Navigator.pop(dialogContext);
               ScaffoldMessenger.of(this.context).showSnackBar(
                 const SnackBar(content: Text(

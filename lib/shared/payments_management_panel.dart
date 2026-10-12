@@ -20,7 +20,6 @@ class _PaymentsManagementPanelState extends State<PaymentsManagementPanel> {
   // Sort only the authorized, returned source sample; never imply global ranking.
   String _sourceSort = 'original';
   String _cardStatus = 'all';
-  String _cardDate = 'all';
   // Amount filtering uses only server-returned, integer IQD source amounts.
   // It is not a filter on all-method outstanding balances.
   int? _minimumSourceIqd;
@@ -361,8 +360,7 @@ class _PaymentsManagementPanelState extends State<PaymentsManagementPanel> {
     return total == null || total < 0 || paid == null || paid < 0 ||
         balance == null || entries == null || entries < 0 ||
         id == null || id <= 0 ||
-        (total != null && paid != null && balance != null &&
-            total - paid != balance);
+        (total - paid != balance);
   }
 
   // Dashboard money cards open this ledger, but gs_cash_reconciliation is

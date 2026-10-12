@@ -306,25 +306,6 @@ class _CustomerWorkspaceState extends State<_CustomerWorkspace> {
     _monthlyLoaded = false;
   }
 
-  Future<void> _showCashHistory(Map<String, dynamic> customer) async {
-    try {
-      final data = await _db.rpc('gs_cafe_customer_cash_spend_history',
-        params: {'p_customer_id': customer['customer_id']});
-      if (!mounted) return;
-      final rows = (data as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
-      await showDialog<void>(context: context, builder: (ctx) => AlertDialog(
-        title: Text('Attested cash history · ${customer['customer_name']}'),
-        content: SizedBox(width: 530, height: 380, child: ListView(children: [
-          for (final r in rows) ListTile(
-            title: Text('${r['amount_iqd']} IQD · Order #${r['order_id']}'),
-            subtitle: Text('Table ${r['table_number']} · ${r['settled_at']}'),
-          ),
-        ])),
-        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close'))],
-      ));
-    } catch (e) { _message('Could not load cash history: $e'); }
-  }
-
   @override
   Widget build(BuildContext context) {
     final visible = _customers.where((c) =>

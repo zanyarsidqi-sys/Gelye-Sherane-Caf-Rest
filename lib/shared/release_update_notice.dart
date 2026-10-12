@@ -75,7 +75,7 @@ class _ReleaseUpdateNoticeState extends State<ReleaseUpdateNotice> with WidgetsB
           client.auth.currentSession?.accessToken != session.accessToken) return;
       final notice = result == null ? null : Map<String, dynamic>.from(result as Map);
       final newer = notice != null && ReleaseUpdateNotice.isNewer(notice['version'].toString(), _installed!);
-      setState(() => _notice = newer && '${notice!['id']}:${notice['revision']}' != _dismissed ? notice : null);
+      setState(() => _notice = newer && '${notice['id']}:${notice['revision']}' != _dismissed ? notice : null);
     } catch (_) {
       // An unavailable update service must never interrupt the user's work.
       if (mounted && epoch == _epoch) setState(() => _notice = null);

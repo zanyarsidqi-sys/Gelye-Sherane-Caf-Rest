@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/screens/dashboard/guest_engagement_models.dart';
+import 'package:gelye_cafe_rest/screens/dashboard/guest_engagement_models.dart';
 
 void main() {
   test('guest name is optional', () {

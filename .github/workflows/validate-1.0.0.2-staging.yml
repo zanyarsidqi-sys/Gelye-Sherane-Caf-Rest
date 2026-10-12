@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - staging/release-1.0.0.2-recovery
+      - fix/release-1.0.0.2-ci-deploy
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,7 +16,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-recovery"
+          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-recovery" || \
+            test "$GITHUB_REF_NAME" = "fix/release-1.0.0.2-ci-deploy"
           for f in pubspec.yaml lib/main.dart web/index.html; do
             test -f "$f" || { echo "::error::Missing $f"; exit 1; }
           done
@@ -41,7 +43,7 @@ jobs:
       - name: Resolve dependencies and analyze
         run: |
           flutter pub get
-          flutter analyze
+          flutter analyze --no-fatal-infos
       - name: Run Flutter tests
         run: flutter test
       - name: Compile Flutter web

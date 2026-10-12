@@ -44,7 +44,7 @@ class _InventoryCatalogPanelState extends State<InventoryCatalogPanel> {
     const maximumRows = 5000;
     final products = <Map<String, dynamic>>[];
     for (var offset = 0; offset <= maximumRows; offset += pageSize) {
-      final page = await Supabase.instance.client
+      final Object? pageResponse = await Supabase.instance.client
           .from('gs_menu_products')
           .select('id,name,barcode,normal_price_iqd,tourism_price_iqd,is_active')
           .order('id', ascending: true)
@@ -52,14 +52,14 @@ class _InventoryCatalogPanelState extends State<InventoryCatalogPanel> {
       if (Supabase.instance.client.auth.currentUser?.id != employeeId) {
         throw StateError('Employee session changed. Reload the catalog.');
       }
-      if (page is! List) throw const FormatException('Invalid catalog response');
-      for (final raw in page) {
+      if (pageResponse is! List) throw const FormatException('Invalid catalog response');
+      for (final Object? raw in pageResponse) {
         if (raw is! Map || raw.keys.any((key) => key is! String)) {
           throw const FormatException('Invalid catalog row');
         }
         products.add(Map<String, dynamic>.from(raw));
       }
-      if (page.length < pageSize) break;
+      if (pageResponse.length < pageSize) break;
     }
     return products;
   }
@@ -143,7 +143,7 @@ class _InventoryCatalogPanelState extends State<InventoryCatalogPanel> {
           bool missingPrice(Map<String, dynamic> row) =>
               invalidPrice(row['normal_price_iqd']) ||
               invalidPrice(row['tourism_price_iqd']);
-          final rows = all.where((row) {
+          final rows = visible.where((row) {
             final match = '${row['name'] ?? ''} ${row['barcode'] ?? ''}'.toLowerCase().contains(_query);
             if (!match) return false;
             switch (_filter) {
@@ -157,7 +157,7 @@ class _InventoryCatalogPanelState extends State<InventoryCatalogPanel> {
           return Column(children: [
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Align(alignment: Alignment.centerLeft, child: Text('${rows.length} matching · ${all.length} loaded${hasMore ? ' · Limit reached: some products may be missing' : ''}')),
+              child: Align(alignment: Alignment.centerLeft, child: Text('${rows.length} matching · ${visible.length} shown${hasMore ? ' · Limit reached: some products may be missing' : ''}')),
             ),
             Expanded(child: rows.isEmpty
               ? const Center(child: Text('No matching accessible products'))

@@ -622,13 +622,11 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
 
   // Universal verification disclosure: factual and intentionally fail-closed.
   // A registered section is not certified by the existence of a widget.
-  bool _verificationExpanded = false;
   Widget _verificationChecklist() {
     final style = Theme.of(context).textTheme.bodySmall;
     return ExpansionTile(
       key: ValueKey('verification_${widget.sectionId}'),
       initiallyExpanded: false,
-      onExpansionChanged: (expanded) => _verificationExpanded = expanded,
       leading: const Icon(Icons.fact_check_outlined),
       title: const Text('Verification checklist'),
       subtitle: const Text('Runtime and financial certification not established'),

@@ -205,9 +205,6 @@ class _EmployeeJobList extends StatefulWidget {
 class _EmployeeJobListState extends State<_EmployeeJobList> {
   bool loading = false;
   bool _refreshQueued = false;
-  static const int _boardPageSize = 250;
-  static const int _boardMaximumItems = 5000;
-  bool _boardComplete = false;
   bool busy = false;
   String? error;
   String filter = 'All';
@@ -359,8 +356,6 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
   static const int _boardPageSize = 250;
   static const int _boardMaximumItems = 5000;
   bool _boardComplete = false;
-  int _loadedPageCount = 0;
-  int _loadedRowCount = 0;
   bool _editingInstructions = false;
   Map<String, dynamic>? _pendingReplacement;
   bool _checkingReplacement = false;
@@ -516,7 +511,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
       // identity match. A different employee receipt must never clear it.
       final pending = _pendingReplacement;
       final actorId = initiatingUser;
-      final resolvesPending = committed && pending != null && actorId != null &&
+      final resolvesPending = committed && pending != null &&
           Supabase.instance.client.auth.currentUser?.id == actorId &&
           pending['request_id'] == requestId &&
           _validId(details!['order_item_id']) == pending['order_item_id'] &&
@@ -632,7 +627,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
   Future<void> refresh() async {
     if (loading || updating.isNotEmpty || _editingInstructions) { _refreshQueued = true; return; }
     final requestVersion = ++_boardRequestVersion;
-    setState(() { loading = true; error = null; items = []; _boardComplete = false; _loadedPageCount = 0; _loadedRowCount = 0; });
+    setState(() { loading = true; error = null; items = []; _boardComplete = false; });
     try {
       final rows = <Map<String, dynamic>>[];
       // Fetch all available pages. Never silently treat a truncated queue as
@@ -654,19 +649,18 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
           final rawTime = row['created_at'];
           final id = _validId(row['order_item_id']);
           final time = rawTime is String ? DateTime.tryParse(rawTime)?.toUtc() : null;
+          final lastTime = previousCreatedAt;
+          final lastId = previousId;
           if (id == null || time == null ||
-              (previousCreatedAt != null &&
-                (time.isAfter(previousCreatedAt!) ||
-                 (time.isAtSameMomentAs(previousCreatedAt!) && id >= previousId!)))) {
+              (lastTime != null &&
+                (lastId == null || time.isAfter(lastTime) ||
+                 (time.isAtSameMomentAs(lastTime) && id >= lastId)))) {
             throw const FormatException('Order queue changed or returned out-of-order records; retry refresh');
           }
           previousCreatedAt = time;
           previousId = id;
         }
         rows.addAll(page);
-        if (mounted && requestVersion == _boardRequestVersion) {
-          setState(() { _loadedPageCount++; _loadedRowCount = rows.length; });
-        }
         if (result.length < _boardPageSize) { complete = true; break; }
       }
       if (!complete || rows.length > _boardMaximumItems) {
@@ -1039,6 +1033,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
           quotedIqd('difference_iqd') != quantity * (confirmedPrice - oldPrice.toInt())) {
         throw StateError('Replacement quote changed or is inconsistent; refresh required');
       }
+      if (!mounted) return;
       final approved = await showDialog<bool>(context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('Confirm product replacement'),
@@ -1172,7 +1167,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
       }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Product replacement confirmed by server. Difference: '
-          '${(result as Map)['difference_iqd']} IQD.')));
+          '${result['difference_iqd']} IQD.')));
       await refresh();
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
@@ -1598,7 +1593,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     'p_closed_case_id': c['case_id'],
                                     'p_reason': reason.text.trim()},
                                 );
-                                if (!mounted) return;
+                                if (!mounted || !dialogContext.mounted) return;
                                 Navigator.of(dialogContext).pop();
                                 await showRevisionDispatch(item);
                               } catch (e) {
@@ -1638,7 +1633,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     'p_case_id': c['case_id'],
                                     'p_resolution_note': note.text.trim()},
                                 );
-                                if (!mounted) return;
+                                if (!mounted || !dialogContext.mounted) return;
                                 Navigator.of(dialogContext).pop();
                                 await showRevisionDispatch(item);
                               } catch (e) {
@@ -1717,7 +1712,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     await Supabase.instance.client.rpc(
                                       'gs_acknowledge_table_replacement_kitchen_revision',
                                       params: {'p_dispatch_id': row['dispatch_id']});
-                                    if (!mounted) return;
+                                    if (!mounted || !dialogContext.mounted) return;
                                     Navigator.of(dialogContext).pop();
                                     await showRevisionDispatch(item);
                                   } catch (e) {
@@ -1776,7 +1771,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                         'p_note': note.text.trim(),
                                       },
                                     );
-                                    if (!mounted) return;
+                                    if (!mounted || !dialogContext.mounted) return;
                                     Navigator.of(dialogContext).pop();
                                     await showRevisionDispatch(item);
                                   } catch (e) {
@@ -1835,7 +1830,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     await Supabase.instance.client.rpc(
                                       'gs_retry_failed_kitchen_replacement_revision',
                                       params: {'p_dispatch_id': row['dispatch_id'], 'p_reason': reason.text.trim()});
-                                    if (!mounted) return;
+                                    if (!mounted || !dialogContext.mounted) return;
                                     Navigator.of(dialogContext).pop();
                                     await showRevisionDispatch(item);
                                   } catch (e) {
