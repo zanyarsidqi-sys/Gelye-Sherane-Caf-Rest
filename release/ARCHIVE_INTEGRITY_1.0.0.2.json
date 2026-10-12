@@ -1,0 +1,12 @@
+{
+  "base_archive": "Gelye_Cafe_Rest_1.0.0.2_Dispatch_Policy_Tested_Staging.zip",
+  "base_sha256": "766ee78968b5551e1fa4f9fe7daff338f7ef484dbd6bf2637e257c6bb1a6363c",
+  "entries_preserved": 2673,
+  "section_dart_files": 35,
+  "zip_crc": "passed",
+  "critical_files": "present",
+  "live_flutter_test": "not_run",
+  "live_supabase_test": "not_run",
+  "production_deployment": "not_performed",
+  "scope": "read-only archive regression tooling; no app functionality changed"
+}

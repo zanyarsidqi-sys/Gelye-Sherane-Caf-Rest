@@ -1,0 +1,1 @@
+Release 1.0.0.2: Reject malformed Supabase push service URLs with embedded credentials, paths, query strings, or fragments. Verify service-worker script and scope use the current website origin. Static checks only; no production deployment.

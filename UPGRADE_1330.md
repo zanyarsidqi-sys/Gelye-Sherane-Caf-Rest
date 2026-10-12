@@ -1,0 +1,1 @@
+Upgrade 1330: Adds permission-scoped aggregate order-to-visit, legacy/unified overlap, and motel invoice readiness counts; updates Payments Management and Dashboard context. No balances certified. SQL not executed; Flutter not compiled.

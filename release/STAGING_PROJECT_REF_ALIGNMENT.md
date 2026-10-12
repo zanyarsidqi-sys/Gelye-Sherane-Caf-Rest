@@ -1,0 +1,1 @@
+Staging-only fix: GitHub Actions project reference validation now accepts lowercase letters and digits, consistent with browser push client. Production remains untouched. Run Flutter CI and real browser checks before release.

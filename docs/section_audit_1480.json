@@ -1,0 +1,294 @@
+{
+  "project": "rest",
+  "upgrade": 1480,
+  "section_count": 35,
+  "method": "static source audit of shared section registry and implemented panel dispatch",
+  "sections": [
+    {
+      "index": 1,
+      "section_id": "dashboard",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 2,
+      "section_id": "tables",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 3,
+      "section_id": "table_orders",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 4,
+      "section_id": "motel_orders",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 5,
+      "section_id": "kitchen",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 6,
+      "section_id": "menu",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 7,
+      "section_id": "products_inventory",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 8,
+      "section_id": "customers",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 9,
+      "section_id": "cost",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 10,
+      "section_id": "revenue",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 11,
+      "section_id": "invoices_payments",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 12,
+      "section_id": "employees",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 13,
+      "section_id": "maintenance",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 14,
+      "section_id": "notifications",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 15,
+      "section_id": "reports",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 16,
+      "section_id": "backup_restore",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 17,
+      "section_id": "settings_rules",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 18,
+      "section_id": "analytics",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 19,
+      "section_id": "action_center",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 20,
+      "section_id": "pay_now",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 21,
+      "section_id": "discount_management",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 22,
+      "section_id": "payments_management",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 23,
+      "section_id": "credit_management",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 24,
+      "section_id": "device_layout_mode",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 25,
+      "section_id": "appearance_dark_mode",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 26,
+      "section_id": "dictionary_language_management",
+      "source_status": "panel_source_present",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 27,
+      "section_id": "websites_management",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 28,
+      "section_id": "general_information",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 29,
+      "section_id": "invoice_design_customization",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 30,
+      "section_id": "security_access_control",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 31,
+      "section_id": "offline_mode_synchronization",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 32,
+      "section_id": "app_publishing_updates",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 33,
+      "section_id": "system_health_monitoring",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 34,
+      "section_id": "test_mode_real_mode",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    },
+    {
+      "index": 35,
+      "section_id": "nargile_management",
+      "source_status": "planned_catalog_or_custom_content_unverified",
+      "runtime_verified": false,
+      "flutter_compiled": false,
+      "financially_certified": false
+    }
+  ],
+  "limitations": [
+    "No Flutter SDK installed",
+    "No Supabase staging connection supplied",
+    "Panel existence does not establish runtime completion",
+    "authorizedContent may be injected elsewhere and is not enumerated here"
+  ]
+}

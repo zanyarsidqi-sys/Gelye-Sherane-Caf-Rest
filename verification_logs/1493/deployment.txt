@@ -1,0 +1,4 @@
+GitHub Actions run 38276398492: success, including package verification, Pages deployment and GitHub release creation.
+Commit 73062d999546f93a44c80d05467e4451cc15159a
+Release tag 1.0.0.1, draft=false, asset release-1.0.0.1.tar.xz size 7759224.
+Live release.json version 1.0.0.1.

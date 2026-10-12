@@ -1,0 +1,14 @@
+{
+  "step": 14,
+  "mode": "offline_only",
+  "postgres_available": false,
+  "docker_available": false,
+  "supabase_cli_available": false,
+  "database_executed": false,
+  "source_migrations_modified": false,
+  "staging_exit_code": 0,
+  "staging_output": "Staged 475 migration copies at /tmp/phase1_step14_e5qgms4l/staging/supabase/migrations; NO database accessed",
+  "staged_migration_count": 475,
+  "unique_staged_filenames": true,
+  "ready_for_live_execution": false
+}

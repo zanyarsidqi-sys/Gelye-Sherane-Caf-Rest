@@ -1,0 +1,17 @@
+{
+  "steps": [
+    113,
+    114,
+    115,
+    116
+  ],
+  "app": "Rest",
+  "changes": [
+    "Stop-before-resolver check after async claim",
+    "Reject invalid station_key/order_id in claim",
+    "Dart Flutter test cases for successful print, uncertain result, shutdown race, invalid claim, formatter",
+    "Offline structural verification and preserved archive"
+  ],
+  "flutter_compilation": "unavailable",
+  "tests_run": "offline checks only"
+}

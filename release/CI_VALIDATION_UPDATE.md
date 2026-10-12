@@ -1,0 +1,1 @@
+Staging only: Flutter validation now runs Web Push syntax and simulated response checks, static release regressions, and builds with release/VERSION injected into APP_RELEASE_VERSION. This workflow does not deploy. No Flutter build was run locally; GitHub CI must execute it.

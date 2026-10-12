@@ -1,0 +1,15 @@
+{
+  "batch": "77-80",
+  "application": "Rest",
+  "changes": [
+    "App-specific language, appearance, and favorites keys",
+    "Android-only POS heartbeat scheduling",
+    "Identity check before favorite toggles",
+    "Identity and permission check before favorite reordering"
+  ],
+  "flutter_compilation": "not run; SDK unavailable",
+  "original_sql_modified": false,
+  "test_output": "PASS isolated language\nPASS isolated favorites\nPASS isolated appearance\nPASS android heartbeat schedule\nPASS favorite identity check\nPASS old shared favorites absent\n",
+  "original_source_sha256": "a85b76cd7ad8435931f2784f696ed24a783b29b8aacf26b257b187518760c15a",
+  "new_source_sha256": "b570ecb6a0b9ad21b8290d8bafe94b0b74124752c15522b2684707693b558804"
+}

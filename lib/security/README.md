@@ -1,0 +1,1 @@
+SECURITY TODO: Implement Supabase Auth + MFA, staff entrance, server-enforced RBAC/RLS, offline credential expiration and audit. Current staff UI is explicitly unauthenticated demo. Never expose to real employees or production.

@@ -1,0 +1,15 @@
+{
+  "application": "Rest",
+  "step": 20,
+  "offline_check": {
+    "passed": true,
+    "migration_count": 475,
+    "proposed_count": 475,
+    "errors": [],
+    "database_execution": "NOT RUN",
+    "deployment_authorized": false
+  },
+  "execution_refusal_test": "PASS",
+  "sql_execution": "NOT RUN",
+  "database_history": "NOT VERIFIED"
+}

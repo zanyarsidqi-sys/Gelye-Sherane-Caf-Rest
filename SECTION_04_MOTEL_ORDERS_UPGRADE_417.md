@@ -1,0 +1,3 @@
+# Upgrade 417 — Credit Link Revocation Audit History
+
+Added a permission-gated RPC to list revocation audit records for a barcode-account link. The Credit Identity Evidence Review panel now has a **Revocation History** button showing prior status, reason, employee identifier and timestamp. Added a database trigger preventing UPDATE and DELETE of revocation audit records, including by the existing application RPCs. This is audit hardening, not authoritative identity approval. No credit balances, limits or debit transactions are modified. Requires migration 20261010_417_credit_link_revocation_history.sql. Flutter build and live Supabase testing not performed.

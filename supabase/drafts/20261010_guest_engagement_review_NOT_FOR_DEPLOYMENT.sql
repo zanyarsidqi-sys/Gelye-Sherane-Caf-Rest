@@ -1,0 +1,14 @@
+-- DESIGN DRAFT ONLY. DO NOT DEPLOY WITHOUT SECURITY REVIEW.
+-- Management approvals and assignments must use SECURITY INVOKER functions
+-- or carefully audited SECURITY DEFINER functions with explicit authorization.
+-- Do not add broad authenticated UPDATE policies to these tables.
+-- Proposed columns: assigned_to uuid, reviewed_by uuid, reviewed_at timestamptz,
+-- resolution_note text, decision_reason text, updated_at timestamptz.
+-- Proposed immutable event table: engagement_review_events(id, record_type,
+-- record_id, action, actor_id, timestamp, old_status, new_status, reason).
+-- Server-side requirements:
+-- * gs_can_access('dashboard', appropriate_permission) checked per action
+-- * deny self-approval of own recommendation
+-- * validate status transitions and reject duplicate decisions
+-- * urgent feedback notification after transaction commit
+-- * restrict PII reads to assigned staff and authorized management

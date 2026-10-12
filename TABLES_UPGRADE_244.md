@@ -1,0 +1,5 @@
+# Upgrade 244 — Immutable Admin discounted-invoice snapshots
+
+Introduces `gs_admin_discount_invoice_snapshots` and Admin-only `gs_commit_admin_discount_invoice_snapshot(order_id)` RPC. The function locks the order, invokes the conservative payment/readiness check, recalculates amounts, captures order-item JSON and inserts a unique immutable snapshot per order. Repeat requests return the existing snapshot without a duplicate invoice. Direct table access is revoked; an UPDATE/DELETE trigger blocks mutation. Flutter Admin Bill Discount dialog adds **Lock invoice snapshot** and displays the saved amounts.
+
+**NOT a payment settlement:** no payment ledger entry, debit, invoice print job, or payable balance mutation is performed. Existing payment integrations and potential order edits not following the parent-order lock must be audited before production. A previously saved snapshot must be treated as a lock against further order edits by all writers; that integration is still pending. This migration has not been run against live Supabase and Flutter has not been compiled. Apply migrations in sequence after staging review.

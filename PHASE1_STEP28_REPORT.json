@@ -1,0 +1,16 @@
+{
+  "step": 28,
+  "project": "Rest",
+  "changes": [
+    "Invalidate cached management permissions before opening a route",
+    "Refuse navigation while authorization review is already in progress",
+    "Require same authorized user and no logout recovery before navigation",
+    "Do not reverify protected route after signout",
+    "Disallow asynchronous protected-route unlock while app is backgrounded"
+  ],
+  "limitations": [
+    "Flutter/Dart compiler unavailable",
+    "No live Supabase environment available",
+    "Further integration and device testing required"
+  ]
+}

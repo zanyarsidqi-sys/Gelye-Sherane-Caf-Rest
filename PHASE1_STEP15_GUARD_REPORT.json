@@ -1,0 +1,30 @@
+{
+  "step": 15,
+  "mode": "offline_only",
+  "database_executed": false,
+  "migration_count": 475,
+  "hash_and_inventory_passed": true,
+  "unique_staged_names": true,
+  "potentially_destructive_sql_review_count": 17,
+  "potentially_destructive_sql_review_files": [
+    "20261009_021_cash_payment_ledger.sql",
+    "20261009_029_recipe_ingredient_consumption.sql",
+    "20261010_183_counter_draft_item_removal.sql",
+    "20261010_197_worker_job_capabilities.sql",
+    "20261010_199_active_job_capability_guards.sql",
+    "20261010_226_pos_device_heartbeat.sql",
+    "20261010_294_event_scope_safety.sql",
+    "20261010_357_motel_food_delivery.sql",
+    "20261010_371_motel_food_invoice_source_reservations.sql",
+    "20261010_374_motel_food_invoice_register.sql",
+    "20261010_404_motel_credit_verification_review.sql",
+    "20261010_539_kitchen_revision_acknowledgement.sql",
+    "20261010_541_kitchen_revision_delivery_visibility.sql",
+    "20261010_550_kitchen_revision_case_resolution.sql",
+    "20261010_551_kitchen_exception_reopen.sql",
+    "20261011_1179_kitchen_guest_item_instructions.sql",
+    "20261011_1204_replacement_preparation_delivery.sql"
+  ],
+  "errors": [],
+  "production_deployment_approved": false
+}

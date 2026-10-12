@@ -1,0 +1,15 @@
+{
+  "step": 26,
+  "project": "Rest",
+  "status": "static verification only",
+  "checks": {
+    "protected_routes": true,
+    "logout_failure_locked": true,
+    "auth_event_listener": true,
+    "periodic_check": true,
+    "mfa": true,
+    "permission": true
+  },
+  "flutter_compilation": "not available",
+  "live_revocation": "not tested"
+}

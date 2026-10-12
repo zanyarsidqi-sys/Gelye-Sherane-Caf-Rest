@@ -1,0 +1,23 @@
+{
+  "batch": "41-44",
+  "project": "Rest",
+  "checks": {
+    "single_flight": true,
+    "queue_invalidates_old": true,
+    "queue_drains": true,
+    "finally_resets": true,
+    "dashboard_allowlist": true,
+    "dashboard_post_await": true,
+    "preserve_original_sql": true
+  },
+  "original_dart_sha256": "b959702f3b8286100f7f67885aa686d2b9cc3ee002ef961935ef841dcd116989",
+  "new_dart_sha256": "fc24e695022759a6e07573ea9a8bdeafba2334d471c2e74601ac2ed40829625c",
+  "flutter_compiled": false,
+  "reason": "Flutter/Dart SDK not installed",
+  "changes": [
+    "Protected-route single-flight permission reads",
+    "Queued verification invalidates pending authorization",
+    "Deterministic cleanup on failure",
+    "Dashboard must be in original allowlist and remain authorized after await"
+  ]
+}

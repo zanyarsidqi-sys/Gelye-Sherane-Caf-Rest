@@ -1,0 +1,13 @@
+{
+  "batch": "121-124",
+  "app": "Rest",
+  "changes": [
+    "Guard ACK when worker stops during physical print",
+    "Hold both printed and definitelyFailed results for manual review after shutdown",
+    "Add deferred printer race regression tests",
+    "Run offline source and archive checks"
+  ],
+  "dart_tests_added": 2,
+  "dart_tests_total": 10,
+  "flutter_sdk_available": false
+}

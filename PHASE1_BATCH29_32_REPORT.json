@@ -1,0 +1,25 @@
+{
+  "project": "Rest",
+  "phase": 1,
+  "milestones": [
+    29,
+    30,
+    31,
+    32
+  ],
+  "scope": "static verification only; Flutter SDK and Supabase test environment not available",
+  "checks": {
+    "restoration_bound_to_user": true,
+    "restoration_dashboard_permission": true,
+    "dashboard_background_lock": true,
+    "protected_review_locks_first": true,
+    "protected_review_foreground_only": true,
+    "navigation_rechecks_mfa": true
+  },
+  "original_sha256": "012db77aa4a681edaf48cc6fb3b888837210cab6dae5fe50b66a669e66e51a88",
+  "updated_sha256": "06e84d506068e62c30be484acd7fb7f5a8fbde6d95ae64e1f53235e40ea24e5c",
+  "notes": [
+    "Existing Dart and SQL preserved except targeted lib/app/cafe_app.dart edits",
+    "Live auth lifecycle, Flutter compile and Supabase integration remain unverified"
+  ]
+}

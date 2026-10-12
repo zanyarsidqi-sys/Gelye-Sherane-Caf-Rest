@@ -1,0 +1,185 @@
+{
+  "step": 17,
+  "project": "Rest",
+  "mode": "offline_contextual_static_review",
+  "sql_modified": false,
+  "database_executed": false,
+  "reviewed_occurrences": 21,
+  "classifications": {
+    "conditional_policy_or_trigger_replacement": 4,
+    "function_scoped_delete_review": 6,
+    "requires_manual_review": 9,
+    "temporary_table_only": 2
+  },
+  "findings": [
+    {
+      "file": "20261009_021_cash_payment_ledger.sql",
+      "line": 15,
+      "operation": "DROP object",
+      "classification": "conditional_policy_or_trigger_replacement",
+      "statement_line": "drop policy if exists gs_cash_payments_read on public.gs_cash_payments;",
+      "context": " collected_at timestamptz not null default now()\n);\ncreate index if not exists gs_cash_payments_order_idx on public.gs_cash_payments(order_id);\nalter table public.gs_cash_payments enable row level security;\nrevoke all on public.gs_cash_payments from anon, authenticated;\ngrant select on public.gs_cash_payments to authenticated;\ndrop policy if exists gs_cash_payments_read on public.gs_cash_payments;\ncreate policy gs_cash_payments_read on public.gs_cash_payments for select to authenticated\n using (public.gs_can_access('invoices_payments') or public.gs_can_access('payments_management'));\ncreate or replace function public.gs_record_cash_payment(p_order_id bigint, p_amount_iqd bigint, p_reference uuid)\nreturns bigint language plpgsql security definer set search_path = '' as $$\ndeclare v_order public.gs_orders%rowtype; v_due bigint; v_paid bigint; v_existing public.gs_cash_payments%rowtype; v_id bigint;\nbegin"
+    },
+    {
+      "file": "20261009_029_recipe_ingredient_consumption.sql",
+      "line": 37,
+      "operation": "DELETE rows",
+      "classification": "function_scoped_delete_review",
+      "statement_line": "delete from public.gs_product_recipes where menu_product_id=p_menu_product_id and ingredient_product_id=p_ingredient_product_id;",
+      "context": "    or p_quantity is null or p_quantity < 0 or p_quantity > 1000000 then raise exception 'Invalid recipe component'; end if;\n if not exists(select 1 from public.gs_menu_products where id=p_menu_product_id and is_active=true)\n    or not exists(select 1 from public.gs_menu_products where id=p_ingredient_product_id and is_active=true)\n then raise exception 'Both products must be active'; end if;\n -- A zero quantity removes the ingredient; no negative quantities allowed.\n if p_quantity=0 then\n  delete from public.gs_product_recipes where menu_product_id=p_menu_product_id and ingredient_product_id=p_ingredient_product_id;\n else\n  insert into public.gs_product_recipes(menu_product_id,ingredient_product_id,quantity_per_item,updated_by)\n  values(p_menu_product_id,p_ingredient_product_id,p_quantity,auth.uid())\n  on conflict(menu_product_id,ingredient_product_id) do update\n   set quantity_per_item=excluded.quantity_per_item,updated_by=excluded.updated_by,updated_at=now();\n end if;"
+    },
+    {
+      "file": "20261010_183_counter_draft_item_removal.sql",
+      "line": 14,
+      "operation": "DELETE rows",
+      "classification": "function_scoped_delete_review",
+      "statement_line": "delete from public.gs_counter_order_request_items",
+      "context": "  raise exception 'Not authorized to edit counter requests'; end if;\n select * into v_request from public.gs_counter_order_requests\n where id=p_request_id for update;\n if not found then raise exception 'Request not found'; end if;\n if v_request.status <> 'pending' then\n  raise exception 'Only pending requests can be edited'; end if;\n delete from public.gs_counter_order_request_items\n where id=p_item_id and request_id=p_request_id;\n if not found then raise exception 'Draft item not found'; end if;\nend; $$;\nrevoke all on function public.gs_remove_counter_request_menu_item(bigint,bigint)\n from public,anon;\ngrant execute on function public.gs_remove_counter_request_menu_item(bigint,bigint)"
+    },
+    {
+      "file": "20261010_197_worker_job_capabilities.sql",
+      "line": 80,
+      "operation": "DROP object",
+      "classification": "conditional_policy_or_trigger_replacement",
+      "statement_line": "drop trigger if exists gs_validate_table_job_assignee_trigger on public.gs_table_service_jobs;",
+      "context": "  if not public.gs_can_work_table_job(new.assigned_to,new.kind) then\n   raise exception 'Employee is not eligible for job type %',new.kind;\n  end if;\n end if;\n return new;\nend; $$;\ndrop trigger if exists gs_validate_table_job_assignee_trigger on public.gs_table_service_jobs;\ncreate trigger gs_validate_table_job_assignee_trigger\nbefore insert or update of assigned_to,kind on public.gs_table_service_jobs\nfor each row execute function public.gs_validate_table_job_assignee();\n-- Existing employees are NOT auto-granted sensitive capabilities.\n-- Managers must explicitly assign job kinds before claiming can succeed."
+    },
+    {
+      "file": "20261010_197_worker_job_capabilities.sql",
+      "line": 55,
+      "operation": "DELETE rows",
+      "classification": "function_scoped_delete_review",
+      "statement_line": "delete from public.gs_table_worker_capabilities",
+      "context": "  raise exception 'Employee must be active';\n end if;\n if p_enabled then\n  insert into public.gs_table_worker_capabilities(employee_user_id,job_kind,granted_by)\n  values(p_employee,p_kind,auth.uid()) on conflict do nothing;\n else\n  delete from public.gs_table_worker_capabilities\n  where employee_user_id=p_employee and job_kind=p_kind;\n end if;\n insert into public.gs_table_worker_capability_events(\n  employee_user_id,job_kind,enabled,actor)\n values(p_employee,p_kind,p_enabled,auth.uid());\nend; $$;"
+    },
+    {
+      "file": "20261010_199_active_job_capability_guards.sql",
+      "line": 71,
+      "operation": "DROP object",
+      "classification": "conditional_policy_or_trigger_replacement",
+      "statement_line": "drop trigger if exists gs_guard_active_table_capability_revoke_trg",
+      "context": "   where j.assigned_to=old.employee_user_id and j.kind=old.job_kind\n     and j.status in ('assigned','in_progress')) then\n  raise exception 'Active table jobs must be reassigned before capability revocation';\n end if;\n return old;\nend; $$;\ndrop trigger if exists gs_guard_active_table_capability_revoke_trg\n on public.gs_table_worker_capabilities;\ncreate trigger gs_guard_active_table_capability_revoke_trg\n before delete on public.gs_table_worker_capabilities\n for each row execute function public.gs_guard_active_table_capability_revoke();"
+    },
+    {
+      "file": "20261010_199_active_job_capability_guards.sql",
+      "line": 49,
+      "operation": "DELETE rows",
+      "classification": "function_scoped_delete_review",
+      "statement_line": "delete from public.gs_table_worker_capabilities",
+      "context": "  select count(*) into v_active from public.gs_table_service_jobs j\n  where j.assigned_to=p_employee and j.kind=p_kind\n    and j.status in ('assigned','in_progress');\n  if v_active>0 then\n   raise exception 'Cannot revoke %: employee has % active job(s). Reassign or complete them first.',p_kind,v_active;\n  end if;\n  delete from public.gs_table_worker_capabilities\n  where employee_user_id=p_employee and job_kind=p_kind;\n end if;\n insert into public.gs_table_worker_capability_events(\n  employee_user_id,job_kind,enabled,actor)\n values(p_employee,p_kind,p_enabled,auth.uid());\nend; $$;"
+    },
+    {
+      "file": "20261010_226_pos_device_heartbeat.sql",
+      "line": 40,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_list_cafe_pos_devices();",
+      "context": " get diagnostics v_count = row_count;\n return v_count;\nend; $$;\n\n-- Keep existing result fields while adding derived status.\n-- Status means last authenticated heartbeat, not print hardware readiness.\ndrop function if exists public.gs_list_cafe_pos_devices();\ncreate function public.gs_list_cafe_pos_devices()\nreturns table(id bigint,name text,device_model text,department text,\n enabled boolean,last_seen_at timestamptz,connection_status text)\nlanguage plpgsql stable security definer set search_path='' as $$\nbegin\n if auth.uid() is null or not public.gs_can_access('tables','can_view') then"
+    },
+    {
+      "file": "20261010_294_event_scope_safety.sql",
+      "line": 22,
+      "operation": "DROP object",
+      "classification": "conditional_policy_or_trigger_replacement",
+      "statement_line": "drop trigger if exists gs_event_scope_approval_guard_trigger on public.gs_event_reservations;",
+      "context": "       not exists (select 1 from public.gs_event_requested_tables t where t.event_id=new.id and t.table_id=new.requested_table_id)) then\n     raise exception 'Requested table references are inconsistent' using errcode='23514';\n   end if;\n end if;\n return new;\nend $$;\ndrop trigger if exists gs_event_scope_approval_guard_trigger on public.gs_event_reservations;\ncreate trigger gs_event_scope_approval_guard_trigger before update of status\n on public.gs_event_reservations for each row execute function public.gs_event_scope_approval_guard();\n-- Restrict all table assignments to a single authoritative staff RPC.\ncreate or replace function public.gs_staff_set_event_requested_tables(p_event_id uuid,p_table_ids uuid[])\nreturns integer language plpgsql security definer set search_path = '' as $$\ndeclare e public.gs_event_reservations%rowtype; v_id uuid; v_count integer; v_seats integer;"
+    },
+    {
+      "file": "20261010_294_event_scope_safety.sql",
+      "line": 36,
+      "operation": "DELETE rows",
+      "classification": "function_scoped_delete_review",
+      "statement_line": "delete from public.gs_event_requested_tables where event_id=e.id;",
+      "context": " if auth.uid() is null or not public.cafe_can_manage_website('edit') then\n   raise exception 'Not authorized' using errcode='42501'; end if;\n select * into e from public.gs_event_reservations where id=p_event_id for update;\n if not found or e.status <> 'pending_admin' then raise exception 'Event is not editable'; end if;\n if e.venue_scope = 'whole_venue' then\n   if coalesce(array_length(p_table_ids,1),0)<>0 then raise exception 'Whole-venue requests cannot specify tables'; end if;\n   delete from public.gs_event_requested_tables where event_id=e.id;\n   update public.gs_event_reservations set requested_table_id=null,updated_at=now() where id=e.id;\n   return 0;\n end if;\n v_count:=coalesce(array_length(p_table_ids,1),0);\n if v_count<1 or v_count>30 or (select count(distinct x) from unnest(p_table_ids) x)<>v_count then\n   raise exception 'Select between 1 and 30 unique tables'; end if;"
+    },
+    {
+      "file": "20261010_294_event_scope_safety.sql",
+      "line": 49,
+      "operation": "DELETE rows",
+      "classification": "function_scoped_delete_review",
+      "statement_line": "delete from public.gs_event_requested_tables where event_id=e.id;",
+      "context": " -- Lock selected table rows in stable order, validating existence and capacity.\n perform 1 from public.gs_reservable_tables t where t.id=any(p_table_ids) and t.enabled order by t.id for update;\n if (select count(*) from public.gs_reservable_tables t where t.id=any(p_table_ids) and t.enabled)<>v_count then\n   raise exception 'A requested table is unavailable'; end if;\n select sum(t.seats) into v_seats from public.gs_reservable_tables t where t.id=any(p_table_ids);\n if v_seats<e.guest_count then raise exception 'Insufficient combined table capacity'; end if;\n delete from public.gs_event_requested_tables where event_id=e.id;\n insert into public.gs_event_requested_tables(event_id,table_id)\n select e.id,x from unnest(p_table_ids) x;\n update public.gs_event_reservations set requested_table_id=case when v_count=1 then p_table_ids[1] else null end,\n updated_at=now() where id=e.id;\n return v_count;\nend $$;"
+    },
+    {
+      "file": "20261010_357_motel_food_delivery.sql",
+      "line": 42,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_staff_list_motel_food_requests();",
+      "context": " return v_new;\nend; $$;\nrevoke all on function public.gs_staff_advance_motel_food_delivery(uuid,text) from public;\ngrant execute on function public.gs_staff_advance_motel_food_delivery(uuid,text) to authenticated;\n\n-- Extend employee listing with delivery assignment, keeping existing output columns stable.\ndrop function if exists public.gs_staff_list_motel_food_requests();\ncreate function public.gs_staff_list_motel_food_requests()\nreturns table(id uuid,room_label text,room_name text,status text,total_iqd bigint,\n created_at timestamptz,items jsonb,delivery_employee_id uuid,delivery_assigned_at timestamptz,delivered_at timestamptz)\nlanguage plpgsql security definer set search_path = '' as $$\nbegin\n if auth.uid() is null or not coalesce(public.gs_can_access('motel_orders','can_view'),false) then"
+    },
+    {
+      "file": "20261010_371_motel_food_invoice_source_reservations.sql",
+      "line": 36,
+      "operation": "TRUNCATE",
+      "classification": "temporary_table_only",
+      "statement_line": "truncate pg_temp.gs_invoice_sources_371;",
+      "context": " perform 1 from public.gs_motel_guest_stay_sessions s where s.id=p_guest_session_id for update;\n if not found then raise exception 'Guest stay not found'; end if;\n -- The manifest enforces fingerprint, room, status, and ledger integrity.\n create temporary table if not exists pg_temp.gs_invoice_sources_371 (\n  order_id uuid, ledger_id uuid, room_id uuid, amount bigint, review_id uuid, fingerprint text\n ) on commit drop;\n truncate pg_temp.gs_invoice_sources_371;\n insert into pg_temp.gs_invoice_sources_371\n select c.source_order_id,c.source_ledger_id,c.room_id,c.amount_iqd,c.review_id,c.review_fingerprint\n from public.gs_staff_motel_food_invoice_crosswalk_preview(p_guest_session_id) c;\n select count(*) into v_expected from pg_temp.gs_invoice_sources_371;\n if v_expected=0 then raise exception 'No eligible food charges'; end if;\n -- Existing reservations must match exactly; never overwrite or silently relink."
+    },
+    {
+      "file": "20261010_374_motel_food_invoice_register.sql",
+      "line": 42,
+      "operation": "TRUNCATE",
+      "classification": "temporary_table_only",
+      "statement_line": "truncate pg_temp.gs_invoice_expected_374;",
+      "context": " where s.id=p_guest_session_id for update;\n if not found then raise exception 'Guest stay not found'; end if;\n -- Re-evaluate source fingerprints and line totals at posting time.\n create temporary table if not exists pg_temp.gs_invoice_expected_374\n (order_id uuid,ledger_id uuid,room_id uuid,amount bigint,review_id uuid,fingerprint text)\n on commit drop;\n truncate pg_temp.gs_invoice_expected_374;\n insert into pg_temp.gs_invoice_expected_374\n select c.source_order_id,c.source_ledger_id,c.room_id,c.amount_iqd,c.review_id,c.review_fingerprint\n from public.gs_staff_motel_food_invoice_crosswalk_preview(p_guest_session_id) c;\n select count(*)::integer,coalesce(sum(e.amount),0)::bigint into v_count,v_total\n from pg_temp.gs_invoice_expected_374 e;\n if v_count=0 then raise exception 'No eligible verified charges'; end if;"
+    },
+    {
+      "file": "20261010_404_motel_credit_verification_review.sql",
+      "line": 28,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_staff_list_motel_credit_verifications(uuid);",
+      "context": " return query select q.id,q.status,q.cancelled_at;\nend $$;\nrevoke all on function public.gs_staff_cancel_motel_credit_verification(uuid,text) from public,anon;\ngrant execute on function public.gs_staff_cancel_motel_credit_verification(uuid,text) to authenticated;\n\n-- The return columns changed since Upgrade 403; PostgreSQL requires dropping the old signature.\ndrop function if exists public.gs_staff_list_motel_credit_verifications(uuid);\ncreate function public.gs_staff_list_motel_credit_verifications(p_intent_id uuid)\nreturns table(request_id uuid,request_status text,amount_iqd bigint,\n account_label text,requested_by uuid,requested_at timestamptz,\n cancelled_by uuid,cancelled_at timestamptz,cancellation_reason text)\nlanguage plpgsql security definer set search_path='' as $$\nbegin"
+    },
+    {
+      "file": "20261010_539_kitchen_revision_acknowledgement.sql",
+      "line": 124,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_staff_order_revision_dispatch(bigint);",
+      "context": " insert into public.gs_kitchen_revision_acknowledgement_audit(dispatch_id,acknowledged_by)\n values(p_dispatch_id,auth.uid()) on conflict(dispatch_id) do nothing;\n return jsonb_build_object('dispatch_id',p_dispatch_id,'status','acknowledged','already_acknowledged',false);\nend $$;\n\n\ndrop function if exists public.gs_staff_order_revision_dispatch(bigint);\n-- Upgrade 268: staff-only revision delivery/printing queue visibility.\n-- Read-only diagnostics; does not claim to deliver notifications or print tickets.\ncreate or replace function public.gs_staff_order_revision_dispatch(p_order_id bigint)\nreturns table(dispatch_id uuid, revision_id uuid, revision_number integer, change_type text,\n destination_type text, destination_key text, dispatch_status text,\n attempts integer, queued_at timestamptz, last_attempt_at timestamptz,"
+    },
+    {
+      "file": "20261010_541_kitchen_revision_delivery_visibility.sql",
+      "line": 3,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_staff_order_revision_dispatch(bigint);",
+      "context": "-- Upgrade 541: read-only delivery and human acknowledgment evidence for replacement revisions.\n-- Acknowledgment is NOT evidence of physical printing or delivery by a worker.\ndrop function if exists public.gs_staff_order_revision_dispatch(bigint);\ncreate function public.gs_staff_order_revision_dispatch(p_order_id bigint)\nreturns table(dispatch_id uuid, revision_id uuid, revision_number integer, change_type text,\n destination_type text, destination_key text, dispatch_status text,\n attempts integer, queued_at timestamptz, last_attempt_at timestamptz,\n acknowledged_at timestamptz, acknowledged_by uuid, retry_count bigint,\n last_retry_at timestamptz, last_retry_reason text)"
+    },
+    {
+      "file": "20261010_550_kitchen_revision_case_resolution.sql",
+      "line": 37,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_staff_kitchen_revision_exception_cases(bigint);",
+      "context": " return true;\nend $$;\nrevoke all on function public.gs_staff_close_kitchen_revision_exception(bigint,uuid,text) from public,anon;\ngrant execute on function public.gs_staff_close_kitchen_revision_exception(bigint,uuid,text) to authenticated;\n\n-- Add resolution metadata to existing protected history RPC.\ndrop function if exists public.gs_staff_kitchen_revision_exception_cases(bigint);\ncreate function public.gs_staff_kitchen_revision_exception_cases(p_order_id bigint)\nreturns table(case_id uuid,dispatch_id uuid,reconciliation_state text,investigation_note text,opened_by uuid,opened_at timestamptz,status text,closed_by uuid,closed_at timestamptz,resolution_note text)\nlanguage plpgsql stable security definer set search_path='' as $$\nbegin\n if auth.uid() is null or not (public.gs_can_access('table_orders','can_view') and public.gs_can_access('kitchen','can_view')) then\n  raise exception 'Table orders and kitchen view permissions required';"
+    },
+    {
+      "file": "20261010_551_kitchen_exception_reopen.sql",
+      "line": 51,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_staff_kitchen_revision_exception_cases(bigint);",
+      "context": " return v_new;\nend $$;\nrevoke all on function public.gs_staff_reopen_kitchen_revision_exception(bigint,uuid,text) from public,anon;\ngrant execute on function public.gs_staff_reopen_kitchen_revision_exception(bigint,uuid,text) to authenticated;\n\n-- PostgreSQL return shape changes require DROP before CREATE.\ndrop function if exists public.gs_staff_kitchen_revision_exception_cases(bigint);\ncreate function public.gs_staff_kitchen_revision_exception_cases(p_order_id bigint)\nreturns table(case_id uuid,dispatch_id uuid,reconciliation_state text,investigation_note text,opened_by uuid,opened_at timestamptz,status text,closed_by uuid,closed_at timestamptz,resolution_note text,reopened_from_case_id uuid)\nlanguage plpgsql stable security definer set search_path='' as $$\nbegin\n if auth.uid() is null or not (public.gs_can_access('table_orders','can_view') and public.gs_can_access('kitchen','can_view')) then\n  raise exception 'Table Orders and Kitchen viewing permissions required';"
+    },
+    {
+      "file": "20261011_1179_kitchen_guest_item_instructions.sql",
+      "line": 51,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_kitchen_order_item_details(bigint);",
+      "context": "end;\n$$;\nrevoke all on function public.gs_set_kitchen_item_instructions(bigint,text,text) from public,anon;\ngrant execute on function public.gs_set_kitchen_item_instructions(bigint,text,text) to authenticated;\n\n-- Replace read-only Kitchen RPC with the same fields plus item identity/notes.\ndrop function if exists public.gs_kitchen_order_item_details(bigint);\ncreate function public.gs_kitchen_order_item_details(p_order_id bigint)\nreturns table(item_id bigint, product_id bigint, quantity integer, unit_price_iqd bigint,\n              line_total_iqd bigint, product_name text, station_name text,\n              guest_label text, preparation_notes text)\nlanguage plpgsql stable security definer set search_path = '' as $$\nbegin"
+    },
+    {
+      "file": "20261011_1204_replacement_preparation_delivery.sql",
+      "line": 106,
+      "operation": "DROP object",
+      "classification": "requires_manual_review",
+      "statement_line": "drop function if exists public.gs_kitchen_correction_revision_queue();",
+      "context": " values(auth.uid(),'kitchen','replacement_delivery_'||p_action,r.id::text,jsonb_build_object('assigned_to',case when p_action='assign' then p_employee_id else d.assigned_to end));\nend; $$;\nrevoke all on function public.gs_transition_replacement_delivery(bigint,text,uuid) from public,anon;\ngrant execute on function public.gs_transition_replacement_delivery(bigint,text,uuid) to authenticated;\n\n-- Add preparation state for employee workflow without changing existing column order.\ndrop function if exists public.gs_kitchen_correction_revision_queue();\ncreate function public.gs_kitchen_correction_revision_queue()\nreturns table(revision_id bigint,correction_id bigint,order_id bigint,station_key text,\n revision_kind text,order_item_id bigint,product_name text,quantity integer,\n state text,created_at timestamptz,preparation_state text)\nlanguage plpgsql stable security definer set search_path='' as $$\nbegin"
+    }
+  ],
+  "caution": "Heuristic classifications do not establish safety; review full function body, privileges, dependencies, and execute only in isolated databases."
+}

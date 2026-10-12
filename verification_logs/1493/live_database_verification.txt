@@ -1,0 +1,11 @@
+Supabase project gumudllyhzxoswmmweve — 12 October 2026
+Applied migrations: app_release_management_1493; app_release_revoke_anonymous_execution.
+RLS true: gs_app_releases and gs_app_release_events.
+Anonymous create/update-notice execution false; authenticated direct INSERT false.
+No-session authorization returns false.
+Before/after existing table row fingerprints matched exactly:
+employee_profiles: 2 rows, b6a5dc185f9c42de70806eea626dc89c
+employee_section_permissions: 37 rows, 04be125397bbfab9090b35fd3e8a5093
+management_sections: 35 rows, a64e8064cd55ad26f34bd39f841710ab
+employees: 1 row, eef10bd40b4a00f954517a8f4eba5def
+Security advisor: authenticated SECURITY DEFINER RPCs are intentional and enforce authorization internally. Existing leaked-password-protection warning remains. No claim of a complete security audit.

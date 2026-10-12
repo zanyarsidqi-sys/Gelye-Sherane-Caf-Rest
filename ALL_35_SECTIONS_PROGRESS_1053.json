@@ -1,0 +1,685 @@
+{
+  "batch": "1014\u20131053",
+  "source_checkpoint_count": 40,
+  "new_code_fixes": 3,
+  "existing_source_checks": 37,
+  "source_checks_passed": 40,
+  "section_count": 35,
+  "sections": [
+    {
+      "section": "action_center",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "analytics",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "app_publishing_updates",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "appearance_dark_mode",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "backup_restore",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "cost",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "credit_management",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "customers",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "dashboard",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "device_layout_mode",
+      "source_file_present": true,
+      "permission_shell_present": false,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "dictionary_language_management",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "discount_management",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "employees",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "general_information",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "invoice_design_customization",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "invoices_payments",
+      "source_file_present": true,
+      "permission_shell_present": false,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "kitchen",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "maintenance",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "menu",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "motel_orders",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "nargile_management",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "notifications",
+      "source_file_present": true,
+      "permission_shell_present": false,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "offline_mode_synchronization",
+      "source_file_present": true,
+      "permission_shell_present": false,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "pay_now",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "payments_management",
+      "source_file_present": true,
+      "permission_shell_present": false,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "products_inventory",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "reports",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "revenue",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "security_access_control",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "settings_rules",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "system_health_monitoring",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "table_orders",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "tables",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "test_mode_real_mode",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    },
+    {
+      "section": "websites_management",
+      "source_file_present": true,
+      "permission_shell_present": true,
+      "flutter_compiled": false,
+      "runtime_acceptance_tests_passed": 0,
+      "runtime_acceptance_tests_planned": null,
+      "completion_percent": null,
+      "status": "Not verified"
+    }
+  ],
+  "completion_measurement": "Not measurable from source checks; no runtime acceptance test denominator established",
+  "flutter_sdk_available": false,
+  "live_supabase_tested": false,
+  "checks": [
+    {
+      "upgrade": 1014,
+      "name": "Catalog validates backend rows",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "Invalid catalog row",
+      "section": "07 Products & Inventory",
+      "category": "fix"
+    },
+    {
+      "upgrade": 1015,
+      "name": "Catalog accepts numeric price strings safely",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "num.tryParse(value.trim())",
+      "section": "07 Products & Inventory",
+      "category": "fix"
+    },
+    {
+      "upgrade": 1016,
+      "name": "Catalog limit only warns with additional row",
+      "path": "lib/shared/inventory_catalog_panel.dart",
+      "needle": "final hasMore = loaded.length > maximumRows",
+      "section": "07 Products & Inventory",
+      "category": "fix"
+    },
+    {
+      "upgrade": 1017,
+      "name": "Section source and Flutter material import: action_center",
+      "path": "lib/sections/action_center.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "action_center",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1018,
+      "name": "Section source and Flutter material import: analytics",
+      "path": "lib/sections/analytics.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "analytics",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1019,
+      "name": "Section source and Flutter material import: app_publishing_updates",
+      "path": "lib/sections/app_publishing_updates.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "app_publishing_updates",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1020,
+      "name": "Section source and Flutter material import: appearance_dark_mode",
+      "path": "lib/sections/appearance_dark_mode.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "appearance_dark_mode",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1021,
+      "name": "Section source and Flutter material import: backup_restore",
+      "path": "lib/sections/backup_restore.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "backup_restore",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1022,
+      "name": "Section source and Flutter material import: cost",
+      "path": "lib/sections/cost.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "cost",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1023,
+      "name": "Section source and Flutter material import: credit_management",
+      "path": "lib/sections/credit_management.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "credit_management",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1024,
+      "name": "Section source and Flutter material import: customers",
+      "path": "lib/sections/customers.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "customers",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1025,
+      "name": "Section source and Flutter material import: dashboard",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "dashboard",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1026,
+      "name": "Section source and Flutter material import: device_layout_mode",
+      "path": "lib/sections/device_layout_mode.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "device_layout_mode",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1027,
+      "name": "Section source and Flutter material import: dictionary_language_management",
+      "path": "lib/sections/dictionary_language_management.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "dictionary_language_management",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1028,
+      "name": "Section source and Flutter material import: discount_management",
+      "path": "lib/sections/discount_management.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "discount_management",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1029,
+      "name": "Section source and Flutter material import: employees",
+      "path": "lib/sections/employees.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "employees",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1030,
+      "name": "Section source and Flutter material import: general_information",
+      "path": "lib/sections/general_information.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "general_information",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1031,
+      "name": "Section source and Flutter material import: invoice_design_customization",
+      "path": "lib/sections/invoice_design_customization.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "invoice_design_customization",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1032,
+      "name": "Section source and Flutter material import: invoices_payments",
+      "path": "lib/sections/invoices_payments.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "invoices_payments",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1033,
+      "name": "Section source and Flutter material import: kitchen",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "kitchen",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1034,
+      "name": "Section source and Flutter material import: maintenance",
+      "path": "lib/sections/maintenance.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "maintenance",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1035,
+      "name": "Section source and Flutter material import: menu",
+      "path": "lib/sections/menu.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "menu",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1036,
+      "name": "Section source and Flutter material import: motel_orders",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "motel_orders",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1037,
+      "name": "Section source and Flutter material import: nargile_management",
+      "path": "lib/sections/nargile_management.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "nargile_management",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1038,
+      "name": "Section source and Flutter material import: notifications",
+      "path": "lib/sections/notifications.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "notifications",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1039,
+      "name": "Section source and Flutter material import: offline_mode_synchronization",
+      "path": "lib/sections/offline_mode_synchronization.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "offline_mode_synchronization",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1040,
+      "name": "Section source and Flutter material import: pay_now",
+      "path": "lib/sections/pay_now.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "pay_now",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1041,
+      "name": "Section source and Flutter material import: payments_management",
+      "path": "lib/sections/payments_management.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "payments_management",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1042,
+      "name": "Section source and Flutter material import: products_inventory",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "products_inventory",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1043,
+      "name": "Section source and Flutter material import: reports",
+      "path": "lib/sections/reports.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "reports",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1044,
+      "name": "Section source and Flutter material import: revenue",
+      "path": "lib/sections/revenue.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "revenue",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1045,
+      "name": "Section source and Flutter material import: security_access_control",
+      "path": "lib/sections/security_access_control.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "security_access_control",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1046,
+      "name": "Section source and Flutter material import: settings_rules",
+      "path": "lib/sections/settings_rules.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "settings_rules",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1047,
+      "name": "Section source and Flutter material import: system_health_monitoring",
+      "path": "lib/sections/system_health_monitoring.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "system_health_monitoring",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1048,
+      "name": "Section source and Flutter material import: table_orders",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "table_orders",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1049,
+      "name": "Section source and Flutter material import: tables",
+      "path": "lib/sections/tables.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "tables",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1050,
+      "name": "Section source and Flutter material import: test_mode_real_mode",
+      "path": "lib/sections/test_mode_real_mode.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "test_mode_real_mode",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1051,
+      "name": "Section source and Flutter material import: websites_management",
+      "path": "lib/sections/websites_management.dart",
+      "needle": "import 'package:flutter/material.dart';",
+      "section": "websites_management",
+      "category": "source_presence"
+    },
+    {
+      "upgrade": 1052,
+      "name": "Section access checks active employee",
+      "path": "lib/shared/section_shell.dart",
+      "needle": "profile['is_active'] != true",
+      "section": "Shared security",
+      "category": "source_contract"
+    },
+    {
+      "upgrade": 1053,
+      "name": "Inventory stock updates call backend RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "rpc('gs_inventory_adjust'",
+      "section": "07 Products & Inventory",
+      "category": "source_contract"
+    }
+  ]
+}

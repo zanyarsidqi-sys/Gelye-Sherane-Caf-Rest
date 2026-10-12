@@ -1,0 +1,1 @@
+Upgrade 1203: Kitchen wrong-order station notice UI. Includes stop and replacement notices, explicit acknowledgments, already-prepared flag, and refresh. Uses existing Upgrade 1202 authorized RPCs. Acknowledgment is not printing, physical waste reconciliation, or automated inventory adjustment. Flutter and live Supabase verification deferred.

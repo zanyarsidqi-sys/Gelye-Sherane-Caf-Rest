@@ -1,0 +1,2 @@
+# Upgrade 1340
+Implemented server-guarded cash collection for active table orders with partial/full cash amount and idempotent reference. Payments Management includes active-table order listing and receive-cash dialog. Dashboard source documents scope. NOT all-method reconciliation; no Pending Payment collection yet. Requires deployed migrations, Flutter compile, permission and end-to-end payment tests.

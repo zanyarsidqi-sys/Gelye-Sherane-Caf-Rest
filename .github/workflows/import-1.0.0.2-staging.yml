@@ -1,18 +1,21 @@
 name: Import verified Release 1.0.0.2 source (staging only)
 on:
+  workflow_dispatch:
   push:
     branches:
-      - staging/release-1.0.0.2-build
+      - staging/release-1.0.0.2-recovery
     paths:
-      - staging-import/release-1.0.0.2-source.zip
+      - staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
+      - .github/workflows/import-1.0.0.2-staging.yml
+      - staging-import/import-request.txt
 permissions:
   contents: write
 concurrency:
-  group: import-release-1.0.0.2-staging
+  group: import-release-1.0.0.2-recovery
   cancel-in-progress: false
 jobs:
   import:
-    if: github.ref == 'refs/heads/staging/release-1.0.0.2-build'
+    if: github.ref == 'refs/heads/staging/release-1.0.0.2-recovery'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,12 +25,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          file=staging-import/release-1.0.0.2-source.zip
+          file=staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
           test -f "$file"
           echo "fc4e6875f7a98ab6c8d91f913aeb60a470ca842687d197b2992097248638f99b  $file" | sha256sum -c -
           python3 - <<'PY'
           import pathlib, zipfile, shutil, stat
-          archive=pathlib.Path('staging-import/release-1.0.0.2-source.zip')
+          archive=pathlib.Path('staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip')
           with zipfile.ZipFile(archive) as z:
               entries=z.infolist()
               assert len(entries)==2675, f'Unexpected entries: {len(entries)}'
@@ -38,12 +41,14 @@ jobs:
                   p=pathlib.PurePosixPath(i.filename)
                   assert not p.is_absolute() and '..' not in p.parts and not i.filename.startswith('/'), 'Unsafe path'
                   assert not (i.external_attr >> 16) & 0o170000 == 0o120000, 'Symlink forbidden'
-                  assert not i.filename.startswith(('.git/', '.github/', 'staging-audits/', 'staging-import/')), 'Protected path'
+                  assert not i.filename.startswith(('.git/', 'staging-audits/', 'staging-import/')), 'Protected path'
+                  if i.filename.startswith('.github/'):
+                      assert i.filename in ('.github/workflows/flutter_validation.yml', '.github/workflows/iphone_web_staging.yml'), 'Unexpected protected workflow path'
               assert sum(x.startswith('lib/sections/') and x.endswith('.dart') and x.count('/')==2 for x in names)==35, 'Expected 35 sections'
               for required in ('pubspec.yaml','lib/main.dart','web/index.html'):
                   assert required in names, f'Missing {required}'
               for i in entries:
-                  if i.is_dir(): continue
+                  if i.is_dir() or i.filename.startswith('.github/'): continue
                   p=pathlib.Path(i.filename)
                   p.parent.mkdir(parents=True,exist_ok=True)
                   with z.open(i) as src,p.open('wb') as dst: shutil.copyfileobj(src,dst)
@@ -60,11 +65,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$GITHUB_REF_NAME" = 'staging/release-1.0.0.2-build'
+          test "$GITHUB_REF_NAME" = 'staging/release-1.0.0.2-recovery'
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git rm -f --ignore-unmatch staging-import/release-1.0.0.2-source.zip
+          git rm -f --ignore-unmatch staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
           git diff --cached --quiet && { echo "::error::No source changes staged"; exit 1; }
           git commit -m 'build(staging): import verified Release 1.0.0.2 Flutter source'
-          git push origin HEAD:staging/release-1.0.0.2-build
+          git push origin HEAD:staging/release-1.0.0.2-recovery

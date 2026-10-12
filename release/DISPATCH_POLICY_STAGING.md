@@ -1,0 +1,1 @@
+Release 1.0.0.2: shared executable Web Push dispatcher policy with Node regression tests. CI now runs these tests and triggers for push Edge Function or migration changes. This does not prove Supabase execution, actual push delivery, browser persistence, or Flutter build success. Production is unchanged.

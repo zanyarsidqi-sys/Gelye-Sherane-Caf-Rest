@@ -1,0 +1,202 @@
+[
+  {
+    "upgrade": 753,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 289,
+    "before": "error = 'Admin authorization or loading failed: $e';",
+    "after": "error = 'Admin authorization or loading failed: Please retry or contact a manager';",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 754,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 321,
+    "before": "update(() => error = 'Could not save discount: $e');",
+    "after": "update(() => error = 'Could not save discount: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 755,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 426,
+    "before": "if (mounted) setState(() => _error = 'Could not load table state: $e');",
+    "after": "if (mounted) setState(() => _error = 'Could not load table state: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 756,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 450,
+    "before": "error = '$e';",
+    "after": "error = 'Please retry or contact a manager';",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 757,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 515,
+    "before": "SnackBar(content: Text('Status update failed: $e')));",
+    "after": "SnackBar(content: Text('Status update failed: Please retry or contact a manager')));",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 758,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 573,
+    "before": "if (dialogContext.mounted) change(() => error = '$e');",
+    "after": "if (dialogContext.mounted) change(() => error = 'Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 759,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 776,
+    "before": "if (mounted) setState(() => _error = 'Reservation check-in failed: $e');",
+    "after": "if (mounted) setState(() => _error = 'Reservation check-in failed: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 760,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 846,
+    "before": "if (mounted) setState(() => _error = 'Reservation cancellation failed: $e');",
+    "after": "if (mounted) setState(() => _error = 'Reservation cancellation failed: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 761,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 940,
+    "before": "if (mounted) setState(() => _error = 'Guest move request was not submitted: $e');",
+    "after": "if (mounted) setState(() => _error = 'Guest move request was not submitted: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 762,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1007,
+    "before": "if (mounted) setState(() => _error = 'Guest movement review failed: $e');",
+    "after": "if (mounted) setState(() => _error = 'Guest movement review failed: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 763,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1102,
+    "before": "if (mounted) setState(() => _error = 'Transfer preview failed: $e');",
+    "after": "if (mounted) setState(() => _error = 'Transfer preview failed: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 764,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1157,
+    "before": "if (dialogContext.mounted) change(() => previewError = '$e');",
+    "after": "if (dialogContext.mounted) change(() => previewError = 'Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 765,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1235,
+    "before": "if (dialogContext.mounted) change(() => previewError = '$e');",
+    "after": "if (dialogContext.mounted) change(() => previewError = 'Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 766,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1377,
+    "before": "SnackBar(content: Text('Finance review not recorded: $e')),",
+    "after": "SnackBar(content: Text('Finance review not recorded: Please retry or contact a manager')),",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 767,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1427,
+    "before": "SnackBar(content: Text('Unable to load review history: $e')));",
+    "after": "SnackBar(content: Text('Unable to load review history: Please retry or contact a manager')));",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 768,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1439,
+    "before": "SnackBar(content: Text('Financial review failed: $e')));",
+    "after": "SnackBar(content: Text('Financial review failed: Please retry or contact a manager')));",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 769,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1449,
+    "before": "if (mounted) setState(() => _error = 'Transfer review failed: $e');",
+    "after": "if (mounted) setState(() => _error = 'Transfer review failed: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 770,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1529,
+    "before": "SnackBar(content: Text('QR regeneration failed: $e')));",
+    "after": "SnackBar(content: Text('QR regeneration failed: Please retry or contact a manager')));",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 771,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1542,
+    "before": "if (mounted) setState(() => _error = 'Table QR unavailable: $e');",
+    "after": "if (mounted) setState(() => _error = 'Table QR unavailable: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  },
+  {
+    "upgrade": 772,
+    "section": "02 \u2014 Tables",
+    "file": "lib/sections/tables.dart",
+    "line": 1561,
+    "before": "refresh(() => error = 'Could not load notifications: $e');",
+    "after": "refresh(() => error = 'Could not load notifications: Please retry or contact a manager');",
+    "metric_before": 1,
+    "metric_after": 0
+  }
+]

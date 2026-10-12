@@ -1,0 +1,18 @@
+{
+  "step": 27,
+  "app": "Gelye_Cafe_Rest.zip",
+  "changed_file": "gelye_cafe_rest/lib/app/cafe_app.dart",
+  "original_sha256": "35906eeabbcb4069e1e9b70954c4d34b0bb40fd9004a05c042d4e8c4a05fafef",
+  "updated_sha256": "33a542c53223af1e36cfe18b70ae912d0955ad9940d5f769a006b5c323ee5fc1",
+  "checks": {
+    "_authorizationEpoch++;": true,
+    "reviewEpoch == _authorizationEpoch": true,
+    "_logoutRecoveryRequired": true,
+    "Retry sign-out": true,
+    "_checkAccess();": true
+  },
+  "limitations": [
+    "Static checks only; Flutter SDK and live Supabase not available.",
+    "Server-side RLS remains necessary for immediate revocation."
+  ]
+}

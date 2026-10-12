@@ -1,0 +1,21 @@
+{
+  "milestones": [
+    73,
+    74,
+    75,
+    76
+  ],
+  "project": "Rest",
+  "changes": [
+    "Block POS heartbeat during permission review or logout",
+    "Bind POS heartbeat to authorized Supabase user and AAL2",
+    "Avoid overlapping periodic dashboard reviews",
+    "Discard queued permission rechecks on logout"
+  ],
+  "limitations": [
+    "No Flutter/Dart SDK available",
+    "No live Supabase session test performed"
+  ],
+  "preflight_output": "Dart files: 166 missing local imports: 0 missing guard patterns: 0",
+  "dart_file_count": 166
+}

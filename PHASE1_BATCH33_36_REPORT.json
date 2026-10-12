@@ -1,0 +1,24 @@
+{
+  "step_range": [
+    33,
+    36
+  ],
+  "project": "Rest",
+  "checks": {
+    "coalesced_review": true,
+    "no_retry_on_denial": true,
+    "retry_only_concurrent": true,
+    "protected_signedout_guard": true,
+    "protected_deleted_guard": true,
+    "logout_lock_preserved": true
+  },
+  "changes": [
+    "coalesced concurrent authorization requests",
+    "eliminated automatic retry loop on denied authorization",
+    "blocked navigation during ongoing review",
+    "suppressed protected-route reverification after signout/deletion"
+  ],
+  "verification": "static source assertions only; Flutter runtime unavailable",
+  "source_sha256_before": "06e84d506068e62c30be484acd7fb7f5a8fbde6d95ae64e1f53235e40ea24e5c",
+  "source_sha256_after": "6cd0def8476414f9ad542001045ca462b3ff306c6269a951f57e03a3f56e64aa"
+}

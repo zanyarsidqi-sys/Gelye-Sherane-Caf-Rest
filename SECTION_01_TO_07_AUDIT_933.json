@@ -1,0 +1,341 @@
+{
+  "batch": "894-933",
+  "baseline": "Upgrade 893",
+  "measurement": "2 code fixes and 38 preexisting source contract rechecks; not runtime acceptance",
+  "code_fixes": 2,
+  "existing_contract_rechecks": 38,
+  "checks": [
+    {
+      "upgrade": 894,
+      "section": "products_inventory",
+      "name": "Reject non-string keys in inventory overview rows",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "delta > 0 ? Icons.arrow_downward : (delta < 0 ? Icons.arrow_upward : Icons.remove)",
+      "type": "code_fix"
+    },
+    {
+      "upgrade": 895,
+      "section": "products_inventory",
+      "name": "Display invalid stock movements as invalid, not zero",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "if (delta == null) {",
+      "type": "code_fix"
+    },
+    {
+      "upgrade": 896,
+      "section": "dashboard",
+      "name": "Regression: cash week RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_cash_collections_week",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 897,
+      "section": "dashboard",
+      "name": "Regression: cash today RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_cash_collections_today",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 898,
+      "section": "dashboard",
+      "name": "Regression: order week RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_order_week",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 899,
+      "section": "dashboard",
+      "name": "Regression: summary RPC",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "gs_dashboard_operational_summary",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 900,
+      "section": "dashboard",
+      "name": "Regression: Baghdad timezone validation",
+      "path": "lib/sections/dashboard.dart",
+      "needle": "Asia/Baghdad",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 901,
+      "section": "tables",
+      "name": "Regression: permission wrapper",
+      "path": "lib/sections/tables.dart",
+      "needle": "sectionId: 'tables'",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 902,
+      "section": "tables",
+      "name": "Regression: table visit opening",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_open_cafe_table_visit_with_customer",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 903,
+      "section": "tables",
+      "name": "Regression: reservation cancellation",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_cancel_reservation",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 904,
+      "section": "tables",
+      "name": "Regression: reservation check-in",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_check_in_cafe_reservation",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 905,
+      "section": "tables",
+      "name": "Regression: transfer financial preflight",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_table_transfer_financial_preflight",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 906,
+      "section": "tables",
+      "name": "Regression: table QR rotation",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_rotate_table_qr",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 907,
+      "section": "tables",
+      "name": "Regression: table movement review",
+      "path": "lib/sections/tables.dart",
+      "needle": "gs_request_table_guest_move",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 908,
+      "section": "table_orders",
+      "name": "Regression: permission wrapper",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "sectionId: 'table_orders'",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 909,
+      "section": "table_orders",
+      "name": "Regression: order board pagination",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_staff_table_order_board_page",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 910,
+      "section": "table_orders",
+      "name": "Regression: item fulfillment RPC",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_advance_table_item_fulfillment",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 911,
+      "section": "table_orders",
+      "name": "Regression: replacement quote",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_quote_unaccepted_table_replacement",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 912,
+      "section": "table_orders",
+      "name": "Regression: replacement write",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_replace_unaccepted_table_item",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 913,
+      "section": "table_orders",
+      "name": "Regression: order revision dispatch",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_staff_order_revision_dispatch",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 914,
+      "section": "table_orders",
+      "name": "Regression: kitchen revision acknowledgment",
+      "path": "lib/sections/table_orders.dart",
+      "needle": "gs_acknowledge_table_replacement_kitchen_revision",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 915,
+      "section": "motel_orders",
+      "name": "Regression: permission wrapper",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "sectionId: 'motel_orders'",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 916,
+      "section": "motel_orders",
+      "name": "Regression: room registry",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelRoomRegistryScreen",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 917,
+      "section": "motel_orders",
+      "name": "Regression: scheduled meals",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelScheduledMealsScreen",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 918,
+      "section": "motel_orders",
+      "name": "Regression: food requests",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelFoodRequestsScreen",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 919,
+      "section": "motel_orders",
+      "name": "Regression: billing ledger",
+      "path": "lib/sections/motel_orders.dart",
+      "needle": "MotelFoodBillingLedgerScreen",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 920,
+      "section": "kitchen",
+      "name": "Regression: permission wrapper",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "sectionId: 'kitchen'",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 921,
+      "section": "kitchen",
+      "name": "Regression: kitchen orders",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "OrderPreviewWorkspace(kind: 'kitchen')",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 922,
+      "section": "kitchen",
+      "name": "Regression: scheduled motel meals",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "KitchenScheduledMotelMealsPanel",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 923,
+      "section": "kitchen",
+      "name": "Regression: motel food queue",
+      "path": "lib/sections/kitchen.dart",
+      "needle": "KitchenMotelFoodQueuePanel",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 924,
+      "section": "menu",
+      "name": "Regression: permission wrapper",
+      "path": "lib/sections/menu.dart",
+      "needle": "sectionId: 'menu'",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 925,
+      "section": "menu",
+      "name": "Regression: live product create",
+      "path": "lib/sections/menu.dart",
+      "needle": "LiveMenuProductCreate",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 926,
+      "section": "menu",
+      "name": "Regression: live product edit",
+      "path": "lib/sections/menu.dart",
+      "needle": "LiveMenuProductEdit",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 927,
+      "section": "menu",
+      "name": "Regression: recipe management",
+      "path": "lib/sections/menu.dart",
+      "needle": "RecipeManagementPanel",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 928,
+      "section": "menu",
+      "name": "Regression: ingredient units",
+      "path": "lib/sections/menu.dart",
+      "needle": "IngredientUnitSettingsPanel",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 929,
+      "section": "products_inventory",
+      "name": "Regression: permission wrapper",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "sectionId: 'products_inventory'",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 930,
+      "section": "products_inventory",
+      "name": "Regression: overview RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_overview",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 931,
+      "section": "products_inventory",
+      "name": "Regression: adjustment RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_adjust",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 932,
+      "section": "products_inventory",
+      "name": "Regression: minimum RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_set_minimum",
+      "type": "existing_source_contract"
+    },
+    {
+      "upgrade": 933,
+      "section": "products_inventory",
+      "name": "Regression: history RPC",
+      "path": "lib/sections/products_inventory.dart",
+      "needle": "gs_inventory_history",
+      "type": "existing_source_contract"
+    }
+  ],
+  "section_check_counts": {
+    "products_inventory": 7,
+    "dashboard": 5,
+    "tables": 7,
+    "table_orders": 7,
+    "motel_orders": 5,
+    "kitchen": 4,
+    "menu": 5
+  },
+  "flutter_compiled": false,
+  "live_supabase_tested": false,
+  "section_completion_percentages": null
+}

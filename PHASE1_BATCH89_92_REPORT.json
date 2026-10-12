@@ -1,0 +1,19 @@
+{
+  "application": "Rest",
+  "steps": [
+    89,
+    90,
+    91,
+    92
+  ],
+  "changes": [
+    "Add official Flutter native-runner bootstrap command (requires Flutter SDK and supported OS)",
+    "Make language selection update immediately even if preference save fails",
+    "Guard asynchronous language load against overriding newer selection",
+    "Add executable offline source/import/build-readiness preflight"
+  ],
+  "flutter_compiled": false,
+  "supabase_verified": false,
+  "native_scaffold_generated": false,
+  "note": "Flutter SDK unavailable in execution environment; bootstrap script must run on developer machine."
+}

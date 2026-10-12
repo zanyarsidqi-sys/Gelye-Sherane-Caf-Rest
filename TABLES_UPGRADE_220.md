@@ -1,0 +1,3 @@
+# Upgrade 220 — Table movement safety preflight
+
+Added permission-protected `gs_preview_guest_move_safety` RPC and Flutter review step. Managers receive explicit blockers for non-pending requests, bill transfer, inactive visits, cleaning/occupancy, count inconsistencies, insufficient chairs, and conflicting pending movements. Existing atomic guest-count-only execution remains the final authority and repeats checks under locks. This upgrade does NOT enable full table exchanges, joining bills, payment/order transfers, or reservation reassignment. Those still need dedicated financial and reservation-safe workflows. Apply migrations in sequence. Flutter compilation and live Supabase tests have not been performed. Tables progress estimated at 94% (not verified).

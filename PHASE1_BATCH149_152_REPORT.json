@@ -1,0 +1,16 @@
+{
+  "steps": [
+    149,
+    150,
+    151,
+    152
+  ],
+  "changes": [
+    "Serialize physical printer writes shared by original and revision queues",
+    "Prevent concurrent lifecycle starts and stale asynchronous start after stop",
+    "Clean up partial worker initialization on start errors",
+    "Add two Dart regression tests for serialized printing and recovery"
+  ],
+  "flutter_sdk_available": false,
+  "dart_tests_executed": false
+}

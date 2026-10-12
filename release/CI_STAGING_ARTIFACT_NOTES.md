@@ -1,0 +1,1 @@
+Release 1.0.0.2: Flutter validation archives successful web build for offline review. No production deployment. GitHub workflow must run before build success can be claimed. Test saved-device, footer and Web Push on staging.

@@ -1,0 +1,2 @@
+# Upgrade 404 — Credit Verification Request Review
+Adds a credit request history dialog with pending/cancelled status and audit details, plus authorized cancellation requiring a reason (5–500 characters). Adds an RPC to cancel pending requests with employee/time/reason and updates the existing list RPC to expose cancellation audit fields. No approval, credit balance verification, credit deduction, or payment posting. Deploy migration and test in Supabase before production.

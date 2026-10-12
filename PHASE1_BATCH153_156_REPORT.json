@@ -1,0 +1,19 @@
+{
+  "application": "Rest",
+  "steps": [
+    153,
+    154,
+    155,
+    156
+  ],
+  "changes": [
+    "Reject unsupported immutable ticket kinds at resolver boundary",
+    "Run receipt formatting/size validation before returning trusted ticket",
+    "Add 3 Dart regression cases for invalid kind, revision kind and oversized formatted receipt",
+    "Add and execute Python source preflight"
+  ],
+  "limitations": [
+    "Dart/Flutter SDK unavailable; Dart tests and compilation not executed",
+    "Server-side idempotency and physical printer behavior not verified"
+  ]
+}

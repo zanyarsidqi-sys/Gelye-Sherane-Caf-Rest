@@ -1,0 +1,2 @@
+# Phase 3 — Table lifecycle guard
+Added migration 018: server rejects releasing occupied tables or changing their pricing mode while associated kitchen orders are new, preparing, or ready. Completed (`served`) and cancelled orders do not block release. Client displays errors and a reminder. This guards table state but is not a complete occupancy lifecycle or historical visit/session model. Requires SQL deployment and live concurrency testing. The project-wide 60% remains a historical unverified estimate.

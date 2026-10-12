@@ -1,0 +1,1 @@
+Upgrade 1386: Two clickable payment cards select their own same-page lists; More Details and Pay per row; source-limited search/status and filtered counts/totals. Pending Pay deliberately disabled. Unsupported date/employee/subtype filters disclosed, not faked. Existing cash RPC retained. All original files preserved. Flutter compilation and live database tests pending.

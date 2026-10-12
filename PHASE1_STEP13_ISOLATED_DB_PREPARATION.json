@@ -1,0 +1,11 @@
+{
+  "app": "Rest",
+  "step": 13,
+  "source_migrations": 475,
+  "verify_only": "PASS: 475 immutable SQL sources, unique staged filenames; NO database accessed",
+  "stage": "Staged 475 migration copies at /tmp/tmpkil4wir0/stage/supabase/migrations; NO database accessed",
+  "staged_files": 475,
+  "source_sql_modified": false,
+  "database_executed": false,
+  "status": "offline staging passed"
+}

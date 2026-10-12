@@ -1,0 +1,2 @@
+# Upgrade 362 — Food invoice draft by guest stay
+Adds a read-only, permission-checked RPC to group delivered food billing ledger entries by guest session (not by room, avoiding mixing consecutive guests). Includes count of eligible and blocked entries. Employee ledger UI shows a preview and warnings. No official invoice, payment posting, credit deduction, or room accommodation charge is created. Flutter and live Supabase not tested in this environment.

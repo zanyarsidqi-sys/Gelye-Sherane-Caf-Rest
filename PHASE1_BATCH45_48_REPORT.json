@@ -1,0 +1,21 @@
+{
+  "project": "Rest",
+  "steps": [
+    45,
+    46,
+    47,
+    48
+  ],
+  "status": "static tests passed; Flutter compile and live Supabase tests unavailable",
+  "checks": {
+    "favorites_generation": true,
+    "review_hides_dashboard": true,
+    "route_session_identity": true,
+    "subscription_mount_guard": true,
+    "sql_unchanged": true,
+    "source_changed": true
+  },
+  "modified_file": "lib/app/cafe_app.dart",
+  "old_sha256": "fc24e695022759a6e07573ea9a8bdeafba2334d471c2e74601ac2ed40829625c",
+  "new_sha256": "96478987f51196bafa85ec8be0d235c9853a5ce0df0b9e7305467a9a14bebd26"
+}

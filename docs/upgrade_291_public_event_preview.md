@@ -1,0 +1,1 @@
+Upgrade 291: Added public event planning preview with event type, guest count, start time, rental/product mode and quantities. Public submission is deliberately disabled until CAPTCHA, rate limiting, and server-side validation are deployed. No Flutter compilation or live Supabase tests performed.

@@ -1,0 +1,23 @@
+{
+  "milestones": [
+    37,
+    38,
+    39,
+    40
+  ],
+  "project": "Rest",
+  "checks": {
+    "dashboard_foreground_preflight": true,
+    "dashboard_foreground_commit": true,
+    "post_preferences_epoch_guard": true,
+    "post_preferences_identity_guard": true,
+    "protected_timer_single_invalidation": true,
+    "logout_fail_closed": true,
+    "protected_section_mfa": true
+  },
+  "source_modified": [
+    "lib/app/cafe_app.dart"
+  ],
+  "validation": "static only; flutter/dart SDK not installed",
+  "live_supabase_tested": false
+}

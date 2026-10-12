@@ -1,0 +1,1 @@
+Staging only: Supabase project references can contain digits; browser push URL validation now accepts alphanumeric 20-character refs while preserving origin restrictions. Real delivery unverified. No production changes.
