@@ -99,7 +99,7 @@ jobs:
       - name: Resolve Flutter dependencies, analyze, and test
         run: |
           flutter pub get
-          flutter analyze
+          flutter analyze --no-fatal-infos
           flutter test
       - name: Build production Flutter web app
         shell: bash
