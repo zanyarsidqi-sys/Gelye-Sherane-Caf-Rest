@@ -7,6 +7,7 @@ on:
     paths:
       - staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
       - .github/workflows/import-1.0.0.2-staging.yml
+      - staging-import/import-request.txt
 permissions:
   contents: write
 concurrency:
