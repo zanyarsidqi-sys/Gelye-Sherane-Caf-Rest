@@ -1,8 +1,8 @@
-name: Validate Flutter 1.0.0.2 staging
+name: Validate Flutter 1.0.0.2 recovery
 on:
   push:
     branches:
-      - staging/release-1.0.0.2-build
+      - staging/release-1.0.0.2-recovery
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,48 +15,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-build"
-          test -f pubspec.yaml || { echo "::error::Missing pubspec.yaml: Flutter source has not been uploaded to staging"; exit 1; }
-          test -f lib/main.dart || { echo "::error::Missing lib/main.dart"; exit 1; }
-          test -f web/index.html || { echo "::error::Missing web/index.html"; exit 1; }
-      - name: Require all 35 management sections and test suite
+          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-recovery"
+          for f in pubspec.yaml lib/main.dart web/index.html; do
+            test -f "$f" || { echo "::error::Missing $f"; exit 1; }
+          done
+      - name: Require 35 sections and tests
         shell: bash
         run: |
           set -euo pipefail
-          section_count=$(find lib/sections -maxdepth 1 -type f -name '*.dart' | wc -l)
-          echo "Dart section files: $section_count"
-          test "$section_count" -ge 35 || { echo "::error::Expected at least 35 management section Dart files"; exit 1; }
-          test -d test || { echo "::error::Missing Flutter test directory"; exit 1; }
-          test -n "$(find test -type f -name '*_test.dart' -print -quit)" || { echo "::error::No Flutter tests found"; exit 1; }
-          grep -Eq '^version: [0-9]+[.][0-9]+[.][0-9]+[+][0-9]+' pubspec.yaml || { echo "::error::Missing valid Flutter build version"; exit 1; }
-      - name: Reject obvious committed private key files
+          count=$(find lib/sections -maxdepth 1 -type f -name '*.dart' | wc -l)
+          test "$count" -eq 35 || { echo "::error::Expected exactly 35 section files, found $count"; exit 1; }
+          test -n "$(find test -type f -name '*_test.dart' -print -quit)" || { echo "::error::Missing Flutter tests"; exit 1; }
+          grep -Eq '^version: [0-9]+[.][0-9]+[.][0-9]+[+][0-9]+' pubspec.yaml || { echo "::error::Invalid version"; exit 1; }
+      - name: Reject committed private key files
         shell: bash
         run: |
           set -euo pipefail
           if git ls-files | grep -Ei '(^|/)(id_rsa|id_ed25519|.*[.]pem|.*[.]p12|.*[.]pfx)$'; then
-        with:
-          channel: stable
-      - name: Resolve dependencies and analyze
-        run: |
-          flutter pub get
-          flutter analyze
-      - name: Run Flutter tests
-        run: flutter test
-      - name: Compile Flutter web
-        run: flutter build web --release
-      - name: Verify compiled web files
-        run: |
-          test -s build/web/index.html
-          test -s build/web/flutter_bootstrap.js
-          find build/web -name 'main.dart.js' -size +0c | grep -q .
-      - name: Upload staging artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gelye-cafe-rest-1.0.0.2-staging-web
-          path: build/web/
-          if-no-files-found: error
-; then
-            echo "::error::Potential private key file committed"
+            echo "::error::Potential private key committed"
             exit 1
           fi
       - uses: subosito/flutter-action@v2
@@ -78,6 +54,6 @@ jobs:
       - name: Upload staging artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gelye-cafe-rest-1.0.0.2-staging-web
+          name: gelye-cafe-rest-1.0.0.2-recovery-web
           path: build/web/
           if-no-files-found: error
