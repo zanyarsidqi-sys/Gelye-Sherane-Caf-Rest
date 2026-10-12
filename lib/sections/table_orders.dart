@@ -1039,6 +1039,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
           quotedIqd('difference_iqd') != quantity * (confirmedPrice - oldPrice.toInt())) {
         throw StateError('Replacement quote changed or is inconsistent; refresh required');
       }
+      if (!mounted) return;
       final approved = await showDialog<bool>(context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('Confirm product replacement'),
