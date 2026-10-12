@@ -1,0 +1,5 @@
+Request verified source import for Release 1.0.0.2.
+Branch: staging/release-1.0.0.2-recovery
+Archive: staging-import/Gelye_1.0.0.2_Root_Aligned_Staging_Source.zip
+Expected SHA-256: fc4e6875f7a98ab6c8d91f913aeb60a470ca842687d197b2992097248638f99b
+No production deployment authorized.
