@@ -7,35 +7,35 @@ on:
 permissions:
   contents: read
 jobs:
-  inspect:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify staging isolation and source availability
+      - name: Require complete Flutter source
         shell: bash
         run: |
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-build"
-          echo "Staging validation only; no deploy steps."
-          if [ -f pubspec.yaml ]; then
-            echo "Flutter source exists at repository root."
-          else
-            echo "::warning::Flutter source not present in GitHub branch. Upload reviewed source before build."
-          fi
-      - name: Build Flutter web if source exists
-        if: ${{ hashFiles('pubspec.yaml') != '' }}
-        uses: subosito/flutter-action@v2
+          test -f pubspec.yaml || { echo "::error::Missing pubspec.yaml: Flutter source has not been uploaded to staging"; exit 1; }
+          test -f lib/main.dart || { echo "::error::Missing lib/main.dart"; exit 1; }
+          test -f web/index.html || { echo "::error::Missing web/index.html"; exit 1; }
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Compile Flutter web
-        if: ${{ hashFiles('pubspec.yaml') != '' }}
+      - name: Resolve dependencies and analyze
         run: |
           flutter pub get
           flutter analyze
-          flutter test
-          flutter build web --release
+      - name: Run Flutter tests
+        run: flutter test
+      - name: Compile Flutter web
+        run: flutter build web --release
+      - name: Verify compiled web files
+        run: |
+          test -s build/web/index.html
+          test -s build/web/flutter_bootstrap.js
+          find build/web -name 'main.dart.js' -size +0c | grep -q .
       - name: Upload staging artifact
-        if: ${{ hashFiles('pubspec.yaml') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: gelye-cafe-rest-1.0.0.2-staging-web
