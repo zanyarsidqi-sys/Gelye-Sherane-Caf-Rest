@@ -28,12 +28,12 @@ jobs:
           test "$section_count" -ge 35 || { echo "::error::Expected at least 35 management section Dart files"; exit 1; }
           test -d test || { echo "::error::Missing Flutter test directory"; exit 1; }
           test -n "$(find test -type f -name '*_test.dart' -print -quit)" || { echo "::error::No Flutter tests found"; exit 1; }
-          grep -Eq '^version: [0-9]+\\.[0-9]+\\.[0-9]+\\+[0-9]+' pubspec.yaml || { echo "::error::Missing valid Flutter build version"; exit 1; }
+          grep -Eq '^version: [0-9]+[.][0-9]+[.][0-9]+[+][0-9]+' pubspec.yaml || { echo "::error::Missing valid Flutter build version"; exit 1; }
       - name: Reject obvious committed private key files
         shell: bash
         run: |
           set -euo pipefail
-          if git ls-files | grep -Ei '(^|/)(id_rsa|id_ed25519|.*\\.pem|.*\\.p12|.*\\.pfx)
+          if git ls-files | grep -Ei '(^|/)(id_rsa|id_ed25519|.*[.]pem|.*[.]p12|.*[.]pfx)$'; then
         with:
           channel: stable
       - name: Resolve dependencies and analyze
