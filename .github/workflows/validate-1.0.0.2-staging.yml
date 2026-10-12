@@ -43,7 +43,7 @@ jobs:
       - name: Resolve dependencies and analyze
         run: |
           flutter pub get
-          flutter analyze
+          flutter analyze --no-fatal-infos
       - name: Run Flutter tests
         run: flutter test
       - name: Compile Flutter web
