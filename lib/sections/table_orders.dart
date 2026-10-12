@@ -1172,7 +1172,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
       }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Product replacement confirmed by server. Difference: '
-          '${(result as Map)['difference_iqd']} IQD.')));
+          '${result['difference_iqd']} IQD.')));
       await refresh();
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
