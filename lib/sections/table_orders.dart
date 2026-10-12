@@ -1599,7 +1599,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     'p_closed_case_id': c['case_id'],
                                     'p_reason': reason.text.trim()},
                                 );
-                                if (!mounted) return;
+                                if (!mounted || !dialogContext.mounted) return;
                                 Navigator.of(dialogContext).pop();
                                 await showRevisionDispatch(item);
                               } catch (e) {
@@ -1639,7 +1639,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     'p_case_id': c['case_id'],
                                     'p_resolution_note': note.text.trim()},
                                 );
-                                if (!mounted) return;
+                                if (!mounted || !dialogContext.mounted) return;
                                 Navigator.of(dialogContext).pop();
                                 await showRevisionDispatch(item);
                               } catch (e) {
