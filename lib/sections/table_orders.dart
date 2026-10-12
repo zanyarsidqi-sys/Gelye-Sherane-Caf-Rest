@@ -1718,7 +1718,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     await Supabase.instance.client.rpc(
                                       'gs_acknowledge_table_replacement_kitchen_revision',
                                       params: {'p_dispatch_id': row['dispatch_id']});
-                                    if (!mounted) return;
+                                    if (!mounted || !dialogContext.mounted) return;
                                     Navigator.of(dialogContext).pop();
                                     await showRevisionDispatch(item);
                                   } catch (e) {
@@ -1777,7 +1777,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                         'p_note': note.text.trim(),
                                       },
                                     );
-                                    if (!mounted) return;
+                                    if (!mounted || !dialogContext.mounted) return;
                                     Navigator.of(dialogContext).pop();
                                     await showRevisionDispatch(item);
                                   } catch (e) {
@@ -1836,7 +1836,7 @@ class _TableOrderBoardState extends State<_TableOrderBoard> with WidgetsBindingO
                                     await Supabase.instance.client.rpc(
                                       'gs_retry_failed_kitchen_replacement_revision',
                                       params: {'p_dispatch_id': row['dispatch_id'], 'p_reason': reason.text.trim()});
-                                    if (!mounted) return;
+                                    if (!mounted || !dialogContext.mounted) return;
                                     Navigator.of(dialogContext).pop();
                                     await showRevisionDispatch(item);
                                   } catch (e) {
