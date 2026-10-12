@@ -1,4 +1,3 @@
-import '../../shared/professional_mobile_widgets.dart';
 import 'dashboard_integration_review.dart';
 import 'owner_guest_offers_panel.dart';
 import 'motel_meal_offers_panel.dart';
