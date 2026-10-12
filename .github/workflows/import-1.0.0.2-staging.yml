@@ -1,0 +1,70 @@
+name: Import verified Release 1.0.0.2 source (staging only)
+on:
+  push:
+    branches:
+      - staging/release-1.0.0.2-build
+    paths:
+      - staging-import/release-1.0.0.2-source.zip
+permissions:
+  contents: write
+concurrency:
+  group: import-release-1.0.0.2-staging
+  cancel-in-progress: false
+jobs:
+  import:
+    if: github.ref == 'refs/heads/staging/release-1.0.0.2-build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Verify archive and prepare extraction
+        shell: bash
+        run: |
+          set -euo pipefail
+          file=staging-import/release-1.0.0.2-source.zip
+          test -f "$file"
+          echo "fc4e6875f7a98ab6c8d91f913aeb60a470ca842687d197b2992097248638f99b  $file" | sha256sum -c -
+          python3 - <<'PY'
+          import pathlib, zipfile, shutil, stat
+          archive=pathlib.Path('staging-import/release-1.0.0.2-source.zip')
+          with zipfile.ZipFile(archive) as z:
+              entries=z.infolist()
+              assert len(entries)==2675, f'Unexpected entries: {len(entries)}'
+              assert z.testzip() is None, 'Corrupt ZIP'
+              names=[i.filename for i in entries]
+              assert len(names)==len(set(names)), 'Duplicate ZIP paths'
+              for i in entries:
+                  p=pathlib.PurePosixPath(i.filename)
+                  assert not p.is_absolute() and '..' not in p.parts and not i.filename.startswith('/'), 'Unsafe path'
+                  assert not (i.external_attr >> 16) & 0o170000 == 0o120000, 'Symlink forbidden'
+                  assert not i.filename.startswith(('.git/', '.github/', 'staging-audits/', 'staging-import/')), 'Protected path'
+              assert sum(x.startswith('lib/sections/') and x.endswith('.dart') and x.count('/')==2 for x in names)==35, 'Expected 35 sections'
+              for required in ('pubspec.yaml','lib/main.dart','web/index.html'):
+                  assert required in names, f'Missing {required}'
+              for i in entries:
+                  if i.is_dir(): continue
+                  p=pathlib.Path(i.filename)
+                  p.parent.mkdir(parents=True,exist_ok=True)
+                  with z.open(i) as src,p.open('wb') as dst: shutil.copyfileobj(src,dst)
+          PY
+          git status --short
+      - name: Scan for committed credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find . -type f \( -name '.env' -o -name '.env.*' -o -name 'id_rsa' -o -name '*.p12' -o -name '*.pfx' \) -not -path './.git/*' | grep .; then
+            echo "::error::Potential credential files found"; exit 1
+          fi
+      - name: Commit complete staging source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = 'staging/release-1.0.0.2-build'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git rm -f --ignore-unmatch staging-import/release-1.0.0.2-source.zip
+          git diff --cached --quiet && { echo "::error::No source changes staged"; exit 1; }
+          git commit -m 'build(staging): import verified Release 1.0.0.2 Flutter source'
+          git push origin HEAD:staging/release-1.0.0.2-build
