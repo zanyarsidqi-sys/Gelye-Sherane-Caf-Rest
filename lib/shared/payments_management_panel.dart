@@ -361,8 +361,7 @@ class _PaymentsManagementPanelState extends State<PaymentsManagementPanel> {
     return total == null || total < 0 || paid == null || paid < 0 ||
         balance == null || entries == null || entries < 0 ||
         id == null || id <= 0 ||
-        (total != null && paid != null && balance != null &&
-            total - paid != balance);
+        (total - paid != balance);
   }
 
   // Dashboard money cards open this ledger, but gs_cash_reconciliation is
