@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        - name: Require the 1.0.0.7 candidate and complete source
+      - name: Require the 1.0.0.7 candidate and complete source
         shell: bash
         run: |
           set -euo pipefail
