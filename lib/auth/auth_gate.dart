@@ -12,7 +12,7 @@ class AuthGate extends StatefulWidget {
     super.key,
     required this.onAuthorized,
   });
-  final void Function(Set<String> allowedSections) onAuthorized;
+  final Future<void> Function(Set<String> allowedSections) onAuthorized;
   @override
   State<AuthGate> createState() => _AuthGateState();
 }
@@ -215,7 +215,8 @@ class _AuthGateState extends State<AuthGate> {
         _step = _AuthStep.completed;
       });
 
-      widget.onAuthorized(allowedSections);
+      _verificationStage = 'management dashboard access';
+      await widget.onAuthorized(allowedSections);
     } catch (error) {
       debugPrint('AUTH GATE MFA ERROR at $_verificationStage: $error');
 

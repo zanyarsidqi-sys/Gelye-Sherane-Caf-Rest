@@ -46,10 +46,12 @@ class EmployeePermissionService {
 
   void _requireSameSession(Session expected) {
     final current = _requireAuthenticatedAal2();
-    // Reject stale results even if the same employee signs in again. A token
-    // refresh during a lookup also requires a fresh lookup, never a stale grant.
+    final expectedSessionId = DeviceSessionPreference.sessionId(expected);
+    // Supabase may refresh an access token during a permission lookup. Bind
+    // the result to the same authenticated session, not the old token string.
     if (current.user.id != expected.user.id ||
-        current.accessToken != expected.accessToken) {
+        expectedSessionId == null ||
+        DeviceSessionPreference.sessionId(current) != expectedSessionId) {
       throw StateError('Employee session changed. Verify access again.');
     }
   }

@@ -247,9 +247,7 @@ class _CafeAppState extends State<CafeApp> {
   Widget _buildStaffAuthGate(BuildContext routeContext) {
     return AuthGate(
       onAuthorized: (allowedSections) {
-        unawaited(
-          _completeStaffAuthorization(routeContext, allowedSections),
-        );
+        return _completeStaffAuthorization(routeContext, allowedSections);
       },
     );
   }
@@ -270,9 +268,14 @@ class _CafeAppState extends State<CafeApp> {
       // Bind this authorization attempt to the employee who began it.
       final employeeAtStart = client.auth.currentUser?.id;
       final sessionAtStart = client.auth.currentSession;
+      final employeeSessionId =
+          DeviceSessionPreference.sessionId(sessionAtStart);
       if (employeeAtStart == null ||
           sessionAtStart?.user.id != employeeAtStart) {
         throw StateError('Employee session unavailable.');
+      }
+      if (employeeSessionId == null) {
+        throw StateError('Employee session identity unavailable.');
       }
       final service = EmployeePermissionService();
       final profile = await service.getActiveEmployee();
@@ -284,6 +287,8 @@ class _CafeAppState extends State<CafeApp> {
           verifiedSections.isEmpty ||
           client.auth.currentUser?.id != employeeAtStart ||
           client.auth.currentSession?.user.id != employeeAtStart ||
+          DeviceSessionPreference.sessionId(client.auth.currentSession) !=
+              employeeSessionId ||
           client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
               AuthenticatorAssuranceLevels.aal2) {
         throw StateError('Employee access denied.');
@@ -308,14 +313,7 @@ class _CafeAppState extends State<CafeApp> {
       );
     } catch (_) {
       if (!routeContext.mounted) return;
-      ScaffoldMessenger.of(routeContext).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Security verification failed. Management access remains locked.',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
+      rethrow;
     }
   }
 
@@ -332,7 +330,7 @@ class _CafeAppState extends State<CafeApp> {
       MaterialPageRoute<void>(
         builder:
             (routeContext) => AuthGate(
-              onAuthorized: (allowedSections) {
+              onAuthorized: (allowedSections) async {
                 if (!routeContext.mounted) return;
                 final auth = Supabase.instance.client.auth;
                 final session = auth.currentSession;
@@ -485,9 +483,21 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
   bool _redirectingForAuthorization = false;
   int _authorizationEpoch = 0;
   String? _authorizedUserId;
-  // This route belongs to the employee who opened it; never transfer it to
-  // another account after logout, token replacement or account switching.
+  String? _openingEmployeeSessionId;
+  // This route is bound to the employee session that opened it; token refresh
+  // is allowed, but logout, session replacement, or account switching is not.
   String? _openingEmployeeId;
+  String? _accessFailure;
+
+  bool get _managementLifecycleVisible {
+    final state = WidgetsBinding.instance.lifecycleState;
+    // Flutter can report null during initial web startup and inactive while
+    // Safari's browser chrome changes. Only actual hidden/background states
+    // should lock the employee workspace.
+    return state == null ||
+        state == AppLifecycleState.resumed ||
+        state == AppLifecycleState.inactive;
+  }
 
   // Refresh authorization regularly; database RLS must independently enforce
   // revocation on every privileged request.
@@ -496,27 +506,38 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     _authSubscription?.cancel();
     _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((state) {
       if (!mounted) return;
-      _authorizationEpoch++;
+      final session = state.session;
+      final sessionIdentity = DeviceSessionPreference.sessionId(session);
+      final sameBoundSession = session != null &&
+          _openingEmployeeId != null &&
+          session.user.id == _openingEmployeeId &&
+          sessionIdentity != null &&
+          sessionIdentity == _openingEmployeeSessionId &&
+          (_authorizedUserId == null ||
+              session.user.id == _authorizedUserId) &&
+          Supabase.instance.client.auth.mfa
+                  .getAuthenticatorAssuranceLevel()
+                  .currentLevel ==
+              AuthenticatorAssuranceLevels.aal2;
       if (state.event == AuthChangeEvent.signedOut ||
           state.event == AuthChangeEvent.userDeleted ||
-          state.session == null ||
-          state.session?.user.id != _openingEmployeeId ||
-          (_authorizedUserId != null &&
-              state.session?.user.id != _authorizedUserId)) {
-        _lockManagement(showChecking: true);
+          !sameBoundSession) {
+        _authorizationEpoch++;
         if (!_logoutInProgress && !_logoutRecoveryRequired) {
           _returnToStaffAuth();
+        } else {
+          _lockManagement(showChecking: true);
         }
       } else {
-        // Same-account refreshes can be checked in the background; do not
-        // replace the dashboard with a full-screen spinner for each event.
+        // Token refreshes retain the same Supabase session identity. Do not
+        // invalidate an in-flight RLS review just because the JWT rotated.
         _checkAccess(showChecking: false);
       }
     });
     _accessReviewTimer = Timer.periodic(const Duration(seconds: 60), (_) {
       if (mounted && !_accessReviewBusy && !_logoutInProgress &&
           !_logoutRecoveryRequired &&
-          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+          _managementLifecycleVisible) {
         // Keep the dashboard visible during the periodic server-side review.
         // A failed review still locks access and returns to staff sign-in.
         _checkAccess(showChecking: false);
@@ -616,9 +637,13 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _lockManagement(showChecking: true);
-      _checkAccess();
+    if (state == AppLifecycleState.resumed ||
+        state == AppLifecycleState.inactive) {
+      if (_accessReviewBusy) {
+        _reviewRequestedWhileBusy = true;
+        return;
+      }
+      _checkAccess(showChecking: !_authorized);
     }
     else {
       _posHeartbeatTimer?.cancel();
@@ -748,6 +773,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _openingEmployeeId = Supabase.instance.client.auth.currentUser?.id;
+    _openingEmployeeSessionId = DeviceSessionPreference.sessionId(
+      Supabase.instance.client.auth.currentSession,
+    );
     _startAccessMonitoring();
     _checkAccess();
   }
@@ -760,7 +788,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       return;
     }
     // Never authorize a management dashboard while the app is backgrounded.
-    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+    if (!_managementLifecycleVisible) {
       _lockManagement(showChecking: true);
       return;
     }
@@ -773,6 +801,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       setState(() {
         _authorized = false;
         _loading = true;
+        _accessFailure = null;
       });
       return;
     }
@@ -794,9 +823,12 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     final client = Supabase.instance.client;
     final sessionAtStart = client.auth.currentSession;
     final userAtStart = client.auth.currentUser?.id;
+    final sessionIdAtStart = DeviceSessionPreference.sessionId(sessionAtStart);
     try {
       if (sessionAtStart == null || userAtStart == null ||
           _openingEmployeeId == null || userAtStart != _openingEmployeeId ||
+          sessionIdAtStart == null ||
+          sessionIdAtStart != _openingEmployeeSessionId ||
           sessionAtStart.user.id != _openingEmployeeId ||
           client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
               AuthenticatorAssuranceLevels.aal2) {
@@ -808,21 +840,27 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       final permissions = await service.getAllowedSections();
       // Prevent an old asynchronous response from unlocking a new or signed-out session.
       final sessionNow = client.auth.currentSession;
-      final valid = mounted && !_logoutInProgress &&
-          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed &&
-          !_logoutRecoveryRequired && reviewEpoch == _authorizationEpoch &&
+      final sameEmployeeSession = mounted && !_logoutInProgress &&
+          !_logoutRecoveryRequired &&
           sessionNow != null &&
           client.auth.currentUser?.id == userAtStart &&
           sessionNow.user.id == userAtStart &&
           userAtStart == _openingEmployeeId &&
+          DeviceSessionPreference.sessionId(sessionNow) ==
+              _openingEmployeeSessionId &&
           client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel ==
-              AuthenticatorAssuranceLevels.aal2 &&
-          profile != null && profile['user_id'] == userAtStart &&
+              AuthenticatorAssuranceLevels.aal2;
+      final permissionStillValid = profile != null &&
+          profile['user_id'] == userAtStart &&
           profile['is_active'] == true &&
           permissions.contains('dashboard') &&
           widget.allowedSections.contains('dashboard');
-      if (!valid) {
+      if (!sameEmployeeSession || !permissionStillValid) {
         _returnToStaffAuth();
+        return;
+      }
+      if (reviewEpoch != _authorizationEpoch || !_managementLifecycleVisible) {
+        _lockManagement(showChecking: true);
         return;
       }
       setState(() {
@@ -830,6 +868,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
         _authorizedUserId = userAtStart;
         _sections = permissions.intersection(widget.allowedSections);
         _loading = false;
+        _accessFailure = null;
       });
       await _loadFavorites();
       // Loading preferences yields to the event loop: an auth event or
@@ -838,12 +877,26 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           _logoutInProgress || _logoutRecoveryRequired ||
           reviewEpoch != _authorizationEpoch ||
           _authorizedUserId != client.auth.currentUser?.id ||
-          WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+          !_managementLifecycleVisible) {
         return;
       }
       _startPosHeartbeat();
-    } catch (_) {
-      _returnToStaffAuth();
+    } catch (error) {
+      _reviewRequestedWhileBusy = false;
+      _posHeartbeatTimer?.cancel();
+      _posHeartbeatTimer = null;
+      debugPrint('EMPLOYEE ACCESS REVIEW FAILED: ${error.runtimeType}');
+      if (mounted && !_logoutInProgress && !_logoutRecoveryRequired) {
+        setState(() {
+          _authorized = false;
+          _sections = <String>{};
+          _authorizedUserId = null;
+          _favoriteSectionIds.clear();
+          _loading = false;
+          _accessFailure =
+              'Employee access could not be verified. Check your connection and retry.';
+        });
+      }
     } finally {
       _accessReviewBusy = false;
       if (mounted && !_logoutInProgress && !_logoutRecoveryRequired &&
@@ -852,7 +905,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
         // Retry only on an actual concurrent request, not after a failed
         // permission check: otherwise a denied session can loop forever.
         _reviewRequestedWhileBusy = false;
-        _checkAccess();
+        _checkAccess(showChecking: !_authorized);
       }
     }
   }
@@ -902,7 +955,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     // A concurrent review must never allow navigation on cached permissions.
     // Hide the dashboard first, then require a fresh, completed review.
     if (_logoutInProgress || _logoutRecoveryRequired || !mounted ||
-        WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+        !_managementLifecycleVisible) return;
     _lockManagement();
     if (_accessReviewBusy) {
       _reviewRequestedWhileBusy = true;
@@ -915,7 +968,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
         Supabase.instance.client.auth.currentSession == null ||
         Supabase.instance.client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
             AuthenticatorAssuranceLevels.aal2 ||
-        WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+        !_managementLifecycleVisible) {
       return;
     }
     final authorizedUserId = _authorizedUserId!;
@@ -972,6 +1025,43 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
               SizedBox(height: 16),
               Text('Checking your staff session…'),
             ],
+          ),
+        ),
+      );
+    }
+    if (_accessFailure != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Employee access check')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.lock_outline, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  _accessFailure!,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _loading = true;
+                      _accessFailure = null;
+                    });
+                    _checkAccess();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry employee check'),
+                ),
+                TextButton(
+                  onPressed: _returnToStaffAuth,
+                  child: const Text('Return to staff sign-in'),
+                ),
+              ],
+            ),
           ),
         ),
       );
