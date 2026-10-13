@@ -56,7 +56,9 @@ class EmployeePermissionService {
 
   Future<Map<String, dynamic>?> getActiveEmployee() async {
     final session = _requireAuthenticatedAal2();
-    if (!await DeviceSessionPreference.allows(session)) {
+    if (!await DeviceSessionPreference.allows(
+      session,
+    ).timeout(_requestTimeout)) {
       throw StateError('Saved device session ended. Sign in again.');
     }
     final userId = session.user.id;

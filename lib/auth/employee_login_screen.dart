@@ -1,3 +1,4 @@
+import 'dart:async';
 import '../services/device_session_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +20,8 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+  static const _requestTimeout = Duration(seconds: 12);
+  static const _cleanupTimeout = Duration(seconds: 3);
 
   int _rememberHours = 0;
   final _customHours = TextEditingController(text: '48');
@@ -49,8 +52,12 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
 
   Future<void> _safeSignOut() async {
     try {
-      try { await DeviceSessionPreference.clear(); } catch (_) {}
-      await _client.auth.signOut(scope: SignOutScope.local);
+      try {
+        await DeviceSessionPreference.clear().timeout(_cleanupTimeout);
+      } catch (_) {}
+      await _client.auth
+          .signOut(scope: SignOutScope.local)
+          .timeout(_cleanupTimeout);
     } catch (_) {
       // Cleanup errors must not replace the original login error.
     }
@@ -67,14 +74,17 @@ class _EmployeeLoginScreenState extends State<EmployeeLoginScreen> {
       final response = await _client.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
-      );
+      ).timeout(_requestTimeout);
 
       if (response.user == null || response.session == null) {
         throw StateError('Authentication was not completed.');
       }
 
       final hours = _rememberHours == -2 ? int.parse(_customHours.text.trim()) : _rememberHours;
-      await DeviceSessionPreference.save(response.session!, hours);
+      await DeviceSessionPreference.save(
+        response.session!,
+        hours,
+      ).timeout(_requestTimeout);
       if (!mounted) return;
       // The caller can verify employee access and navigate after success.
       // If that verification throws, the failure handler clears the session.

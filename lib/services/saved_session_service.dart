@@ -32,7 +32,10 @@ class SavedSessionService {
       // Step 1: Check the saved Supabase session.
       final session = _client.auth.currentSession;
       final originalSessionId = DeviceSessionPreference.sessionId(session);
-      if (session == null || !await DeviceSessionPreference.allows(session)) {
+      if (session == null ||
+          !await DeviceSessionPreference.allows(
+            session,
+          ).timeout(_requestTimeout)) {
         debugPrint('Saved Session: No session found.');
         return const SavedSessionResult(authorized: false);
       }
