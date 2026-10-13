@@ -608,10 +608,6 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
         future: _contactFuture,
         builder: (context, snapshot) {
           final data = snapshot.data ?? const <String, dynamic>{};
-          final businessName = _read(data, 'business_name');
-          final title = businessName.isEmpty
-              ? 'Gelye Sherane Café & Restaurant'
-              : businessName;
           final theme = Theme.of(context);
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
