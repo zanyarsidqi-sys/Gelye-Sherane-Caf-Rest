@@ -5,6 +5,7 @@ import '../shared/gelye_professional_theme.dart';
 import '../shared/app_release_version.dart';
 import '../shared/gelye_company_footer.dart';
 import '../shared/release_update_notice.dart';
+import '../shared/public_landing_page.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../services/pos_heartbeat_service.dart';
@@ -12,6 +13,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../auth/auth_gate.dart';
 import '../shared/public_menu_screen.dart';
+import '../shared/public_reservation_screen.dart';
+import '../shared/public_online_order_screen.dart';
 import '../shared/station_device_gate.dart';
 import '../shared/customer_table_qr_menu_screen.dart';
 import '../shared/customer_motel_room_qr_screen.dart';
@@ -282,71 +285,21 @@ class _CafeAppState extends State<CafeApp> {
   }
 
   Widget _buildPublicHome(BuildContext homeContext) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gelye Sherane Cafê & Rest'),
-        actions: [
-          IconButton(
-            tooltip: 'Toggle theme',
-            onPressed: _toggleTheme,
-            icon: Icon(_dark ? Icons.light_mode : Icons.dark_mode),
-          ),
-        ],
+    return PublicLandingPage(
+      onToggleTheme: _toggleTheme,
+      isDark: _dark,
+      onStaffLogin: () => _openStaffEntrance(homeContext),
+      onStationPos: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const StationDeviceGate()),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 550),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.restaurant, size: 76, color: Colors.blue),
-                const SizedBox(height: 18),
-                Text(
-                  'Welcome',
-                  style: Theme.of(homeContext).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Gelye Sherane Cafê & Rest',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Browse our public menu. Ordering and reservations are coming later.',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(homeContext).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const PublicMenuScreen(),
-                    ),
-                  ),
-                  icon: const Icon(Icons.menu_book_outlined),
-                  label: const Text('View Menu'),
-                ),
-                const SizedBox(height: 24),
-                FilledButton.icon(
-                  onPressed: () => _openStaffEntrance(homeContext),
-                  icon: const Icon(Icons.lock_outline),
-                  label: const Text('Staff Entrance'),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(homeContext).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const StationDeviceGate(),
-                    ),
-                  ),
-                  icon: const Icon(Icons.print_outlined),
-                  label: const Text('Station POS Device'),
-                ),
-              ],
-            ),
-          ),
-        ),
+      onOpenMenu: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const PublicMenuScreen()),
+      ),
+      onReserveTable: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const PublicReservationScreen()),
+      ),
+      onOrderOnline: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const PublicOnlineOrderScreen()),
       ),
     );
   }
