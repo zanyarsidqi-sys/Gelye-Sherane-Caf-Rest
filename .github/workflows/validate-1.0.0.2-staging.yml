@@ -6,6 +6,7 @@ on:
       - fix/release-1.0.0.2-ci-deploy
       - fix/production-analyze-policy
       - fix/preflight-current-workflow-paths
+      - fix/release-version-script-workflow-paths
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,7 +22,8 @@ jobs:
           test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-recovery" || \
             test "$GITHUB_REF_NAME" = "fix/release-1.0.0.2-ci-deploy" || \
             test "$GITHUB_REF_NAME" = "fix/production-analyze-policy" || \
-            test "$GITHUB_REF_NAME" = "fix/preflight-current-workflow-paths"
+            test "$GITHUB_REF_NAME" = "fix/preflight-current-workflow-paths" || \
+            test "$GITHUB_REF_NAME" = "fix/release-version-script-workflow-paths"
           for f in pubspec.yaml lib/main.dart web/index.html; do
             test -f "$f" || { echo "::error::Missing $f"; exit 1; }
           done
@@ -41,6 +43,11 @@ jobs:
             echo "::error::Potential private key committed"
             exit 1
           fi
+      - name: Run release source checks
+        run: |
+          python3 tools/staging_release_preflight.py
+          python3 tools/check_release_version.py
+          for test_file in release/test_*.py; do python3 "$test_file"; done
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
