@@ -325,6 +325,26 @@ class _CafeAppState extends State<CafeApp> {
     );
   }
 
+  /// Require the verified employee/MFA gate before the station account login.
+  /// The station credentials remain a second, separate authorization layer.
+  void _openStationPos(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder:
+            (routeContext) => AuthGate(
+              onAuthorized: (_) {
+                if (!routeContext.mounted) return;
+                Navigator.of(routeContext).pushReplacement(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const StationDeviceGate(),
+                  ),
+                );
+              },
+            ),
+      ),
+    );
+  }
+
   void _clearRestoredEmployeeAccess() {
     if (!mounted || _restoredSections.isEmpty) return;
     setState(() {
@@ -345,9 +365,7 @@ class _CafeAppState extends State<CafeApp> {
       onToggleTheme: _toggleTheme,
       isDark: _dark,
       onStaffLogin: () => _openStaffEntrance(homeContext),
-      onStationPos: () => Navigator.of(homeContext).push(
-        MaterialPageRoute<void>(builder: (_) => const StationDeviceGate()),
-      ),
+      onStationPos: () => _openStationPos(homeContext),
       onOpenMenu: () => Navigator.of(homeContext).push(
         MaterialPageRoute<void>(builder: (_) => const PublicMenuScreen()),
       ),
