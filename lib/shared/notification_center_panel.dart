@@ -2,9 +2,14 @@ import '../services/browser_push.dart';
 import '../services/device_session_preference.dart';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'app_release_version.dart';
+import 'app_update_button.dart';
+import 'release_update_notice.dart';
 
 /// Device-local notification notes. Not a server notification delivery system.
 class NotificationCenterPanel extends StatefulWidget {
@@ -23,6 +28,15 @@ class _NotificationCenterPanelState extends State<NotificationCenterPanel> {
   String _priority = 'Normal';
   bool _pushBusy = false;
   String? _pushMessage;
+  late final Future<Map<String, dynamic>?> _availableUpdateFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _availableUpdateFuture =
+        kIsWeb ? _loadAvailableUpdate() : Future<Map<String, dynamic>?>.value();
+    _load();
+  }
 
   String _pushConfig() {
     final session = Supabase.instance.client.auth.currentSession;
@@ -84,6 +98,65 @@ class _NotificationCenterPanelState extends State<NotificationCenterPanel> {
       'gs_my_published_release_history', params: {'p_limit': 10});
     return (rows as List).map((row) => Map<String, dynamic>.from(row as Map)).toList();
   }
+
+  Future<Map<String, dynamic>?> _loadAvailableUpdate() async {
+    final result = await Supabase.instance.client.rpc(
+      'gs_app_available_update',
+      params: {'p_platform': 'web'},
+    );
+    if (result == null) return null;
+    final release = Map<String, dynamic>.from(result as Map);
+    final version = release['version']?.toString() ?? '';
+    return ReleaseUpdateNotice.isNewer(version, AppReleaseVersion.label)
+        ? release
+        : null;
+  }
+
+  Widget _availableUpdateCard() => FutureBuilder<Map<String, dynamic>?>(
+        future: _availableUpdateFuture,
+        builder: (context, snapshot) {
+          final release = snapshot.data;
+          if (!kIsWeb ||
+              snapshot.connectionState != ConnectionState.done ||
+              snapshot.hasError ||
+              release == null) {
+            return const SizedBox.shrink();
+          }
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.system_update_alt),
+                    title: Text('App update available'),
+                    subtitle: Text('A newer web version is ready to install.'),
+                  ),
+                  Text(
+                    'Version ${release['version']}',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if ((release['notes']?.toString() ?? '').isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 12),
+                      child: Text(
+                        release['notes'].toString(),
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  const Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: AppUpdateButton(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
 
   Widget _releaseHistoryCard() => Card(child: Padding(
     padding: const EdgeInsets.all(16),
@@ -215,6 +288,7 @@ class _NotificationCenterPanelState extends State<NotificationCenterPanel> {
     final unread = _items.where((item) => item['read'] != true).length;
     return ListView(padding: const EdgeInsets.all(16), children: [
       _pushCard(),
+      _availableUpdateCard(),
       _releaseHistoryCard(),
       const Card(child: ListTile(
         leading: Icon(Icons.info_outline),

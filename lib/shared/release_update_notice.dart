@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'app_release_version.dart';
+import 'app_update_button.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Non-disruptive update notifications. Never reloads, installs, signs out,
@@ -85,16 +86,55 @@ class _ReleaseUpdateNoticeState extends State<ReleaseUpdateNotice> with WidgetsB
   Widget build(BuildContext context) => Column(children: [
     if (_notice != null) Material(
       color: Theme.of(context).colorScheme.secondaryContainer,
-      child: SafeArea(bottom: false, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), child: Row(children: [
-        const Icon(Icons.system_update_outlined), const SizedBox(width: 8),
-        Expanded(child: ConstrainedBox(constraints: const BoxConstraints(maxHeight: 160), child: SingleChildScrollView(child: Semantics(liveRegion: true, child: Text('Update ${_notice!['version']} is available. Save your work before updating.${_showDetails ? '\n${_notice!['notes']}' : ''}'))))),
-        TextButton(onPressed: () {
-          setState(() => _showDetails = !_showDetails);
-        }, child: Text(_showDetails ? 'Hide' : 'Details')),
-        IconButton(tooltip: 'Remind me next session', onPressed: () => setState(() {
-          _dismissed = '${_notice!['id']}:${_notice!['revision']}'; _notice = null;
-        }), icon: const Icon(Icons.close)),
-      ]))),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.system_update_outlined),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 160),
+                      child: SingleChildScrollView(
+                        child: Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            'Update ${_notice!['version']} is available.'
+                            '${_showDetails ? '\n${_notice!['notes']}' : ''}',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        setState(() => _showDetails = !_showDetails),
+                    child: Text(_showDetails ? 'Hide' : 'Details'),
+                  ),
+                  IconButton(
+                    tooltip: 'Remind me next session',
+                    onPressed: () => setState(() {
+                      _dismissed = '${_notice!['id']}:${_notice!['revision']}';
+                      _notice = null;
+                    }),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              if (kIsWeb)
+                const Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: AppUpdateButton(),
+                ),
+            ],
+          ),
+        ),
+      ),
     ),
     Expanded(child: widget.child),
   ]);
