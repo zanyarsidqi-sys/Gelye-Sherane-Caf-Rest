@@ -88,7 +88,10 @@ class _StaffSpecificReservationScreenState extends State<StaffSpecificReservatio
           decoration: const InputDecoration(labelText: 'Phone'),
           validator: (v) => (v?.trim().length ?? 0) < 6 ? 'Phone required' : null),
         DropdownButtonFormField<int>(value: _guests,
-          decoration: const InputDecoration(labelText: 'Guests'),
+          decoration: const InputDecoration(
+            labelText: 'How many guests?',
+            helperText: 'Enter everyone in the party; available tables must fit this count.',
+          ),
           items: List.generate(30, (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}'))),
           onChanged: _busy ? null : (v) { if (v != null) { setState(() => _guests = v); _load(); } }),
         DropdownButtonFormField<String>(value: _tableId,

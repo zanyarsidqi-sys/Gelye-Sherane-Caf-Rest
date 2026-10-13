@@ -1,5 +1,5 @@
 {
-  "candidate_version": "1.0.0.4",
+  "candidate_version": "1.0.0.6",
   "source_checks": {
     "version_semver": true,
     "footer_single_source_placement": true,
