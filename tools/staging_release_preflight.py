@@ -5,7 +5,7 @@ import json, re, sys
 root=Path(__file__).resolve().parents[1]
 version=(root/'release/VERSION').read_text().strip()
 app=(root/'lib/app/cafe_app.dart').read_text()
-validation_workflow=(root/'.github/workflows/validate-1.0.0.2-staging.yml').read_text()
+validation_workflow=(root/'.github/workflows/validate-1.0.0.3-dashboard.yml').read_text()
 production_workflow=(root/'.github/workflows/pages.yml').read_text()
 push=(root/'web/push_client.js').read_text()
 checks={
@@ -15,6 +15,8 @@ checks={
  'ci_release_version_build': 'APP_RELEASE_VERSION=$RELEASE_VERSION' in production_workflow,
  'ci_production_manual_dispatch': 'workflow_dispatch:' in production_workflow,
  'ci_staging_artifact': 'actions/upload-artifact@v4' in validation_workflow,
+ 'ci_staging_candidate_version': '--dart-define="APP_RELEASE_VERSION=$RELEASE_VERSION"' in validation_workflow,
+ 'ci_staging_candidate_branch': 'staging/release-1.0.0.3-dashboard' in validation_workflow,
  'push_service_worker': (root/'web/push/sw.js').is_file(),
  'push_client_subscription': 'window.cafePushEnable' in push and 'window.cafePushDisable' in push,
  'saved_session_restoration': '_restoreSavedSession' in app,

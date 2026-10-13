@@ -1,0 +1,68 @@
+name: Validate Gelye 1.0.0.3 dashboard candidate
+on:
+  push:
+    branches:
+      - staging/release-1.0.0.3-dashboard
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require dashboard candidate and complete source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.3-dashboard"
+          test "$(tr -d '\r\n' < release/VERSION)" = "1.0.0.3"
+          for f in pubspec.yaml lib/main.dart web/index.html; do
+            test -f "$f" || { echo "::error::Missing $f"; exit 1; }
+          done
+          count=$(find lib/sections -maxdepth 1 -type f -name '*.dart' | wc -l)
+          test "$count" -eq 35 || { echo "::error::Expected 35 section files, found $count"; exit 1; }
+          test -n "$(find test -type f -name '*_test.dart' -print -quit)"
+      - name: Reject committed private key files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -Ei '(^|/)(id_rsa|id_ed25519|.*[.]pem|.*[.]p12|.*[.]pfx)$'; then
+            echo "::error::Potential private key committed"
+            exit 1
+          fi
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Run release source checks
+        run: |
+          python3 tools/staging_release_preflight.py
+          python3 tools/check_release_version.py
+          for test_file in release/test_*.py; do python3 "$test_file"; done
+      - name: Resolve dependencies and analyze
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos
+      - name: Run Flutter tests
+        run: flutter test
+      - name: Compile Flutter web with candidate version
+        shell: bash
+        run: |
+          set -euo pipefail
+          RELEASE_VERSION="$(tr -d '\r\n' < release/VERSION)"
+          flutter build web --release --dart-define="APP_RELEASE_VERSION=$RELEASE_VERSION"
+          printf '%s\n' "$RELEASE_VERSION" > build/web/release-version.txt
+      - name: Verify compiled web files and candidate manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s build/web/index.html
+          test -s build/web/flutter_bootstrap.js
+          find build/web -name 'main.dart.js' -size +0c | grep -q .
+          test "$(tr -d '\r\n' < build/web/release-version.txt)" = "1.0.0.3"
+      - name: Upload staging artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gelye-cafe-rest-1.0.0.3-dashboard-staging-web
+          path: build/web/
+          if-no-files-found: error

@@ -22,6 +22,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Dashboard figures come from a permission-filtered server RPC, never local
 /// preview orders. Cash collected is not equivalent to all-channel revenue.
+bool dashboardMetricIsVisible({
+  required Set<String> allowedSections,
+  required bool hasMetric,
+  String? section,
+}) {
+  if (!hasMetric) return false;
+  return section == null || allowedSections.contains(section);
+}
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen(
       {super.key, required this.allowedSections, required this.onOpenSection});
@@ -738,11 +747,21 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
 
   void _openMetricDetails(String title, String key, Object? value,
       {required bool money, String? section}) {
+    if (!dashboardMetricIsVisible(
+      allowedSections: widget.allowedSections,
+      hasMetric: true,
+      section: section,
+    )) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('This dashboard detail is unavailable for this account.'),
+      ));
+      return;
+    }
     final permitted = section != null && widget.allowedSections.contains(section);
     final detail = Scaffold(
       appBar: AppBar(title: Text(title)),
       body: SafeArea(child: ListView(padding: const EdgeInsets.all(20), children: [
-        Text('User filter: current authorized account (${Supabase.instance.client.auth.currentUser?.id ?? 'not signed in'}). Other employee filtering requires a permission-scoped backend endpoint.'),
+        const Text('Data is scoped to the current authenticated account. Other employee filtering requires a permission-scoped backend endpoint.'),
         const SizedBox(height: 8),
         Text('Selected business date: ${_dateString()}',
             style: Theme.of(context).textTheme.bodyMedium),
@@ -983,7 +1002,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   Widget _metric(
       String title, String key, IconData icon, Map<String, dynamic> data,
       {bool money = false, String? section}) {
-    if (!data.containsKey(key)) return const SizedBox.shrink();
+    if (!dashboardMetricIsVisible(
+      allowedSections: widget.allowedSections,
+      hasMetric: data.containsKey(key),
+      section: section,
+    )) return const SizedBox.shrink();
     final colorIndex = _cardColors[key];
     final accent = colorIndex == null ? Theme.of(context).colorScheme.primary
         : _palette[colorIndex];
@@ -1420,13 +1443,39 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
         });
   }
 
+  Map<String, dynamic> _authorizedInsightMetrics(
+      Map<String, dynamic> data) {
+    const sectionByMetric = <String, String>{
+      'urgent_guest_requests': 'action_center',
+      'overdue_service_orders': 'table_orders',
+      'out_of_stock_count': 'products_inventory',
+      'low_stock_count': 'products_inventory',
+      'cash_reconciliation_discrepancies': 'payments_management',
+      'open_maintenance_issues': 'maintenance',
+      'pending_offline_sync': 'offline_mode_synchronization',
+    };
+    return <String, dynamic>{
+      for (final entry in sectionByMetric.entries)
+        if (dashboardMetricIsVisible(
+          allowedSections: widget.allowedSections,
+          hasMetric: data.containsKey(entry.key),
+          section: entry.value,
+        ))
+          entry.key: data[entry.key],
+    };
+  }
+
   Widget _alertTile(
       String title, Object? count, IconData icon, String section) {
-    final enabled = widget.allowedSections.contains(section);
+    if (!dashboardMetricIsVisible(
+      allowedSections: widget.allowedSections,
+      hasMetric: true,
+      section: section,
+    )) return const SizedBox.shrink();
     return ActionChip(
       avatar: Icon(icon, size: 18),
       label: Text('$title: ${count ?? '—'}'),
-      onPressed: enabled ? () => widget.onOpenSection(section) : null,
+      onPressed: () => widget.onOpenSection(section),
     );
   }
 
@@ -1910,7 +1959,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                       data[area.$2] is num)
                                     _metric(area.$1, area.$2, area.$3, data,
                                         section: area.$4),
-                                if (data['customers_today'] is num)
+                                      if (dashboardMetricIsVisible(
+                                        allowedSections: widget.allowedSections,
+                                        section: 'tables',
+                                        hasMetric: data['customers_today'] is num,
+                                      ))
                                   CustomerCountCard(
                                     title: 'Customers today',
                                     count: (data['customers_today'] as num).toInt(),
@@ -1919,7 +1972,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                       data['customers_today'], money: false,
                                       section: 'tables'),
                                   ),
-                                if (data['tourism_customers'] is num)
+                                      if (dashboardMetricIsVisible(
+                                        allowedSections: widget.allowedSections,
+                                        section: 'table_orders',
+                                        hasMetric: data['tourism_customers'] is num,
+                                      ))
                                   CustomerCountCard(
                                     title: 'Tourism customers',
                                     count: (data['tourism_customers'] as num).toInt(),
@@ -1995,7 +2052,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                             .titleLarge),
                                     const SizedBox(height: 8),
                                     if (_editingCards && orderedIds.isNotEmpty) ...[
-                                      const Text('Drag or move KPI cards; set color, size, and visibility per card. Hiding a KPI never disables required alerts. Saved on this device; cloud sync pending.'),
+                                      const Text('Drag or move KPI cards; set color, size, and visibility per card. Hiding a KPI never disables required alerts. Changes save on this device and sync to your signed-in account when the cloud preference service is available.'),
                                       const SizedBox(height: 8),
                                       SizedBox(
                                         height: 260,
@@ -2112,7 +2169,9 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                     const SizedBox(height: 16),
                                     _weekChart(),
                                     const SizedBox(height: 16),
-                                    DashboardInsightsPanel(metrics: data),
+                                    DashboardInsightsPanel(
+                                      metrics: _authorizedInsightMetrics(data),
+                                    ),
                                     const SizedBox(height: 16),
                                     Text('Action center',
                                         style: Theme.of(context)
