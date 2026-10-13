@@ -32,13 +32,13 @@ void main() {
     );
   });
 
-  test('a supplied general metric can be shown without a section link', () {
+  test('a metric without an owning section is denied by default', () {
     expect(
       dashboardMetricIsVisible(
         allowedSections: const {'dashboard'},
         hasMetric: true,
       ),
-      isTrue,
+      isFalse,
     );
   });
 }

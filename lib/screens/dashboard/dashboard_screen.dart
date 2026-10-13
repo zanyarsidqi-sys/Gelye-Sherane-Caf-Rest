@@ -28,7 +28,7 @@ bool dashboardMetricIsVisible({
   String? section,
 }) {
   if (!hasMetric) return false;
-  return section == null || allowedSections.contains(section);
+  return section != null && allowedSections.contains(section);
 }
 
 class DashboardScreen extends StatefulWidget {
