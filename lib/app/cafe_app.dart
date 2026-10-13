@@ -5,6 +5,7 @@ import '../shared/gelye_professional_theme.dart';
 import '../shared/app_release_version.dart';
 import '../shared/gelye_company_footer.dart';
 import '../shared/release_update_notice.dart';
+import '../shared/public_landing_page.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../services/pos_heartbeat_service.dart';
@@ -12,6 +13,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../auth/auth_gate.dart';
 import '../shared/public_menu_screen.dart';
+import '../shared/public_reservation_screen.dart';
+import '../shared/public_online_order_screen.dart';
+import '../shared/employee_device_presence_monitor.dart';
 import '../shared/station_device_gate.dart';
 import '../shared/customer_table_qr_menu_screen.dart';
 import '../shared/customer_motel_room_qr_screen.dart';
@@ -27,10 +31,52 @@ class CafeApp extends StatefulWidget {
   State<CafeApp> createState() => _CafeAppState();
 }
 
+class _CafeFooterRouteObserver extends NavigatorObserver {
+  static const dashboardRouteName = '/employee-dashboard';
+  static const publicLandingRouteName = '/public-landing';
+  bool rootIsPublicLanding = false;
+
+  final ValueNotifier<bool> showGlobalFooter = ValueNotifier<bool>(true);
+
+  void _updateFor(Route<dynamic>? route) {
+    if (route is! PageRoute<dynamic>) return;
+    final routeName = route.settings.name;
+    final hasCustomerEntryToken =
+        Uri.base.queryParameters['token']?.isNotEmpty == true ||
+        Uri.base.queryParameters['motel_room_token']?.isNotEmpty == true;
+    final isPublicLanding =
+        routeName == publicLandingRouteName ||
+        (routeName == Navigator.defaultRouteName &&
+            rootIsPublicLanding &&
+            !hasCustomerEntryToken);
+    final shouldShow =
+        routeName != dashboardRouteName && !isPublicLanding;
+    if (showGlobalFooter.value != shouldShow) {
+      showGlobalFooter.value = shouldShow;
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _updateFor(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _updateFor(previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    _updateFor(newRoute);
+  }
+}
+
 class _CafeAppState extends State<CafeApp> {
   bool _checkingSavedSession = true;
   String _installedVersion = 'Loading…';
   Set<String> _restoredSections = <String>{};
+  final _footerRouteObserver = _CafeFooterRouteObserver();
 
   static const _languageKey = 'gelye_cafe_rest_language_v1';
   String _language = 'en';
@@ -131,6 +177,12 @@ class _CafeAppState extends State<CafeApp> {
     }
   }
 
+  @override
+  void dispose() {
+    _footerRouteObserver.showGlobalFooter.dispose();
+    super.dispose();
+  }
+
   Widget _globalLanguageSelector() => Material(
     elevation: 3,
     borderRadius: BorderRadius.circular(22),
@@ -192,101 +244,153 @@ class _CafeAppState extends State<CafeApp> {
     }
   }
 
+  Widget _buildStaffAuthGate(BuildContext routeContext) {
+    return AuthGate(
+      onAuthorized: (allowedSections) {
+        unawaited(
+          _completeStaffAuthorization(routeContext, allowedSections),
+        );
+      },
+    );
+  }
+
+  Future<void> _completeStaffAuthorization(
+    BuildContext routeContext,
+    Set<String> allowedSections,
+  ) async {
+    if (!routeContext.mounted) return;
+    try {
+      final client = Supabase.instance.client;
+      final assurance = client.auth.mfa.getAuthenticatorAssuranceLevel();
+
+      if (assurance.currentLevel != AuthenticatorAssuranceLevels.aal2) {
+        throw StateError('MFA verification required.');
+      }
+
+      // Bind this authorization attempt to the employee who began it.
+      final employeeAtStart = client.auth.currentUser?.id;
+      final sessionAtStart = client.auth.currentSession;
+      if (employeeAtStart == null ||
+          sessionAtStart?.user.id != employeeAtStart) {
+        throw StateError('Employee session unavailable.');
+      }
+      final service = EmployeePermissionService();
+      final profile = await service.getActiveEmployee();
+      final verifiedSections = await service.getAllowedSections();
+
+      if (profile == null ||
+          profile['user_id'] != employeeAtStart ||
+          profile['is_active'] != true ||
+          verifiedSections.isEmpty ||
+          client.auth.currentUser?.id != employeeAtStart ||
+          client.auth.currentSession?.user.id != employeeAtStart ||
+          client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
+              AuthenticatorAssuranceLevels.aal2) {
+        throw StateError('Employee access denied.');
+      }
+
+      final sections = verifiedSections.intersection(allowedSections);
+      if (!sections.contains('dashboard')) {
+        throw StateError('No authorized sections.');
+      }
+      if (!routeContext.mounted) return;
+
+      Navigator.of(routeContext).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => ManagementDashboard(
+            allowedSections: sections,
+            onToggleTheme: _toggleTheme,
+            onAuthorizationLost: _clearRestoredEmployeeAccess,
+            staffAuthGateBuilder: _buildStaffAuthGate,
+            publicHomeBuilder: _buildPublicHome,
+          ),
+        ),
+      );
+    } catch (_) {
+      if (!routeContext.mounted) return;
+      ScaffoldMessenger.of(routeContext).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Security verification failed. Management access remains locked.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   void _openStaffEntrance(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (routeContext) {
-          return AuthGate(
-            onAuthorized: (allowedSections) async {
-              if (!routeContext.mounted) return;
-              try {
-                final client = Supabase.instance.client;
+      MaterialPageRoute<void>(builder: _buildStaffAuthGate),
+    );
+  }
 
-                final assurance =
-                    client.auth.mfa.getAuthenticatorAssuranceLevel();
+  void _clearRestoredEmployeeAccess() {
+    if (!mounted || _restoredSections.isEmpty) return;
+    setState(() {
+      _restoredSections = <String>{};
+      _checkingSavedSession = false;
+    });
+  }
 
-                if (assurance.currentLevel !=
-                    AuthenticatorAssuranceLevels.aal2) {
-                  throw StateError('MFA verification required.');
-                }
-
-                // Bind this authorization attempt to the employee who began it.
-                final employeeAtStart = client.auth.currentUser?.id;
-                final sessionAtStart = client.auth.currentSession;
-                if (employeeAtStart == null ||
-                    sessionAtStart?.user.id != employeeAtStart) {
-                  throw StateError('Employee session unavailable.');
-                }
-                final service = EmployeePermissionService();
-                final profile = await service.getActiveEmployee();
-                final verifiedSections = await service.getAllowedSections();
-
-                if (profile == null ||
-                    profile['user_id'] != employeeAtStart ||
-                    profile['is_active'] != true ||
-                    verifiedSections.isEmpty ||
-                    client.auth.currentUser?.id != employeeAtStart ||
-                    client.auth.currentSession?.user.id != employeeAtStart ||
-                    client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
-                        AuthenticatorAssuranceLevels.aal2) {
-                  throw StateError('Employee access denied.');
-                }
-
-                final sections = verifiedSections.intersection(allowedSections);
-
-                if (!sections.contains('dashboard')) {
-                  throw StateError('No authorized sections.');
-                }
-
-                if (!routeContext.mounted) return;
-
-                Navigator.of(routeContext).pushReplacement(
-                  MaterialPageRoute<void>(
-                    builder: (_) => ManagementDashboard(
-                      allowedSections: sections,
-                      onToggleTheme: _toggleTheme,
-                    ),
-                  ),
-                );
-              } catch (_) {
-                if (!routeContext.mounted) return;
-
-                ScaffoldMessenger.of(routeContext).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Security verification failed. '
-                      'Management access remains locked.',
-                    ),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-          );
-        },
+  Widget _buildPublicHome(BuildContext homeContext) {
+    _footerRouteObserver.rootIsPublicLanding = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !homeContext.mounted) return;
+      if (ModalRoute.of(homeContext)?.isCurrent == true) {
+        _footerRouteObserver.showGlobalFooter.value = false;
+      }
+    });
+    return PublicLandingPage(
+      onToggleTheme: _toggleTheme,
+      isDark: _dark,
+      onStaffLogin: () => _openStaffEntrance(homeContext),
+      onStationPos: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const StationDeviceGate()),
+      ),
+      onOpenMenu: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const PublicMenuScreen()),
+      ),
+      onReserveTable: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const PublicReservationScreen()),
+      ),
+      onOrderOnline: () => Navigator.of(homeContext).push(
+        MaterialPageRoute<void>(builder: (_) => const PublicOnlineOrderScreen()),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_checkingSavedSession || _restoredSections.isNotEmpty) {
+      _footerRouteObserver.rootIsPublicLanding = false;
+    }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Gelye Sherane Cafê & Rest',
+      navigatorObservers: <NavigatorObserver>[_footerRouteObserver],
       builder: (context, child) => AppLanguage(
         code: _language,
         child: Directionality(
           textDirection: AppLanguage.isRtl(_language) ? TextDirection.rtl : TextDirection.ltr,
           child: Column(children: [
         Expanded(child: Stack(children: [
-        if (child != null) ReleaseUpdateNotice(child: child),
+        if (child != null)
+          EmployeeDevicePresenceMonitor(
+            child: ReleaseUpdateNotice(child: child),
+          ),
         Positioned(
           top: MediaQuery.paddingOf(context).top + 6,
           right: 12,
           child: SafeArea(top: false, child: _globalLanguageSelector()),
         ),
       ])),
-        GelyeCompanyFooter(version: _installedVersion),
+        ValueListenableBuilder<bool>(
+          valueListenable: _footerRouteObserver.showGlobalFooter,
+          builder: (context, showFooter, _) => showFooter
+              ? GelyeCompanyFooter(version: _installedVersion)
+              : const SizedBox.shrink(),
+        ),
       ]))),
       theme: GelyeProfessionalTheme.light,
       darkTheme: GelyeProfessionalTheme.dark,
@@ -294,7 +398,9 @@ class _CafeAppState extends State<CafeApp> {
       home: Uri.base.queryParameters.containsKey('motel_room_token') && Uri.base.queryParameters['motel_room_token']!.isNotEmpty
           ? CustomerMotelRoomQrScreen(token: Uri.base.queryParameters['motel_room_token']!)
           : Uri.base.queryParameters.containsKey('token') && Uri.base.queryParameters['token']!.isNotEmpty
-          ? CustomerTableQrMenuScreen(token: Uri.base.queryParameters['token']!)
+          ? CustomerTableQrMenuScreen(
+              token: Uri.base.queryParameters['token']!,
+              visitSessionToken: Uri.base.queryParameters['visit'])
           : _checkingSavedSession
           ? const Scaffold(
               body: Center(
@@ -305,87 +411,11 @@ class _CafeAppState extends State<CafeApp> {
               ? ManagementDashboard(
                   allowedSections: _restoredSections,
                   onToggleTheme: _toggleTheme,
+                  onAuthorizationLost: _clearRestoredEmployeeAccess,
+                  staffAuthGateBuilder: _buildStaffAuthGate,
+                  publicHomeBuilder: _buildPublicHome,
                 )
-              : Builder(
-                  builder: (homeContext) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text(
-                          'Gelye Sherane Cafê & Rest',
-                        ),
-                        actions: [
-                          IconButton(
-                            tooltip: 'Toggle theme',
-                            onPressed: _toggleTheme,
-                            icon: Icon(
-                              _dark ? Icons.light_mode : Icons.dark_mode,
-                            ),
-                          ),
-                        ],
-                      ),
-                      body: Center(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(24),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxWidth: 550,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.restaurant,
-                                  size: 76,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(height: 18),
-                                Text(
-                                  'Welcome',
-                                  style: Theme.of(homeContext)
-                                      .textTheme
-                                      .headlineMedium,
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'Gelye Sherane Cafê & Rest',
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                    'Browse our public menu. Ordering and reservations are coming later.',
-                                    textAlign: TextAlign.center),
-                                const SizedBox(height: 12),
-                                OutlinedButton.icon(
-                                  onPressed: () => Navigator.of(homeContext)
-                                      .push(MaterialPageRoute<void>(
-                                          builder: (_) =>
-                                              const PublicMenuScreen())),
-                                  icon: const Icon(Icons.menu_book_outlined),
-                                  label: const Text('View Menu'),
-                                ),
-                                const SizedBox(height: 24),
-                                FilledButton.icon(
-                                  onPressed: () {
-                                    _openStaffEntrance(homeContext);
-                                  },
-                                  icon: const Icon(Icons.lock_outline),
-                                  label: const Text('Staff Entrance'),
-                                ),
-                                const SizedBox(height: 12),
-                                OutlinedButton.icon(
-                                  onPressed: () => Navigator.of(homeContext).push(
-                                    MaterialPageRoute<void>(builder: (_) => const StationDeviceGate())),
-                                  icon: const Icon(Icons.print_outlined),
-                                  label: const Text('Station POS Device'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+              : Builder(builder: _buildPublicHome),
     );
   }
 }
@@ -395,9 +425,15 @@ class ManagementDashboard extends StatefulWidget {
     super.key,
     required this.allowedSections,
     required this.onToggleTheme,
+    required this.onAuthorizationLost,
+    required this.staffAuthGateBuilder,
+    required this.publicHomeBuilder,
   });
   final Set<String> allowedSections;
   final VoidCallback onToggleTheme;
+  final VoidCallback onAuthorizationLost;
+  final WidgetBuilder staffAuthGateBuilder;
+  final WidgetBuilder publicHomeBuilder;
   @override
   State<ManagementDashboard> createState() => _ManagementDashboardState();
 }
@@ -410,6 +446,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
   bool _reviewRequestedWhileBusy = false;
   bool _logoutInProgress = false;
   bool _logoutRecoveryRequired = false;
+  bool _redirectingForAuthorization = false;
   int _authorizationEpoch = 0;
   String? _authorizedUserId;
   // This route belongs to the employee who opened it; never transfer it to
@@ -430,7 +467,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           state.session?.user.id != _openingEmployeeId ||
           (_authorizedUserId != null &&
               state.session?.user.id != _authorizedUserId)) {
-        _lockManagement();
+        _lockManagement(showChecking: true);
+        if (!_logoutInProgress && !_logoutRecoveryRequired) {
+          _returnToStaffAuth();
+        }
       } else {
         _checkAccess();
       }
@@ -444,7 +484,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     });
   }
 
-  void _lockManagement() {
+  void _lockManagement({bool showChecking = false}) {
     // Invalidate any in-flight permission response before it can unlock UI.
     _authorizationEpoch++;
     if (_logoutInProgress || _logoutRecoveryRequired) {
@@ -458,8 +498,43 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       _sections = <String>{};
       _authorizedUserId = null;
       _favoriteSectionIds.clear();
-      _loading = false; // Show the locked state even on first-check failure.
+      _loading = showChecking;
     });
+  }
+
+  void _returnToStaffAuth() {
+    if (!mounted ||
+        _redirectingForAuthorization ||
+        _logoutInProgress ||
+        _logoutRecoveryRequired) {
+      return;
+    }
+    _redirectingForAuthorization = true;
+    _authorizationEpoch++;
+    _posHeartbeatTimer?.cancel();
+    _posHeartbeatTimer = null;
+    _favoritesGeneration++;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    setState(() {
+      _authorized = false;
+      _sections = <String>{};
+      _authorizedUserId = null;
+      _favoriteSectionIds.clear();
+      _loading = true;
+    });
+    widget.onAuthorizationLost();
+    navigator.pushAndRemoveUntil<void>(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(
+          name: _CafeFooterRouteObserver.publicLandingRouteName,
+        ),
+        builder: widget.publicHomeBuilder,
+      ),
+      (_) => false,
+    );
+    navigator.push<void>(
+      MaterialPageRoute<void>(builder: widget.staffAuthGateBuilder),
+    );
   }
 
   final PosHeartbeatService _posHeartbeat = PosHeartbeatService();
@@ -501,11 +576,15 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) { _lockManagement(); _checkAccess(); }
+    if (state == AppLifecycleState.resumed) {
+      _lockManagement(showChecking: true);
+      _checkAccess();
+    }
     else {
       _posHeartbeatTimer?.cancel();
       _posHeartbeatTimer = null;
-      _lockManagement(); // No privileged dashboard content while backgrounded.
+      _lockManagement(showChecking: true);
+      // No privileged dashboard content while backgrounded.
     }
   }
 
@@ -634,10 +713,15 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
   }
 
   Future<void> _checkAccess() async {
-    if (_logoutInProgress || _logoutRecoveryRequired || !mounted) return;
+    if (_logoutInProgress ||
+        _logoutRecoveryRequired ||
+        _redirectingForAuthorization ||
+        !mounted) {
+      return;
+    }
     // Never authorize a management dashboard while the app is backgrounded.
     if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
-      _lockManagement();
+      _lockManagement(showChecking: true);
       return;
     }
     if (_accessReviewBusy) {
@@ -645,7 +729,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       // queue exactly one fresh verification after it finishes.
       _authorizationEpoch++;
       _reviewRequestedWhileBusy = true;
-      if (_authorized) setState(() => _authorized = false);
+      setState(() {
+        _authorized = false;
+        _loading = true;
+      });
       return;
     }
     _accessReviewBusy = true;
@@ -654,9 +741,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     _posHeartbeatTimer?.cancel();
     _posHeartbeatTimer = null;
     // A periodic review must not leave previously authorized UI interactive.
-    if (_authorized) {
-      setState(() => _authorized = false);
-    }
+    setState(() {
+      _authorized = false;
+      _loading = true;
+    });
     final reviewEpoch = _authorizationEpoch;
     final client = Supabase.instance.client;
     final sessionAtStart = client.auth.currentSession;
@@ -667,7 +755,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           sessionAtStart.user.id != _openingEmployeeId ||
           client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
               AuthenticatorAssuranceLevels.aal2) {
-        _lockManagement();
+        _returnToStaffAuth();
         return;
       }
       final service = EmployeePermissionService();
@@ -689,7 +777,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           permissions.contains('dashboard') &&
           widget.allowedSections.contains('dashboard');
       if (!valid) {
-        _lockManagement();
+        _returnToStaffAuth();
         return;
       }
       setState(() {
@@ -710,10 +798,11 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       }
       _startPosHeartbeat();
     } catch (_) {
-      _lockManagement();
+      _returnToStaffAuth();
     } finally {
       _accessReviewBusy = false;
       if (mounted && !_logoutInProgress && !_logoutRecoveryRequired &&
+          !_redirectingForAuthorization &&
           _reviewRequestedWhileBusy) {
         // Retry only on an actual concurrent request, not after a failed
         // permission check: otherwise a denied session can loop forever.
@@ -746,9 +835,16 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       return;
     }
     if (mounted) {
-      // Return to the existing root application instead of nesting a second
-      // CafeApp/MaterialApp (which duplicates the global footer).
-      Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+      widget.onAuthorizationLost();
+      Navigator.of(context, rootNavigator: true).pushAndRemoveUntil<void>(
+        MaterialPageRoute<void>(
+          settings: const RouteSettings(
+            name: _CafeFooterRouteObserver.publicLandingRouteName,
+          ),
+          builder: widget.publicHomeBuilder,
+        ),
+        (_) => false,
+      );
     }
   }
 
@@ -782,6 +878,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     if (section.id == 'dashboard') {
       await Navigator.of(context).push<void>(
         MaterialPageRoute<void>(
+          settings: const RouteSettings(
+            name: _CafeFooterRouteObserver.dashboardRouteName,
+          ),
           builder: (_) => _ProtectedManagementSection(
             sectionId: 'dashboard',
             authorizedUserId: authorizedUserId,
@@ -803,6 +902,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     }
     await Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
+        settings: RouteSettings(name: '/employee-section/${section.id}'),
         builder: (routeContext) => _ProtectedManagementSection(
           sectionId: section.id,
           authorizedUserId: authorizedUserId,
@@ -820,41 +920,48 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     if (_loading) {
       return const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Checking your staff session…'),
+            ],
+          ),
         ),
       );
     }
-    if (!_authorized || _sections.isEmpty) {
+    if (_logoutRecoveryRequired) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Access Denied'),
+          title: const Text('Sign-out needs retry'),
         ),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.lock,
-                size: 64,
-                color: Colors.red,
-              ),
+              const Icon(Icons.lock_outline, size: 56),
               const SizedBox(height: 16),
-              const Text(
-                'Employee authorization required.',
-              ),
+              const Text('This workspace is locked until sign-out finishes.'),
               const SizedBox(height: 20),
-              if (!_logoutRecoveryRequired && !_logoutInProgress)
-                OutlinedButton.icon(
-                  onPressed: _checkAccess,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Recheck employee access'),
-                ),
-              const SizedBox(height: 8),
               FilledButton(
                 onPressed: _logoutInProgress ? null : _logout,
-                child: Text(_logoutRecoveryRequired
-                    ? 'Retry sign-out' : 'Return to Public Page'),
+                child: const Text('Retry sign-out'),
               ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (!_authorized || _sections.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Returning to staff sign-in…'),
             ],
           ),
         ),

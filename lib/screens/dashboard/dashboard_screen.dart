@@ -5,6 +5,7 @@ import 'service_task_notification_inbox.dart';
 import 'dashboard_insights.dart';
 import 'table_dashboard_details.dart';
 import 'dashboard_cloud_preferences.dart';
+import 'dashboard_focus.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,18 +60,8 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   bool _preferenceConflictNeedsReview = false;
   String _preferencesSyncStatus = 'Checking sync…';
   Future<void> _cloudPreferenceSaveQueue = Future<void>.value();
-  // Focus mode changes presentation order only. It never grants access to data.
+  // Focus mode selects a role-relevant subset of already-authorized cards.
   String _focusMode = 'manager';
-  static const _focusModes = <String, String>{
-    'manager': 'Manager', 'cashier': 'Cashier',
-    'waiter': 'Waiter', 'kitchen': 'Kitchen',
-  };
-  static const _focusPriorities = <String, List<String>>{
-    'manager': ['cash_collected_iqd', 'orders', 'active_orders', 'outstanding_iqd'],
-    'cashier': ['outstanding_iqd', 'cash_collected_iqd', 'order_value_iqd', 'orders'],
-    'waiter': ['active_orders', 'orders', 'tourism_orders', 'outstanding_iqd'],
-    'kitchen': ['active_orders', 'orders', 'tourism_orders'],
-  };
 
   static const _palette = <Color>[
     Color(0xFF2563EB), Color(0xFF16A34A), Color(0xFF9333EA),
@@ -92,7 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
       if (!mounted) return;
       setState(() {
         _hasLocalPreferences = true;
-        _focusMode = _focusModes.containsKey(parsed['focus_mode'])
+        _focusMode = dashboardFocusModes.containsKey(parsed['focus_mode'])
             ? parsed['focus_mode'] as String : 'manager';
         _cardOrder = (parsed['order'] as List<dynamic>? ?? [])
             .whereType<String>().toList();
@@ -169,7 +160,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
       setState(() {
         _cloudPreferencesRevision = cloud.revision;
         _preferenceConflictNeedsReview = false;
-        _focusMode = _focusModes.containsKey(parsed['focus_mode'])
+        _focusMode = dashboardFocusModes.containsKey(parsed['focus_mode'])
             ? parsed['focus_mode'] as String : _focusMode;
         _cardOrder = (parsed['order'] as List<dynamic>? ?? []).whereType<String>().toList();
         _cardColors.clear();
@@ -702,7 +693,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   }
 
   // Accessible entry point for the existing date and focus filters.
-  // Focus mode only changes card presentation, never backend authorization.
+  // Focus selects an authorized card group and never changes backend access.
   Future<void> _openDashboardFilters() async {
     await showModalBottomSheet<void>(
       context: context,
@@ -724,15 +715,19 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
             ),
             DropdownButtonFormField<String>(
               value: _focusMode,
-              decoration: const InputDecoration(labelText: 'Card focus (display only)'),
-              items: _focusModes.entries.map((entry) => DropdownMenuItem<String>(
+              decoration: const InputDecoration(labelText: 'Focus cards on'),
+              items: dashboardFocusModes.entries.map((entry) => DropdownMenuItem<String>(
                 value: entry.key, child: Text(entry.value),
               )).toList(),
               onChanged: (mode) {
-                if (mode == null || !_focusModes.containsKey(mode)) return;
+                if (mode == null || !dashboardFocusModes.containsKey(mode)) return;
                 setState(() => _focusMode = mode);
                 _saveCardPreferences();
               },
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Manager shows all available cards. Cashier, Waiter and Kitchen show cards for that work area; account permissions still apply.',
             ),
             const SizedBox(height: 12),
             const Text('Employee, payment-method and multi-day financial filters require verified backend endpoints.'),
@@ -2095,6 +2090,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                   hasMetric: data['customers_today'] is num,
                                 ))
                                   CustomerCountCard(
+                                    key: const ValueKey<String>('customers_today'),
                                     title: 'Customers today',
                                     count: (data['customers_today'] as num).toInt(),
                                     onTap: () => _openMetricDetails(
@@ -2108,6 +2104,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                   hasMetric: data['tourism_customers'] is num,
                                 ))
                                   CustomerCountCard(
+                                    key: const ValueKey<String>('tourism_customers'),
                                     title: 'Tourism customers',
                                     count: (data['tourism_customers'] as num).toInt(),
                                     onTap: () => _openMetricDetails(
@@ -2123,21 +2120,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                   keyed[(card.key! as ValueKey<String>).value] = card;
                                 }
                               }
-                              final priority = _focusPriorities[_focusMode] ?? const <String>[];
-                              final defaults = keyed.keys.toList()
-                                ..sort((a, b) {
-                                  final ai = priority.indexOf(a);
-                                  final bi = priority.indexOf(b);
-                                  if (ai == -1 && bi == -1) return 0;
-                                  if (ai == -1) return 1;
-                                  if (bi == -1) return -1;
-                                  return ai.compareTo(bi);
-                                });
-                              // Employee overrides take precedence over mode defaults.
-                              final orderedIds = [
-                                ..._cardOrder.where(keyed.containsKey),
-                                ...defaults.where((id) => !_cardOrder.contains(id)),
-                              ];
+                              final orderedIds = dashboardCardOrderForFocus(
+                                focusMode: _focusMode,
+                                availableCardIds: keyed.keys,
+                                employeeOrder: _cardOrder,
+                              );
                               final orderedCards = [
                                 ...orderedIds.where((id) => !_hiddenCards.contains(id))
                                     .map((id) => (id, keyed[id]!)),
@@ -2165,7 +2152,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                         const Text('Dashboard focus:'),
                                         DropdownButton<String>(
                                           value: _focusMode,
-                                          items: _focusModes.entries.map((entry) => DropdownMenuItem<String>(
+                                         items: dashboardFocusModes.entries.map((entry) => DropdownMenuItem<String>(
                                             value: entry.key, child: Text(entry.value))).toList(),
                                           onChanged: (mode) {
                                             if (mode == null) return;
@@ -2173,7 +2160,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                             _saveCardPreferences();
                                           },
                                         ),
-                                        const Text('Focus changes card order, not employee permissions.'),
+                                         const Text('Focus selects relevant cards; account permissions still limit the data.'),
                                       ]),
                                     const SizedBox(height: 10),
                                     Text('Key performance indicators',
@@ -2288,9 +2275,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                         _saveCardPreferences();
                                       }, icon: const Icon(Icons.restart_alt), label: const Text('Reset layout, colors, sizes and visibility')),
                                     ],
-                                    if (cards.isEmpty)
-                                      const Text(
-                                          'No dashboard metrics available for your permissions.')
+                                    if (orderedCards.isEmpty)
+                                      Text(
+                                        'No visible cards match ${dashboardFocusModes[_focusMode]} focus. '
+                                        'Your account permissions, selected business date, or hidden-card settings may limit this view.',
+                                      )
                                     else
                                       LayoutBuilder(builder: (context, constraints) {
                                         const gap = 10.0;

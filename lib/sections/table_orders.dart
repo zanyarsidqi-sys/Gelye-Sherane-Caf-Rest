@@ -14,6 +14,7 @@ import '../shared/staff_customer_calls_screen.dart';
 import '../shared/staff_bill_reconciliation_screen.dart';
 import '../shared/wrong_order_correction_workspace.dart';
 import '../shared/table_orders_replacement_delivery_progress.dart';
+import '../shared/staff_table_order_requests_screen.dart';
 import 'tables.dart';
 import 'payments_management.dart';
 import 'kitchen.dart';
@@ -39,11 +40,12 @@ class _TableOrdersTabs extends StatelessWidget {
     'Employee Jobs', 'Order Board', 'Recommendations',
     'Customer Calls', 'Bill Reconciliation',
     'Wrong Orders & Waste', 'Replacement Delivery',
+    'Guest Order Requests',
   ];
   const _TableOrdersTabs();
   @override
   Widget build(BuildContext context) => DefaultTabController(
-    length: 10,
+    length: 11,
     child: Column(children: [
       Padding(padding: const EdgeInsets.fromLTRB(12, 10, 12, 0), child: ProfessionalMobileWidgets.heading(context, title: 'Table Orders', subtitle: 'Tables  •  Guests  •  Kitchen  •  Payments', icon: Icons.table_restaurant)),
       Padding(
@@ -70,6 +72,7 @@ class _TableOrdersTabs extends StatelessWidget {
             ('Orders', Icons.receipt_long, () => tabs.animateTo(0)),
             ('Order board', Icons.view_kanban_outlined, () => tabs.animateTo(4)),
             ('Bills', Icons.receipt_outlined, () => tabs.animateTo(7)),
+            ('Guest requests', Icons.restaurant_outlined, () => tabs.animateTo(10)),
             ('Standing Cash', Icons.payments_outlined, () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PaymentsManagementScreen(initialFocus: 'standing')))),
           ]),
         );
@@ -156,6 +159,7 @@ class _TableOrdersTabs extends StatelessWidget {
         Tab(text: 'Bill Reconciliation'),
         Tab(text: 'Wrong Orders & Waste'),
         Tab(text: 'Replacement Delivery'),
+        Tab(text: 'Guest Order Requests'),
       ]),
       const Expanded(child: TabBarView(children: [
         Column(children: [
@@ -171,6 +175,7 @@ class _TableOrdersTabs extends StatelessWidget {
         StaffBillReconciliationScreen(),
         WrongOrderCorrectionWorkspace(),
         TableOrdersReplacementDeliveryProgress(),
+        StaffTableOrderRequestsScreen(),
       ])),
     ]),
   );

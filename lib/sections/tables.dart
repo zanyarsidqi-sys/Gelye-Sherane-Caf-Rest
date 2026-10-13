@@ -36,6 +36,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
   int? _busyTable;
   String? _error;
   String _filter = 'All';
+  String _floorFilter = 'All floors';
   String _search = '';
 
   @override
@@ -391,7 +392,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
     setState(() { _loading = true; _error = null; });
     try {
       final tables = await _db.from('gs_cafe_tables').select(
-        'table_number,capacity,occupied,guests,tourism_mode,cleaning_needed,updated_at'
+        'id,table_number,capacity,occupied,guests,tourism_mode,cleaning_needed,floor_name,updated_at'
       ).order('table_number');
       final visits = await _db.rpc('gs_dashboard_active_table_visits');
       final qrRows = await _db.rpc('gs_list_active_table_qr_sessions');
@@ -417,9 +418,14 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
         } catch (_) { // A missing permission or RPC must not hide table cards.
         }
       }));
+      final tableRows = List<Map<String, dynamic>>.from(tables);
+      final floorNames = tableRows.map(_floorName).toSet();
       if (mounted) setState(() {
+        if (_floorFilter != 'All floors' && !floorNames.contains(_floorFilter)) {
+          _floorFilter = 'All floors';
+        }
         _tableMoney = financial;
-        _tables = List<Map<String, dynamic>>.from(tables);
+        _tables = tableRows;
         _visits = mapped;
         _qrActive = qrMapped;
       });
@@ -428,6 +434,13 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  String _floorName(Map<String, dynamic> table) {
+    final value = table['floor_name'];
+    return value is String && value.trim().isNotEmpty
+      ? value.trim()
+      : 'Unassigned floor';
   }
 
 
@@ -1460,12 +1473,16 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
 
   Future<void> _manageTableQr(Map<String, dynamic> table) async {
     final number = (table['table_number'] as num).toInt();
+    final tableId = (table['id'] as num).toInt();
+    final visitId = int.tryParse(_visits[number]?['visit_id']?.toString() ?? '');
     setState(() { _busyTable = number; _error = null; });
     try {
       final rows = await _db.rpc('gs_get_table_qr',
         params: {'p_table_number': number});
       final data = (rows as List).cast<Map>().first;
       String token = data['qr_token'].toString();
+      String? visitToken;
+      bool issuingVisitSession = false;
       if (!mounted) return;
       await showDialog<void>(
         context: context,
@@ -1475,28 +1492,80 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
             final link = configured
               ? '${_publicMenuUrl.replaceAll(RegExp(r"/+$"), "")}/table?token=${Uri.encodeComponent(token)}'
               : '';
+            final visitLink = configured && visitToken != null
+              ? Uri.parse(link).replace(queryParameters: {
+                  ...Uri.parse(link).queryParameters,
+                  'visit': visitToken!,
+                }).toString()
+              : link;
             return AlertDialog(
               title: Text('Table $number · Customer QR'),
               content: SizedBox(
                 width: 330,
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                child: SingleChildScrollView(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
                   if (configured) ...[
-                    QrImageView(data: link, version: QrVersions.auto, size: 225,
+                    QrImageView(data: visitLink, version: QrVersions.auto, size: 225,
                       backgroundColor: Colors.white),
                     const SizedBox(height: 8),
-                    SelectableText(link, style: const TextStyle(fontSize: 11)),
+                    SelectableText(visitLink, style: const TextStyle(fontSize: 11)),
                   ] else const Text(
                     'Configure CAFE_PUBLIC_MENU_URL with the deployed HTTPS '
                     'customer website before printing or sharing table codes.'),
                   const SizedBox(height: 10),
-                  const Text('This code identifies this table only. '
-                    'Ordering and payments require separate server validation.'),
-                ]),
+                  const Text('The table QR identifies the table. A separate '
+                    'staff-issued visit session is required for customer requests. '
+                    'The server creates no order until staff accepts a request.'),
+                  if (visitToken != null)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text('This visit link expires after 2 hours or when the table visit ends.'),
+                    ),
+                  if (visitId != null) ...[
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: !configured || issuingVisitSession ? null : () async {
+                        update(() => issuingVisitSession = true);
+                        try {
+                          final result = await _db.rpc(
+                            'gs_staff_issue_customer_visit_session',
+                            params: {
+                              'p_table_id': tableId,
+                              'p_visit_id': visitId,
+                            },
+                          );
+                          if (dialogContext.mounted) {
+                            update(() => visitToken = result.toString());
+                          }
+                        } catch (_) {
+                          if (dialogContext.mounted) {
+                            ScaffoldMessenger.of(dialogContext).showSnackBar(
+                              const SnackBar(content: Text(
+                                'Could not authorize this visit. Check that the table is occupied and its visit is open.')),
+                            );
+                          }
+                        } finally {
+                          if (dialogContext.mounted) {
+                            update(() => issuingVisitSession = false);
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.verified_user_outlined),
+                      label: Text(issuingVisitSession
+                          ? 'Preparing visit link…'
+                          : visitToken == null
+                              ? 'Issue customer order session'
+                              : 'Issue a new visit link'),
+                    ),
+                  ] else
+                    const Text('Seat guests first to enable a visit-scoped order session.'),
+                  ]),
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: configured ? () async {
-                    await Clipboard.setData(ClipboardData(text: link));
+                    await Clipboard.setData(ClipboardData(text: visitLink));
                     if (dialogContext.mounted) {
                       ScaffoldMessenger.of(dialogContext).showSnackBar(
                         const SnackBar(content: Text('Table QR link copied')));
@@ -2634,6 +2703,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
   Future<void> _createTable() async {
     final numberController = TextEditingController();
     final chairsController = TextEditingController(text: '4');
+    final floorController = TextEditingController();
     String? error;
     bool saving = false;
     try {
@@ -2655,6 +2725,14 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(labelText: 'Number of chairs (1–50)'),
                 ),
+                TextField(
+                  controller: floorController,
+                  maxLength: 80,
+                  decoration: const InputDecoration(
+                    labelText: 'Floor / zone name',
+                    hintText: 'Enter the table’s floor name',
+                  ),
+                ),
                 const SizedBox(height: 8),
                 const Text('New tables start available, with zero guests and Normal Mode.'),
                 if (error != null) SelectableText(error!,
@@ -2668,24 +2746,27 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
                 onPressed: saving ? null : () async {
                   final number = int.tryParse(numberController.text.trim());
                   final chairs = int.tryParse(chairsController.text.trim());
-                  if (number == null || number < 1 || chairs == null || chairs < 1 || chairs > 50) {
-                    update(() => error = 'Enter a positive table number and 1–50 chairs.');
+                  final floor = floorController.text.trim();
+                  if (number == null || number < 1 || chairs == null || chairs < 1 ||
+                      chairs > 50 || floor.isEmpty || floor.length > 80) {
+                    update(() => error = 'Enter a positive table number, 1–50 chairs, and a floor name up to 80 characters.');
                     return;
                   }
                   update(() { saving = true; error = null; });
                   try {
-                    await _db.rpc('gs_create_cafe_table', params: {
+                    await _db.rpc('gs_create_cafe_table_in_floor', params: {
                       'p_table_number': number,
                       'p_capacity': chairs,
+                      'p_floor_name': floor,
                     });
                     if (!dialogContext.mounted) return;
                     Navigator.pop(dialogContext);
                     await _reload();
                     if (mounted) ScaffoldMessenger.of(this.context).showSnackBar(
-                      SnackBar(content: Text('Table $number created with $chairs chairs.')));
-                  } catch (e) {
+                      SnackBar(content: Text('Table $number created on $floor with $chairs chairs.')));
+                  } catch (_) {
                     if (dialogContext.mounted) update(() => error =
-                      'Unable to create table (number may already exist): $e');
+                      'Unable to create table. Check the table number, floor name, and permissions.');
                   } finally {
                     if (dialogContext.mounted) update(() => saving = false);
                   }
@@ -2699,6 +2780,75 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
     } finally {
       numberController.dispose();
       chairsController.dispose();
+      floorController.dispose();
+    }
+  }
+
+  Future<void> _setTableFloor(Map<String, dynamic> table) async {
+    final number = (table['table_number'] as num).toInt();
+    final floorController = TextEditingController(text: _floorName(table));
+    String? error;
+    bool saving = false;
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+          builder: (context, update) => AlertDialog(
+            title: Text('Table $number · Floor'),
+            content: Column(mainAxisSize: MainAxisSize.min, children: [
+              TextField(
+                controller: floorController,
+                maxLength: 80,
+                decoration: const InputDecoration(
+                  labelText: 'Floor / zone name',
+                  helperText: 'Use the same name for tables on the same floor.',
+                ),
+              ),
+              if (error != null) SelectableText(error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            ]),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.pop(dialogContext),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: saving ? null : () async {
+                  final floor = floorController.text.trim();
+                  if (floor.isEmpty || floor.length > 80) {
+                    update(() => error = 'Enter a floor name up to 80 characters.');
+                    return;
+                  }
+                  update(() { saving = true; error = null; });
+                  try {
+                    await _db.rpc('gs_set_cafe_table_floor', params: {
+                      'p_table_number': number,
+                      'p_floor_name': floor,
+                    });
+                    if (!dialogContext.mounted) return;
+                    Navigator.pop(dialogContext);
+                    await _reload();
+                    if (mounted) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        SnackBar(content: Text('Table $number floor updated to $floor.')));
+                    }
+                  } catch (_) {
+                    if (dialogContext.mounted) {
+                      update(() => error =
+                        'Floor was not changed. Check the table status and your permissions.');
+                    }
+                  } finally {
+                    if (dialogContext.mounted) update(() => saving = false);
+                  }
+                },
+                child: Text(saving ? 'Saving…' : 'Save floor'),
+              ),
+            ],
+          ),
+        ),
+      );
+    } finally {
+      floorController.dispose();
     }
   }
 
@@ -3242,6 +3392,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
   Widget build(BuildContext context) {
     final occupied = _tables.where((t) => t['occupied'] == true).length;
     final cleaning = _tables.where((t) => t['cleaning_needed'] == true).length;
+    final floorNames = _tables.map(_floorName).toSet().toList()..sort();
     final shown = _tables.where((t) {
       final number = (t['table_number'] as num).toInt();
       final visit = _visits[number];
@@ -3252,7 +3403,12 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
         'Tourism' => t['tourism_mode'] == true,
         _ => true,
       };
-      return match && number.toString().contains(_search.trim());
+      final floorMatch = _floorFilter == 'All floors' ||
+        _floorName(t) == _floorFilter;
+      final query = _search.trim().toLowerCase();
+      final searchMatch = number.toString().contains(query) ||
+        _floorName(t).toLowerCase().contains(query);
+      return match && floorMatch && searchMatch;
     }).toList();
     return LayoutBuilder(builder: (context, bounds) {
       final columns = bounds.maxWidth >= 1100 ? 4 : bounds.maxWidth >= 720 ? 3 :
@@ -3262,7 +3418,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
         Row(children: [Expanded(child: Text('Live tables',
           style: Theme.of(context).textTheme.headlineSmall)),
           IconButton(onPressed: _loading || _busyTable != null ? null : _createTable,
-            icon: const Icon(Icons.add_circle_outline), tooltip: 'Create table and set chairs'),
+            icon: const Icon(Icons.add_circle_outline), tooltip: 'Create table and set its floor and chairs'),
           IconButton(onPressed: _showAdminBillDiscount,
             icon: const Icon(Icons.receipt_long_outlined),
             tooltip: 'Admin: bill discount approval draft'),
@@ -3356,8 +3512,16 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
           ['All','Available','Occupied','Cleaning','Tourism'])
           ChoiceChip(label: Text(f), selected: _filter == f,
             onSelected: (_) => setState(() => _filter = f))]),
+        Wrap(spacing: 8, runSpacing: 6, children: [
+          for (final floor in ['All floors', ...floorNames])
+            ChoiceChip(
+              label: Text(floor),
+              selected: _floorFilter == floor,
+              onSelected: (_) => setState(() => _floorFilter = floor),
+            ),
+        ]),
         TextField(decoration: const InputDecoration(
-          labelText: 'Search table number', prefixIcon: Icon(Icons.search)),
+          labelText: 'Search table number or floor', prefixIcon: Icon(Icons.search)),
           onChanged: (value) => setState(() => _search = value)),
         const SizedBox(height: 12),
         if (!_loading && _tables.isEmpty) const Text(
@@ -3367,7 +3531,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
           itemCount: shown.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns, crossAxisSpacing: 10, mainAxisSpacing: 10,
-            mainAxisExtent: 265),
+            mainAxisExtent: 320),
           itemBuilder: (context, index) {
             final t = shown[index];
             final number = (t['table_number'] as num).toInt();
@@ -3390,11 +3554,19 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
                   Expanded(child: Text('Table $number',
                     style: Theme.of(context).textTheme.titleMedium)),
                   IconButton(
+                    tooltip: 'Set floor name',
+                    onPressed: _loading || _busyTable != null
+                      ? null : () => _setTableFloor(t),
+                    icon: const Icon(Icons.edit_location_alt_outlined)),
+                  IconButton(
                     tooltip: 'Items, delivery status and cash-only balance',
                     onPressed: () => _showTableItemsAndMoney(t),
                     icon: const Icon(Icons.receipt_long_outlined)),
                 ]),
                 const SizedBox(height: 5),
+                Text('Floor: ${_floorName(t)}', maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
                 Text(status),
                 if (customer != null && customer.isNotEmpty)
                   Text('Customer: $customer', maxLines: 1,

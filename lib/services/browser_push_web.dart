@@ -7,7 +7,10 @@ external JSPromise<JSString> _enable(JSString config);
 external JSPromise<JSString> _test(JSString config);
 @JS('cafePushDisable')
 external JSPromise<JSString> _disable(JSString config);
+@JS('navigator.userAgent')
+external JSString get _browserUserAgent;
 String browserPushStatus() => _status().toDart;
+String browserUserAgent() => _browserUserAgent.toDart;
 Future<String> enableBrowserPush(String config) async => (await _enable(config.toJS).toDart).toDart;
 Future<String> testBrowserPush(String config) async => (await _test(config.toJS).toDart).toDart;
 Future<String> disableBrowserPush([String config = '']) async => (await _disable(config.toJS).toDart).toDart;

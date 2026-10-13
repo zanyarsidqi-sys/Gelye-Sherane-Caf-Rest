@@ -12,8 +12,35 @@ export function validateExpiry(value, now = Date.now()) {
   if (typeof value !== 'string' || !Number.isFinite(time) || time <= now || time > now + 366 * 86400000) throw Error('Invalid notification expiry');
   return new Date(time).toISOString();
 }
-export function publicPayload(tag, version = null) {
+export function releaseNotesPreview(value, maxBytes = 600) {
+  if (typeof value !== 'string' || !Number.isInteger(maxBytes) || maxBytes < 1) return null;
+  const normalized = value
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!normalized) return null;
+  const encoder = new TextEncoder();
+  let preview = '';
+  let bytes = 0;
+  let truncated = false;
+  for (const character of normalized) {
+    const size = encoder.encode(character).length;
+    if (bytes + size > maxBytes) {
+      truncated = true;
+      break;
+    }
+    preview += character;
+    bytes += size;
+  }
+  if (!preview) return null;
+  return truncated ? `${preview.trimEnd()}…` : preview;
+}
+export function publicPayload(tag, version = null, notes = null) {
   const payload = {tag: /^[a-z0-9_-]{1,100}$/i.test(tag) ? tag : 'cafe-update'};
-  if (typeof version === 'string' && /^[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,9}$/.test(version)) payload.version = version;
+  if (typeof version === 'string' && /^[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,9}$/.test(version)) {
+    payload.version = version;
+    const preview = releaseNotesPreview(notes);
+    if (preview) payload.notes = preview;
+  }
   return JSON.stringify(payload);
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../shared/employee_devices_panel.dart';
 import '../shared/section_shell.dart';
 
 class SecurityAccessControlScreen extends StatelessWidget {
@@ -9,5 +10,6 @@ class SecurityAccessControlScreen extends StatelessWidget {
     title: "Security & Access Control",
     description: "Role permissions and security policies",
     sectionId: "security_access_control",
+    authorizedContent: EmployeeDevicesPanel(),
   );
 }

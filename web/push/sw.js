@@ -1,14 +1,19 @@
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('push', event => {
   // Never put customer names, payment amounts, or confidential report text on a lock screen.
-  let tag = 'cafe-update', version = null;
+  let tag = 'cafe-update', version = null, notes = null;
   try {
     const data = event.data?.json();
     if (/^[a-z0-9_-]{1,100}$/i.test(data?.tag)) tag = data.tag;
     if (typeof data?.version === 'string' && /^[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,5}\.[0-9]{1,9}$/.test(data.version)) version = data.version;
+    if (typeof data?.notes === 'string') {
+      notes = data.notes.replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 700);
+    }
   } catch (_) {}
   event.waitUntil(self.registration.showNotification('Gelye Sherane Café & Restaurant', {
-    body: version ? `Update ${version} is available. Save your work, then reopen the app.` : 'You have a new work notification. Open the app to view it.',
+    body: version
+      ? `Update ${version} is available.${notes ? ` ${notes}` : ''} Open the app for full release notes.`
+      : 'You have a new work notification. Open the app to view it.',
     icon: new URL('../icons/Icon-192.png', self.registration.scope).href,
     tag,
     data: {url: new URL('../', self.registration.scope).href},
