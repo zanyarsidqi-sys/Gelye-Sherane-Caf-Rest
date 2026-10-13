@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 
 auth_gate = Path("lib/auth/auth_gate.dart").read_text(encoding="utf-8")
@@ -15,7 +16,22 @@ assert "auth.getUser().timeout(_securityTimeout)" in auth_gate
 assert "DeviceSessionPreference.allows(" in auth_gate
 assert ").timeout(_securityTimeout))" in auth_gate
 assert "Could not verify the saved employee session. Please sign in again." in auth_gate
-assert "Employee security checks timed out. Please sign in again." in auth_gate
+assert "_AuthStep.verificationRetry" in auth_gate
+assert "Retry security check" in auth_gate
+assert "Your verified session is still protected." in auth_gate
+mfa_screen = Path("lib/auth/mfa_screen.dart").read_text(encoding="utf-8")
+assert ".getActiveEmployee()" in auth_gate
+assert ".getAllowedSections()" in auth_gate
+assert auth_gate.count(".timeout(_securityTimeout)") >= 4
+assert "static const _mfaRequestTimeout = Duration(seconds: 15)" in mfa_screen
+assert re.search(
+    r"\.listFactors\(\)\s*\.timeout\(_mfaRequestTimeout\)", mfa_screen
+)
+assert re.search(
+    r"\.challengeAndVerify\([\s\S]*?\)\s*\.timeout\(_mfaRequestTimeout\)",
+    mfa_screen,
+)
+assert "Retry MFA check" in mfa_screen
 assert "unawaited(_clearUnverifiedDevicePreference())" in auth_gate
 assert "_clearUnverifiedDevicePreference" in auth_gate
 assert "_step = _AuthStep.login" in auth_gate

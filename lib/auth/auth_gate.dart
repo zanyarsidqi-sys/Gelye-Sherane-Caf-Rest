@@ -22,6 +22,7 @@ enum _AuthStep {
   login,
   mfa,
   checking,
+  verificationRetry,
   completed,
 }
 
@@ -95,6 +96,7 @@ class _AuthGateState extends State<AuthGate> {
 
   bool _finishing = false;
   String _verificationStage = 'not started';
+  String? _verificationRetryMessage;
   void _openEmployeeLogin() {
     if (!mounted || _step != _AuthStep.entrance) {
       return;
@@ -144,13 +146,16 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _handleMfaVerified() async {
-    if (!mounted || _finishing || _step != _AuthStep.mfa) {
+    if (!mounted ||
+        _finishing ||
+        !{_AuthStep.mfa, _AuthStep.verificationRetry}.contains(_step)) {
       return;
     }
     _finishing = true;
 
     setState(() {
       _step = _AuthStep.checking;
+      _verificationRetryMessage = null;
     });
 
     try {
@@ -176,7 +181,8 @@ class _AuthGateState extends State<AuthGate> {
 
       // Read employee profile only after MFA succeeds.
       _verificationStage = 'active employee profile (RLS)';
-      final profile = await _permissionService.getActiveEmployee();
+      final profile = await _permissionService.getActiveEmployee()
+          .timeout(_securityTimeout);
 
       if (profile == null ||
           profile['user_id'] != user.id ||
@@ -196,7 +202,8 @@ class _AuthGateState extends State<AuthGate> {
       );
 
       _verificationStage = 'section permissions (RLS)';
-      final allowedSections = await _permissionService.getAllowedSections();
+      final allowedSections = await _permissionService.getAllowedSections()
+          .timeout(_securityTimeout);
 
       _verificationStage = 'dashboard permission';
       if (!allowedSections.contains('dashboard')) {
@@ -220,11 +227,22 @@ class _AuthGateState extends State<AuthGate> {
     } catch (error) {
       debugPrint('AUTH GATE MFA ERROR at $_verificationStage: $error');
 
+      if (error is TimeoutException) {
+        if (mounted) {
+          setState(() {
+            _step = _AuthStep.verificationRetry;
+            _verificationRetryMessage =
+                'The employee security check took too long. '
+                'Your verified session is still protected. Retry the check '
+                'when your connection is ready.';
+          });
+        }
+        return;
+      }
+
       await _denyAccess(
-        error is TimeoutException
-            ? 'Employee security checks timed out. Please sign in again.'
-            : 'Security verification failed at $_verificationStage. '
-                  'Management access remains locked.',
+        'Security verification failed at $_verificationStage. '
+        'Management access remains locked.',
       );
     } finally {
       _finishing = false;
@@ -304,6 +322,53 @@ class _AuthGateState extends State<AuthGate> {
                 SizedBox(height: 16),
                 Text('Checking employee security...'),
               ],
+            ),
+          ),
+        );
+
+      case _AuthStep.verificationRetry:
+        return Scaffold(
+          appBar: AppBar(title: const Text('Employee security check')),
+          body: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 430),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.wifi_tethering_error_rounded,
+                      color: Colors.orange,
+                      size: 56,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _verificationRetryMessage ??
+                          'The employee security check needs another try.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed:
+                            _finishing ? null : _handleMfaVerified,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Retry security check'),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _finishing
+                          ? null
+                          : () => _denyAccess(
+                              'You signed out of the employee session.',
+                            ),
+                      child: const Text('Sign out'),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         );

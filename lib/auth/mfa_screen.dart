@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,6 +15,7 @@ class MfaScreen extends StatefulWidget {
 }
 
 class _MfaScreenState extends State<MfaScreen> {
+  static const _mfaRequestTimeout = Duration(seconds: 15);
   final _client = Supabase.instance.client;
   final _formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
@@ -35,6 +38,14 @@ class _MfaScreenState extends State<MfaScreen> {
   }
 
   Future<void> _initializeMfa() async {
+    if (!mounted) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+      _factorId = null;
+      _secret = null;
+      _setupMode = false;
+    });
     try {
       if (_client.auth.currentSession == null) {
         throw StateError('Please sign in again.');
@@ -47,7 +58,9 @@ class _MfaScreenState extends State<MfaScreen> {
         return;
       }
 
-      final factors = await _client.auth.mfa.listFactors();
+      final factors = await _client.auth.mfa
+          .listFactors()
+          .timeout(_mfaRequestTimeout);
 
       if (factors.totp.isNotEmpty) {
         if (!mounted) return;
@@ -57,10 +70,12 @@ class _MfaScreenState extends State<MfaScreen> {
           _setupMode = false;
         });
       } else {
-        final enrollment = await _client.auth.mfa.enroll(
-          factorType: FactorType.totp,
-          friendlyName: 'Gelye Sherane Employee',
-        );
+        final enrollment = await _client.auth.mfa
+            .enroll(
+              factorType: FactorType.totp,
+              friendlyName: 'Gelye Sherane Employee',
+            )
+            .timeout(_mfaRequestTimeout);
 
         final totp = enrollment.totp;
 
@@ -78,6 +93,11 @@ class _MfaScreenState extends State<MfaScreen> {
           _setupMode = true;
         });
       }
+    } on TimeoutException {
+      if (!mounted) return;
+      setState(() {
+        _error = 'The MFA check timed out. Check your connection and retry.';
+      });
     } catch (_) {
       if (!mounted) return;
 
@@ -115,10 +135,12 @@ class _MfaScreenState extends State<MfaScreen> {
     });
 
     try {
-      await _client.auth.mfa.challengeAndVerify(
-        factorId: factorId,
-        code: _codeController.text.trim(),
-      );
+      await _client.auth.mfa
+          .challengeAndVerify(
+            factorId: factorId,
+            code: _codeController.text.trim(),
+          )
+          .timeout(_mfaRequestTimeout);
 
       final assurance = _client.auth.mfa.getAuthenticatorAssuranceLevel();
 
@@ -131,6 +153,18 @@ class _MfaScreenState extends State<MfaScreen> {
       _codeController.clear();
 
       await widget.onVerified();
+    } on TimeoutException {
+      if (!mounted) return;
+      final assurance = _client.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (assurance.currentLevel == AuthenticatorAssuranceLevels.aal2) {
+        _codeController.clear();
+        await widget.onVerified();
+      } else {
+        setState(() {
+          _error =
+              'MFA verification timed out. Check your connection, then retry.';
+        });
+      }
     } on AuthException catch (_) {
       if (!mounted) return;
 
@@ -268,6 +302,12 @@ class _MfaScreenState extends State<MfaScreen> {
                       style: const TextStyle(
                         color: Colors.red,
                       ),
+                    ),
+                    const SizedBox(height: 4),
+                    TextButton.icon(
+                      onPressed: _submitting ? null : _initializeMfa,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry MFA check'),
                     ),
                   ],
                   const SizedBox(height: 20),
