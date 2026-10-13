@@ -30,14 +30,6 @@ class _NotificationCenterPanelState extends State<NotificationCenterPanel> {
   String? _pushMessage;
   late final Future<Map<String, dynamic>?> _availableUpdateFuture;
 
-  @override
-  void initState() {
-    super.initState();
-    _availableUpdateFuture =
-        kIsWeb ? _loadAvailableUpdate() : Future<Map<String, dynamic>?>.value();
-    _load();
-  }
-
   String _pushConfig() {
     final session = Supabase.instance.client.auth.currentSession;
     if (session == null) throw StateError('Sign in first');
@@ -193,6 +185,8 @@ class _NotificationCenterPanelState extends State<NotificationCenterPanel> {
   @override
   void initState() {
     super.initState();
+    _availableUpdateFuture =
+        kIsWeb ? _loadAvailableUpdate() : Future<Map<String, dynamic>?>.value();
     _load();
   }
 
