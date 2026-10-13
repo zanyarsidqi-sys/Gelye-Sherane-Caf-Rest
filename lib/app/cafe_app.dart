@@ -31,10 +31,40 @@ class CafeApp extends StatefulWidget {
   State<CafeApp> createState() => _CafeAppState();
 }
 
+class _CafeFooterRouteObserver extends NavigatorObserver {
+  static const dashboardRouteName = '/employee-dashboard';
+
+  final ValueNotifier<bool> showGlobalFooter = ValueNotifier<bool>(true);
+
+  void _updateFor(Route<dynamic>? route) {
+    if (route is! PageRoute<dynamic>) return;
+    final shouldShow = route?.settings.name != dashboardRouteName;
+    if (showGlobalFooter.value != shouldShow) {
+      showGlobalFooter.value = shouldShow;
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _updateFor(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    _updateFor(previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    _updateFor(newRoute);
+  }
+}
+
 class _CafeAppState extends State<CafeApp> {
   bool _checkingSavedSession = true;
   String _installedVersion = 'Loading…';
   Set<String> _restoredSections = <String>{};
+  final _footerRouteObserver = _CafeFooterRouteObserver();
 
   static const _languageKey = 'gelye_cafe_rest_language_v1';
   String _language = 'en';
@@ -133,6 +163,12 @@ class _CafeAppState extends State<CafeApp> {
     } catch (error) {
       debugPrint('Could not save language preference: $error');
     }
+  }
+
+  @override
+  void dispose() {
+    _footerRouteObserver.showGlobalFooter.dispose();
+    super.dispose();
   }
 
   Widget _globalLanguageSelector() => Material(
@@ -310,6 +346,7 @@ class _CafeAppState extends State<CafeApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Gelye Sherane Cafê & Rest',
+      navigatorObservers: <NavigatorObserver>[_footerRouteObserver],
       builder: (context, child) => AppLanguage(
         code: _language,
         child: Directionality(
@@ -326,7 +363,12 @@ class _CafeAppState extends State<CafeApp> {
           child: SafeArea(top: false, child: _globalLanguageSelector()),
         ),
       ])),
-        GelyeCompanyFooter(version: _installedVersion),
+        ValueListenableBuilder<bool>(
+          valueListenable: _footerRouteObserver.showGlobalFooter,
+          builder: (context, showFooter, _) => showFooter
+              ? GelyeCompanyFooter(version: _installedVersion)
+              : const SizedBox.shrink(),
+        ),
       ]))),
       theme: GelyeProfessionalTheme.light,
       darkTheme: GelyeProfessionalTheme.dark,
@@ -804,6 +846,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     if (section.id == 'dashboard') {
       await Navigator.of(context).push<void>(
         MaterialPageRoute<void>(
+          settings: const RouteSettings(
+            name: _CafeFooterRouteObserver.dashboardRouteName,
+          ),
           builder: (_) => _ProtectedManagementSection(
             sectionId: 'dashboard',
             authorizedUserId: authorizedUserId,
@@ -825,6 +870,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     }
     await Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
+        settings: RouteSettings(name: '/employee-section/${section.id}'),
         builder: (routeContext) => _ProtectedManagementSection(
           sectionId: section.id,
           authorizedUserId: authorizedUserId,
