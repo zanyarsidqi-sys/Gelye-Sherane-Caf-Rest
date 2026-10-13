@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/device_session_preference.dart';
 import '../services/station_device_session_service.dart';
 import 'station_pos_login_screen.dart';
 import '../services/secure_station_ticket_resolver.dart';
@@ -7,14 +9,23 @@ import '../services/secure_station_ticket_resolver.dart';
 /// Standalone station device mode; no employee account is created.
 class StationDeviceGate extends StatefulWidget {
   /// Provide a real configured printer driver. Without one printing stays off.
-  const StationDeviceGate({super.key, this.printerDriver});
+  const StationDeviceGate({
+    super.key,
+    required this.authorizedEmployeeUserId,
+    required this.authorizedEmployeeSessionId,
+    this.printerDriver,
+  });
+  final String authorizedEmployeeUserId;
+  final String authorizedEmployeeSessionId;
   final StationPrinterDriver? printerDriver;
   @override State<StationDeviceGate> createState() => _StationDeviceGateState();
 }
 class _StationDeviceGateState extends State<StationDeviceGate> {
   final _session = StationDeviceSessionService();
+  StreamSubscription<AuthState>? _employeeAuthSubscription;
   StationPrintLifecycle? _printLifecycle;
   bool _printerStarting = false;
+  bool _authorizationLost = false;
   String? _printerStatus;
   void _stopPrinter() { _printLifecycle?.stop(); _printLifecycle=null; }
   Future<void> _syncPrinter() async {
@@ -41,12 +52,73 @@ class _StationDeviceGateState extends State<StationDeviceGate> {
   String? _station;
   bool _orders = false, _bills = false, _checking = true, _connected = false, _busy = false;
   String? _error;
-  @override void initState() { super.initState(); _restore(); }
-  @override void dispose() { _stopPrinter(); _timer?.cancel(); super.dispose(); }
+  @override void initState() {
+    super.initState();
+    final auth = Supabase.instance.client.auth;
+    if (!_employeeSessionIsCurrent(auth.currentSession)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(_lockAfterEmployeeAuthorizationLost());
+      });
+      return;
+    }
+    _employeeAuthSubscription = auth.onAuthStateChange.listen((state) {
+      if (!_employeeSessionIsCurrent(state.session)) {
+        unawaited(_lockAfterEmployeeAuthorizationLost());
+      }
+    });
+    _restore();
+  }
+
+  @override
+  void dispose() {
+    _stopPrinter();
+    _timer?.cancel();
+    _employeeAuthSubscription?.cancel();
+    super.dispose();
+  }
+
+  bool _employeeSessionIsCurrent(Session? session) {
+    final auth = Supabase.instance.client.auth;
+    return session != null &&
+        session.user.id == widget.authorizedEmployeeUserId &&
+        auth.currentUser?.id == widget.authorizedEmployeeUserId &&
+        DeviceSessionPreference.sessionId(session) ==
+            widget.authorizedEmployeeSessionId &&
+        auth.mfa.getAuthenticatorAssuranceLevel().currentLevel ==
+            AuthenticatorAssuranceLevels.aal2;
+  }
+
+  Future<void> _lockAfterEmployeeAuthorizationLost() async {
+    if (_authorizationLost) return;
+    _authorizationLost = true;
+    _stopPrinter();
+    _timer?.cancel();
+    _timer = null;
+    try {
+      // The server permits logout solely to revoke this exact station token.
+      await _session.logout();
+    } catch (_) {
+      try {
+        await _session.clearInvalidSession();
+      } catch (_) {
+        // The server still rejects the token because it is bound to the old
+        // employee session; local storage cleanup is best effort.
+      }
+    }
+    if (!mounted) return;
+    Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+  }
+
   Future<void> _restore() async {
     try { final data = await _session.restore(); if (!mounted) return;
       if (data != null) _apply(data);
-    } catch (_) { if (mounted) setState(() => _connected = false); }
+    } catch (error) {
+      if (error is StationEmployeeAuthorizationException) {
+        await _lockAfterEmployeeAuthorizationLost();
+      } else if (mounted) {
+        setState(() => _connected = false);
+      }
+    }
     finally { if (mounted) setState(() => _checking = false); }
   }
   void _apply(Map<String,dynamic> data) {
@@ -62,7 +134,14 @@ class _StationDeviceGateState extends State<StationDeviceGate> {
       if (data == null) { _stopPrinter(); _timer?.cancel(); setState(() { _station=null; _connected=false; }); }
       else { setState(() { _connected=true; _orders=data['order_print']==true;
         _bills=data['bill_print']==true; }); await _syncPrinter(); }
-    } catch (_) { _stopPrinter(); if (mounted) setState(() => _connected=false); }
+    } catch (error) {
+      _stopPrinter();
+      if (error is StationEmployeeAuthorizationException) {
+        await _lockAfterEmployeeAuthorizationLost();
+      } else if (mounted) {
+        setState(() => _connected = false);
+      }
+    }
   }
   Future<void> _logout() async {
     _stopPrinter();

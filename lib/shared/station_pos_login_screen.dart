@@ -23,7 +23,12 @@ class _StationPosLoginScreenState extends State<StationPosLoginScreen> {
    if (!mounted) return;
    _password.clear();
    widget.onAuthenticated(station, data['order_print'] == true, data['bill_print'] == true);
-  } catch (_) {
+   } on StationEmployeeAuthorizationException {
+    if (mounted) {
+     setState(() => _error =
+       'Verified employee access is required before station sign-in.');
+    }
+   } catch (_) {
    if (mounted) setState(() => _error = 'Unable to sign in. Check credentials or try later.');
   } finally { if (mounted) setState(() => _busy = false); }
  }
@@ -42,7 +47,9 @@ class _StationPosLoginScreenState extends State<StationPosLoginScreen> {
     const SizedBox(height:16),
     FilledButton(onPressed:_busy?null:_login,child:Text(_busy?'Signing in…':'Sign in')),
     const SizedBox(height:12),
-    const Text('This station session stays signed in until revoked, expired or logged out.'),
+     const Text(
+      'Station access ends when this employee session ends, the device is revoked, or the session expires.',
+     ),
    ]))),
  );
 }

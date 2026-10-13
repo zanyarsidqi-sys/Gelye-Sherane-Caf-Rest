@@ -332,11 +332,29 @@ class _CafeAppState extends State<CafeApp> {
       MaterialPageRoute<void>(
         builder:
             (routeContext) => AuthGate(
-              onAuthorized: (_) {
+              onAuthorized: (allowedSections) {
                 if (!routeContext.mounted) return;
+                final auth = Supabase.instance.client.auth;
+                final session = auth.currentSession;
+                final userId = auth.currentUser?.id;
+                final employeeSessionId =
+                    DeviceSessionPreference.sessionId(session);
+                if (!allowedSections.contains('dashboard') ||
+                    session == null ||
+                    userId == null ||
+                    session.user.id != userId ||
+                    employeeSessionId == null ||
+                    auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
+                        AuthenticatorAssuranceLevels.aal2) {
+                  Navigator.of(routeContext).pop();
+                  return;
+                }
                 Navigator.of(routeContext).pushReplacement(
                   MaterialPageRoute<void>(
-                    builder: (_) => const StationDeviceGate(),
+                    builder: (_) => StationDeviceGate(
+                      authorizedEmployeeUserId: userId,
+                      authorizedEmployeeSessionId: employeeSessionId,
+                    ),
                   ),
                 );
               },
@@ -490,14 +508,18 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           _returnToStaffAuth();
         }
       } else {
-        _checkAccess();
+        // Same-account refreshes can be checked in the background; do not
+        // replace the dashboard with a full-screen spinner for each event.
+        _checkAccess(showChecking: false);
       }
     });
     _accessReviewTimer = Timer.periodic(const Duration(seconds: 60), (_) {
       if (mounted && !_accessReviewBusy && !_logoutInProgress &&
           !_logoutRecoveryRequired &&
           WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
-        _checkAccess();
+        // Keep the dashboard visible during the periodic server-side review.
+        // A failed review still locks access and returns to staff sign-in.
+        _checkAccess(showChecking: false);
       }
     });
   }
@@ -730,7 +752,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     _checkAccess();
   }
 
-  Future<void> _checkAccess() async {
+  Future<void> _checkAccess({bool showChecking = true}) async {
     if (_logoutInProgress ||
         _logoutRecoveryRequired ||
         _redirectingForAuthorization ||
@@ -743,8 +765,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       return;
     }
     if (_accessReviewBusy) {
-      // An auth/lifecycle-triggered overlap must invalidate the old result;
-      // queue exactly one fresh verification after it finishes.
+      // Ignore duplicate background refreshes while one is already running.
+      // A foreground/lifecycle verification still takes priority.
+      if (!showChecking) return;
       _authorizationEpoch++;
       _reviewRequestedWhileBusy = true;
       setState(() {
@@ -758,11 +781,15 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     // Stop scheduled device telemetry until fresh authorization completes.
     _posHeartbeatTimer?.cancel();
     _posHeartbeatTimer = null;
-    // A periodic review must not leave previously authorized UI interactive.
-    setState(() {
-      _authorized = false;
-      _loading = true;
-    });
+    if (showChecking) {
+      // Initial entry, explicit navigation and resume checks block the UI.
+      // Periodic reviews keep the current screen visible, while every
+      // privileged request remains independently protected by server RLS.
+      setState(() {
+        _authorized = false;
+        _loading = true;
+      });
+    }
     final reviewEpoch = _authorizationEpoch;
     final client = Supabase.instance.client;
     final sessionAtStart = client.auth.currentSession;

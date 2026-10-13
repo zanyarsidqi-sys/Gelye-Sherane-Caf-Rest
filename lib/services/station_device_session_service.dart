@@ -2,14 +2,46 @@ import 'dart:async';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class StationEmployeeAuthorizationException implements Exception {
+  const StationEmployeeAuthorizationException();
+}
+
 /// Independent station device identity. Never place tokens in preferences/logs.
 class StationDeviceSessionService {
   static const _storage = FlutterSecureStorage();
   static const _key = 'gs_station_device_token_v1';
+  bool _isEmployeeAuthorizationFailure(Object error) {
+    try {
+      final dynamic status = (error as dynamic).status;
+      if (status == 428) return true;
+      final dynamic details = (error as dynamic).details;
+      if (details != null &&
+          details.toString().contains('EMPLOYEE_AUTH_REQUIRED')) {
+        return true;
+      }
+    } catch (_) {
+      // Fall through to checking the safe error string below.
+    }
+    return error.toString().contains('EMPLOYEE_AUTH_REQUIRED');
+  }
+
+  Future<dynamic> _invoke(Map<String, dynamic> body) async {
+    try {
+      return await Supabase.instance.client.functions.invoke(
+        'station-device-auth',
+        body: body,
+      );
+    } catch (error) {
+      if (_isEmployeeAuthorizationFailure(error)) {
+        throw const StationEmployeeAuthorizationException();
+      }
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>?> _request(String action, String token,
       {bool printerReady = false}) async {
-    final result = await Supabase.instance.client.functions.invoke(
-      'station-device-auth', body: {
+    final result = await _invoke({
         'action': action, 'token': token, 'printer_ready': printerReady,
       });
     if (result.data is! Map) return null;
@@ -17,8 +49,7 @@ class StationDeviceSessionService {
   }
 
   Future<Map<String, dynamic>> signIn(String username, String password) async {
-    final response = await Supabase.instance.client.functions.invoke(
-      'station-device-auth', body: {
+    final response = await _invoke({
         'action': 'login', 'username': username, 'password': password,
       });
     if (response.data is! Map) throw StateError('Invalid station login response');
@@ -97,14 +128,11 @@ class StationDeviceSessionService {
     }
     final token = await _storage.read(key: _key);
     if (token == null) throw StateError('Station device not signed in');
-    final response = await Supabase.instance.client.functions.invoke(
-      'station-device-auth',
-      body: {
+    final response = await _invoke({
         'action': 'ack_print', 'token': token,
         'ticket_id': ticketId, 'attempt': attempt,
         'result': result, if (error != null) 'error': error,
-      },
-    );
+      });
     if (response.data is! Map || response.data['acknowledged'] != true) {
       throw StateError('Print acknowledgment not confirmed');
     }
@@ -125,8 +153,7 @@ class StationDeviceSessionService {
     required int attempt,required String result,String? error}) async {
     if (!{'printed','failed','received'}.contains(result)) throw ArgumentError.value(result);
     final token=await deviceTokenForStationRequest();
-    final response=await Supabase.instance.client.functions.invoke(
-      'station-device-auth',body:{'action':'ack_revision_print','token':token,
+    final response=await _invoke({'action':'ack_revision_print','token':token,
       'ticket_id':ticketId,'attempt':attempt,'result':result,
       if(error!=null)'error':error});
     if (response.data is! Map || response.data['acknowledged']!=true) {

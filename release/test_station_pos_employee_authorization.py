@@ -17,7 +17,10 @@ assert match, "Station POS must enter through its employee authorization route."
 route = match.group("body")
 assert "AuthGate(" in route
 assert route.index("AuthGate(") < route.index("onAuthorized:")
-assert route.index("onAuthorized:") < route.index("StationDeviceGate()")
+assert route.index("onAuthorized:") < route.index("StationDeviceGate(")
+assert "AuthenticatorAssuranceLevels.aal2" in route
+assert "authorizedEmployeeUserId: userId" in route
+assert "authorizedEmployeeSessionId: employeeSessionId" in route
 assert "pushReplacement" in route
 
 for required_check in (
@@ -28,6 +31,8 @@ for required_check in (
     assert required_check in auth_gate, f"AuthGate must retain {required_check}."
 
 assert "StationPosLoginScreen(onAuthenticated:" in station_gate
+assert "onAuthStateChange.listen" in station_gate
+assert "_lockAfterEmployeeAuthorizationLost()" in station_gate
 assert "StationDeviceSessionService().signIn" in station_login
 assert "Station username" in station_login
 assert "Station password" in station_login
