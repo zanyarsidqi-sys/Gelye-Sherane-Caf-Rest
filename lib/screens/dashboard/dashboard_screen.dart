@@ -22,6 +22,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Dashboard figures come from a permission-filtered server RPC, never local
 /// preview orders. Cash collected is not equivalent to all-channel revenue.
+bool dashboardMetricIsVisible({
+  required Set<String> allowedSections,
+  required bool hasMetric,
+  String? section,
+}) {
+  if (!hasMetric) return false;
+  return section != null && allowedSections.contains(section);
+}
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen(
       {super.key, required this.allowedSections, required this.onOpenSection});
@@ -36,14 +45,20 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   late DateTime _day = DateTime.now().toUtc().add(const Duration(hours: 3));
   late Future<Map<String, dynamic>> _overview;
   late Future<List<dynamic>> _week;
-  // Local per-employee preferences. Cloud synchronization requires an
-  // authorized profile endpoint and remains a separate backend task.
+  // Device cache is for offline continuity; the revisioned server copy is
+  // authoritative for synchronization across devices.
   List<String> _cardOrder = [];
   final Map<String, int> _cardColors = {};
   final Map<String, int> _cardSizes = {}; // 0 compact, 1 regular, 2 large
   final Set<String> _hiddenCards = {};
   bool _editingCards = false;
   final _cloudPreferences = DashboardCloudPreferences();
+  int _cloudPreferencesRevision = 0;
+  int _preferenceSaveGeneration = 0;
+  bool _hasLocalPreferences = false;
+  bool _preferenceConflictNeedsReview = false;
+  String _preferencesSyncStatus = 'Checking sync…';
+  Future<void> _cloudPreferenceSaveQueue = Future<void>.value();
   // Focus mode changes presentation order only. It never grants access to data.
   String _focusMode = 'manager';
   static const _focusModes = <String, String>{
@@ -76,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
       final parsed = jsonDecode(raw) as Map<String, dynamic>;
       if (!mounted) return;
       setState(() {
+        _hasLocalPreferences = true;
         _focusMode = _focusModes.containsKey(parsed['focus_mode'])
             ? parsed['focus_mode'] as String : 'manager';
         _cardOrder = (parsed['order'] as List<dynamic>? ?? [])
@@ -110,14 +126,49 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   }
 
   // Remote preferences are scoped by auth.uid() in the RPC. Missing migrations,
-  // offline connections, and permissions never prevent the local Dashboard.
+  // offline connections, and permissions never prevent the local Dashboard,
+  // but device-only state is reported rather than presented as cloud-synced.
   Future<void> _loadCloudPreferences() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    final generationAtStart = _preferenceSaveGeneration;
+    if (userId == null) {
+      if (mounted) {
+        setState(() => _preferencesSyncStatus = 'Sign in to sync this layout');
+      }
+      return;
+    }
     try {
       final cloud = await _cloudPreferences.load();
-      if (cloud == null || !mounted) return;
-      final parsed = cloud['preferences'];
-      if (parsed is! Map) return;
+      if (!mounted ||
+          Supabase.instance.client.auth.currentUser?.id != userId) return;
+      if (generationAtStart != _preferenceSaveGeneration) {
+        _preferenceConflictNeedsReview = true;
+        await _refreshCloudPreferencesRevision(userId);
+        if (mounted &&
+            Supabase.instance.client.auth.currentUser?.id == userId) {
+          setState(() => _preferencesSyncStatus =
+              'Another device updated this layout; review and retry');
+        }
+        return;
+      }
+      if (cloud.revision == 0 && _hasLocalPreferences) {
+        final uploaded = await _cloudPreferences.save(
+          preferences: _currentCardPreferences(),
+          expectedRevision: 0,
+        );
+        if (!mounted ||
+            Supabase.instance.client.auth.currentUser?.id != userId) return;
+        setState(() {
+          _cloudPreferencesRevision = uploaded.revision;
+          _preferenceConflictNeedsReview = false;
+          _preferencesSyncStatus = 'Synced across devices';
+        });
+        return;
+      }
+      final parsed = cloud.preferences;
       setState(() {
+        _cloudPreferencesRevision = cloud.revision;
+        _preferenceConflictNeedsReview = false;
         _focusMode = _focusModes.containsKey(parsed['focus_mode'])
             ? parsed['focus_mode'] as String : _focusMode;
         _cardOrder = (parsed['order'] as List<dynamic>? ?? []).whereType<String>().toList();
@@ -144,26 +195,114 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
         }
         final hidden = parsed['hidden'];
         if (hidden is List) _hiddenCards.addAll(hidden.whereType<String>());
+        _preferencesSyncStatus = 'Synced across devices';
       });
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_prefsKey, jsonEncode(parsed));
+      if (Supabase.instance.client.auth.currentUser?.id == userId) {
+        await prefs.setString(_prefsKey, jsonEncode(parsed));
+      }
+    } on DashboardPreferencesConflict {
+      _preferenceConflictNeedsReview = true;
+      await _refreshCloudPreferencesRevision(userId);
+      if (mounted && Supabase.instance.client.auth.currentUser?.id == userId) {
+        setState(() => _preferencesSyncStatus =
+            'Another device updated this layout; review and retry');
+      }
     } catch (_) {
-      // Cloud sync is best-effort; the local dashboard preferences remain usable.
+      if (mounted && Supabase.instance.client.auth.currentUser?.id == userId) {
+        setState(() =>
+            _preferencesSyncStatus = 'Device-only; cloud sync needs attention');
+      }
+    }
+  }
+
+  Map<String, dynamic> _currentCardPreferences() => <String, dynamic>{
+      'order': List<String>.from(_cardOrder),
+      'colors': Map<String, int>.from(_cardColors),
+      'sizes': Map<String, int>.from(_cardSizes),
+      'hidden': _hiddenCards.toList(),
+      'focus_mode': _focusMode,
+    };
+
+  Future<void> _refreshCloudPreferencesRevision(String userId) async {
+    try {
+      final latest = await _cloudPreferences.load();
+      if (mounted &&
+          Supabase.instance.client.auth.currentUser?.id == userId) {
+        _cloudPreferencesRevision = latest.revision;
+      }
+    } catch (_) {
+      // The conflict message stays visible; a later manual retry can reload.
     }
   }
 
   Future<void> _saveCardPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    final snapshot = <String, dynamic>{
-      'order': _cardOrder, 'colors': _cardColors, 'sizes': _cardSizes,
-      'hidden': _hiddenCards.toList(), 'focus_mode': _focusMode,
-    };
-    await prefs.setString(_prefsKey, jsonEncode(snapshot));
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    final preferenceKey = _prefsKey;
+    final snapshot = _currentCardPreferences();
+    final generation = ++_preferenceSaveGeneration;
     try {
-      await _cloudPreferences.save(snapshot);
+      final prefs = await SharedPreferences.getInstance();
+      if (Supabase.instance.client.auth.currentUser?.id != userId) return;
+      await prefs.setString(preferenceKey, jsonEncode(snapshot));
     } catch (_) {
-      // Local preferences were already saved; cloud sync can be retried later.
+      if (mounted && generation == _preferenceSaveGeneration) {
+        setState(() => _preferencesSyncStatus = 'Could not save this layout');
+      }
+      return;
     }
+    if (userId == null) {
+      if (mounted && generation == _preferenceSaveGeneration) {
+        setState(() => _preferencesSyncStatus = 'Device-only; sign in to sync');
+      }
+      return;
+    }
+    if (mounted && generation == _preferenceSaveGeneration) {
+      setState(() => _preferencesSyncStatus = 'Saving across devices…');
+    }
+
+    final nextWrite = _cloudPreferenceSaveQueue.catchError((_) {}).then((_) async {
+      if (!mounted ||
+          Supabase.instance.client.auth.currentUser?.id != userId ||
+          _preferenceConflictNeedsReview) return;
+      try {
+        final saved = await _cloudPreferences.save(
+          preferences: snapshot,
+          expectedRevision: _cloudPreferencesRevision,
+        );
+        if (!mounted ||
+            Supabase.instance.client.auth.currentUser?.id != userId) return;
+        setState(() {
+          _cloudPreferencesRevision = saved.revision;
+          if (generation == _preferenceSaveGeneration) {
+            _preferencesSyncStatus = 'Synced across devices';
+          }
+        });
+      } on DashboardPreferencesConflict {
+        _preferenceConflictNeedsReview = true;
+        await _refreshCloudPreferencesRevision(userId);
+        if (mounted &&
+            Supabase.instance.client.auth.currentUser?.id == userId &&
+            generation == _preferenceSaveGeneration) {
+          setState(() => _preferencesSyncStatus =
+              'Another device updated this layout; review and retry');
+        }
+      } catch (_) {
+        if (mounted &&
+            Supabase.instance.client.auth.currentUser?.id == userId &&
+            generation == _preferenceSaveGeneration) {
+          setState(() => _preferencesSyncStatus =
+              'Device-only; cloud sync needs attention');
+        }
+      }
+    });
+    _cloudPreferenceSaveQueue = nextWrite;
+    await nextWrite;
+  }
+
+  Future<void> _retryCloudPreferenceSync() async {
+    _preferenceConflictNeedsReview = false;
+    await _saveCardPreferences();
   }
 
   void _moveCard(String id, int direction, List<String> visibleIds) {
@@ -738,11 +877,21 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
 
   void _openMetricDetails(String title, String key, Object? value,
       {required bool money, String? section}) {
+    if (!dashboardMetricIsVisible(
+      allowedSections: widget.allowedSections,
+      hasMetric: true,
+      section: section,
+    )) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('This dashboard detail is unavailable for this account.'),
+      ));
+      return;
+    }
     final permitted = section != null && widget.allowedSections.contains(section);
     final detail = Scaffold(
       appBar: AppBar(title: Text(title)),
       body: SafeArea(child: ListView(padding: const EdgeInsets.all(20), children: [
-        Text('User filter: current authorized account (${Supabase.instance.client.auth.currentUser?.id ?? 'not signed in'}). Other employee filtering requires a permission-scoped backend endpoint.'),
+        const Text('Data is scoped to the current authenticated account. Other employee filtering requires a permission-scoped backend endpoint.'),
         const SizedBox(height: 8),
         Text('Selected business date: ${_dateString()}',
             style: Theme.of(context).textTheme.bodyMedium),
@@ -983,7 +1132,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
   Widget _metric(
       String title, String key, IconData icon, Map<String, dynamic> data,
       {bool money = false, String? section}) {
-    if (!data.containsKey(key)) return const SizedBox.shrink();
+    if (!dashboardMetricIsVisible(
+      allowedSections: widget.allowedSections,
+      hasMetric: data.containsKey(key),
+      section: section,
+    )) return const SizedBox.shrink();
     final colorIndex = _cardColors[key];
     final accent = colorIndex == null ? Theme.of(context).colorScheme.primary
         : _palette[colorIndex];
@@ -1420,13 +1573,39 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
         });
   }
 
+  Map<String, dynamic> _authorizedInsightMetrics(
+      Map<String, dynamic> data) {
+    const sectionByMetric = <String, String>{
+      'urgent_guest_requests': 'action_center',
+      'overdue_service_orders': 'table_orders',
+      'out_of_stock_count': 'products_inventory',
+      'low_stock_count': 'products_inventory',
+      'cash_reconciliation_discrepancies': 'payments_management',
+      'open_maintenance_issues': 'maintenance',
+      'pending_offline_sync': 'offline_mode_synchronization',
+    };
+    return <String, dynamic>{
+      for (final entry in sectionByMetric.entries)
+        if (dashboardMetricIsVisible(
+          allowedSections: widget.allowedSections,
+          hasMetric: data.containsKey(entry.key),
+          section: entry.value,
+        ))
+          entry.key: data[entry.key],
+    };
+  }
+
   Widget _alertTile(
       String title, Object? count, IconData icon, String section) {
-    final enabled = widget.allowedSections.contains(section);
+    if (!dashboardMetricIsVisible(
+      allowedSections: widget.allowedSections,
+      hasMetric: true,
+      section: section,
+    )) return const SizedBox.shrink();
     return ActionChip(
       avatar: Icon(icon, size: 18),
       label: Text('$title: ${count ?? '—'}'),
-      onPressed: enabled ? () => widget.onOpenSection(section) : null,
+      onPressed: () => widget.onOpenSection(section),
     );
   }
 
@@ -1910,7 +2089,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                       data[area.$2] is num)
                                     _metric(area.$1, area.$2, area.$3, data,
                                         section: area.$4),
-                                if (data['customers_today'] is num)
+                                if (dashboardMetricIsVisible(
+                                  allowedSections: widget.allowedSections,
+                                  section: 'tables',
+                                  hasMetric: data['customers_today'] is num,
+                                ))
                                   CustomerCountCard(
                                     title: 'Customers today',
                                     count: (data['customers_today'] as num).toInt(),
@@ -1919,7 +2102,11 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                       data['customers_today'], money: false,
                                       section: 'tables'),
                                   ),
-                                if (data['tourism_customers'] is num)
+                                if (dashboardMetricIsVisible(
+                                  allowedSections: widget.allowedSections,
+                                  section: 'table_orders',
+                                  hasMetric: data['tourism_customers'] is num,
+                                ))
                                   CustomerCountCard(
                                     title: 'Tourism customers',
                                     count: (data['tourism_customers'] as num).toInt(),
@@ -1995,7 +2182,31 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                             .titleLarge),
                                     const SizedBox(height: 8),
                                     if (_editingCards && orderedIds.isNotEmpty) ...[
-                                      const Text('Drag or move KPI cards; set color, size, and visibility per card. Hiding a KPI never disables required alerts. Saved on this device; cloud sync pending.'),
+                                      const Text('Drag or move KPI cards; set color, size, and visibility per card. Hiding a KPI never disables required alerts.'),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Semantics(
+                                              liveRegion: true,
+                                              label: 'Dashboard layout sync: $_preferencesSyncStatus',
+                                              child: Text(
+                                                _preferencesSyncStatus,
+                                                style: Theme.of(context)
+                                                    .textTheme.labelMedium,
+                                              ),
+                                            ),
+                                          ),
+                                          if (!_preferencesSyncStatus.startsWith('Synced') &&
+                                              !_preferencesSyncStatus.startsWith('Saving') &&
+                                              !_preferencesSyncStatus.startsWith('Checking'))
+                                            TextButton.icon(
+                                              onPressed: _retryCloudPreferenceSync,
+                                              icon: const Icon(Icons.sync),
+                                              label: const Text('Retry sync'),
+                                            ),
+                                        ],
+                                      ),
                                       const SizedBox(height: 8),
                                       SizedBox(
                                         height: 260,
@@ -2112,7 +2323,9 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                     const SizedBox(height: 16),
                                     _weekChart(),
                                     const SizedBox(height: 16),
-                                    DashboardInsightsPanel(metrics: data),
+                                    DashboardInsightsPanel(
+                                      metrics: _authorizedInsightMetrics(data),
+                                    ),
                                     const SizedBox(height: 16),
                                     Text('Action center',
                                         style: Theme.of(context)
