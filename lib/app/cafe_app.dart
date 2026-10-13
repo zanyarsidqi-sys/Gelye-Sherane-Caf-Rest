@@ -15,6 +15,7 @@ import '../auth/auth_gate.dart';
 import '../shared/public_menu_screen.dart';
 import '../shared/public_reservation_screen.dart';
 import '../shared/public_online_order_screen.dart';
+import '../shared/employee_device_presence_monitor.dart';
 import '../shared/station_device_gate.dart';
 import '../shared/customer_table_qr_menu_screen.dart';
 import '../shared/customer_motel_room_qr_screen.dart';
@@ -315,7 +316,10 @@ class _CafeAppState extends State<CafeApp> {
           textDirection: AppLanguage.isRtl(_language) ? TextDirection.rtl : TextDirection.ltr,
           child: Column(children: [
         Expanded(child: Stack(children: [
-        if (child != null) ReleaseUpdateNotice(child: child),
+        if (child != null)
+          EmployeeDevicePresenceMonitor(
+            child: ReleaseUpdateNotice(child: child),
+          ),
         Positioned(
           top: MediaQuery.paddingOf(context).top + 6,
           right: 12,
