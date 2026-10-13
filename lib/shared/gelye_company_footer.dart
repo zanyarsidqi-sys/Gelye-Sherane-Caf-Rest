@@ -11,7 +11,7 @@ class GelyeCompanyFooter extends StatelessWidget {
     child:Padding(
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:8),
       child:Column(mainAxisSize:MainAxisSize.min,children:[
-        Text('All right reserved for Gelye Sherane Company',
+        Text('All Rights Reserved for Gelye Sherane Café & Rest',
           textAlign:TextAlign.center,style:Theme.of(context).textTheme.bodySmall),
         Text('Powered By Zanyar Sidqi',
           textAlign:TextAlign.center,style:Theme.of(context).textTheme.bodySmall),

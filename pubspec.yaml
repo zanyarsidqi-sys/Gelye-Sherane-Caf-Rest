@@ -1,6 +1,6 @@
 name: gelye_cafe_rest
 version: 1.0.0+29
-description: Gelye Sherane Cafê & Rest - independent application under development.
+description: Gelye Sherane Cafè & Rest - independent application under development.
 publish_to: none
 environment:
   sdk: '>=3.3.0 <4.0.0'

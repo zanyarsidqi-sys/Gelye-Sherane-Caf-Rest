@@ -1,3 +1,4 @@
+import 'dart:async';
 import '../services/device_session_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -25,6 +26,8 @@ enum _AuthStep {
 }
 
 class _AuthGateState extends State<AuthGate> {
+  static const _securityTimeout = Duration(seconds: 12);
+  static const _cleanupTimeout = Duration(seconds: 3);
   final EmployeePermissionService _permissionService =
       EmployeePermissionService();
   _AuthStep _step = _AuthStep.checking;
@@ -39,12 +42,15 @@ class _AuthGateState extends State<AuthGate> {
     try {
       final auth = Supabase.instance.client.auth;
       final session = auth.currentSession;
-      if (session == null || !await DeviceSessionPreference.allows(session)) {
+      if (session == null ||
+          !await DeviceSessionPreference.allows(
+            session,
+          ).timeout(_securityTimeout)) {
         if (mounted) setState(() => _step = _AuthStep.entrance);
         return;
       }
       // A remembered device is convenience only: MFA and RLS are still required.
-      final user = (await auth.getUser()).user;
+      final user = (await auth.getUser().timeout(_securityTimeout)).user;
       if (user == null || user.id != session.user.id) {
         if (mounted) setState(() => _step = _AuthStep.entrance);
         return;
@@ -58,8 +64,33 @@ class _AuthGateState extends State<AuthGate> {
         setState(() => _step = _AuthStep.mfa);
       }
     } catch (_) {
-      if (mounted) setState(() => _step = _AuthStep.entrance);
+      if (mounted) {
+        unawaited(_clearUnverifiedDevicePreference());
+        setState(() => _step = _AuthStep.entrance);
+        _showSavedSessionFallback();
+      }
     }
+  }
+
+  Future<void> _clearUnverifiedDevicePreference() async {
+    try {
+      await DeviceSessionPreference.clear().timeout(_cleanupTimeout);
+    } catch (_) {
+      // The employee sign-in flow remains available if local cleanup stalls.
+    }
+  }
+
+  void _showSavedSessionFallback() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not verify the saved employee session. Please sign in again.',
+          ),
+        ),
+      );
+    });
   }
 
   bool _finishing = false;
@@ -84,7 +115,9 @@ class _AuthGateState extends State<AuthGate> {
     try {
       final client = Supabase.instance.client;
 
-      final userResponse = await client.auth.getUser();
+      final userResponse = await client.auth
+          .getUser()
+          .timeout(_securityTimeout);
       final user = userResponse.user;
 
       if (user == null || client.auth.currentSession == null) {
@@ -103,7 +136,9 @@ class _AuthGateState extends State<AuthGate> {
       debugPrint('AUTH GATE LOGIN ERROR: $error');
 
       await _denyAccess(
-        'Employee login verification failed.',
+        error is TimeoutException
+            ? 'Employee login verification timed out. Please try again.'
+            : 'Employee login verification failed.',
       );
     }
   }
@@ -130,7 +165,9 @@ class _AuthGateState extends State<AuthGate> {
       }
 
       _verificationStage = 'authenticated employee session';
-      final userResponse = await client.auth.getUser();
+      final userResponse = await client.auth
+          .getUser()
+          .timeout(_securityTimeout);
       final user = userResponse.user;
 
       if (user == null || client.auth.currentSession == null) {
@@ -183,8 +220,10 @@ class _AuthGateState extends State<AuthGate> {
       debugPrint('AUTH GATE MFA ERROR at $_verificationStage: $error');
 
       await _denyAccess(
-        'Security verification failed at $_verificationStage. '
-        'Management access remains locked.',
+        error is TimeoutException
+            ? 'Employee security checks timed out. Please sign in again.'
+            : 'Security verification failed at $_verificationStage. '
+                  'Management access remains locked.',
       );
     } finally {
       _finishing = false;
@@ -193,8 +232,12 @@ class _AuthGateState extends State<AuthGate> {
 
   Future<void> _denyAccess(String message) async {
     try {
-      try { await DeviceSessionPreference.clear(); } catch (_) {}
-      await Supabase.instance.client.auth.signOut(scope: SignOutScope.local);
+      try {
+        await DeviceSessionPreference.clear().timeout(_cleanupTimeout);
+      } catch (_) {}
+      await Supabase.instance.client.auth
+          .signOut(scope: SignOutScope.local)
+          .timeout(_cleanupTimeout);
     } catch (error) {
       debugPrint('AUTH GATE SIGN OUT ERROR: $error');
     }

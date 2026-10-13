@@ -9,7 +9,7 @@ migration = (
 pubspec = (root / "pubspec.yaml").read_text()
 section = (root / "lib/sections/websites_management.dart").read_text()
 workflow = (
-    root / ".github/workflows/validate-1.0.0.7-orders.yml"
+    root / ".github/workflows/validate-1.0.0.8-workspace.yml"
 ).read_text()
 
 for field in (
