@@ -9,9 +9,9 @@ async function db(path:string, options:RequestInit={}) {
  if(!response.ok) throw Error('Push database unavailable');
  const text=await response.text(); return text ? JSON.parse(text) : null;
 }
-async function send(subscription:any, tag:string, version:string|null=null) {
+async function send(subscription:any, tag:string, version:string|null=null, notes:string|null=null) {
  const sub=validateSubscription({endpoint:subscription.endpoint,keys:{p256dh:subscription.p256dh,auth:subscription.auth_key}});
- const request=webpush.generateRequestDetails(sub,publicPayload(tag,version),{
+  const request=webpush.generateRequestDetails(sub,publicPayload(tag,version,notes),{
    TTL:300,vapidDetails:{subject:env('WEB_PUSH_SUBJECT'),publicKey:env('WEB_PUSH_PUBLIC_KEY'),privateKey:env('WEB_PUSH_PRIVATE_KEY')}
  });
  const response=await fetch(request.endpoint,{method:'POST',headers:request.headers,body:request.body,redirect:'error',signal:AbortSignal.timeout(10000)});
@@ -50,19 +50,20 @@ Deno.serve(async(req:Request)=>{
     try {
      const eligible=await db('rpc/gs_browser_push_eligible',{method:'POST',body:JSON.stringify({p_subscription:job.subscription_id,p_section:job.section_key})});
      const rows=eligible?await db('gs_browser_push_subscriptions?id=eq.'+job.subscription_id+'&limit=1'):[];
-     let version:string|null=null;
+    let version:string|null=null, notes:string|null=null;
      if(job.source_table==='gs_app_release_events') {
        const events=await db('gs_app_release_events?select=release_id&id=eq.'+job.source_id+'&action=eq.publish');
-       const releases=events.length?await db('gs_app_releases?select=version&id=eq.'+events[0].release_id+'&status=eq.published&platform=eq.web&channel=eq.stable'):[];
+      const releases=events.length?await db('gs_app_releases?select=version,notes&id=eq.'+events[0].release_id+'&status=eq.published&platform=eq.web&channel=eq.stable'):[];
        if(deliveryDecision({eligible,subscriptionPresent:rows.length>0,releaseEvent:true,publishedRelease:releases.length>0})==='failed') {
          await db('gs_browser_push_jobs?'+filter,{method:'PATCH',body:JSON.stringify({status:'failed'})});
          return;
        }
        version=releases[0].version;
+      notes=typeof releases[0].notes==='string'?releases[0].notes:null;
      }
      // A 404/410 response means the push subscription was removed, not delivered.
      // Never mark such jobs as sent; preserve accurate release-delivery history.
-     const outcome=rows.length ? await send(rows[0],'job-'+job.id,version) : 'missing';
+    const outcome=rows.length ? await send(rows[0],'job-'+job.id,version,notes) : 'missing';
      await db('gs_browser_push_jobs?'+filter,{method:'PATCH',body:JSON.stringify({status:deliveryStatus(outcome)})});
     }catch {
      await db('gs_browser_push_jobs?'+filter,{method:'PATCH',body:JSON.stringify({status:retryDecision(job.attempts),available_at:new Date(Date.now()+60000*job.attempts).toISOString()})});

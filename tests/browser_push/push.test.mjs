@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
-import {validateSubscription,validateExpiry,publicPayload} from '../../supabase/functions/browser-push/contracts.mjs';
+import {validateSubscription,validateExpiry,publicPayload,releaseNotesPreview} from '../../supabase/functions/browser-push/contracts.mjs';
 const sub = {endpoint:'https://web.push.apple.com/QExample',keys:{p256dh:'A'.repeat(87),auth:'A'.repeat(22)}};
 const config = JSON.stringify({url:'https://'+'a'.repeat(20)+'.supabase.co',token:'test-only-token',key:'public-key',vapid:'BA',expires:null});
 function browser(overrides={}) {
@@ -36,6 +36,17 @@ test('release payload carries validated version only',()=>{
  assert.deepEqual(JSON.parse(publicPayload('job-1','1.0.0.2')),{tag:'job-1',version:'1.0.0.2'});
  assert.deepEqual(JSON.parse(publicPayload('job-1','Private data or https://evil.example')),{tag:'job-1'});
 });
+test('release payload includes a bounded, sanitized release-note preview only for a valid version',()=>{
+  assert.deepEqual(JSON.parse(publicPayload('job-1','1.0.0.2','  Fixes\n  and updates\tfor staff.  ')),{
+    tag:'job-1',version:'1.0.0.2',notes:'Fixes and updates for staff.',
+  });
+  const longNotes='م'.repeat(500);
+  const preview=releaseNotesPreview(longNotes);
+  assert.ok(new TextEncoder().encode(preview).length<=603);
+  assert.ok(preview.endsWith('…'));
+  assert.deepEqual(Object.keys(JSON.parse(publicPayload('job-1','1.0.0.2','New release'))).sort(),['notes','tag','version']);
+  assert.deepEqual(JSON.parse(publicPayload('job-1','invalid','Do not send')), {tag:'job-1'});
+});
 test('iPhone ordinary tab gets install guidance without asking permission',async()=>{
  const {context,calls}=browser({matchMedia:()=>({matches:false})});
  assert.equal(context.window.cafePushStatus(),'install_required');
@@ -56,13 +67,15 @@ test('denied permission never subscribes',async()=>{
  const {context,calls}=browser({Notification:{permission:'denied',requestPermission:async()=>{throw Error('must not call');}}});
  await assert.rejects(context.window.cafePushEnable(config));assert.equal(calls.length,0);
 });
-test('release push shows version and ignores attacker-supplied click URL',async()=>{
+test('release push shows version and release notes and ignores attacker-supplied click URL',async()=>{
  const handlers={},shown=[];let opened;
  const context={URL,self:{addEventListener:(name,fn)=>handlers[name]=fn,registration:{scope:'https://cafe.example/push/',showNotification:async(title,options)=>shown.push(options)}},
  clients:{matchAll:async()=>[],openWindow:async(url)=>opened=url}};
  vm.createContext(context);vm.runInContext(readFileSync(new URL('../../web/push/sw.js',import.meta.url),'utf8'),context);
- let pending;handlers.push({data:{json:()=>({tag:'job-2',version:'1.0.0.2',url:'https://evil.example'})},waitUntil:p=>pending=p});await pending;
+  let pending;handlers.push({data:{json:()=>({tag:'job-2',version:'1.0.0.2',notes:'Improved dashboard and faster staff workflows.',url:'https://evil.example'})},waitUntil:p=>pending=p});await pending;
  assert.match(shown[0].body,/1\.0\.0\.2/);
+  assert.match(shown[0].body,/Improved dashboard and faster staff workflows/);
+  assert.match(shown[0].body,/full release notes/);
  handlers.notificationclick({notification:{close(){}},waitUntil:p=>pending=p});await pending;
  assert.equal(opened,'https://cafe.example/');
 });
