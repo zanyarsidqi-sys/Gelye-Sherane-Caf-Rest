@@ -2438,7 +2438,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                     ]),
                                     const SizedBox(height: 20),
                                     Center(child: Column(children: [
-                                      const Text('All rights reserved for Gelye Sherane Café & Restaurant', textAlign: TextAlign.center),
+                                      const Text('All Rights Reserved for Gelye Sherane Café & Rest', textAlign: TextAlign.center),
                                       const Text('Powered by Zanyar Sidqi', textAlign: TextAlign.center),
                                       const Text(
                                         'Version ${AppReleaseVersion.label}',

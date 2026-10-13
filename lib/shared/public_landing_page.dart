@@ -620,7 +620,7 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                 const Divider(),
                 const SizedBox(height: 10),
                 Text(
-                  '© ${DateTime.now().year} $title. All rights reserved.',
+                  'All Rights Reserved for Gelye Sherane Café & Rest',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
