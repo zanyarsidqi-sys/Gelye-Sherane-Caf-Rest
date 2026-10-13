@@ -3,7 +3,7 @@ import re
 root = Path(__file__).resolve().parents[1]
 version = (root/'release/VERSION').read_text().strip()
 assert re.fullmatch(r'\d+\.\d+\.\d+\.\d+', version)
-workflow = (root/'.github/workflows/iphone_web_staging.yml').read_text()
+workflow = (root/'.github/workflows/pages.yml').read_text()
 assert 'release/VERSION' in workflow
 assert '--dart-define="APP_RELEASE_VERSION=$RELEASE_VERSION"' in workflow
 release = (root/'lib/shared/app_release_version.dart').read_text()

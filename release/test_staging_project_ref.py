@@ -1,6 +1,6 @@
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
-workflow=(root/'.github/workflows/iphone_web_staging.yml').read_text()
+workflow=(root/'.github/workflows/pages.yml').read_text()
 client=(root/'web/push_client.js').read_text()
 app=(root/'lib/main.dart').read_text()
 assert '^[a-z0-9]{20}$' in workflow

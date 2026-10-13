@@ -5,7 +5,7 @@ import re
 root=Path(__file__).resolve().parents[1]
 source=(root/'lib/services/pos_heartbeat_service.dart').read_text()
 boot=(root/'tools/bootstrap_native_platforms.sh').read_text()
-ci=(root/'.github/workflows/flutter_validation.yml').read_text()
+ci=(root/'.github/workflows/pages.yml').read_text() + (root/'.github/workflows/validate-1.0.0.2-staging.yml').read_text()
 checks={
  'separate_pos_namespace': "gelye_cafe_rest_pos_device_v3_${user.id}" in source,
  'old_shared_namespace_removed': "'cafe_pos_device_v2_${user.id}'" not in source,
