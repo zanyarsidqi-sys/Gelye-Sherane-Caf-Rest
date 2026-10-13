@@ -7,6 +7,7 @@ on:
       - fix/production-analyze-policy
       - fix/preflight-current-workflow-paths
       - fix/release-version-script-workflow-paths
+      - fix/production-verification-user-agent
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,7 +24,8 @@ jobs:
             test "$GITHUB_REF_NAME" = "fix/release-1.0.0.2-ci-deploy" || \
             test "$GITHUB_REF_NAME" = "fix/production-analyze-policy" || \
             test "$GITHUB_REF_NAME" = "fix/preflight-current-workflow-paths" || \
-            test "$GITHUB_REF_NAME" = "fix/release-version-script-workflow-paths"
+            test "$GITHUB_REF_NAME" = "fix/release-version-script-workflow-paths" || \
+            test "$GITHUB_REF_NAME" = "fix/production-verification-user-agent"
           for f in pubspec.yaml lib/main.dart web/index.html; do
             test -f "$f" || { echo "::error::Missing $f"; exit 1; }
           done

@@ -5,6 +5,7 @@ version = (root/'release/VERSION').read_text().strip()
 assert re.fullmatch(r'\d+\.\d+\.\d+\.\d+', version)
 workflow = (root/'.github/workflows/pages.yml').read_text()
 assert 'release/VERSION' in workflow
+assert '"User-Agent": "GelyeProductionVerifier/1.0"' in workflow, 'Live verifier must send an accepted user agent'
 assert '--dart-define="APP_RELEASE_VERSION=$RELEASE_VERSION"' in workflow
 release = (root/'lib/shared/app_release_version.dart').read_text()
 assert "String.fromEnvironment('APP_RELEASE_VERSION'" in release
