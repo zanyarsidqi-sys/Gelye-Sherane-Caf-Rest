@@ -996,7 +996,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
         appBar: AppBar(
           toolbarHeight: 68,
           titleSpacing: 8,
-          title: const Semantics(
+          title: Semantics(
             label: 'Gelye Sherane Cafè & Rest',
             child: ExcludeSemantics(
               child: Column(
