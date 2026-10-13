@@ -392,7 +392,7 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
     setState(() { _loading = true; _error = null; });
     try {
       final tables = await _db.from('gs_cafe_tables').select(
-        'table_number,capacity,occupied,guests,tourism_mode,cleaning_needed,floor_name,updated_at'
+        'id,table_number,capacity,occupied,guests,tourism_mode,cleaning_needed,floor_name,updated_at'
       ).order('table_number');
       final visits = await _db.rpc('gs_dashboard_active_table_visits');
       final qrRows = await _db.rpc('gs_list_active_table_qr_sessions');
@@ -1473,12 +1473,16 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
 
   Future<void> _manageTableQr(Map<String, dynamic> table) async {
     final number = (table['table_number'] as num).toInt();
+    final tableId = (table['id'] as num).toInt();
+    final visitId = int.tryParse(_visits[number]?['visit_id']?.toString() ?? '');
     setState(() { _busyTable = number; _error = null; });
     try {
       final rows = await _db.rpc('gs_get_table_qr',
         params: {'p_table_number': number});
       final data = (rows as List).cast<Map>().first;
       String token = data['qr_token'].toString();
+      String? visitToken;
+      bool issuingVisitSession = false;
       if (!mounted) return;
       await showDialog<void>(
         context: context,
@@ -1488,28 +1492,80 @@ class _TablesWorkspaceState extends State<_TablesWorkspace> {
             final link = configured
               ? '${_publicMenuUrl.replaceAll(RegExp(r"/+$"), "")}/table?token=${Uri.encodeComponent(token)}'
               : '';
+            final visitLink = configured && visitToken != null
+              ? Uri.parse(link).replace(queryParameters: {
+                  ...Uri.parse(link).queryParameters,
+                  'visit': visitToken!,
+                }).toString()
+              : link;
             return AlertDialog(
               title: Text('Table $number · Customer QR'),
               content: SizedBox(
                 width: 330,
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                child: SingleChildScrollView(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
                   if (configured) ...[
-                    QrImageView(data: link, version: QrVersions.auto, size: 225,
+                    QrImageView(data: visitLink, version: QrVersions.auto, size: 225,
                       backgroundColor: Colors.white),
                     const SizedBox(height: 8),
-                    SelectableText(link, style: const TextStyle(fontSize: 11)),
+                    SelectableText(visitLink, style: const TextStyle(fontSize: 11)),
                   ] else const Text(
                     'Configure CAFE_PUBLIC_MENU_URL with the deployed HTTPS '
                     'customer website before printing or sharing table codes.'),
                   const SizedBox(height: 10),
-                  const Text('This code identifies this table only. '
-                    'Ordering and payments require separate server validation.'),
-                ]),
+                  const Text('The table QR identifies the table. A separate '
+                    'staff-issued visit session is required for customer requests. '
+                    'The server creates no order until staff accepts a request.'),
+                  if (visitToken != null)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text('This visit link expires after 2 hours or when the table visit ends.'),
+                    ),
+                  if (visitId != null) ...[
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: !configured || issuingVisitSession ? null : () async {
+                        update(() => issuingVisitSession = true);
+                        try {
+                          final result = await _db.rpc(
+                            'gs_staff_issue_customer_visit_session',
+                            params: {
+                              'p_table_id': tableId,
+                              'p_visit_id': visitId,
+                            },
+                          );
+                          if (dialogContext.mounted) {
+                            update(() => visitToken = result.toString());
+                          }
+                        } catch (_) {
+                          if (dialogContext.mounted) {
+                            ScaffoldMessenger.of(dialogContext).showSnackBar(
+                              const SnackBar(content: Text(
+                                'Could not authorize this visit. Check that the table is occupied and its visit is open.')),
+                            );
+                          }
+                        } finally {
+                          if (dialogContext.mounted) {
+                            update(() => issuingVisitSession = false);
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.verified_user_outlined),
+                      label: Text(issuingVisitSession
+                          ? 'Preparing visit link…'
+                          : visitToken == null
+                              ? 'Issue customer order session'
+                              : 'Issue a new visit link'),
+                    ),
+                  ] else
+                    const Text('Seat guests first to enable a visit-scoped order session.'),
+                  ]),
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: configured ? () async {
-                    await Clipboard.setData(ClipboardData(text: link));
+                    await Clipboard.setData(ClipboardData(text: visitLink));
                     if (dialogContext.mounted) {
                       ScaffoldMessenger.of(dialogContext).showSnackBar(
                         const SnackBar(content: Text('Table QR link copied')));

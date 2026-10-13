@@ -294,7 +294,9 @@ class _CafeAppState extends State<CafeApp> {
       home: Uri.base.queryParameters.containsKey('motel_room_token') && Uri.base.queryParameters['motel_room_token']!.isNotEmpty
           ? CustomerMotelRoomQrScreen(token: Uri.base.queryParameters['motel_room_token']!)
           : Uri.base.queryParameters.containsKey('token') && Uri.base.queryParameters['token']!.isNotEmpty
-          ? CustomerTableQrMenuScreen(token: Uri.base.queryParameters['token']!)
+          ? CustomerTableQrMenuScreen(
+              token: Uri.base.queryParameters['token']!,
+              visitSessionToken: Uri.base.queryParameters['visit'])
           : _checkingSavedSession
           ? const Scaffold(
               body: Center(
