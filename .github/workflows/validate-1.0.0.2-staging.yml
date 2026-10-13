@@ -5,6 +5,7 @@ on:
       - staging/release-1.0.0.2-recovery
       - fix/release-1.0.0.2-ci-deploy
       - fix/production-analyze-policy
+      - fix/preflight-current-workflow-paths
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,7 +20,8 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-recovery" || \
             test "$GITHUB_REF_NAME" = "fix/release-1.0.0.2-ci-deploy" || \
-            test "$GITHUB_REF_NAME" = "fix/production-analyze-policy"
+            test "$GITHUB_REF_NAME" = "fix/production-analyze-policy" || \
+            test "$GITHUB_REF_NAME" = "fix/preflight-current-workflow-paths"
           for f in pubspec.yaml lib/main.dart web/index.html; do
             test -f "$f" || { echo "::error::Missing $f"; exit 1; }
           done
