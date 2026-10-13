@@ -97,7 +97,7 @@ class _WebsiteSettingsPanelState extends State<WebsiteSettingsPanel> {
   Future<void> _chooseImage({required bool isLogo}) async {
     if (!_canEdit || _saving) return;
     try {
-      final selection = await FilePicker.platform.pickFiles(
+      final selection = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: const ['jpg', 'jpeg', 'png', 'webp'],
         allowMultiple: false,
@@ -451,7 +451,6 @@ class _WebsiteSettingsPanelState extends State<WebsiteSettingsPanel> {
   }
 
   Widget _livePreview(BuildContext context) {
-    final theme = Theme.of(context);
     final Widget image;
     final Widget logoImage;
     if (_heroSelection != null) {

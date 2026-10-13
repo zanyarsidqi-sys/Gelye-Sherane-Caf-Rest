@@ -23,6 +23,8 @@ for field in (
     assert field in panel, f"Website Management does not edit {field}"
 
 assert "file_picker: ^11.0.3" in pubspec
+assert "FilePicker.pickFiles(" in panel
+assert "FilePicker.platform.pickFiles(" not in panel
 assert "withdata: true" in panel.lower()
 assert "10 * 1024 * 1024" in panel
 assert "uploadbinary(" in panel.lower()
