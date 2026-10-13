@@ -367,7 +367,7 @@ class _CafeAppState extends State<CafeApp> {
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Gelye Sherane Cafê & Rest',
+      title: 'Gelye Sherane Cafè & Rest',
       navigatorObservers: <NavigatorObserver>[_footerRouteObserver],
       builder: (context, child) => AppLanguage(
         code: _language,
@@ -974,6 +974,17 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       for (final id in _favoriteSectionIds)
         ...selected.where((section) => section.id == id),
     ];
+    final quickSections = <CafeSection>[
+      for (final id in const [
+        'dashboard',
+        'tables',
+        'table_orders',
+        'motel_orders',
+        'kitchen',
+        'menu',
+      ])
+        ...selected.where((section) => section.id == id),
+    ];
     final filtered = selected
         .where((section) => section.title
             .toLowerCase()
@@ -983,7 +994,38 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       final wide = bounds.maxWidth >= 850;
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Gelye Sherane'),
+          toolbarHeight: 68,
+          titleSpacing: 8,
+          title: const Semantics(
+            label: 'Gelye Sherane Cafè & Rest',
+            child: ExcludeSemantics(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Gelye Sherane',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    'Cafè & Rest',
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: GelyeProfessionalTheme.goldLight,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           actions: [
             IconButton(
                 tooltip: 'Refresh access',
@@ -1039,144 +1081,481 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           Expanded(
               child: RefreshIndicator(
                   onRefresh: _checkAccess,
-                  child: ListView(
-                    padding: const EdgeInsets.all(20),
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(AppLanguage.label(AppLanguage.of(context), 'Your workspace'),
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall),
-                            const SizedBox(height: 6),
-                            const Text('Gelye Sherane Cafê & Rest'),
-                            const SizedBox(height: 16),
-                            Wrap(spacing: 10, runSpacing: 10, children: [
-                              Chip(
-                                avatar: const Icon(Icons.verified_user_outlined,
-                                    size: 18),
-                                label: Text(
-                                    '${selected.length} authorized sections'),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1120),
+                      child: LayoutBuilder(
+                        builder: (context, contentBounds) {
+                          final horizontalPadding =
+                              contentBounds.maxWidth >= 700 ? 28.0 : 16.0;
+                          Widget metric({
+                            required IconData icon,
+                            required String value,
+                            required String label,
+                          }) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.13),
+                                ),
                               ),
-                              Chip(
-                                avatar:
-                                    const Icon(Icons.star_outline, size: 18),
-                                label: Text('${favorites.length} favorites'),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(icon,
+                                      size: 17,
+                                      color: GelyeProfessionalTheme.goldLight),
+                                  const SizedBox(width: 8),
+                                  Text(value,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                      )),
+                                  const SizedBox(width: 5),
+                                  Text(label,
+                                      style: TextStyle(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.82),
+                                        fontSize: 12,
+                                      )),
+                                ],
                               ),
-                            ]),
-                          ],
-                        ),
+                            );
+                          }
+
+                          return ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.fromLTRB(
+                                horizontalPadding, 20, horizontalPadding, 30),
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      GelyeProfessionalTheme.navySoft,
+                                      GelyeProfessionalTheme.navy,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                    color: GelyeProfessionalTheme.gold
+                                        .withValues(alpha: 0.48),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: GelyeProfessionalTheme.navy
+                                          .withValues(alpha: 0.15),
+                                      blurRadius: 22,
+                                      offset: const Offset(0, 9),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: 46,
+                                          height: 46,
+                                          decoration: BoxDecoration(
+                                            color: GelyeProfessionalTheme.gold
+                                                .withValues(alpha: 0.16),
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          child: const Icon(
+                                            Icons.restaurant_rounded,
+                                            color: GelyeProfessionalTheme
+                                                .goldLight,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 13),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                AppLanguage.label(
+                                                    AppLanguage.of(context),
+                                                    'Your workspace'),
+                                                style: const TextStyle(
+                                                  color: GelyeProfessionalTheme
+                                                      .goldLight,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  letterSpacing: 0.8,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              const Text(
+                                                'Gelye Sherane Cafè & Rest',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.w800,
+                                                  height: 1.2,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Staff operations, organized in one place',
+                                                style: TextStyle(
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.76),
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 18),
+                                    Wrap(
+                                      spacing: 9,
+                                      runSpacing: 9,
+                                      children: [
+                                        metric(
+                                          icon: Icons.verified_user_outlined,
+                                          value: '${selected.length}',
+                                          label: selected.length == 1
+                                              ? 'authorized section'
+                                              : 'authorized sections',
+                                        ),
+                                        metric(
+                                          icon: Icons.star_outline_rounded,
+                                          value: '${favorites.length}',
+                                          label: favorites.length == 1
+                                              ? 'favorite'
+                                              : 'favorites',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 26),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      AppLanguage.label(
+                                          AppLanguage.of(context),
+                                          'Quick access'),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                    ),
+                                  ),
+                                  if (quickSections.isNotEmpty)
+                                    Text(
+                                      '${quickSections.length} shortcuts',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              LayoutBuilder(
+                                builder: (context, gridBounds) {
+                                  const gap = 10.0;
+                                  final columns =
+                                      gridBounds.maxWidth >= 850 ? 3 : 2;
+                                  final tileWidth = (gridBounds.maxWidth -
+                                          gap * (columns - 1)) /
+                                      columns;
+                                  return Wrap(
+                                    spacing: gap,
+                                    runSpacing: gap,
+                                    children: [
+                                      for (final section in quickSections)
+                                        SizedBox(
+                                          width: tileWidth,
+                                          child: Card(
+                                            margin: EdgeInsets.zero,
+                                            clipBehavior:
+                                                Clip.antiAlias,
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  _openSection(section),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(12),
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 38,
+                                                      height: 38,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            GelyeProfessionalTheme
+                                                                .gold
+                                                                .withValues(
+                                                                    alpha: 0.14),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons
+                                                            .arrow_outward_rounded,
+                                                        size: 19,
+                                                        color:
+                                                            GelyeProfessionalTheme
+                                                                .gold,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Expanded(
+                                                      child: Text(
+                                                        AppLanguage.label(
+                                                            AppLanguage.of(
+                                                                context),
+                                                            section.title),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          height: 1.2,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              ),
+                              if (favorites.isNotEmpty) ...[
+                                const SizedBox(height: 26),
+                                Row(children: [
+                                  Expanded(
+                                    child: Text(
+                                      'My favorites',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                    ),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: _resetFavorites,
+                                    icon: const Icon(Icons.restart_alt),
+                                    label: const Text('Reset'),
+                                  ),
+                                ]),
+                                const SizedBox(height: 8),
+                                for (final section in favorites)
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 8),
+                                    child: Card(
+                                      margin: EdgeInsets.zero,
+                                      child: ListTile(
+                                        leading: const Icon(
+                                          Icons.star_rounded,
+                                          color:
+                                              GelyeProfessionalTheme.gold,
+                                        ),
+                                        title: Text(AppLanguage.label(
+                                            AppLanguage.of(context),
+                                            section.title)),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              tooltip: 'Move up',
+                                              onPressed: favorites.indexOf(
+                                                          section) ==
+                                                      0
+                                                  ? null
+                                                  : () => _moveFavorite(
+                                                      section.id, -1),
+                                              icon: const Icon(
+                                                  Icons.arrow_upward),
+                                            ),
+                                            IconButton(
+                                              tooltip: 'Move down',
+                                              onPressed: favorites.indexOf(
+                                                          section) ==
+                                                      favorites.length - 1
+                                                  ? null
+                                                  : () => _moveFavorite(
+                                                      section.id, 1),
+                                              icon: const Icon(
+                                                  Icons.arrow_downward),
+                                            ),
+                                          ],
+                                        ),
+                                        onTap: () => _openSection(section),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                              const SizedBox(height: 26),
+                              Text(
+                                AppLanguage.label(AppLanguage.of(context),
+                                    'Find a workspace'),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.w800),
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                decoration: InputDecoration(
+                                  prefixIcon: const Icon(Icons.search_rounded),
+                                  hintText: 'Search authorized sections',
+                                  suffixIcon: _sectionSearch.isEmpty
+                                      ? null
+                                      : IconButton(
+                                          tooltip: 'Clear search',
+                                          onPressed: () => setState(
+                                              () => _sectionSearch = ''),
+                                          icon: const Icon(Icons.close),
+                                        ),
+                                ),
+                                onChanged: (value) =>
+                                    setState(() => _sectionSearch = value),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Sections',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${filtered.length}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              if (filtered.isEmpty)
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerLow,
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outlineVariant,
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    children: [
+                                      Icon(Icons.search_off_rounded),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                            'No matching authorized sections.'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              for (final section in filtered)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(bottom: 8),
+                                  child: Card(
+                                    margin: EdgeInsets.zero,
+                                    child: ListTile(
+                                      leading: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: GelyeProfessionalTheme.gold
+                                              .withValues(alpha: 0.14),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: const Icon(
+                                          Icons.grid_view_rounded,
+                                          color: GelyeProfessionalTheme.gold,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        AppLanguage.label(
+                                            AppLanguage.of(context),
+                                            section.title),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      trailing: IconButton(
+                                        tooltip: _favoriteSectionIds
+                                                .contains(section.id)
+                                            ? 'Remove from favorites'
+                                            : 'Add to favorites',
+                                        icon: Icon(
+                                          _favoriteSectionIds
+                                                  .contains(section.id)
+                                              ? Icons.star_rounded
+                                              : Icons.star_outline_rounded,
+                                          color: _favoriteSectionIds
+                                                  .contains(section.id)
+                                              ? GelyeProfessionalTheme.gold
+                                              : null,
+                                        ),
+                                        onPressed: () =>
+                                            _toggleFavorite(section.id),
+                                      ),
+                                      onTap: () => _openSection(section),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
-                      const SizedBox(height: 22),
-                      Text(AppLanguage.label(AppLanguage.of(context), 'Quick access'),
-                          style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 12),
-                      Wrap(spacing: 10, runSpacing: 10, children: [
-                        for (final id in const [
-                          'dashboard',
-                          'tables',
-                          'table_orders',
-                          'motel_orders',
-                          'kitchen',
-                          'menu'
-                        ])
-                          if (selected.any((section) => section.id == id))
-                            ActionChip(
-                                avatar:
-                                    const Icon(Icons.arrow_outward, size: 18),
-                                label: Text(AppLanguage.label(AppLanguage.of(context), selected
-                                    .firstWhere((section) => section.id == id)
-                                    .title)),
-                                onPressed: () => _openSection(
-                                    selected.firstWhere(
-                                        (section) => section.id == id))),
-                      ]),
-                      if (favorites.isNotEmpty) ...[
-                        const SizedBox(height: 22),
-                        Row(children: [
-                          Expanded(
-                              child: Text('My favorites',
-                                  style:
-                                      Theme.of(context).textTheme.titleLarge)),
-                          TextButton.icon(
-                            onPressed: _resetFavorites,
-                            icon: const Icon(Icons.restart_alt),
-                            label: const Text('Reset'),
-                          ),
-                        ]),
-                        const SizedBox(height: 8),
-                        for (final section in favorites)
-                          ListTile(
-                            leading:
-                                const Icon(Icons.star, color: Colors.amber),
-                            title: Text(AppLanguage.label(AppLanguage.of(context), section.title)),
-                            trailing:
-                                Row(mainAxisSize: MainAxisSize.min, children: [
-                              IconButton(
-                                tooltip: 'Move up',
-                                onPressed: favorites.indexOf(section) == 0
-                                    ? null
-                                    : () => _moveFavorite(section.id, -1),
-                                icon: const Icon(Icons.arrow_upward),
-                              ),
-                              IconButton(
-                                tooltip: 'Move down',
-                                onPressed: favorites.indexOf(section) ==
-                                        favorites.length - 1
-                                    ? null
-                                    : () => _moveFavorite(section.id, 1),
-                                icon: const Icon(Icons.arrow_downward),
-                              ),
-                            ]),
-                            onTap: () => _openSection(section),
-                          ),
-                      ],
-                      const SizedBox(height: 22),
-                      Text(AppLanguage.label(AppLanguage.of(context), 'Find a workspace'),
-                          style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 10),
-                      TextField(
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          hintText: 'Search authorized sections',
-                          border: OutlineInputBorder(),
-                        ),
-                        onChanged: (value) =>
-                            setState(() => _sectionSearch = value),
-                      ),
-                      const SizedBox(height: 14),
-                      Text('Sections (${filtered.length})',
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      if (filtered.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text('No matching authorized sections.'),
-                        ),
-                      for (final section in filtered)
-                        ListTile(
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 8),
-                          leading: const Icon(Icons.grid_view_rounded),
-                          title: Text(AppLanguage.label(AppLanguage.of(context), section.title)),
-                          trailing: IconButton(
-                            tooltip: _favoriteSectionIds.contains(section.id)
-                                ? 'Remove from favorites'
-                                : 'Add to favorites',
-                            icon: Icon(_favoriteSectionIds.contains(section.id)
-                                ? Icons.star
-                                : Icons.star_border),
-                            onPressed: () => _toggleFavorite(section.id),
-                          ),
-                          onTap: () => _openSection(section),
-                        ),
-                    ],
+                    ),
                   ))),
         ]),
         bottomNavigationBar: wide

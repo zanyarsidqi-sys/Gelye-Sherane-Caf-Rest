@@ -1,11 +1,11 @@
 {
-  "name": "Gelye Sherane Cafê & Rest",
-  "short_name": "Cafê & Rest",
+  "name": "Gelye Sherane Cafè & Rest",
+  "short_name": "Cafè & Rest",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0175C2",
   "theme_color": "#0175C2",
-  "description": "Gelye Sherane Cafê & Rest management application",
+  "description": "Gelye Sherane Cafè & Rest management application",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

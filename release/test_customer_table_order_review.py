@@ -9,7 +9,7 @@ TABLES = (ROOT / "lib/sections/tables.dart").read_text()
 ROUTING = (ROOT / "lib/app/cafe_app.dart").read_text()
 STAFF = (ROOT / "lib/shared/staff_table_order_requests_screen.dart").read_text()
 ORDERS = (ROOT / "lib/sections/table_orders.dart").read_text()
-WORKFLOW = (ROOT / ".github/workflows/validate-1.0.0.7-orders.yml").read_text()
+WORKFLOW = (ROOT / ".github/workflows/validate-1.0.0.8-workspace.yml").read_text()
 
 
 class CustomerTableOrderReviewTests(unittest.TestCase):
@@ -68,7 +68,7 @@ class CustomerTableOrderReviewTests(unittest.TestCase):
         self.assertIn("gs_staff_reject_customer_table_order_request", STAFF)
 
     def test_ci_is_staging_only_and_has_no_deploy_step(self):
-        self.assertIn("staging/release-1.0.0.7-orders", WORKFLOW)
+        self.assertIn("staging/release-1.0.0.8-workspace", WORKFLOW)
         self.assertIn("flutter analyze --no-fatal-infos", WORKFLOW)
         self.assertIn("flutter test", WORKFLOW)
         self.assertNotIn("deploy-pages", WORKFLOW)
