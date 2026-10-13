@@ -33,12 +33,24 @@ class CafeApp extends StatefulWidget {
 
 class _CafeFooterRouteObserver extends NavigatorObserver {
   static const dashboardRouteName = '/employee-dashboard';
+  static const publicLandingRouteName = '/public-landing';
+  bool rootIsPublicLanding = false;
 
   final ValueNotifier<bool> showGlobalFooter = ValueNotifier<bool>(true);
 
   void _updateFor(Route<dynamic>? route) {
     if (route is! PageRoute<dynamic>) return;
-    final shouldShow = route?.settings.name != dashboardRouteName;
+    final routeName = route.settings.name;
+    final hasCustomerEntryToken =
+        Uri.base.queryParameters['token']?.isNotEmpty == true ||
+        Uri.base.queryParameters['motel_room_token']?.isNotEmpty == true;
+    final isPublicLanding =
+        routeName == publicLandingRouteName ||
+        (routeName == Navigator.defaultRouteName &&
+            rootIsPublicLanding &&
+            !hasCustomerEntryToken);
+    final shouldShow =
+        routeName != dashboardRouteName && !isPublicLanding;
     if (showGlobalFooter.value != shouldShow) {
       showGlobalFooter.value = shouldShow;
     }
@@ -322,6 +334,13 @@ class _CafeAppState extends State<CafeApp> {
   }
 
   Widget _buildPublicHome(BuildContext homeContext) {
+    _footerRouteObserver.rootIsPublicLanding = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !homeContext.mounted) return;
+      if (ModalRoute.of(homeContext)?.isCurrent == true) {
+        _footerRouteObserver.showGlobalFooter.value = false;
+      }
+    });
     return PublicLandingPage(
       onToggleTheme: _toggleTheme,
       isDark: _dark,
@@ -343,6 +362,9 @@ class _CafeAppState extends State<CafeApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (_checkingSavedSession || _restoredSections.isNotEmpty) {
+      _footerRouteObserver.rootIsPublicLanding = false;
+    }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Gelye Sherane Cafê & Rest',
@@ -502,7 +524,12 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     });
     widget.onAuthorizationLost();
     navigator.pushAndRemoveUntil<void>(
-      MaterialPageRoute<void>(builder: widget.publicHomeBuilder),
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(
+          name: _CafeFooterRouteObserver.publicLandingRouteName,
+        ),
+        builder: widget.publicHomeBuilder,
+      ),
       (_) => false,
     );
     navigator.push<void>(
@@ -810,7 +837,12 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     if (mounted) {
       widget.onAuthorizationLost();
       Navigator.of(context, rootNavigator: true).pushAndRemoveUntil<void>(
-        MaterialPageRoute<void>(builder: widget.publicHomeBuilder),
+        MaterialPageRoute<void>(
+          settings: const RouteSettings(
+            name: _CafeFooterRouteObserver.publicLandingRouteName,
+          ),
+          builder: widget.publicHomeBuilder,
+        ),
         (_) => false,
       );
     }

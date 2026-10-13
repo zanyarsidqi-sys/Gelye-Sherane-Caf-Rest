@@ -9,7 +9,7 @@ typedef PublicContactLoader = Future<Map<String, dynamic>?> Function();
 /// Public entry page for customers and employees.
 ///
 /// Customer actions route to the existing public request flows. Contact data
-/// comes only from the deliberately public, contact-only Supabase RPC.
+/// and image paths come only from their narrow, allowlisted public RPCs.
 class PublicLandingPage extends StatefulWidget {
   const PublicLandingPage({
     super.key,
@@ -51,11 +51,43 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
     final response = await Supabase.instance.client.rpc(
       'gs_public_website_contact',
     );
-    if (response is Map) return Map<String, dynamic>.from(response);
+    Map<String, dynamic>? data;
+    if (response is Map) data = Map<String, dynamic>.from(response);
     if (response is List && response.isNotEmpty && response.first is Map) {
-      return Map<String, dynamic>.from(response.first as Map);
+      data = Map<String, dynamic>.from(response.first as Map);
     }
-    return null;
+    if (data == null) return null;
+
+    // Keep public contact fields and public brand images on separate,
+    // allowlisted RPCs. Never read the private website settings table publicly.
+    try {
+      final brandingResponse = await Supabase.instance.client.rpc(
+        'gs_public_website_branding',
+      );
+      Map<String, dynamic>? branding;
+      if (brandingResponse is Map) {
+        branding = Map<String, dynamic>.from(brandingResponse);
+      } else if (brandingResponse is List &&
+          brandingResponse.isNotEmpty &&
+          brandingResponse.first is Map) {
+        branding = Map<String, dynamic>.from(brandingResponse.first as Map);
+      }
+      if (branding != null) {
+        final storage =
+            Supabase.instance.client.storage.from('cafe-website-assets');
+        final logoPath = _read(branding, 'logo_path');
+        final heroPath = _read(branding, 'hero_path');
+        if (logoPath.isNotEmpty) {
+          data['logo_image_url'] = storage.getPublicUrl(logoPath);
+        }
+        if (heroPath.isNotEmpty) {
+          data['hero_image_url'] = storage.getPublicUrl(heroPath);
+        }
+      }
+    } catch (error) {
+      debugPrint('Public website branding unavailable: $error');
+    }
+    return data;
   }
 
   String _label(BuildContext context, String english) =>
@@ -71,10 +103,45 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
-        title: const Text(
-          'Gelye Sherane Café & Rest',
-          overflow: TextOverflow.ellipsis,
+        title: FutureBuilder<Map<String, dynamic>?>(
+          future: _contactFuture,
+          builder: (context, snapshot) {
+            final data = snapshot.data ?? const <String, dynamic>{};
+            final logoUrl = _read(data, 'logo_image_url');
+            final title = _read(data, 'business_name');
+            return Row(
+              children: [
+                if (logoUrl.isNotEmpty) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      logoUrl,
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          const Icon(Icons.restaurant, size: 22),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Text(
+                    title.isEmpty ? 'Gelye Sherane Café & Rest' : title,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Refresh website content',
+            onPressed: () => setState(() => _contactFuture = _loadContact()),
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
       ),
       body: DecoratedBox(
         decoration: BoxDecoration(
@@ -132,6 +199,8 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                       _serviceCards(context),
                       const SizedBox(height: 32),
                       _contactSection(context),
+                      const SizedBox(height: 28),
+                      _websiteFooter(context),
                     ],
                   ),
                 ),
@@ -173,8 +242,26 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
   }
 
   Widget _hero(BuildContext context, {required bool isWide}) {
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _contactFuture,
+      builder: (context, snapshot) => _heroContent(
+        context,
+        isWide: isWide,
+        website: snapshot.data ?? const <String, dynamic>{},
+      ),
+    );
+  }
+
+  Widget _heroContent(
+    BuildContext context, {
+    required bool isWide,
+    required Map<String, dynamic> website,
+  }) {
     final label = (String text) => _label(context, text);
     final headlineSize = isWide ? 42.0 : 33.0;
+    final websiteName = _read(website, 'business_name');
+    final websiteDescription = _read(website, 'description');
+    final heroImageUrl = _read(website, 'hero_image_url');
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -198,6 +285,25 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
       ),
       child: Stack(
         children: [
+          if (heroImageUrl.isNotEmpty)
+            Positioned.fill(
+              child: Image.network(
+                heroImageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: AlignmentDirectional.centerStart,
+                  end: AlignmentDirectional.centerEnd,
+                  colors: [Color(0xE5071D31), Color(0x48071D31)],
+                ),
+              ),
+            ),
+          ),
           Positioned(
             right: isWide ? 100 : -65,
             top: -95,
@@ -238,7 +344,9 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    label('Good food. Warm moments.'),
+                    websiteName.isEmpty
+                        ? label('Gelye Sherane Café & Restaurant')
+                        : websiteName,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: headlineSize,
@@ -249,9 +357,11 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    label(
-                      'Browse the menu, reserve a table, or order online. Our team will confirm requests.',
-                    ),
+                    websiteDescription.isEmpty
+                        ? label(
+                            'Browse the menu, reserve a table, or order online. Our team will confirm requests.',
+                          )
+                        : websiteDescription,
                     style: const TextStyle(
                       color: Color(0xFFE5ECF1),
                       fontSize: 16,
@@ -492,6 +602,44 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
       ),
     );
   }
+
+  Widget _websiteFooter(BuildContext context) => FutureBuilder<
+      Map<String, dynamic>?>(
+        future: _contactFuture,
+        builder: (context, snapshot) {
+          final data = snapshot.data ?? const <String, dynamic>{};
+          final businessName = _read(data, 'business_name');
+          final title = businessName.isEmpty
+              ? 'Gelye Sherane Café & Restaurant'
+              : businessName;
+          final theme = Theme.of(context);
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Column(
+              children: [
+                const Divider(),
+                const SizedBox(height: 10),
+                Text(
+                  '© ${DateTime.now().year} $title. All rights reserved.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Powered by Zanyar Sidqi',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
 
   String _read(Map<String, dynamic> data, String key) =>
       data[key]?.toString().trim() ?? '';
