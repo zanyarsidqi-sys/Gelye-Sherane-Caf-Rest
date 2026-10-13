@@ -8,6 +8,9 @@ migration = (
 ).read_text().lower()
 pubspec = (root / "pubspec.yaml").read_text()
 section = (root / "lib/sections/websites_management.dart").read_text()
+workflow = (
+    root / ".github/workflows/validate-1.0.0.7-orders.yml"
+).read_text()
 
 for field in (
     "website_logo_path",
@@ -40,6 +43,7 @@ assert "gs_public_website_contact" in landing
 assert "gs_public_website_branding" in landing
 assert "Powered by Zanyar Sidqi" in landing
 assert "cafe_website_settings').select" not in landing
+assert "supabase/migrations/20261013_1504_website_brand_assets.sql" in workflow
 assert "Expanded(child: TabBarView" in section
 assert "WebsiteSettingsPanel()" in section
 assert "SingleChildScrollView(child: WebsiteSettingsPanel())" not in section
