@@ -607,7 +607,6 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
       Map<String, dynamic>?>(
         future: _contactFuture,
         builder: (context, snapshot) {
-          final data = snapshot.data ?? const <String, dynamic>{};
           final theme = Theme.of(context);
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
