@@ -65,7 +65,7 @@ jobs:
         env:
           STAGING_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
           STAGING_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.STAGING_SUPABASE_EXPECTED_PROJECT_REF }}
-          STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
           PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF }}
         run: |
           set -euo pipefail
@@ -73,7 +73,7 @@ jobs:
             echo "available=false" >> "$GITHUB_OUTPUT"
             {
               echo "## Staging build not produced"
-              echo "Add repository Actions variables \`STAGING_SUPABASE_URL\` and \`STAGING_SUPABASE_EXPECTED_PROJECT_REF\`, plus secret \`STAGING_SUPABASE_ANON_KEY\`."
+              echo "Add repository Actions variables \`STAGING_SUPABASE_URL\`, \`STAGING_SUPABASE_EXPECTED_PROJECT_REF\`, and \`STAGING_SUPABASE_ANON_KEY\`."
               echo "No artifact was built because the only configured Supabase project is production."
             } >> "$GITHUB_STEP_SUMMARY"
             echo "::notice::Skipping staging artifact: dedicated staging Supabase settings are not configured."
@@ -89,7 +89,7 @@ jobs:
         env:
           STAGING_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
           STAGING_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.STAGING_SUPABASE_EXPECTED_PROJECT_REF }}
-          STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
         run: |
           flutter build web --release \
             --dart-define="SUPABASE_URL=$STAGING_SUPABASE_URL" \

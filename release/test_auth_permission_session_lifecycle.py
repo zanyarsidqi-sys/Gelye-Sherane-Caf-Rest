@@ -52,6 +52,8 @@ assert "--dart-define-from-file=config/supabase.public.json" not in staging_work
 assert "STAGING_SUPABASE_URL" in staging_workflow
 assert "STAGING_SUPABASE_EXPECTED_PROJECT_REF" in staging_workflow
 assert "STAGING_SUPABASE_ANON_KEY" in staging_workflow
+assert "STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}" in staging_workflow
+assert "secrets.STAGING_SUPABASE_ANON_KEY" not in staging_workflow
 assert 'STAGING_SUPABASE_EXPECTED_PROJECT_REF" != "$PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF"' in staging_workflow
 assert staging_workflow.count(
     "if: steps.staging_config.outputs.available == 'true'"
