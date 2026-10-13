@@ -68,6 +68,8 @@ jobs:
           [[ -n "$PRODUCTION_WEB_PUSH_PUBLIC_KEY" ]] || { echo "::error::Missing production Web Push public key."; exit 1; }
           printf 'RELEASE_VERSION=%s\n' "$RELEASE_VERSION" >> "$GITHUB_ENV"
           printf 'release_version=%s\n' "$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Verify production public key and email authentication
+        run: python3 tools/check_auth_configuration.py
       - name: Prevent duplicate or downgrade deployment
         shell: bash
         run: |

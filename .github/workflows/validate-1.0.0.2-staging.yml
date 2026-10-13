@@ -2,6 +2,7 @@ name: Validate Flutter 1.0.0.2 recovery
 on:
   push:
     branches:
+      - fix/auth-production-key
       - staging/release-1.0.0.2-recovery
       - fix/release-1.0.0.2-ci-deploy
       - fix/production-analyze-policy
@@ -20,7 +21,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-recovery" || \
+          test "$GITHUB_REF_NAME" = "fix/auth-production-key" || \
+            test "$GITHUB_REF_NAME" = "staging/release-1.0.0.2-recovery" || \
             test "$GITHUB_REF_NAME" = "fix/release-1.0.0.2-ci-deploy" || \
             test "$GITHUB_REF_NAME" = "fix/production-analyze-policy" || \
             test "$GITHUB_REF_NAME" = "fix/preflight-current-workflow-paths" || \
@@ -60,7 +62,13 @@ jobs:
       - name: Run Flutter tests
         run: flutter test
       - name: Compile Flutter web
-        run: flutter build web --release
+        run: flutter build web --release --dart-define-from-file=config/supabase.public.json --dart-define="APP_RELEASE_VERSION=$(cat release/VERSION)"
+      - name: Verify production key without logging in or deploying
+        env:
+          PRODUCTION_SUPABASE_URL: ${{ vars.PRODUCTION_SUPABASE_URL }}
+          PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF }}
+          PRODUCTION_SUPABASE_ANON_KEY: ${{ secrets.PRODUCTION_SUPABASE_ANON_KEY }}
+        run: python3 tools/check_auth_configuration.py
       - name: Verify compiled web files
         run: |
           test -s build/web/index.html

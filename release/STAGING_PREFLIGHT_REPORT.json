@@ -1,10 +1,11 @@
 {
-  "candidate_version": "1.0.0.2",
+  "candidate_version": "1.0.0.4",
   "source_checks": {
     "version_semver": true,
     "footer_single_source_placement": true,
     "footer_uses_release_configuration": true,
     "ci_release_version_build": true,
+    "ci_production_manual_dispatch": true,
     "ci_staging_artifact": true,
     "push_service_worker": true,
     "push_client_subscription": true,
