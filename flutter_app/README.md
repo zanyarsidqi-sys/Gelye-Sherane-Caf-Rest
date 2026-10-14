@@ -7,9 +7,10 @@ To enable the first deployment, set **Settings > Pages > Build and deployment > 
 
 ## Cafe website
 
-The app includes a responsive cafe landing page, menu highlights, a Supabase
-email/password staff sign-in, an administrator-only staff account form, and a
-reservation form preview. Reservations are not sent or stored.
+The app includes a responsive cafe landing page, menu highlights, Supabase
+email/password sign-in with authenticator-app MFA, an administrator-only staff
+account form, and a reservation form preview. Reservations are not sent or
+stored.
 
 ## Configure staff administration
 
@@ -24,6 +25,12 @@ SQL Editor, run `supabase/migrations/20261015000000_staff_profiles.sql`, replace
 user's email, and run the bootstrap SQL once. This one-time step grants that
 existing account the admin role; signing in by itself does not grant admin
 access.
+
+On first sign-in, the app enrolls an authenticator-app factor and requires a
+current six-digit TOTP before showing staff access. Keep the enrollment key
+private and save it in an authenticator app. A fixed shared entrance code is
+not used: it would be exposed in browser code and would not provide individual
+second-factor security. Enable TOTP MFA for the Supabase project.
 
 Deploy the account-creation function with the Supabase CLI, linked to the same
 project:

@@ -1170,13 +1170,18 @@ class StaffSignInDialog extends StatefulWidget {
 
 class _StaffSignInDialogState extends State<StaffSignInDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _mfaFormKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _mfaCodeController = TextEditingController();
   final _newStaffEmailController = TextEditingController();
   final _newStaffPasswordController = TextEditingController();
   String? _error;
   String? _staffCreatedMessage;
+  String? _mfaFactorId;
+  String? _mfaEnrollmentSecret;
   bool? _isAdmin;
+  bool _mfaPending = false;
   bool _isLoadingRole = false;
   bool _isSubmitting = false;
   bool _showCreateStaffForm = false;
@@ -1185,7 +1190,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
   void initState() {
     super.initState();
     if (_signedInEmail != null) {
-      unawaited(_loadStaffRole());
+      unawaited(_continueAuthenticatedSession());
     }
   }
 
@@ -1198,9 +1203,115 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _mfaCodeController.dispose();
     _newStaffEmailController.dispose();
     _newStaffPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _continueAuthenticatedSession() async {
+    final auth = Supabase.instance.client.auth;
+    final assurance = auth.mfa.getAuthenticatorAssuranceLevel();
+    if (assurance.currentLevel == AuthenticatorAssuranceLevels.aal2) {
+      if (mounted) setState(() => _mfaPending = false);
+      await _loadStaffRole();
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _mfaPending = true;
+      _error = null;
+    });
+    try {
+      final factors = await auth.mfa.listFactors();
+      if (factors.totp.isNotEmpty) {
+        setState(() => _mfaFactorId = factors.totp.first.id);
+      } else {
+        final enrollment = await auth.mfa.enroll(
+          factorType: FactorType.totp,
+          issuer: 'Gelye Sherane Cafe',
+          friendlyName: 'Gelye Sherane staff sign-in',
+        );
+        final totp = enrollment.totp;
+        if (totp == null) {
+          throw const AuthException(
+            'Supabase did not return authenticator enrollment details.',
+          );
+        }
+        if (!mounted) return;
+        setState(() {
+          _mfaFactorId = enrollment.id;
+          _mfaEnrollmentSecret = totp.secret;
+        });
+      }
+    } on AuthException {
+      if (mounted) {
+        setState(() {
+          _error =
+              'Could not set up authenticator verification. Check that '
+              'authenticator-app MFA is enabled for this Supabase project.';
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _error =
+              'Could not reach the authenticator service. Check your '
+              'connection and try again.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _verifyMfaCode() async {
+    if (!_mfaFormKey.currentState!.validate()) return;
+    final factorId = _mfaFactorId;
+    if (factorId == null) {
+      setState(() {
+        _error = 'Authenticator setup is missing. Sign out and sign in again.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    try {
+      await Supabase.instance.client.auth.mfa.challengeAndVerify(
+        factorId: factorId,
+        code: _mfaCodeController.text.trim(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _mfaFactorId = null;
+        _mfaEnrollmentSecret = null;
+        _mfaPending = false;
+        _mfaCodeController.clear();
+      });
+      await _loadStaffRole();
+    } on AuthException {
+      if (mounted) {
+        setState(() {
+          _error =
+              'That authenticator code was not accepted. Enter the current '
+              'six-digit code and try again.';
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _error =
+              'Could not verify the authenticator code. Check your '
+              'connection and try again.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   Future<void> _loadStaffRole() async {
@@ -1259,12 +1370,14 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
         });
       } else {
         setState(() {});
-        await _loadStaffRole();
+        await _continueAuthenticatedSession();
       }
     } on AuthException {
       if (mounted) {
         setState(() {
-          _error = 'Sign-in failed. Check your email and password and try again.';
+          _error =
+              'Sign-in or authenticator setup failed. Check your credentials '
+              'and MFA settings, then try again.';
         });
       }
     } on Exception {
@@ -1291,6 +1404,10 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
           _error = null;
           _staffCreatedMessage = null;
           _showCreateStaffForm = false;
+          _mfaFactorId = null;
+          _mfaEnrollmentSecret = null;
+          _mfaPending = false;
+          _mfaCodeController.clear();
         });
       }
     } on AuthException {
@@ -1375,16 +1492,46 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
           child: !widget.supabaseConfigured
               ? _configurationMessage()
               : signedInEmail != null
-                  ? _signedInContent(signedInEmail)
+                  ? _mfaPending
+                      ? _mfaFactorId != null
+                          ? _mfaVerificationForm()
+                          : _mfaSetupError()
+                      : _signedInContent(signedInEmail)
                   : _signInForm(),
         ),
       ),
       actions: [
         TextButton(
-          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: Text(signedInEmail == null ? 'Close' : 'Done'),
+          onPressed: _isSubmitting
+              ? null
+              : _mfaPending
+                  ? _signOut
+                  : () => Navigator.of(context).pop(),
+          child: Text(
+            signedInEmail == null
+                ? 'Close'
+                : _mfaPending
+                    ? 'Sign out'
+                    : 'Done',
+          ),
         ),
-        if (widget.supabaseConfigured && signedInEmail != null)
+        if (widget.supabaseConfigured &&
+            signedInEmail != null &&
+            _mfaPending &&
+            _mfaFactorId != null)
+          FilledButton(
+            onPressed: _isSubmitting ? null : _verifyMfaCode,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Verify code'),
+          ),
+        if (widget.supabaseConfigured &&
+            signedInEmail != null &&
+            !_mfaPending)
           FilledButton(
             onPressed: _isSubmitting ? null : _signOut,
             child: _isSubmitting
@@ -1472,6 +1619,82 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
             'administrator must be assigned by the project owner.',
             style: TextStyle(color: _muted, height: 1.45),
           ),
+        if (_error != null) ...[
+          const SizedBox(height: 12),
+          _AuthErrorMessage(_error!),
+        ],
+      ],
+    );
+  }
+
+  Widget _mfaVerificationForm() {
+    return Form(
+      key: _mfaFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            _mfaEnrollmentSecret == null
+                ? 'Enter the current code from your authenticator app.'
+                : 'Add this account to an authenticator app, then enter its '
+                    'current code to finish setup.',
+            style: const TextStyle(color: _muted, height: 1.45),
+          ),
+          if (_mfaEnrollmentSecret case final secret?) ...[
+            const SizedBox(height: 12),
+            const Text(
+              'Account setup key',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            SelectableText(secret),
+            const SizedBox(height: 8),
+            const Text(
+              'Keep this setup key private. After setup, use the rotating '
+              'six-digit code from your authenticator app.',
+              style: TextStyle(color: _muted, height: 1.4),
+            ),
+          ],
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _mfaCodeController,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            autofillHints: const [AutofillHints.oneTimeCode],
+            maxLength: 6,
+            decoration: const InputDecoration(
+              labelText: 'Authenticator code',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.security),
+              counterText: '',
+            ),
+            validator: (value) =>
+                value == null || !RegExp(r'^\d{6}$').hasMatch(value.trim())
+                    ? 'Enter the six-digit authenticator code'
+                    : null,
+            onFieldSubmitted: (_) =>
+                _isSubmitting ? null : _verifyMfaCode(),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            _AuthErrorMessage(_error!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _mfaSetupError() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          'Authenticator verification is required before staff access. The '
+          'authenticator setup could not be prepared. Sign out and try again.',
+          style: TextStyle(color: _muted, height: 1.45),
+        ),
         if (_error != null) ...[
           const SizedBox(height: 12),
           _AuthErrorMessage(_error!),
