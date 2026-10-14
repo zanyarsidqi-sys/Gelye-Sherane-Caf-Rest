@@ -9,6 +9,8 @@ assert '"User-Agent": "GelyeProductionVerifier/1.0"' in workflow, 'Live verifier
 assert '--dart-define="APP_RELEASE_VERSION=$RELEASE_VERSION"' in workflow
 release = (root/'lib/shared/app_release_version.dart').read_text()
 assert "String.fromEnvironment('APP_RELEASE_VERSION'" in release
-assert 'AppReleaseVersion.label' in (root/'lib/app/cafe_app.dart').read_text()
-assert 'AppReleaseVersion.label' in (root/'lib/screens/dashboard/dashboard_screen.dart').read_text()
+assert 'AppReleaseVersion.label' in (root/'lib/shared/release_update_notice.dart').read_text()
+assert 'AppReleaseVersion.label' in (root/'lib/shared/notification_center_panel.dart').read_text()
+assert 'AppReleaseVersion.label' not in (root/'lib/app/cafe_app.dart').read_text()
+assert 'AppReleaseVersion.label' not in (root/'lib/screens/dashboard/dashboard_screen.dart').read_text()
 print('Release version wiring: PASS')

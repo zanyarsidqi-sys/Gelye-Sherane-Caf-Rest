@@ -41,4 +41,34 @@ void main() {
       isFalse,
     );
   });
+
+  test('unavailable cards stay visible only within an authorized section', () {
+    expect(
+      dashboardMetricCardIsVisible(
+        allowedSections: const {'dashboard', 'tables'},
+        hasMetric: false,
+        showUnavailable: true,
+        section: 'tables',
+      ),
+      isTrue,
+    );
+    expect(
+      dashboardMetricCardIsVisible(
+        allowedSections: const {'dashboard'},
+        hasMetric: false,
+        showUnavailable: true,
+        section: 'tables',
+      ),
+      isFalse,
+    );
+    expect(
+      dashboardMetricCardIsVisible(
+        allowedSections: const {'dashboard', 'tables'},
+        hasMetric: false,
+        showUnavailable: false,
+        section: 'tables',
+      ),
+      isFalse,
+    );
+  });
 }

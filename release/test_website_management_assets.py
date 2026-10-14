@@ -43,11 +43,12 @@ assert "grant execute on function public.gs_public_website_branding()" in migrat
 # employee-protected settings table.
 assert "gs_public_website_contact" in landing
 assert "gs_public_website_branding" in landing
-assert "Powered by Zanyar Sidqi" in landing
+assert "_websiteFooter" not in landing
+assert "Powered by Zanyar Sidqi" not in landing
 assert "cafe_website_settings').select" not in landing
 assert "supabase/migrations/20261013_1504_website_brand_assets.sql" in workflow
 assert "Expanded(child: TabBarView" in section
 assert "WebsiteSettingsPanel()" in section
 assert "SingleChildScrollView(child: WebsiteSettingsPanel())" not in section
 
-print("Website photo upload, contact editing, and public footer contract: PASS")
+print("Website photo/contact management and footer removal: PASS")

@@ -2,8 +2,6 @@ import '../services/browser_push.dart';
 import '../services/device_session_preference.dart';
 import 'package:flutter/material.dart';
 import '../shared/gelye_professional_theme.dart';
-import '../shared/app_release_version.dart';
-import '../shared/gelye_company_footer.dart';
 import '../shared/release_update_notice.dart';
 import '../shared/public_landing_page.dart';
 import 'dart:async';
@@ -31,52 +29,9 @@ class CafeApp extends StatefulWidget {
   State<CafeApp> createState() => _CafeAppState();
 }
 
-class _CafeFooterRouteObserver extends NavigatorObserver {
-  static const dashboardRouteName = '/employee-dashboard';
-  static const publicLandingRouteName = '/public-landing';
-  bool rootIsPublicLanding = false;
-
-  final ValueNotifier<bool> showGlobalFooter = ValueNotifier<bool>(true);
-
-  void _updateFor(Route<dynamic>? route) {
-    if (route is! PageRoute<dynamic>) return;
-    final routeName = route.settings.name;
-    final hasCustomerEntryToken =
-        Uri.base.queryParameters['token']?.isNotEmpty == true ||
-        Uri.base.queryParameters['motel_room_token']?.isNotEmpty == true;
-    final isPublicLanding =
-        routeName == publicLandingRouteName ||
-        (routeName == Navigator.defaultRouteName &&
-            rootIsPublicLanding &&
-            !hasCustomerEntryToken);
-    final shouldShow =
-        routeName != dashboardRouteName && !isPublicLanding;
-    if (showGlobalFooter.value != shouldShow) {
-      showGlobalFooter.value = shouldShow;
-    }
-  }
-
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _updateFor(route);
-  }
-
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _updateFor(previousRoute);
-  }
-
-  @override
-  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    _updateFor(newRoute);
-  }
-}
-
 class _CafeAppState extends State<CafeApp> {
   bool _checkingSavedSession = true;
-  String _installedVersion = 'Loading…';
   Set<String> _restoredSections = <String>{};
-  final _footerRouteObserver = _CafeFooterRouteObserver();
 
   static const _languageKey = 'gelye_cafe_rest_language_v1';
   String _language = 'en';
@@ -135,14 +90,9 @@ class _CafeAppState extends State<CafeApp> {
   @override
   void initState() {
     super.initState();
-    _loadInstalledVersion();
     _loadAppearance();
     _loadLanguage();
     _restoreSavedSession();
-  }
-
-  void _loadInstalledVersion() {
-    _installedVersion = AppReleaseVersion.label;
   }
 
   Future<void> _loadLanguage() async {
@@ -175,12 +125,6 @@ class _CafeAppState extends State<CafeApp> {
     } catch (error) {
       debugPrint('Could not save language preference: $error');
     }
-  }
-
-  @override
-  void dispose() {
-    _footerRouteObserver.showGlobalFooter.dispose();
-    super.dispose();
   }
 
   Widget _globalLanguageSelector() => Material(
@@ -370,13 +314,6 @@ class _CafeAppState extends State<CafeApp> {
   }
 
   Widget _buildPublicHome(BuildContext homeContext) {
-    _footerRouteObserver.rootIsPublicLanding = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !homeContext.mounted) return;
-      if (ModalRoute.of(homeContext)?.isCurrent == true) {
-        _footerRouteObserver.showGlobalFooter.value = false;
-      }
-    });
     return PublicLandingPage(
       onToggleTheme: _toggleTheme,
       isDark: _dark,
@@ -396,13 +333,9 @@ class _CafeAppState extends State<CafeApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (_checkingSavedSession || _restoredSections.isNotEmpty) {
-      _footerRouteObserver.rootIsPublicLanding = false;
-    }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Gelye Sherane Cafè & Rest',
-      navigatorObservers: <NavigatorObserver>[_footerRouteObserver],
       builder: (context, child) => AppLanguage(
         code: _language,
         child: Directionality(
@@ -419,12 +352,6 @@ class _CafeAppState extends State<CafeApp> {
           child: SafeArea(top: false, child: _globalLanguageSelector()),
         ),
       ])),
-        ValueListenableBuilder<bool>(
-          valueListenable: _footerRouteObserver.showGlobalFooter,
-          builder: (context, showFooter, _) => showFooter
-              ? GelyeCompanyFooter(version: _installedVersion)
-              : const SizedBox.shrink(),
-        ),
       ]))),
       theme: GelyeProfessionalTheme.light,
       darkTheme: GelyeProfessionalTheme.dark,
@@ -587,7 +514,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     navigator.pushAndRemoveUntil<void>(
       MaterialPageRoute<void>(
         settings: const RouteSettings(
-          name: _CafeFooterRouteObserver.publicLandingRouteName,
+          name: '/public-landing',
         ),
         builder: widget.publicHomeBuilder,
       ),
@@ -937,7 +864,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       Navigator.of(context, rootNavigator: true).pushAndRemoveUntil<void>(
         MaterialPageRoute<void>(
           settings: const RouteSettings(
-            name: _CafeFooterRouteObserver.publicLandingRouteName,
+            name: '/public-landing',
           ),
           builder: widget.publicHomeBuilder,
         ),
@@ -977,7 +904,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       await Navigator.of(context).push<void>(
         MaterialPageRoute<void>(
           settings: const RouteSettings(
-            name: _CafeFooterRouteObserver.dashboardRouteName,
+            name: '/employee-dashboard',
           ),
           builder: (_) => _ProtectedManagementSection(
             sectionId: 'dashboard',
@@ -1125,6 +1052,99 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
             .toLowerCase()
             .contains(_sectionSearch.trim().toLowerCase()))
         .toList();
+    IconData sectionIcon(String id) => switch (id) {
+          'dashboard' => Icons.dashboard_customize_rounded,
+          'tables' => Icons.table_restaurant_rounded,
+          'table_orders' => Icons.receipt_long_rounded,
+          'motel_orders' => Icons.hotel_rounded,
+          'kitchen' => Icons.soup_kitchen_rounded,
+          'menu' => Icons.restaurant_menu_rounded,
+          'products_inventory' => Icons.inventory_2_rounded,
+          'customers' => Icons.people_alt_rounded,
+          'cost' => Icons.request_quote_outlined,
+          'revenue' => Icons.trending_up_rounded,
+          'invoices_payments' => Icons.receipt_long_outlined,
+          'employees' => Icons.badge_outlined,
+          'maintenance' => Icons.build_circle_outlined,
+          'notifications' => Icons.notifications_active_outlined,
+          'reports' => Icons.assessment_outlined,
+          'backup_restore' => Icons.backup_outlined,
+          'settings_rules' => Icons.tune_rounded,
+          'analytics' => Icons.insights_rounded,
+          'action_center' => Icons.priority_high_rounded,
+          'pay_now' => Icons.point_of_sale_rounded,
+          'discount_management' => Icons.local_offer_outlined,
+          'payments_management' => Icons.payments_outlined,
+          'credit_management' => Icons.credit_card_outlined,
+          'device_layout_mode' => Icons.devices_outlined,
+          'appearance_dark_mode' => Icons.palette_outlined,
+          'dictionary_language_management' => Icons.translate_rounded,
+          'websites_management' => Icons.public_rounded,
+          'general_information' => Icons.info_outline_rounded,
+          'invoice_design_customization' => Icons.design_services_outlined,
+          'security_access_control' => Icons.security_rounded,
+          'offline_mode_synchronization' => Icons.sync_rounded,
+          'app_publishing_updates' => Icons.system_update_alt_rounded,
+          'system_health_monitoring' => Icons.monitor_heart_outlined,
+          'test_mode_real_mode' => Icons.science_outlined,
+          'nargile_management' => Icons.smoking_rooms,
+          _ => Icons.event_available_rounded,
+        };
+    String sectionHint(String id) => switch (id) {
+          'dashboard' => 'Overview & reports',
+          'tables' => 'Table map, reservations & seating',
+          'table_orders' => 'Customer order management',
+          'motel_orders' => 'Room service & delivery',
+          'kitchen' => 'Preparation queue & dispatch',
+          'menu' => 'Menus, categories & pricing',
+          'products_inventory' => 'Stock, purchasing & suppliers',
+          'customers' => 'Guest profiles & history',
+          'cost' => 'Costs, waste & purchasing',
+          'revenue' => 'Verified revenue overview',
+          'invoices_payments' => 'Invoices & payment records',
+          'employees' => 'Staff, roles & attendance',
+          'maintenance' => 'Equipment & repair tracking',
+          'notifications' => 'Alerts & release notices',
+          'reports' => 'Operational & financial reports',
+          'backup_restore' => 'Backup status & recovery',
+          'settings_rules' => 'Business rules & controls',
+          'analytics' => 'Performance trends',
+          'action_center' => 'Approvals & urgent tasks',
+          'pay_now' => 'Payment workflows',
+          'discount_management' => 'Discounts & promotions',
+          'payments_management' => 'Settlement & reconciliation',
+          'credit_management' => 'Customer credit & balances',
+          'device_layout_mode' => 'Workspace device layout',
+          'appearance_dark_mode' => 'Theme & display',
+          'dictionary_language_management' => 'Languages & translations',
+          'websites_management' => 'Public website content',
+          'general_information' => 'Contact details & business info',
+          'invoice_design_customization' => 'Receipt & invoice templates',
+          'security_access_control' => 'MFA, roles & sessions',
+          'offline_mode_synchronization' => 'Offline queue & sync',
+          'app_publishing_updates' => 'Approved releases & updates',
+          'system_health_monitoring' => 'Service health & devices',
+          'test_mode_real_mode' => 'Environment safeguards',
+          'nargile_management' => 'Nargile products & service',
+          _ => 'Management workspace',
+        };
+    Color sectionTint(String id) {
+      const lightPalette = <Color>[
+        Color(0xFF1976D2), Color(0xFF2D8066), Color(0xFFC46B32),
+        Color(0xFF7057A6), Color(0xFFBA4B3F), Color(0xFFB58928),
+        Color(0xFF397B91), Color(0xFF9A536F), Color(0xFF627584),
+      ];
+      const darkPalette = <Color>[
+        Color(0xFF8EC5FF), Color(0xFF75C8A8), Color(0xFFFFB17D),
+        Color(0xFFC0A7F2), Color(0xFFFF9788), Color(0xFFF0CD72),
+        Color(0xFF8ED7E8), Color(0xFFFFA8C5), Color(0xFFB9C8D6),
+      ];
+      final index = cafeSections.indexWhere((section) => section.id == id);
+      final palette = Theme.of(context).brightness == Brightness.dark
+          ? darkPalette
+          : lightPalette;
+      return palette[(index < 0 ? 0 : index) % palette.length];
+    }
     return LayoutBuilder(builder: (context, bounds) {
       final wide = bounds.maxWidth >= 850;
       return Scaffold(
@@ -1635,56 +1655,193 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
                                     ],
                                   ),
                                 ),
-                              for (final section in filtered)
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.only(bottom: 8),
-                                  child: Card(
-                                    margin: EdgeInsets.zero,
-                                    child: ListTile(
-                                      leading: Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: GelyeProfessionalTheme.gold
-                                              .withValues(alpha: 0.14),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: const Icon(
-                                          Icons.grid_view_rounded,
-                                          color: GelyeProfessionalTheme.gold,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      title: Text(
-                                        AppLanguage.label(
-                                            AppLanguage.of(context),
-                                            section.title),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                      trailing: IconButton(
-                                        tooltip: _favoriteSectionIds
-                                                .contains(section.id)
-                                            ? 'Remove from favorites'
-                                            : 'Add to favorites',
-                                        icon: Icon(
-                                          _favoriteSectionIds
-                                                  .contains(section.id)
-                                              ? Icons.star_rounded
-                                              : Icons.star_outline_rounded,
-                                          color: _favoriteSectionIds
-                                                  .contains(section.id)
-                                              ? GelyeProfessionalTheme.gold
-                                              : null,
-                                        ),
-                                        onPressed: () =>
-                                            _toggleFavorite(section.id),
-                                      ),
-                                      onTap: () => _openSection(section),
-                                    ),
-                                  ),
+                              if (filtered.isNotEmpty)
+                                LayoutBuilder(
+                                  builder: (context, sectionBounds) {
+                                    const gap = 12.0;
+                                    final columns = sectionBounds.maxWidth >= 980
+                                        ? 4
+                                        : sectionBounds.maxWidth >= 620
+                                            ? 3
+                                            : 2;
+                                    final cardWidth =
+                                        (sectionBounds.maxWidth -
+                                                gap * (columns - 1)) /
+                                            columns;
+                                    return Wrap(
+                                      spacing: gap,
+                                      runSpacing: gap,
+                                      children: [
+                                        for (final section in filtered)
+                                          SizedBox(
+                                            width: cardWidth,
+                                            height: 158,
+                                            child: Card(
+                                              margin: EdgeInsets.zero,
+                                              clipBehavior: Clip.antiAlias,
+                                              child: InkWell(
+                                                onTap: () =>
+                                                    _openSection(section),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(12),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Container(
+                                                            width: 28,
+                                                            height: 24,
+                                                            alignment:
+                                                                Alignment
+                                                                    .center,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: sectionTint(
+                                                                  section.id),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8),
+                                                            ),
+                                                            child: Text(
+                                                              '${cafeSections.indexOf(section) + 1}'
+                                                                  .padLeft(
+                                                                      2, '0'),
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 11,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 7),
+                                                          Container(
+                                                            width: 36,
+                                                            height: 36,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: sectionTint(
+                                                                      section
+                                                                          .id)
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.11),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12),
+                                                            ),
+                                                            child: Icon(
+                                                              sectionIcon(
+                                                                  section.id),
+                                                              color: sectionTint(
+                                                                  section.id),
+                                                              size: 20,
+                                                            ),
+                                                          ),
+                                                          const Spacer(),
+                                                          IconButton(
+                                                            tooltip: _favoriteSectionIds
+                                                                    .contains(
+                                                                        section
+                                                                            .id)
+                                                                ? 'Remove from favorites'
+                                                                : 'Add to favorites',
+                                                            visualDensity:
+                                                                VisualDensity
+                                                                    .compact,
+                                                            constraints:
+                                                                const BoxConstraints
+                                                                    .tightFor(
+                                                              width: 34,
+                                                              height: 34,
+                                                            ),
+                                                            onPressed: () =>
+                                                                _toggleFavorite(
+                                                                    section
+                                                                        .id),
+                                                            icon: Icon(
+                                                              _favoriteSectionIds
+                                                                      .contains(
+                                                                          section
+                                                                              .id)
+                                                                  ? Icons
+                                                                      .star_rounded
+                                                                  : Icons
+                                                                      .star_outline_rounded,
+                                                              color: _favoriteSectionIds
+                                                                      .contains(
+                                                                          section
+                                                                              .id)
+                                                                  ? GelyeProfessionalTheme
+                                                                      .gold
+                                                                  : Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .onSurfaceVariant,
+                                                              size: 19,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(height: 9),
+                                                      Text(
+                                                        AppLanguage.label(
+                                                            AppLanguage.of(
+                                                                context),
+                                                            section.title),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w800,
+                                                          height: 1.15,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Expanded(
+                                                        child: Text(
+                                                          sectionHint(
+                                                              section.id),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: Theme.of(
+                                                                  context)
+                                                              .textTheme
+                                                              .bodySmall,
+                                                        ),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .bottomRight,
+                                                        child: Icon(
+                                                          Icons
+                                                              .arrow_forward_rounded,
+                                                          size: 17,
+                                                          color: sectionTint(
+                                                              section.id),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
                             ],
                           );

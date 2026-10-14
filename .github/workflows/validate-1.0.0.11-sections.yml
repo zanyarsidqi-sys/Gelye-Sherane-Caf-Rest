@@ -1,0 +1,92 @@
+name: Validate Gelye 1.0.0.11 section workspace
+
+on:
+  push:
+    branches:
+      - staging/release-1.0.0.11-sections
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require the 1.0.0.11 candidate and complete section catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.11-sections"
+          test "$(tr -d '\r\n' < release/VERSION)" = "1.0.0.11"
+          count=$(find lib/sections -maxdepth 1 -type f -name '*.dart' | wc -l)
+          test "$count" -eq 35 || { echo "::error::Expected 35 section source files, found $count"; exit 1; }
+          test -f test/dashboard_metric_access_test.dart
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Run source and release contract checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/staging_release_preflight.py
+          python3 tools/check_release_version.py
+          for test_file in release/test_*.py; do python3 "$test_file"; done
+
+      - name: Resolve Flutter dependencies, analyze, and test
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos
+          flutter test
+
+      - name: Require isolated staging configuration before a web artifact
+        id: staging_config
+        shell: bash
+        env:
+          STAGING_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.STAGING_SUPABASE_EXPECTED_PROJECT_REF }}
+          STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
+          PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$STAGING_SUPABASE_URL" || -z "$STAGING_SUPABASE_EXPECTED_PROJECT_REF" || -z "$STAGING_SUPABASE_ANON_KEY" ]]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Staging artifact not produced"
+              echo "Flutter analysis and tests ran, but isolated staging Supabase variables are not configured."
+              echo "No backend-connected artifact or staging smoke-test claim is produced."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          [[ "$STAGING_SUPABASE_EXPECTED_PROJECT_REF" =~ ^[a-z0-9]{20}$ ]] || { echo "::error::Invalid staging Supabase project ref."; exit 1; }
+          [[ "$STAGING_SUPABASE_URL" == "https://${STAGING_SUPABASE_EXPECTED_PROJECT_REF}.supabase.co" ]] || { echo "::error::Staging Supabase URL and project ref do not match."; exit 1; }
+          [[ -n "$PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF" ]] || { echo "::error::Production project ref is missing; staging isolation cannot be proven."; exit 1; }
+          [[ "$STAGING_SUPABASE_EXPECTED_PROJECT_REF" != "$PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF" ]] || { echo "::error::Staging and production project refs must differ."; exit 1; }
+          echo "available=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build candidate against isolated staging only
+        if: steps.staging_config.outputs.available == 'true'
+        env:
+          STAGING_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.STAGING_SUPABASE_EXPECTED_PROJECT_REF }}
+          STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
+        run: |
+          flutter build web --release \
+            --dart-define="APP_RELEASE_VERSION=1.0.0.11" \
+            --dart-define="SUPABASE_URL=$STAGING_SUPABASE_URL" \
+            --dart-define="SUPABASE_EXPECTED_PROJECT_REF=$STAGING_SUPABASE_EXPECTED_PROJECT_REF" \
+            --dart-define="SUPABASE_ANON_KEY=$STAGING_SUPABASE_ANON_KEY"
+
+      - name: Upload isolated staging artifact
+        if: steps.staging_config.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gelye-cafe-rest-1.0.0.11-sections-staging-web
+          path: build/web/
+          if-no-files-found: error
+          retention-days: 1

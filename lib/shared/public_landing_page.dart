@@ -199,8 +199,6 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
                       _serviceCards(context),
                       const SizedBox(height: 32),
                       _contactSection(context),
-                      const SizedBox(height: 28),
-                      _websiteFooter(context),
                     ],
                   ),
                 ),
@@ -602,39 +600,6 @@ class _PublicLandingPageState extends State<PublicLandingPage> {
       ),
     );
   }
-
-  Widget _websiteFooter(BuildContext context) => FutureBuilder<
-      Map<String, dynamic>?>(
-        future: _contactFuture,
-        builder: (context, snapshot) {
-          final theme = Theme.of(context);
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              children: [
-                const Divider(),
-                const SizedBox(height: 10),
-                Text(
-                  'All Rights Reserved for Gelye Sherane Café & Rest',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Powered by Zanyar Sidqi',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
 
   String _read(Map<String, dynamic> data, String key) =>
       data[key]?.toString().trim() ?? '';

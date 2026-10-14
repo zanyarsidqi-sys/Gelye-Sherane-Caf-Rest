@@ -1,5 +1,3 @@
-import 'gelye_company_footer.dart';
-
 /// Read-only document rendering. Both formats use the same authoritative invoice.
 /// Do not call a payment capture endpoint from a print action.
 /// Prevent embedded newlines/control characters from forging receipt rows.
@@ -52,8 +50,7 @@ class GelyePosReceiptTemplate {
     }
     b..writeln('--------------------------------')
       ..writeln('Total: ${doc.totalMinor} ${doc.currency}')
-      ..writeln('Payment: ${_invoicePrintable(doc.paymentStatus)}')
-      ..writeln(gelyeBillPoweredBy);
+      ..writeln('Payment: ${_invoicePrintable(doc.paymentStatus)}');
     return b.toString();
   }
 }
@@ -75,7 +72,7 @@ class GelyeA4OfficialInvoiceTemplate {
         {'description':_invoicePrintable(l.description),'quantity':l.quantity,'total_minor':l.totalMinor}],
       'currency':doc.currency,'total_minor':doc.totalMinor,
       'payment_status':doc.paymentStatus,'notes':doc.notes,
-      'signature_and_stamp_space':true,'footer':gelyeBillPoweredBy,
+      'signature_and_stamp_space':true,
     };
   }
 }

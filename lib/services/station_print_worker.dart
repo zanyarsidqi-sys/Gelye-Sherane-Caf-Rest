@@ -71,7 +71,6 @@ class StationTicketFormatter {
     }
     if (ticket.note.trim().isNotEmpty) lines.add('Reason: ${_safe(ticket.note)}');
     lines.add('Attempt: ${ticket.attempt}');
-    lines.add('Powered By Zanyar Sidqi');
     final output = lines.join('\n');
     if (output.length > 16000) throw StateError('Ticket exceeds print size limit');
     return output;

@@ -3,7 +3,6 @@
 class GelyeOfficialInvoiceLayout {
   static const paperWidthMm=210;
   static const paperHeightMm=297;
-  static const footer='Powered By Zanyar Sidqi';
   static const requiredFields=<String>[
     'invoice_number','issued_at','company_legal_name','company_address',
     'buyer_name','line_items','currency','total_minor','payment_status',

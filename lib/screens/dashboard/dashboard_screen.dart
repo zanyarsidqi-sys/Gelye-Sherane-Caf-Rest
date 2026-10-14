@@ -18,7 +18,6 @@ import 'system_audit_panel.dart';
 import 'table_service_tasks_panel.dart';
 import 'package:flutter/material.dart';
 import '../../shared/payments_management_panel.dart';
-import '../../shared/app_release_version.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Dashboard figures come from a permission-filtered server RPC, never local
@@ -30,6 +29,16 @@ bool dashboardMetricIsVisible({
 }) {
   if (!hasMetric) return false;
   return section != null && allowedSections.contains(section);
+}
+
+bool dashboardMetricCardIsVisible({
+  required Set<String> allowedSections,
+  required bool hasMetric,
+  required bool showUnavailable,
+  String? section,
+}) {
+  if (section == null || !allowedSections.contains(section)) return false;
+  return hasMetric || showUnavailable;
 }
 
 class DashboardScreen extends StatefulWidget {
@@ -1126,12 +1135,15 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
 
   Widget _metric(
       String title, String key, IconData icon, Map<String, dynamic> data,
-      {bool money = false, String? section}) {
-    if (!dashboardMetricIsVisible(
+      {bool money = false, String? section, bool showUnavailable = false}) {
+    final hasMetric = data.containsKey(key) && data[key] != null;
+    if (!dashboardMetricCardIsVisible(
       allowedSections: widget.allowedSections,
-      hasMetric: data.containsKey(key),
+      hasMetric: hasMetric,
+      showUnavailable: showUnavailable,
       section: section,
     )) return const SizedBox.shrink();
+    final unavailable = !hasMetric;
     final colorIndex = _cardColors[key];
     final accent = colorIndex == null ? Theme.of(context).colorScheme.primary
         : _palette[colorIndex];
@@ -1139,17 +1151,35 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
         key: ValueKey<String>(key),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => const {'standing_cash_active_visits_iqd', 'pending_online_motel_unpaid_iqd'}.contains(key)
-              ? _openUnpaidPaymentWorkflow(key)
-              : _openMetricDetails(title, key, data[key], money: money, section: section),
+          onTap: () {
+            if (unavailable) {
+              widget.onOpenSection(section!);
+            } else if (const {
+              'standing_cash_active_visits_iqd',
+              'pending_online_motel_unpaid_iqd',
+            }.contains(key)) {
+              _openUnpaidPaymentWorkflow(key);
+            } else {
+              _openMetricDetails(title, key, data[key],
+                  money: money, section: section);
+            }
+          },
           child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(children: [
-                    Icon(icon, color: accent),
+                   Row(children: [
+                     Container(
+                        width: 32,
+                        height: 32,
+                       decoration: BoxDecoration(
+                         color: accent.withValues(alpha: .12),
+                         borderRadius: BorderRadius.circular(12),
+                       ),
+                        child: Icon(icon, color: accent, size: 18),
+                     ),
                     const Spacer(),
                     if (_editingCards) PopupMenuButton<int>(
                       tooltip: 'Choose card color',
@@ -1164,30 +1194,51 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                       ],
                     ),
                   ]),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
                   Text(title,
-                      maxLines: 2,
-                      style: Theme.of(context).textTheme.bodyMedium),
-                  const SizedBox(height: 5),
+                      maxLines: _cardSizes[key] == 0 ? 1 : 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: 2),
                   FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                          money ? _money(data[key]) : '${data[key] ?? '—'}',
+                          unavailable
+                              ? 'Not available'
+                              : money
+                                  ? _money(data[key])
+                                  : '${data[key]}',
                           maxLines: 1,
                           style: Theme.of(context)
                               .textTheme
-                              .titleLarge
+                              .titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold))),
-                  if (key == 'cash_collected_iqd') ...[
-                    const SizedBox(height: 4),
-                    Text('Cash only · payments can be refreshed or retried',
+                  if (unavailable && _cardSizes[key] != 0) ...[
+                    const SizedBox(height: 2),
+                    Text('Verified server data required',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall),
+                  ] else if (key == 'cash_collected_iqd') ...[
+                    const SizedBox(height: 2),
+                    Text('Cash only · receipts can be refreshed or retried',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.labelSmall),
                   ],
-                  if (true) ...[
-                    const SizedBox(height: 4),
+                  if (unavailable) ...[
+                    const SizedBox(height: 2),
+                    Text(_cardSizes[key] == 0 ? 'Open section →' : 'Open authorized section →',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall),
+                  ] else ...[
+                    const SizedBox(height: 2),
                     Text('View details →',
-                        style: Theme.of(context).textTheme.labelSmall)
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall),
                   ],
                 ],
               )),
@@ -1973,28 +2024,33 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                               final cards = <Widget>[
                                 _metric('Orders today', 'orders',
                                     Icons.receipt_long_outlined, data,
-                                    section: 'table_orders'),
+                                    section: 'table_orders',
+                                    showUnavailable: true),
                                 _metric('Active orders', 'active_orders',
                                     Icons.pending_actions_outlined, data,
-                                    section: 'table_orders'),
+                                    section: 'table_orders',
+                                    showUnavailable: true),
                                 _metric(
                                     'Order value (not collected)',
                                     'order_value_iqd',
                                     Icons.shopping_bag_outlined,
                                     data,
                                     money: true,
-                                    section: 'payments_management'),
+                                    section: 'payments_management',
+                                    showUnavailable: true),
                                 _metric('Recorded cash · retry receipts in Payments', 'cash_collected_iqd',
                                     Icons.payments_outlined, data,
                                     money: true,
-                                    section: 'payments_management'),
+                                    section: 'payments_management',
+                                    showUnavailable: true),
                                 _metric(
                                     'Outstanding order balances',
                                     'outstanding_iqd',
                                     Icons.account_balance_wallet_outlined,
                                     data,
                                     money: true,
-                                    section: 'payments_management'),
+                                    section: 'payments_management',
+                                    showUnavailable: true),
                                 // Finance batch: values are supplied ONLY by
                                 // an authorized dashboard RPC. Missing fields
                                 // remain explicitly unavailable, never zero.
@@ -2033,24 +2089,31 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                 ],
                                 _metric('Tourism orders', 'tourism_orders',
                                     Icons.travel_explore_outlined, data,
-                                    section: 'table_orders'),
+                                    section: 'table_orders',
+                                    showUnavailable: true),
                                 _metric('Kitchen queue', 'kitchen_queue',
                                     Icons.restaurant_outlined, data,
-                                    section: 'kitchen'),
+                                    section: 'kitchen',
+                                    showUnavailable: true),
                                 _metric('Motel orders', 'motel_orders',
                                     Icons.hotel_outlined, data,
-                                    section: 'motel_orders'),
+                                    section: 'motel_orders',
+                                    showUnavailable: true),
                                 _metric('Occupied tables', 'occupied_tables',
                                     Icons.table_restaurant_outlined, data,
-                                    section: 'tables'),
+                                    section: 'tables',
+                                    showUnavailable: true),
                                 _metric('Total tables', 'total_tables',
                                     Icons.grid_view_outlined, data,
-                                    section: 'tables'),
+                                    section: 'tables',
+                                    showUnavailable: true),
                                 _metric('Seated guests', 'seated_guests',
                                     Icons.people_outline, data,
-                                    section: 'tables'),
+                                    section: 'tables',
+                                    showUnavailable: true),
                                 // Status cards are shown only when the authorized
-                                // dashboard RPC supplies the corresponding metric.
+                                // account has access. Missing metrics stay visible
+                                // as unavailable rather than disappearing.
                                 for (final status in <(String, String, IconData, String)>[
                                   ('Table orders · Waiting', 'table_orders_waiting', Icons.hourglass_empty, 'table_orders'),
                                   ('Table orders · Preparing', 'table_orders_preparing', Icons.soup_kitchen_outlined, 'table_orders'),
@@ -2065,11 +2128,12 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                   ('Upcoming reservations', 'reservations_upcoming', Icons.event_available_outlined, 'tables'),
                                 ])
                                   if (widget.allowedSections.contains(status.$4))
-                                    _metric(status.$1, status.$2, status.$3, data, section: status.$4),
-                                // Upgrade 26: eight operational intelligence areas.
-                                // Only display real, permission-scoped values
-                                // supplied by gs_dashboard_overview. Missing
-                                // backend metrics are intentionally not invented.
+                                    _metric(status.$1, status.$2, status.$3, data,
+                                        section: status.$4,
+                                        showUnavailable: true),
+                                // Keep operational cards visible to authorized
+                                // employees even when the server has not supplied
+                                // a verified value yet. Never substitute samples.
                                 for (final area in <(String, String, IconData, String)>[
                                   ('Urgent actions', 'urgent_actions_count', Icons.notification_important_outlined, 'action_center'),
                                   ('Overdue service orders', 'overdue_service_orders', Icons.timer_outlined, 'table_orders'),
@@ -2080,38 +2144,58 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                   ('Open maintenance issues', 'open_maintenance_issues', Icons.build_outlined, 'maintenance'),
                                   ('Pending offline sync items', 'pending_offline_sync_items', Icons.sync_problem_outlined, 'offline_mode_synchronization'),
                                 ])
-                                  if (widget.allowedSections.contains(area.$4) &&
-                                      data[area.$2] is num)
+                                  if (widget.allowedSections.contains(area.$4))
                                     _metric(area.$1, area.$2, area.$3, data,
-                                        section: area.$4),
-                                if (dashboardMetricIsVisible(
-                                  allowedSections: widget.allowedSections,
-                                  section: 'tables',
-                                  hasMetric: data['customers_today'] is num,
-                                ))
-                                  CustomerCountCard(
-                                    key: const ValueKey<String>('customers_today'),
-                                    title: 'Customers today',
-                                    count: (data['customers_today'] as num).toInt(),
-                                    onTap: () => _openMetricDetails(
-                                      'Customers today', 'customers_today',
-                                      data['customers_today'], money: false,
-                                      section: 'tables'),
-                                  ),
-                                if (dashboardMetricIsVisible(
-                                  allowedSections: widget.allowedSections,
-                                  section: 'table_orders',
-                                  hasMetric: data['tourism_customers'] is num,
-                                ))
-                                  CustomerCountCard(
-                                    key: const ValueKey<String>('tourism_customers'),
-                                    title: 'Tourism customers',
-                                    count: (data['tourism_customers'] as num).toInt(),
-                                    onTap: () => _openMetricDetails(
-                                      'Tourism customers', 'tourism_customers',
-                                      data['tourism_customers'], money: false,
-                                      section: 'table_orders'),
-                                  ),
+                                        section: area.$4,
+                                        showUnavailable: true),
+                                if (widget.allowedSections.contains('tables'))
+                                  data['customers_today'] is num
+                                      ? CustomerCountCard(
+                                          key: const ValueKey<String>('customers_today'),
+                                          title: 'Customers today',
+                                          count: (data['customers_today'] as num)
+                                              .toInt(),
+                                          onTap: () => _openMetricDetails(
+                                            'Customers today',
+                                            'customers_today',
+                                            data['customers_today'],
+                                            money: false,
+                                            section: 'tables',
+                                          ),
+                                        )
+                                      : _metric(
+                                          'Customers today',
+                                          'customers_today',
+                                          Icons.people_outline,
+                                          data,
+                                          section: 'tables',
+                                          showUnavailable: true,
+                                        ),
+                                if (widget.allowedSections
+                                    .contains('table_orders'))
+                                  data['tourism_customers'] is num
+                                      ? CustomerCountCard(
+                                          key: const ValueKey<String>('tourism_customers'),
+                                          title: 'Tourism customers',
+                                          count:
+                                              (data['tourism_customers'] as num)
+                                                  .toInt(),
+                                          onTap: () => _openMetricDetails(
+                                            'Tourism customers',
+                                            'tourism_customers',
+                                            data['tourism_customers'],
+                                            money: false,
+                                            section: 'table_orders',
+                                          ),
+                                        )
+                                      : _metric(
+                                          'Tourism customers',
+                                          'tourism_customers',
+                                          Icons.travel_explore_outlined,
+                                          data,
+                                          section: 'table_orders',
+                                          showUnavailable: true,
+                                        ),
                               ].where((widget) => widget is! SizedBox).toList();
                               final keyed = <String, Widget>{};
                               for (final card in cards) {
@@ -2160,7 +2244,7 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                             _saveCardPreferences();
                                           },
                                         ),
-                                         const Text('Focus selects relevant cards; account permissions still limit the data.'),
+                                         const Text('Focus filters cards by work area; unavailable data stays marked. Permissions are unchanged.'),
                                       ]),
                                     const SizedBox(height: 10),
                                     Text('Key performance indicators',
@@ -2436,15 +2520,6 @@ class _DashboardScreenState extends State<DashboardScreen> with WidgetsBindingOb
                                               onPressed: () => widget
                                                   .onOpenSection(item.$1)),
                                     ]),
-                                    const SizedBox(height: 20),
-                                    Center(child: Column(children: [
-                                      const Text('All Rights Reserved for Gelye Sherane Café & Rest', textAlign: TextAlign.center),
-                                      const Text('Powered by Zanyar Sidqi', textAlign: TextAlign.center),
-                                      const Text(
-                                        'Version ${AppReleaseVersion.label}',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ])),
                                   ]);
                             }),
                           ],

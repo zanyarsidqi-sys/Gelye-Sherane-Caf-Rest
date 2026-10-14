@@ -1,9 +1,9 @@
 {
-  "candidate_version": "1.0.0.10",
+  "candidate_version": "1.0.0.11",
   "source_checks": {
     "version_semver": true,
-    "footer_single_source_placement": true,
-    "footer_uses_release_configuration": true,
+    "project_footer_removed": true,
+    "release_version_uses_build_configuration": true,
     "ci_release_version_build": true,
     "ci_production_manual_dispatch": true,
     "ci_staging_artifact": true,
@@ -14,7 +14,6 @@
   "requires_manual_verification": [
     "Flutter CI build succeeds",
     "Login persists after browser restart without bypassing MFA",
-    "Exactly one footer displays candidate version",
     "Web Push delivered on desktop browser",
     "Web Push delivered on iPhone installed Home Screen app",
     "Production remains unchanged until explicit Update authorization"
