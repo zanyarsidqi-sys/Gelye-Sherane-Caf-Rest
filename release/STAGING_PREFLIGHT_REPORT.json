@@ -1,5 +1,5 @@
 {
-  "candidate_version": "1.0.0.14",
+  "candidate_version": "1.0.0.15",
   "source_checks": {
     "version_semver": true,
     "project_footer_removed": true,
@@ -11,16 +11,18 @@
     "ci_staging_branch_matches": true,
     "menu_migration_has_unique_14_digit_version": true,
     "finance_migration_has_unique_14_digit_version": true,
-    "finance_catalog_has_29_visible_entries": true,
+    "kitchen_migration_has_unique_14_digit_version": true,
+    "merged_catalog_has_26_visible_entries": true,
+    "kitchen_tabs_keep_original_module_permissions": true,
     "ci_staging_menu_backend_gate": true,
     "push_service_worker": true,
     "push_client_subscription": true,
     "saved_session_restoration": true
   },
   "requires_manual_verification": [
-    "Release-specific staging finance catalog migration and employee-grant preservation verified",
-    "All six finance areas open within Payment Management and enforce their original permission checks on phone and desktop",
-    "Existing finance, table, order, reservation, payment, customer, and inventory records remain unchanged",
+    "Release-specific staging Tables, finance and Kitchen catalog migrations and grant preservation verified",
+    "Kitchen, Nargile, Menu, and Inventory tabs open only for employees with their original module grants on phone and desktop",
+    "Existing menu, recipe, stock, kitchen, table, order, reservation, payment, customer, and inventory records remain unchanged",
     "Flutter CI build succeeds",
     "Login persists after browser restart without bypassing MFA",
     "Web Push delivered on desktop browser",

@@ -22,7 +22,7 @@ registry = read("lib/app/section_registry.dart")
 registered = re.findall(
     r"CafeSection\(\s*['\"]([^'\"]+)['\"]", registry, re.MULTILINE
 )
-assert len(registered) == 29 and len(set(registered)) == 29
+assert len(registered) == 26 and len(set(registered)) == 26
 assert "CafeSection('payments_management', \"Payment Management\"" in registry
 assert not (finance_areas - {"payments_management"}).intersection(registered)
 
@@ -86,8 +86,8 @@ for forbidden in (
 ):
     assert forbidden not in migration, f"Unexpected data/grant mutation: {forbidden}"
 
-assert read("release/VERSION").strip() == "1.0.0.14"
+assert read("release/VERSION").strip() == "1.0.0.15"
 print(
-    "Payment Management consolidation contract passed: 29 visible sections, "
+    "Payment Management consolidation contract passed: 26 visible sections, "
     "six retained permission paths, and catalog-only migration."
 )

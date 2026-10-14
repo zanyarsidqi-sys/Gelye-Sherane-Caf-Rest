@@ -64,10 +64,21 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
           'credit_management',
           'payments_management',
         };
+        const kitchenAreaIds = <String>{
+          'kitchen',
+          'nargile_management',
+          'menu',
+          'products_inventory',
+        };
         final tableGrant = data.permissions['tables'];
         final orderGrant = data.permissions['table_orders'];
         final showTables = tableGrant?.canView == true ||
             orderGrant?.canView == true;
+        final kitchenGrants = data.permissions.entries
+            .where((entry) =>
+                entry.value.canView && kitchenAreaIds.contains(entry.key))
+            .toList()
+          ..sort((a, b) => a.key.compareTo(b.key));
         final financeGrants = data.permissions.entries
             .where((entry) =>
                 entry.value.canView && financeAreaIds.contains(entry.key))
@@ -78,11 +89,13 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
                 entry.value.canView &&
                 entry.key != 'tables' &&
                 entry.key != 'table_orders' &&
+                !kitchenAreaIds.contains(entry.key) &&
                 !financeAreaIds.contains(entry.key))
             .toList()
           ..sort((a, b) => a.key.compareTo(b.key));
         final sectionCount = grants.length +
             (showTables ? 1 : 0) +
+            (kitchenGrants.isNotEmpty ? 1 : 0) +
             (financeGrants.isNotEmpty ? 1 : 0);
         String permissionSummary(SectionPermission? permission) {
           if (permission == null || !permission.canView) return 'No access';
@@ -127,7 +140,10 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
                 ),
               ],
             ),
-            if (grants.isEmpty && !showTables && financeGrants.isEmpty)
+            if (grants.isEmpty &&
+                !showTables &&
+                kitchenGrants.isEmpty &&
+                financeGrants.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(12),
                 child: Text('No section permissions are assigned.'),
@@ -143,6 +159,25 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
                     if (grant.value.canDelete) 'Delete',
                   ].join(' · ')),
                   leading: const Icon(Icons.verified_user_outlined),
+                ),
+              ),
+            if (kitchenGrants.isNotEmpty)
+              Card(
+                child: ExpansionTile(
+                  leading: const Icon(Icons.soup_kitchen_outlined),
+                  title: const Text('Kitchen'),
+                  subtitle:
+                      Text('${kitchenGrants.length} authorized module(s)'),
+                  children: [
+                    for (final grant in kitchenGrants)
+                      ListTile(
+                        dense: true,
+                        title: Text(grant.key.replaceAll('_', ' ')),
+                        subtitle: Text(permissionSummary(grant.value)),
+                        leading:
+                            const Icon(Icons.verified_user_outlined, size: 20),
+                      ),
+                  ],
                 ),
               ),
             if (financeGrants.isNotEmpty)

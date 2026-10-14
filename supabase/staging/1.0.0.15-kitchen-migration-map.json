@@ -1,0 +1,26 @@
+{
+  "candidate_version": "1.0.0.15",
+  "target": "staging-only",
+  "project_ref": "kuibukbtdbvaswgfcfgv",
+  "migration_file": "supabase/migrations/20261014190000_kitchen_workspace_merge.sql",
+  "requires_verified_prior_migrations": [
+    "20261014170000_tables_orders_merge.sql",
+    "20261014180000_payment_management_merge.sql"
+  ],
+  "expected_catalog_count_before": 29,
+  "expected_catalog_count_after": 26,
+  "retained_catalog_key": "kitchen",
+  "removed_catalog_keys": [
+    "nargile_management",
+    "menu",
+    "products_inventory"
+  ],
+  "preserves_employee_permission_keys": [
+    "kitchen",
+    "nargile_management",
+    "menu",
+    "products_inventory"
+  ],
+  "operational_records_modified": false,
+  "status": "not-applied"
+}

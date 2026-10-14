@@ -7,13 +7,16 @@ import '../services/menu_management_service.dart';
 import '../shared/section_shell.dart';
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key});
+  const MenuScreen({super.key, this.compact = false});
+
+  final bool compact;
 
   @override
-  Widget build(BuildContext context) => const SectionShell(
+  Widget build(BuildContext context) => SectionShell(
         title: 'Menu',
         description: 'Approved products, pricing and availability',
         sectionId: 'menu',
+        compact: compact,
         authorizedContent: _MenuWorkspace(),
       );
 }

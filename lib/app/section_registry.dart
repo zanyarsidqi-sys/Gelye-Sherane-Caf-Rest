@@ -3,9 +3,7 @@ import '../sections/dashboard.dart';
 import '../sections/table_orders.dart';
 import '../sections/motel_orders.dart';
 import '../sections/kitchen.dart';
-import '../sections/menu.dart';
 import '../sections/payments_management.dart';
-import '../sections/products_inventory.dart';
 import '../sections/customers.dart';
 import '../sections/employees.dart';
 import '../sections/maintenance.dart';
@@ -27,13 +25,22 @@ import '../sections/offline_mode_synchronization.dart';
 import '../sections/app_publishing_updates.dart';
 import '../sections/system_health_monitoring.dart';
 import '../sections/test_mode_real_mode.dart';
-import '../sections/nargile_management.dart';
 
 class CafeSection {
   final String id;
   final String title;
   final WidgetBuilder builder;
-  const CafeSection(this.id, this.title, this.builder);
+  final List<String> additionalAccessSectionIds;
+  const CafeSection(
+    this.id,
+    this.title,
+    this.builder, {
+    this.additionalAccessSectionIds = const [],
+  });
+
+  bool isVisibleTo(Set<String> allowedSectionIds) =>
+      allowedSectionIds.contains(id) ||
+      additionalAccessSectionIds.any(allowedSectionIds.contains);
 }
 
 final List<CafeSection> cafeSections = [
@@ -41,12 +48,18 @@ final List<CafeSection> cafeSections = [
   CafeSection('tables', "Tables", (context) => const TablesAndOrdersScreen()),
   CafeSection(
       'motel_orders', "Motel Orders", (context) => const MotelOrdersScreen()),
-  CafeSection('kitchen', "Kitchen", (context) => const KitchenScreen()),
-  CafeSection('menu', "Menu", (context) => const MenuScreen()),
+  CafeSection(
+    'kitchen',
+    "Kitchen",
+    (context) => const KitchenScreen(),
+    additionalAccessSectionIds: [
+      'menu',
+      'products_inventory',
+      'nargile_management',
+    ],
+  ),
   CafeSection('payments_management', "Payment Management",
       (context) => const PaymentsManagementScreen()),
-  CafeSection('products_inventory', "Products & Inventory",
-      (context) => const ProductsInventoryScreen()),
   CafeSection('customers', "Customers", (context) => const CustomersScreen()),
   CafeSection('employees', "Employees", (context) => const EmployeesScreen()),
   CafeSection(
@@ -86,6 +99,4 @@ final List<CafeSection> cafeSections = [
       (context) => const SystemHealthMonitoringScreen()),
   CafeSection('test_mode_real_mode', "Test Mode / Real Mode",
       (context) => const TestModeRealModeScreen()),
-  CafeSection('nargile_management', "Nargile Management",
-      (context) => const NargileManagementScreen()),
 ];

@@ -41,3 +41,12 @@ catalog key, and verifies that all employee permission grants are unchanged.
 Each nested finance view still checks its original section permission. No
 employee, customer, cost, invoice, discount, credit, order, payment, inventory,
 or other operational records are copied or modified.
+
+Release 1.0.0.15 groups Kitchen, Nargile, Menu, and Products & Inventory under
+one visible Kitchen entry, leaving 26 top-level sections. Apply
+`20261014190000_kitchen_workspace_merge.sql` only after the Tables and finance
+catalog migrations have been verified in the staging ledger. It removes only
+the three duplicate catalog rows and verifies that all employee permission
+grants remain unchanged. Nested Nargile, Menu, and inventory views still check
+their original permission keys. No menu, recipe, stock, kitchen, order, payment,
+customer, or other operational records are modified.

@@ -5,12 +5,16 @@ import '../shared/section_shell.dart';
 import '../shared/product_station_mapping_panel.dart';
 
 class ProductsInventoryScreen extends StatelessWidget {
-  const ProductsInventoryScreen({super.key});
+  const ProductsInventoryScreen({super.key, this.compact = false});
+
+  final bool compact;
+
   @override
-  Widget build(BuildContext context) => const SectionShell(
+  Widget build(BuildContext context) => SectionShell(
     title: 'Products & Inventory',
     description: 'Live stock quantities, movements and low-stock alerts',
     sectionId: 'products_inventory',
+    compact: compact,
     authorizedContent: DefaultTabController(length: 2, child: Column(children: [
       TabBar(tabs: [Tab(text: 'Inventory'), Tab(text: 'Product Stations')]),
       Expanded(child: TabBarView(children: [_InventoryLive(), ProductStationMappingPanel()])),

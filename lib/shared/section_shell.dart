@@ -251,7 +251,10 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
       'Order priority and timing',
       'Kitchen item notes',
       'Preparation stations',
-      'Completed orders history'
+      'Completed orders history',
+      'Nargile (Shisha)',
+      'Menu management',
+      'Product and inventory',
     ],
     'menu': <String>[
       'Menu categories',

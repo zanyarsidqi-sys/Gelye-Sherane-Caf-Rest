@@ -24,6 +24,7 @@ import 'section_registry.dart';
 import '../shared/app_language.dart';
 import '../sections/payments_management.dart';
 import '../sections/table_orders.dart';
+import '../sections/kitchen.dart';
 
 const Set<String> _financeAreaSectionIds =
     PaymentsManagementScreen.financeAreaSectionIds;
@@ -607,6 +608,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     if (_financeAreaSectionIds.any(_sections.contains)) {
       ids.add('payments_management');
     }
+    if (kitchenMergedSectionIds.any(_sections.contains)) {
+      ids.add('kitchen');
+    }
     return ids;
   }
 
@@ -631,6 +635,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
             ? 'tables'
             : _financeAreaSectionIds.contains(id)
                 ? 'payments_management'
+                : const {'menu', 'products_inventory', 'nargile_management'}
+                        .contains(id)
+                    ? 'kitchen'
                 : id;
         if (visibleIds.contains(canonicalId)) normalized.add(canonicalId);
       }
@@ -706,7 +713,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
   void _moveFavorite(String sectionId, int direction) {
     if (!_authorized || _authorizedUserId == null ||
         _authorizedUserId != Supabase.instance.client.auth.currentUser?.id ||
-        !_sections.contains(sectionId)) return;
+        !_navigationSectionIds.contains(sectionId)) return;
     final index = _favoriteSectionIds.indexOf(sectionId);
     final next = index + direction;
     if (index < 0 || next < 0 || next >= _favoriteSectionIds.length) return;
@@ -916,7 +923,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     final hasFinanceAreaAccess =
         section.id == 'payments_management' &&
             _financeAreaSectionIds.any(_sections.contains);
-    final hasSectionAccess = _sections.contains(section.id) ||
+    final hasSectionAccess = section.isVisibleTo(_sections) ||
         (section.id == 'tables' && _sections.contains('table_orders')) ||
         hasFinanceAreaAccess;
     if (!mounted || !_authorized || _logoutInProgress ||
@@ -943,16 +950,27 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
             allowedSections: allowedSectionsSnapshot,
             onOpenSection: (sectionId) {
               final financeArea = _financeAreaSectionIds.contains(sectionId);
+                final kitchenArea = const {
+                  'kitchen',
+                  'nargile_management',
+                  'menu',
+                  'products_inventory',
+                }.contains(sectionId);
               if (!allowedSectionsSnapshot.contains(sectionId) &&
                   !(sectionId == 'payments_management' &&
                       _financeAreaSectionIds
-                          .any(allowedSectionsSnapshot.contains))) {
+                          .any(allowedSectionsSnapshot.contains)) &&
+                    !(sectionId == 'kitchen' &&
+                        kitchenMergedSectionIds
+                            .any(allowedSectionsSnapshot.contains))) {
                 return;
               }
               final navigationId = financeArea
                   ? 'payments_management'
                   : sectionId == 'table_orders'
                       ? 'tables'
+                      : kitchenArea
+                          ? 'kitchen'
                       : sectionId;
               final matches =
                   cafeSections.where((item) => item.id == navigationId);
@@ -973,6 +991,16 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
                         matches.first.title,
                         (_) => const TablesAndOrdersScreen(initialTabIndex: 1),
                       )
+                        : kitchenArea
+                            ? CafeSection(
+                                matches.first.id,
+                                matches.first.title,
+                                (_) => KitchenScreen(
+                                  initialSectionId: sectionId,
+                                ),
+                                additionalAccessSectionIds:
+                                    matches.first.additionalAccessSectionIds,
+                              )
                         : matches.first;
                 _openSection(destination);
               }
@@ -989,6 +1017,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
         builder: (routeContext) => _ProtectedManagementSection(
           sectionId: section.id,
           authorizedUserId: authorizedUserId,
+          additionalAccessSectionIds: section.additionalAccessSectionIds,
           childBuilder: section.builder,
         ),
       ),
@@ -1090,7 +1119,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
 
     final navigationSectionIds = _navigationSectionIds;
     final selected = cafeSections
-        .where((item) => navigationSectionIds.contains(item.id))
+        .where((item) => item.isVisibleTo(navigationSectionIds))
         .toList();
     final favorites = <CafeSection>[
       for (final id in _favoriteSectionIds)
@@ -1102,7 +1131,6 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
         'tables',
         'motel_orders',
         'kitchen',
-        'menu',
       ])
         ...selected.where((section) => section.id == id),
     ];
@@ -1945,10 +1973,12 @@ class _ProtectedManagementSection extends StatefulWidget {
     required this.sectionId,
     required this.authorizedUserId,
     required this.childBuilder,
+    this.additionalAccessSectionIds = const [],
   });
   final String sectionId;
   final String authorizedUserId;
   final WidgetBuilder childBuilder;
+  final List<String> additionalAccessSectionIds;
 
   @override
   State<_ProtectedManagementSection> createState() => _ProtectedManagementSectionState();
@@ -1997,7 +2027,9 @@ class _ProtectedManagementSectionState extends State<_ProtectedManagementSection
   void didUpdateWidget(covariant _ProtectedManagementSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.authorizedUserId != widget.authorizedUserId ||
-        oldWidget.sectionId != widget.sectionId) {
+        oldWidget.sectionId != widget.sectionId ||
+        oldWidget.additionalAccessSectionIds.join('\u0000') !=
+            widget.additionalAccessSectionIds.join('\u0000')) {
       _lock();
       // Never transfer a terminated session to a new employee or section.
       _sessionTerminated = true;
@@ -2051,7 +2083,10 @@ class _ProtectedManagementSectionState extends State<_ProtectedManagementSection
           profile != null && profile['user_id'] == widget.authorizedUserId &&
           profile['is_active'] == true &&
           permissions.contains('dashboard') &&
-          permissions.contains(widget.sectionId);
+          <String>{
+            widget.sectionId,
+            ...widget.additionalAccessSectionIds,
+          }.any(permissions.contains);
       if (mounted && generation == _generation) {
         setState(() => _allowed = valid);
       }
