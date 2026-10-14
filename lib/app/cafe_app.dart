@@ -21,6 +21,7 @@ import '../services/employee_permission_service.dart';
 import '../services/saved_session_service.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import 'section_registry.dart';
+import 'management_group_registry.dart';
 import '../shared/app_language.dart';
 
 class CafeApp extends StatefulWidget {
@@ -1032,6 +1033,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
 
     final selected =
         cafeSections.where((item) => _sections.contains(item.id)).toList();
+    final groupedNavigation = allowedManagementGroups(_sections);
     final favorites = <CafeSection>[
       for (final id in _favoriteSectionIds)
         ...selected.where((section) => section.id == id),
@@ -1204,14 +1206,22 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
                 const ListTile(
                     title: Text('Management',
                         style: TextStyle(fontWeight: FontWeight.bold))),
-                for (final section in selected)
-                  ListTile(
-                      leading: const Icon(Icons.chevron_right),
-                      title: Text(AppLanguage.label(AppLanguage.of(context), section.title)),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        _openSection(section);
-                      }),
+                for (final group in groupedNavigation)
+                  ExpansionTile(
+                    key: ValueKey('mobile_group_${group.id}'),
+                    title: Text(group.title),
+                    children: [
+                      for (final section in allowedGroupChildren(group, _sections))
+                        ListTile(
+                          leading: const Icon(Icons.chevron_right),
+                          title: Text(AppLanguage.label(AppLanguage.of(context), section.title)),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            _openSection(section);
+                          },
+                        ),
+                    ],
+                  ),
               ]))),
         body: Row(children: [
           if (wide)
@@ -1225,12 +1235,20 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
                         const ListTile(
                             title: Text('WORKSPACE',
                                 style: TextStyle(fontWeight: FontWeight.bold))),
-                        for (final section in selected)
-                          ListTile(
-                              dense: true,
-                              leading: const Icon(Icons.grid_view_outlined),
-                              title: Text(AppLanguage.label(AppLanguage.of(context), section.title)),
-                              onTap: () => _openSection(section)),
+                        for (final group in groupedNavigation)
+                          ExpansionTile(
+                            key: ValueKey('desktop_group_${group.id}'),
+                            title: Text(group.title),
+                            children: [
+                              for (final section in allowedGroupChildren(group, _sections))
+                                ListTile(
+                                  dense: true,
+                                  leading: const Icon(Icons.grid_view_outlined),
+                                  title: Text(AppLanguage.label(AppLanguage.of(context), section.title)),
+                                  onTap: () => _openSection(section),
+                                ),
+                            ],
+                          ),
                       ]),
                 )),
           Expanded(
