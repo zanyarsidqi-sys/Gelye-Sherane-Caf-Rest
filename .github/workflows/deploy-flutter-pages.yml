@@ -43,6 +43,16 @@ jobs:
         working-directory: flutter_app
         run: flutter build web --release --base-href /
 
+      - name: Version Flutter entrypoint assets
+        working-directory: flutter_app/build/web
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          versioned_main="main.${DEPLOY_SHA}.dart.js"
+          mv main.dart.js "$versioned_main"
+          sed -i "s/main\\.dart\\.js/${versioned_main}/g" flutter_bootstrap.js
+          sed -i "s|flutter_bootstrap.js|flutter_bootstrap.js?v=${DEPLOY_SHA}|g" index.html
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
