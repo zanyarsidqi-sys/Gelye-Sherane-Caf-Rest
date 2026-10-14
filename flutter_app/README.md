@@ -5,16 +5,16 @@ Push changes to `main` to build, test, and deploy it through GitHub Actions.
 
 To enable the first deployment, set **Settings > Pages > Build and deployment > Source** to **GitHub Actions** in the repository.
 
-## Getting Started
+## Cafe website preview
 
-This project is a starting point for a Flutter application.
+The app includes a responsive cafe landing page, menu highlights, an 11-area
+management showcase, and a reservation form preview. Reservations are not sent
+or stored, and the staff portal is not connected to authentication or management
+services.
 
-A few resources to get you started if this is your first Flutter project:
+## Local development
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Run `flutter pub get`, then `flutter run -d chrome`. Use `flutter analyze` and
+`flutter test` to validate changes.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+For Flutter documentation, visit [docs.flutter.dev](https://docs.flutter.dev/).

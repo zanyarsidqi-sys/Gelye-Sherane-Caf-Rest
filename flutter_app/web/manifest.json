@@ -1,11 +1,11 @@
 {
-    "name": "gelye_sherane_cafe",
-    "short_name": "gelye_sherane_cafe",
+    "name": "Gelye Sherane Café & Restaurant",
+    "short_name": "Gelye Sherane",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FAF8F3",
+    "theme_color": "#061A2B",
+    "description": "Gelye Sherane Café & Restaurant",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
