@@ -16,14 +16,36 @@
     "saved_session_restoration": true
   },
   "requires_manual_verification": [
-    "Staging Menu schema and migration verified",
-    "Menu create/edit, owner approval, availability and public menu checked on phone and desktop",
-    "Existing catalog, order, recipe and stock links unchanged",
-    "Flutter CI build succeeds",
-    "Login persists after browser restart without bypassing MFA",
+    "Employee must accept the staging invitation and complete MFA; verify Menu create/edit, availability, public menu, and owner-only approval on phone and desktop",
+    "Existing catalog, order, recipe, and stock links unchanged",
     "Web Push delivered on desktop browser",
     "Web Push delivered on iPhone installed Home Screen app",
     "Production remains unchanged until explicit Update authorization"
   ],
-  "release_ready": false
+  "release_ready": false,
+  "verified_ci": {
+    "workflow_run_id": 38562937284,
+    "commit_sha": "1723f4d8698657fad25d340ccc39eab466b84e15",
+    "status": "success",
+    "checks": [
+      "Flutter dependency resolution, analyze, and tests",
+      "isolated staging Menu catalog RPC",
+      "Flutter Web build",
+      "release.json and version.json match 1.0.0.12",
+      "main.dart.js SHA-256 verified"
+    ]
+  },
+  "verified_staging_checks": {
+    "project_ref": "kuibukbtdbvaswgfcfgv",
+    "public_tables": 20,
+    "management_sections": 35,
+    "schema_migration_ledger_rows": 11,
+    "menu_owner_role_supported": true,
+    "owner_role_assigned": false,
+    "employee_profile_rows": 1,
+    "employee_directory_rows": 1,
+    "employee_permissions": 35,
+    "fully_granted_permissions": 35,
+    "production_modified": false
+  }
 }
