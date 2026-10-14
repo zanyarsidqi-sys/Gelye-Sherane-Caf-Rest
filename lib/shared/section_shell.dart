@@ -23,12 +23,16 @@ class SectionShell extends StatefulWidget {
   final String description;
   final String sectionId;
   final Widget? authorizedContent;
+  final List<String> additionalAccessSectionIds;
+  final bool compact;
   const SectionShell({
     super.key,
     required this.title,
     required this.description,
     required this.sectionId,
     this.authorizedContent,
+    this.additionalAccessSectionIds = const [],
+    this.compact = false,
   });
   @override
   State<SectionShell> createState() => _SectionShellState();
@@ -131,11 +135,15 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
       final allowed = await _permissionService.getAllowedSections().timeout(_permissionTimeout);
       // Never grant permissions from an old employee's in-flight lookup.
       if (client.auth.currentUser?.id != user.id) return false;
+      final acceptableSections = <String>{
+        expectedSectionId,
+        ...widget.additionalAccessSectionIds,
+      };
       return generation == _accessGeneration &&
           widget.sectionId == sectionAtStart &&
           widget.sectionId == expectedSectionId &&
           userAtStart == user.id &&
-          allowed.contains(expectedSectionId);
+          acceptableSections.any(allowed.contains);
     } catch (_) {
       return false;
     }
@@ -162,7 +170,9 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
   @override
   void didUpdateWidget(covariant SectionShell oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.sectionId != widget.sectionId) {
+    if (oldWidget.sectionId != widget.sectionId ||
+        oldWidget.additionalAccessSectionIds.join('\u0000') !=
+            widget.additionalAccessSectionIds.join('\u0000')) {
       // Do not leak a previous section's workflow filter into the next one.
       _search = '';
       _sessionHandoverChecks.clear();
@@ -782,7 +792,7 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.compact ? null : AppBar(
         title: Text(widget.title),
         leading: Navigator.of(context).canPop()
             ? IconButton(
@@ -797,7 +807,7 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
             icon: const Icon(Icons.restart_alt_outlined),
             onPressed: _resetSectionWorkspace,
           ),
-          // Every one of the 35 management sections can revalidate access on demand.
+          // Every management section can revalidate access on demand.
           IconButton(
             tooltip: 'Recheck employee access',
             icon: const Icon(Icons.verified_user_outlined),
@@ -824,8 +834,11 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
           if (_privacyShield) {
             return const Center(child: CircularProgressIndicator());
           }
+          if (widget.compact) {
+            return widget.authorizedContent ?? const SizedBox.shrink();
+          }
           return Column(children: [
-            // Upgrade universal section safety context: all 35 registry sections.
+            // Upgrade universal section safety context: every registered section.
             // Visible only AFTER the employee permission check succeeds.
             Material(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -843,7 +856,7 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
                 ]),
               ),
             ),
-            // Upgrade 1480: honest execution status on all 35 registered sections.
+            // Honest execution status across registered sections.
             // Only actual supplied/implemented panels are labeled interactive;
             // a catalog-only section must never imply it can process transactions.
             Padding(
@@ -864,7 +877,7 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
                 ]),
               ),
             ),
-            // All 35 sections expose their own conservative verification status.
+            // Each section exposes its own conservative verification status.
             _verificationChecklist(),
             _sectionHandoverChecklist(),
             Padding(padding: const EdgeInsets.fromLTRB(12, 12, 12, 8), child: GelyeSectionHeader(

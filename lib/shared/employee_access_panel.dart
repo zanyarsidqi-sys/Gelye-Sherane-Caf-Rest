@@ -56,10 +56,27 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
           );
         }
         final data = snapshot.data!;
+        final tableGrant = data.permissions['tables'];
+        final orderGrant = data.permissions['table_orders'];
+        final showTables = tableGrant?.canView == true ||
+            orderGrant?.canView == true;
         final grants = data.permissions.entries
-            .where((entry) => entry.value.canView)
+            .where((entry) =>
+                entry.value.canView &&
+                entry.key != 'tables' &&
+                entry.key != 'table_orders')
             .toList()
           ..sort((a, b) => a.key.compareTo(b.key));
+        final sectionCount = grants.length + (showTables ? 1 : 0);
+        String permissionSummary(SectionPermission? permission) {
+          if (permission == null || !permission.canView) return 'No access';
+          return [
+            'View',
+            if (permission.canCreate) 'Create',
+            if (permission.canEdit) 'Edit',
+            if (permission.canDelete) 'Delete',
+          ].join(' · ');
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -84,7 +101,7 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
             Row(
               children: [
                 Expanded(
-                  child: Text('My authorized sections (${grants.length})',
+                  child: Text('My authorized sections ($sectionCount)',
                       style: Theme.of(context).textTheme.titleMedium),
                 ),
                 IconButton(
@@ -94,7 +111,7 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
                 ),
               ],
             ),
-            if (grants.isEmpty)
+            if (grants.isEmpty && !showTables)
               const Padding(
                 padding: EdgeInsets.all(12),
                 child: Text('No section permissions are assigned.'),
@@ -109,6 +126,17 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
                     if (grant.value.canEdit) 'Edit',
                     if (grant.value.canDelete) 'Delete',
                   ].join(' · ')),
+                  leading: const Icon(Icons.verified_user_outlined),
+                ),
+              ),
+            if (showTables)
+              Card(
+                child: ListTile(
+                  title: const Text('Tables'),
+                  subtitle: Text(
+                    'Floor map & seating: ${permissionSummary(tableGrant)}\n'
+                    'Live orders: ${permissionSummary(orderGrant)}',
+                  ),
                   leading: const Icon(Icons.verified_user_outlined),
                 ),
               ),

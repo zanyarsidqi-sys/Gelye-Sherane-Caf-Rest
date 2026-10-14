@@ -22,6 +22,7 @@ import '../services/saved_session_service.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import 'section_registry.dart';
 import '../shared/app_language.dart';
+import '../sections/table_orders.dart';
 
 class CafeApp extends StatefulWidget {
   const CafeApp({super.key});
@@ -596,6 +597,12 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
   final List<String> _favoriteSectionIds = <String>[];
   int _favoritesGeneration = 0;
 
+  Set<String> get _navigationSectionIds {
+    final ids = Set<String>.of(_sections);
+    if (ids.contains('table_orders')) ids.add('tables');
+    return ids;
+  }
+
   String? get _favoritesStorageKey {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     return userId == null ? null : 'cafe_rest_favorites_v1_$userId';
@@ -610,10 +617,16 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       final stored = preferences.getStringList(key) ?? <String>[];
       if (!mounted || !_authorized || generation != _favoritesGeneration ||
           key != _favoritesStorageKey) return;
+      final visibleIds = _navigationSectionIds;
+      final normalized = <String>{};
+      for (final id in stored) {
+        final canonicalId = id == 'table_orders' ? 'tables' : id;
+        if (visibleIds.contains(canonicalId)) normalized.add(canonicalId);
+      }
       setState(() {
         _favoriteSectionIds
           ..clear()
-          ..addAll(stored.where(_sections.contains).toSet());
+          ..addAll(normalized);
       });
     } catch (error) {
       debugPrint('Could not load favorites: $error');
@@ -652,7 +665,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
   void _toggleFavorite(String sectionId) {
     if (!_authorized || _authorizedUserId == null ||
         _authorizedUserId != Supabase.instance.client.auth.currentUser?.id ||
-        !_sections.contains(sectionId)) return;
+        !_navigationSectionIds.contains(sectionId)) return;
     // Invalidate any pending disk read before applying a local edit.
     _favoritesGeneration++;
     setState(() {
@@ -889,8 +902,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       return; // Never navigate on the result of an older review.
     }
     await _checkAccess();
+    final hasSectionAccess = _sections.contains(section.id) ||
+        (section.id == 'tables' && _sections.contains('table_orders'));
     if (!mounted || !_authorized || _logoutInProgress ||
-        _logoutRecoveryRequired || !_sections.contains(section.id) ||
+        _logoutRecoveryRequired || !hasSectionAccess ||
         _authorizedUserId != Supabase.instance.client.auth.currentUser?.id ||
         Supabase.instance.client.auth.currentSession == null ||
         Supabase.instance.client.auth.mfa.getAuthenticatorAssuranceLevel().currentLevel !=
@@ -912,11 +927,20 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
             childBuilder: (context) => DashboardScreen(
             allowedSections: allowedSectionsSnapshot,
             onOpenSection: (sectionId) {
+              if (!allowedSectionsSnapshot.contains(sectionId)) return;
+              final navigationId =
+                  sectionId == 'table_orders' ? 'tables' : sectionId;
               final matches =
-                  cafeSections.where((item) => item.id == sectionId);
-              if (matches.isNotEmpty &&
-                  allowedSectionsSnapshot.contains(sectionId)) {
-                _openSection(matches.first);
+                  cafeSections.where((item) => item.id == navigationId);
+              if (matches.isNotEmpty) {
+                final destination = sectionId == 'table_orders'
+                    ? CafeSection(
+                        matches.first.id,
+                        matches.first.title,
+                        (_) => const TablesAndOrdersScreen(initialTabIndex: 1),
+                      )
+                    : matches.first;
+                _openSection(destination);
               }
             },
           ),
@@ -1030,8 +1054,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       );
     }
 
-    final selected =
-        cafeSections.where((item) => _sections.contains(item.id)).toList();
+    final navigationSectionIds = _navigationSectionIds;
+    final selected = cafeSections
+        .where((item) => navigationSectionIds.contains(item.id))
+        .toList();
     final favorites = <CafeSection>[
       for (final id in _favoriteSectionIds)
         ...selected.where((section) => section.id == id),
@@ -1040,7 +1066,6 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       for (final id in const [
         'dashboard',
         'tables',
-        'table_orders',
         'motel_orders',
         'kitchen',
         'menu',
@@ -1055,7 +1080,6 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
     IconData sectionIcon(String id) => switch (id) {
           'dashboard' => Icons.dashboard_customize_rounded,
           'tables' => Icons.table_restaurant_rounded,
-          'table_orders' => Icons.receipt_long_rounded,
           'motel_orders' => Icons.hotel_rounded,
           'kitchen' => Icons.soup_kitchen_rounded,
           'menu' => Icons.restaurant_menu_rounded,
@@ -1092,8 +1116,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
         };
     String sectionHint(String id) => switch (id) {
           'dashboard' => 'Overview & reports',
-          'tables' => 'Table map, reservations & seating',
-          'table_orders' => 'Customer order management',
+          'tables' => 'Floor map, seating & live orders',
           'motel_orders' => 'Room service & delivery',
           'kitchen' => 'Preparation queue & dispatch',
           'menu' => 'Menus, categories & pricing',
@@ -1860,7 +1883,6 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
                     '',
                     'dashboard',
                     'tables',
-                    'table_orders',
                     'menu'
                   ];
                   final id = ids[index];
@@ -1881,8 +1903,6 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
                   NavigationDestination(
                       icon: Icon(Icons.table_restaurant_outlined),
                       label: 'Tables'),
-                  NavigationDestination(
-                      icon: Icon(Icons.receipt_long_outlined), label: 'Orders'),
                   NavigationDestination(
                       icon: Icon(Icons.restaurant_menu_outlined),
                       label: 'Menu'),

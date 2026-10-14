@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../sections/dashboard.dart';
-import '../sections/tables.dart';
 import '../sections/table_orders.dart';
 import '../sections/motel_orders.dart';
 import '../sections/kitchen.dart';
@@ -44,9 +43,7 @@ class CafeSection {
 
 final List<CafeSection> cafeSections = [
   CafeSection('dashboard', "Dashboard", (context) => const DashboardScreen()),
-  CafeSection('tables', "Tables", (context) => const TablesScreen()),
-  CafeSection(
-      'table_orders', "Table Orders", (context) => const TableOrdersScreen()),
+  CafeSection('tables', "Tables", (context) => const TablesAndOrdersScreen()),
   CafeSection(
       'motel_orders', "Motel Orders", (context) => const MotelOrdersScreen()),
   CafeSection('kitchen', "Kitchen", (context) => const KitchenScreen()),

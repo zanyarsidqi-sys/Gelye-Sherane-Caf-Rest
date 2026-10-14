@@ -23,7 +23,12 @@ checks={
  'ci_production_manual_dispatch': 'workflow_dispatch:' in production_workflow,
  'ci_staging_artifact': 'actions/upload-artifact@v4' in validation_workflow,
  'ci_staging_version_matches': f'APP_RELEASE_VERSION={version}' in validation_workflow,
- 'ci_staging_branch_matches': f'staging/release-{version}-menu' in validation_workflow,
+ 'ci_staging_branch_matches': any(
+  version in branch
+  for branch in re.findall(
+   r'(?m)^\s*-\s*(staging/release-[\w./-]+)\s*$', validation_workflow
+  )
+ ),
  'menu_migration_has_unique_14_digit_version': bool(
   re.fullmatch(r'\d{14}',menu_migration_prefix)
   and migration_prefixes[menu_migration_prefix] == 1
@@ -34,7 +39,7 @@ checks={
  'saved_session_restoration': '_restoreSavedSession' in app,
 }
 report={'candidate_version':version,'source_checks':checks,
- 'requires_manual_verification':['Staging Menu schema and migration verified','Menu create/edit, owner approval, availability and public menu checked on phone and desktop','Existing catalog, order, recipe and stock links unchanged','Flutter CI build succeeds','Login persists after browser restart without bypassing MFA','Web Push delivered on desktop browser','Web Push delivered on iPhone installed Home Screen app','Production remains unchanged until explicit Update authorization'],
+ 'requires_manual_verification':['Release-specific staging catalog migration and employee-grant preservation verified','Combined floor map and Live Orders tested on phone and desktop','Existing table, order, reservation, and payment records remain unchanged','Flutter CI build succeeds','Login persists after browser restart without bypassing MFA','Web Push delivered on desktop browser','Web Push delivered on iPhone installed Home Screen app','Production remains unchanged until explicit Update authorization'],
  'release_ready':False}
 (root/'release/STAGING_PREFLIGHT_REPORT.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2))

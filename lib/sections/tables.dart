@@ -12,21 +12,25 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../shared/section_shell.dart';
 
 class TablesScreen extends StatelessWidget {
-  const TablesScreen({super.key});
+  final bool compact;
+  const TablesScreen({super.key, this.compact = false});
   @override
-  Widget build(BuildContext context) => const SectionShell(
-    title: 'Tables', description: 'Visit-aware seating and table status',
-    sectionId: 'tables', authorizedContent: _TablesWorkspace(),
+  Widget build(BuildContext context) => SectionShell(
+    title: 'Tables',
+    description: 'Floor map, seating, reservations and table status',
+    sectionId: 'tables',
+    compact: compact,
+    authorizedContent: const TablesWorkspace(),
   );
 }
 
-class _TablesWorkspace extends StatefulWidget {
-  const _TablesWorkspace();
+class TablesWorkspace extends StatefulWidget {
+  const TablesWorkspace({super.key});
   @override
-  State<_TablesWorkspace> createState() => _TablesWorkspaceState();
+  State<TablesWorkspace> createState() => _TablesWorkspaceState();
 }
 
-class _TablesWorkspaceState extends State<_TablesWorkspace> {
+class _TablesWorkspaceState extends State<TablesWorkspace> {
   final _db = Supabase.instance.client;
   List<Map<String, dynamic>> _tables = [];
   Map<int, Map<String, dynamic>> _visits = {};

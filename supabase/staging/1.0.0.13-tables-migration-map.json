@@ -1,0 +1,21 @@
+{
+  "release": "1.0.0.13",
+  "scope": "staging-only",
+  "migration": {
+    "version": "20261014170000",
+    "name": "tables_orders_merge",
+    "source": "supabase/migrations/20261014170000_tables_orders_merge.sql"
+  },
+  "catalog": {
+    "previous_top_level_sections": 35,
+    "current_top_level_sections": 34,
+    "canonical_section": "tables",
+    "removed_duplicate_catalog_key": "table_orders"
+  },
+  "permissions": {
+    "employee_section_permissions_rows": "preserved exactly",
+    "tables_key": "continues to authorize the floor map and seating tab",
+    "table_orders_key": "retained as a protected internal permission for live orders"
+  },
+  "data_policy": "Only the management-section catalog row and display order are changed. Employee grants and all operational café data remain untouched."
+}

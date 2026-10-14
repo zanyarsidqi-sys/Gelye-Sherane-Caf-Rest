@@ -22,19 +22,69 @@ import 'menu.dart';
 import 'customers.dart';
 
 class TableOrdersScreen extends StatelessWidget {
-  const TableOrdersScreen({super.key});
+  final bool compact;
+  final int initialTabIndex;
+  const TableOrdersScreen({
+    super.key,
+    this.compact = false,
+    this.initialTabIndex = 0,
+  });
   @override
-  Widget build(BuildContext context) => const SectionShell(
+  Widget build(BuildContext context) => SectionShell(
     title: 'Table Orders',
     description: 'Create and manage table orders',
     sectionId: 'table_orders',
-    authorizedContent: const _TableOrdersTabs(),
+    compact: compact,
+    authorizedContent: TableOrdersWorkspace(
+      initialTabIndex: initialTabIndex,
+    ),
+  );
+}
+
+class TablesAndOrdersScreen extends StatelessWidget {
+  final int initialTabIndex;
+  const TablesAndOrdersScreen({
+    super.key,
+    this.initialTabIndex = 0,
+  }) : assert(initialTabIndex >= 0 && initialTabIndex < 2);
+
+  @override
+  Widget build(BuildContext context) => SectionShell(
+    title: 'Tables',
+    description: 'Floor map, table service and live orders',
+    sectionId: 'tables',
+    additionalAccessSectionIds: const ['table_orders'],
+    authorizedContent: DefaultTabController(
+      length: 2,
+      initialIndex: initialTabIndex,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: TabBar(
+              tabs: const [
+                Tab(icon: Icon(Icons.table_restaurant_outlined), text: 'Floor Map & Tables'),
+                Tab(icon: Icon(Icons.receipt_long_outlined), text: 'Live Orders'),
+              ],
+            ),
+          ),
+          const Expanded(
+            child: TabBarView(
+              children: [
+                TablesScreen(compact: true),
+                TableOrdersScreen(compact: true),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }
 
 /// Staff-only order management. Customer ordering uses the independent public
 /// menu/ordering screens; this view never grants a customer staff privileges.
-class _TableOrdersTabs extends StatelessWidget {
+class TableOrdersWorkspace extends StatelessWidget {
   static const _tabNames = <String>[
     'Table orders', 'Guest & Notes', 'Takeaway & Delivery',
     'Employee Jobs', 'Order Board', 'Recommendations',
@@ -42,7 +92,8 @@ class _TableOrdersTabs extends StatelessWidget {
     'Wrong Orders & Waste', 'Replacement Delivery',
     'Guest Order Requests',
   ];
-  const _TableOrdersTabs();
+  final int initialTabIndex;
+  const TableOrdersWorkspace({this.initialTabIndex = 0});
   @override
   Widget build(BuildContext context) => DefaultTabController(
     length: 11,
@@ -99,8 +150,6 @@ class _TableOrdersTabs extends StatelessWidget {
                   ],
                 ),
                 Wrap(spacing: 8, runSpacing: 8, children: [
-                  _SectionLink(label: 'Tables', icon: Icons.table_restaurant,
-                    builder: (_) => const TablesScreen()),
                   _SectionLink(label: 'Kitchen', icon: Icons.soup_kitchen,
                     builder: (_) => const KitchenScreen()),
                   _SectionLink(label: 'Menu', icon: Icons.restaurant_menu,
