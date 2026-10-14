@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gelye_sherane_cafe/main.dart';
 
 void main() {
-  testWidgets('shows the cafe landing page and management preview', (
+  testWidgets('shows the cafe landing page without the management showcase', (
     tester,
   ) async {
     await tester.pumpWidget(const CafeApp());
@@ -11,8 +11,10 @@ void main() {
 
     expect(find.text('Gelye Sherane'), findsNWidgets(2));
     expect(find.text('Gelye Sherane\nCafé & Restaurant'), findsOneWidget);
-    expect(find.text('Dashboard Management'), findsOneWidget);
-    expect(find.text('Kitchen Management'), findsOneWidget);
+    expect(find.text('A taste to look forward to'), findsOneWidget);
+    expect(find.text('Dashboard Management'), findsNothing);
+    expect(find.text('BUILT AROUND HOSPITALITY'), findsNothing);
+    expect(find.text('A thoughtful cafe, well run'), findsNothing);
   });
 
   testWidgets('menu link scrolls to the menu section', (tester) async {

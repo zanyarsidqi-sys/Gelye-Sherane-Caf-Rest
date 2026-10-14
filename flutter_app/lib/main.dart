@@ -45,7 +45,7 @@ class CafeLandingPage extends StatefulWidget {
 
 class _CafeLandingPageState extends State<CafeLandingPage> {
   final _menuKey = GlobalKey();
-  final _aboutKey = GlobalKey();
+  final _visitKey = GlobalKey();
 
   Future<void> _scrollTo(GlobalKey key) async {
     final target = key.currentContext;
@@ -105,7 +105,7 @@ class _CafeLandingPageState extends State<CafeLandingPage> {
             children: [
               CafeHeader(
                 onMenu: () => _scrollTo(_menuKey),
-                onAbout: () => _scrollTo(_aboutKey),
+                onAbout: () => _scrollTo(_visitKey),
                 onBook: _openReservation,
                 onStaff: _openStaffPreview,
               ),
@@ -117,8 +117,10 @@ class _CafeLandingPageState extends State<CafeLandingPage> {
               ),
               const _FeatureStrip(),
               _PageSection(key: _menuKey, child: const _MenuSection()),
-              _PageSection(key: _aboutKey, child: const _ManagementSection()),
-              _VisitSection(onBook: _openReservation),
+              KeyedSubtree(
+                key: _visitKey,
+                child: _VisitSection(onBook: _openReservation),
+              ),
               const _CafeFooter(),
             ],
           ),
@@ -815,167 +817,6 @@ class _MenuSection extends StatelessWidget {
           style: TextStyle(color: _muted, fontSize: 12),
         ),
       ],
-    );
-  }
-}
-
-class _ManagementSection extends StatelessWidget {
-  const _ManagementSection();
-
-  static const _modules = [
-    (
-      'Dashboard Management',
-      'A clear view of daily activity and key indicators.',
-      Icons.space_dashboard_outlined,
-    ),
-    (
-      'Tables & Orders',
-      'Coordinate table service and order progress.',
-      Icons.table_restaurant_outlined,
-    ),
-    (
-      'Payment Management',
-      'Keep payment and billing workflows organized.',
-      Icons.payments_outlined,
-    ),
-    (
-      'Kitchen Management',
-      'Follow preparation and kitchen order flow.',
-      Icons.soup_kitchen_outlined,
-    ),
-    (
-      'Customer Management',
-      'Support a welcoming and consistent guest experience.',
-      Icons.people_outline,
-    ),
-    (
-      'Statistics Management',
-      'Review operational trends and performance.',
-      Icons.query_stats,
-    ),
-    (
-      'Employee Management',
-      'Organize teams, roles, and staff schedules.',
-      Icons.badge_outlined,
-    ),
-    (
-      'Maintenance Management',
-      'Track equipment and facility follow-ups.',
-      Icons.home_repair_service_outlined,
-    ),
-    (
-      'Notifications Management',
-      'Keep important updates visible to the team.',
-      Icons.notifications_none,
-    ),
-    (
-      'Settings Management',
-      'Configure preferences for cafe operations.',
-      Icons.tune,
-    ),
-    (
-      'Operations Management',
-      'Bring day-to-day workflows together.',
-      Icons.settings_suggest_outlined,
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(26),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0EEE8),
-        borderRadius: BorderRadius.circular(26),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _SectionHeading(
-            eyebrow: 'BUILT AROUND HOSPITALITY',
-            title: 'A thoughtful cafe, well run',
-            subtitle:
-                'Explore the areas that help bring great service together. '
-                'These cards are a product preview, not live management tools.',
-          ),
-          const SizedBox(height: 24),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final columns = constraints.maxWidth >= 900
-                  ? 3
-                  : constraints.maxWidth >= 570
-                  ? 2
-                  : 1;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _modules.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  mainAxisExtent: 150,
-                  crossAxisSpacing: 13,
-                  mainAxisSpacing: 13,
-                ),
-                itemBuilder: (context, index) {
-                  final module = _modules[index];
-                  return Container(
-                    padding: const EdgeInsets.all(17),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(17),
-                      border: Border.all(color: const Color(0xFFE5E0D7)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 39,
-                              height: 39,
-                              decoration: BoxDecoration(
-                                color: _navy.withValues(alpha: 0.07),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(module.$3, color: _navy, size: 21),
-                            ),
-                            const Spacer(),
-                            Text(
-                              (index + 1).toString().padLeft(2, '0'),
-                              style: const TextStyle(
-                                color: _gold,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Text(
-                          module.$1,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          module.$2,
-                          style: const TextStyle(
-                            color: _muted,
-                            fontSize: 11,
-                            height: 1.35,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
     );
   }
 }
