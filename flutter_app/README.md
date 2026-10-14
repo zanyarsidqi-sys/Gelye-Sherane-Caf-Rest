@@ -5,24 +5,43 @@ Push changes to `main` to build, test, and deploy it through GitHub Actions.
 
 To enable the first deployment, set **Settings > Pages > Build and deployment > Source** to **GitHub Actions** in the repository.
 
-## Cafe website preview
+## Cafe website
 
 The app includes a responsive cafe landing page, menu highlights, a Supabase
-email/password staff sign-in, and a reservation form preview. Reservations are
-not sent or stored, and staff management tools are not connected yet.
+email/password staff sign-in, an administrator-only staff account form, and a
+reservation form preview. Reservations are not sent or stored.
 
-## Enable staff sign-in
+## Configure staff administration
 
 The deployment workflow supplies the Supabase project URL, expected project
 reference, and publishable key as Flutter build defines. These are public
-client-side values; never put a `service_role` key in a client app.
+client-side values. Never put a Supabase `service_role` key in Flutter or any
+other browser code.
 
-The app only initializes Supabase when the URL, expected project reference, and
-publishable/anon key are all present and match. Until then, the sign-in dialog
-explains that setup is missing or invalid. Disable public sign-ups and create
-staff accounts in Supabase; the app intentionally has no public sign-up.
-Authentication alone does not grant staff permissions: enforce authorization
-and row-level security in the backend before adding management data or actions.
+The first administrator can be an existing Supabase Auth user. In the Supabase
+SQL Editor, run `supabase/migrations/20261015000000_staff_profiles.sql`, replace
+`REPLACE_WITH_YOUR_SUPABASE_EMAIL` in `supabase/BOOTSTRAP_ADMIN.sql` with that
+user's email, and run the bootstrap SQL once. This one-time step grants that
+existing account the admin role; signing in by itself does not grant admin
+access.
+
+Deploy the account-creation function with the Supabase CLI, linked to the same
+project:
+
+```powershell
+supabase functions deploy create-staff-user --project-ref lpxuuzfgiggsyhdbsucv
+```
+
+The function uses Supabase's server-side `SUPABASE_SERVICE_ROLE_KEY` environment
+secret. Keep it in Supabase's function environment only; never copy it into the
+Flutter app. After the database migration and function are deployed, sign in
+with the administrator account and choose **Add staff user**. New accounts are
+created with the staff role, and only an administrator can create them. Disable
+public sign-ups in Supabase Auth.
+
+If sign-in succeeds but the app says it cannot load staff permissions, apply
+the database migration. If it says the account has no administrator role, run
+the one-time bootstrap SQL using the email of the existing Supabase Auth user.
 
 For local development, pass `SUPABASE_URL`, `SUPABASE_EXPECTED_PROJECT_REF`,
 and `SUPABASE_PUBLISHABLE_KEY` with `--dart-define` to `flutter run` or

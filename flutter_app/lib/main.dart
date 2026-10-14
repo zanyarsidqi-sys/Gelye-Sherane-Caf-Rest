@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -1170,8 +1172,22 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _newStaffEmailController = TextEditingController();
+  final _newStaffPasswordController = TextEditingController();
   String? _error;
+  String? _staffCreatedMessage;
+  bool? _isAdmin;
+  bool _isLoadingRole = false;
   bool _isSubmitting = false;
+  bool _showCreateStaffForm = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_signedInEmail != null) {
+      unawaited(_loadStaffRole());
+    }
+  }
 
   String? get _signedInEmail =>
       widget.supabaseConfigured
@@ -1182,7 +1198,46 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _newStaffEmailController.dispose();
+    _newStaffPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadStaffRole() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    setState(() {
+      _isLoadingRole = true;
+      _isAdmin = null;
+      _error = null;
+    });
+    try {
+      final profile = await Supabase.instance.client
+          .from('staff_profiles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle();
+      if (!mounted) return;
+      setState(() {
+        _isAdmin = profile?['role'] == 'admin';
+        if (profile == null) {
+          _error =
+              'Your account is signed in but has no staff role yet. Ask the '
+              'project owner to grant the first admin role.';
+        }
+      });
+    } on PostgrestException {
+      if (mounted) {
+        setState(() {
+          _error =
+              'Could not load staff permissions. The staff database setup may '
+              'not have been applied yet.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingRole = false);
+    }
   }
 
   Future<void> _signIn() async {
@@ -1204,6 +1259,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
         });
       } else {
         setState(() {});
+        await _loadStaffRole();
       }
     } on AuthException {
       if (mounted) {
@@ -1229,7 +1285,14 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
     });
     try {
       await Supabase.instance.client.auth.signOut();
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {
+          _isAdmin = null;
+          _error = null;
+          _staffCreatedMessage = null;
+          _showCreateStaffForm = false;
+        });
+      }
     } on AuthException {
       if (mounted) {
         setState(() {
@@ -1240,6 +1303,59 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
       if (mounted) {
         setState(() {
           _error = 'Could not reach the sign-in service. Check your connection and try again.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _createStaffAccount() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+      _staffCreatedMessage = null;
+    });
+
+    final email = _newStaffEmailController.text.trim();
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'create-staff-user',
+        body: {
+          'email': email,
+          'password': _newStaffPasswordController.text,
+        },
+      );
+      if (!mounted) return;
+      setState(() {
+        _staffCreatedMessage = 'Staff account created for $email.';
+        _newStaffEmailController.clear();
+        _newStaffPasswordController.clear();
+        _showCreateStaffForm = false;
+      });
+    } on FunctionException catch (exception) {
+      if (mounted) {
+        final details = exception.details;
+        final message = details is Map ? details['error'] : null;
+        setState(() {
+          _error = message is String
+              ? message
+              : 'Could not create the staff account (HTTP ${exception.status}).';
+        });
+      }
+    } on AuthException {
+      if (mounted) {
+        setState(() {
+          _error = 'Your sign-in has expired. Sign in again and retry.';
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _error =
+              'Could not reach the staff service. Confirm that the database '
+              'and create-staff-user function are deployed.';
         });
       }
     } finally {
@@ -1305,22 +1421,116 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
   }
 
   Widget _signedInContent(String email) {
+    if (_isLoadingRole) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text('Signed in as $email.'),
         const SizedBox(height: 12),
-        const Text(
-          'Authentication succeeded. Staff management tools are not connected '
-          'to this website yet.',
-          style: TextStyle(color: _muted, height: 1.45),
-        ),
+        if (_isAdmin == true) ...[
+          const Text(
+            'Administrator access',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: _isSubmitting
+                ? null
+                : () => setState(() {
+                    _showCreateStaffForm = !_showCreateStaffForm;
+                    _error = null;
+                    _staffCreatedMessage = null;
+                  }),
+            icon: const Icon(Icons.person_add_alt_1),
+            label: Text(
+              _showCreateStaffForm ? 'Cancel adding staff' : 'Add staff user',
+            ),
+          ),
+          if (_showCreateStaffForm) ...[
+            const SizedBox(height: 12),
+            _createStaffForm(),
+          ],
+          if (_staffCreatedMessage != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              _staffCreatedMessage!,
+              style: const TextStyle(color: Colors.green),
+            ),
+          ],
+        ] else
+          const Text(
+            'This account does not have an administrator role. The first '
+            'administrator must be assigned by the project owner.',
+            style: TextStyle(color: _muted, height: 1.45),
+          ),
         if (_error != null) ...[
           const SizedBox(height: 12),
           _AuthErrorMessage(_error!),
         ],
       ],
+    );
+  }
+
+  Widget _createStaffForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            controller: _newStaffEmailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: 'New staff email',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.email_outlined),
+            ),
+            validator: (value) {
+              final email = value?.trim() ?? '';
+              if (!email.contains('@') || !email.contains('.')) {
+                return 'Enter a valid email address';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _newStaffPasswordController,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: 'Initial password (12+ characters)',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.password_outlined),
+            ),
+            validator: (value) => value == null || value.length < 12
+                ? 'Use at least 12 characters'
+                : null,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _isSubmitting ? null : _createStaffAccount,
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Create staff account'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
