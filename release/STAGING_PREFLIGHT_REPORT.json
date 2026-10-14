@@ -10,6 +10,7 @@
     "ci_staging_version_matches": true,
     "ci_staging_branch_matches": true,
     "menu_migration_has_unique_14_digit_version": true,
+    "ci_staging_menu_backend_gate": true,
     "push_service_worker": true,
     "push_client_subscription": true,
     "saved_session_restoration": true

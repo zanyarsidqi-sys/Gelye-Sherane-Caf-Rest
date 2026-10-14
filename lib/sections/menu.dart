@@ -847,7 +847,12 @@ class _ProductRevisionDialogState extends State<_ProductRevisionDialog> {
   Future<void> _pickImage() async {
     setState(() { _uploading = true; _uploadError = null; });
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['jpg', 'jpeg', 'png', 'webp'],
+        allowMultiple: false,
+        withData: true,
+      );
       if (result == null || result.files.isEmpty) return;
       _imagePath = await widget.service.uploadProductImage(result.files.single);
     } catch (error) {

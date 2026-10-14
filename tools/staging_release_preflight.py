@@ -28,6 +28,7 @@ checks={
   re.fullmatch(r'\d{14}',menu_migration_prefix)
   and migration_prefixes[menu_migration_prefix] == 1
  ),
+ 'ci_staging_menu_backend_gate': 'gs_menu_public_catalog' in validation_workflow,
  'push_service_worker': (root/'web/push/sw.js').is_file(),
  'push_client_subscription': 'window.cafePushEnable' in push and 'window.cafePushDisable' in push,
  'saved_session_restoration': '_restoreSavedSession' in app,

@@ -69,6 +69,22 @@ jobs:
           [[ "$STAGING_SUPABASE_EXPECTED_PROJECT_REF" != "$PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF" ]] || { echo "::error::Staging and production project refs must differ."; exit 1; }
           echo "available=true" >> "$GITHUB_OUTPUT"
 
+      - name: Verify the public Menu catalog exists in isolated staging
+        if: steps.staging_config.outputs.available == 'true'
+        env:
+          STAGING_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          if ! curl --fail --silent --show-error \
+            -H "apikey: $STAGING_SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            --data '{}' \
+            "$STAGING_SUPABASE_URL/rest/v1/rpc/gs_menu_public_catalog" >/dev/null; then
+            echo "::error::Staging public Menu RPC is unavailable; no testable artifact was produced."
+            exit 1
+          fi
+
       - name: Build candidate against isolated staging only
         if: steps.staging_config.outputs.available == 'true'
         env:
