@@ -67,4 +67,34 @@ void main() {
     expect(reservationsOpen, 1);
     expect(ordersOpen, 1);
   });
+
+  testWidgets('landing page stays laid out when contact loading fails', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(402, 874));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: GelyeProfessionalTheme.light,
+        home: PublicLandingPage(
+          isDark: false,
+          onToggleTheme: () {},
+          onStaffLogin: () {},
+          onStationPos: () {},
+          onOpenMenu: () {},
+          onReserveTable: () {},
+          onOrderOnline: () {},
+          contactLoader: () async {
+            throw StateError('Contact service unavailable');
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Contact details are temporarily unavailable.'), findsOneWidget);
+    expect(find.text('Try again'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

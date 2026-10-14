@@ -1,0 +1,113 @@
+name: Validate Gelye 1.0.0.10 employee sign-in recovery
+on:
+  push:
+    branches:
+      - staging/release-1.0.0.10-auth
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require the 1.0.0.10 candidate and complete source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "staging/release-1.0.0.10-auth"
+          test "$(tr -d '\r\n' < release/VERSION)" = "1.0.0.10"
+          for f in pubspec.yaml lib/main.dart web/index.html web/manifest.json \
+                   supabase/migrations/20261013_1500_table_floor_names.sql \
+                   supabase/migrations/20261013_1501_customer_table_order_review.sql \
+                   supabase/migrations/20261013_1504_website_brand_assets.sql \
+                   supabase/migrations/20261013_1505_station_employee_authorization.sql \
+                   supabase/functions/station-device-auth/index.ts \
+                   release/test_station_employee_authorization.py \
+                   release/test_auth_permission_session_lifecycle.py; do
+            test -f "$f" || { echo "::error::Missing $f"; exit 1; }
+          done
+          count=$(find lib/sections -maxdepth 1 -type f -name '*.dart' | wc -l)
+          test "$count" -eq 35 || { echo "::error::Expected 35 sections, found $count"; exit 1; }
+          test -n "$(find test -type f -name '*_test.dart' -print -quit)"
+      - name: Reject committed private key files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -Ei '(^|/)(id_rsa|id_ed25519|.*[.]pem|.*[.]p12|.*[.]pfx)$'; then
+            echo "::error::Potential private key committed"
+            exit 1
+          fi
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          cache: true
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Run release source checks
+        run: |
+          set -euo pipefail
+          python3 tools/staging_release_preflight.py
+          python3 tools/check_release_version.py
+          for test_file in release/test_*.py; do python3 "$test_file"; done
+      - name: Type-check Station POS authorization Edge Function
+        run: deno check supabase/functions/station-device-auth/index.ts
+      - name: Resolve dependencies and analyze
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos
+      - name: Run Flutter tests
+        run: flutter test
+      - name: Validate isolated staging Supabase settings
+        id: staging_config
+        shell: bash
+        env:
+          STAGING_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.STAGING_SUPABASE_EXPECTED_PROJECT_REF }}
+          STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
+          PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$STAGING_SUPABASE_URL" || -z "$STAGING_SUPABASE_EXPECTED_PROJECT_REF" || -z "$STAGING_SUPABASE_ANON_KEY" ]]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Staging build not produced"
+              echo "Add repository Actions variables \`STAGING_SUPABASE_URL\`, \`STAGING_SUPABASE_EXPECTED_PROJECT_REF\`, and \`STAGING_SUPABASE_ANON_KEY\`."
+              echo "No artifact was built because the only configured Supabase project is production."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice::Skipping staging artifact: dedicated staging Supabase settings are not configured."
+            exit 0
+          fi
+          [[ "$STAGING_SUPABASE_EXPECTED_PROJECT_REF" =~ ^[a-z0-9]{20}$ ]] || { echo "::error::Invalid staging Supabase project ref."; exit 1; }
+          [[ "$STAGING_SUPABASE_URL" == "https://${STAGING_SUPABASE_EXPECTED_PROJECT_REF}.supabase.co" ]] || { echo "::error::Staging Supabase URL and project ref do not match."; exit 1; }
+          [[ -n "$PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF" ]] || { echo "::error::Production project ref variable is missing; cannot prove the staging project is isolated."; exit 1; }
+          [[ "$STAGING_SUPABASE_EXPECTED_PROJECT_REF" != "$PRODUCTION_SUPABASE_EXPECTED_PROJECT_REF" ]] || { echo "::error::Staging and production Supabase project refs must differ."; exit 1; }
+          echo "available=true" >> "$GITHUB_OUTPUT"
+      - name: Build workspace candidate for staging
+        if: steps.staging_config.outputs.available == 'true'
+        env:
+          STAGING_SUPABASE_URL: ${{ vars.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.STAGING_SUPABASE_EXPECTED_PROJECT_REF }}
+          STAGING_SUPABASE_ANON_KEY: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
+        run: |
+          flutter build web --release \
+            --dart-define="SUPABASE_URL=$STAGING_SUPABASE_URL" \
+            --dart-define="SUPABASE_ANON_KEY=$STAGING_SUPABASE_ANON_KEY" \
+            --dart-define="SUPABASE_EXPECTED_PROJECT_REF=$STAGING_SUPABASE_EXPECTED_PROJECT_REF" \
+            --dart-define="APP_RELEASE_VERSION=1.0.0.10"
+      - name: Verify compiled web files
+        if: steps.staging_config.outputs.available == 'true'
+        run: |
+          set -euo pipefail
+          test -s build/web/index.html
+          test -s build/web/flutter_bootstrap.js
+          find build/web -name 'main.dart.js' -size +0c | grep -q .
+      - name: Upload staging artifact
+        if: steps.staging_config.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gelye-cafe-rest-1.0.0.10-auth-staging-web
+          path: build/web/
+          if-no-files-found: error
+          retention-days: 1
