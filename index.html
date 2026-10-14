@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gelye Sherane Cafe & Restaurant</title>
+    <meta
+      name="description"
+      content="Luxury restaurant landing page for Gelye Sherane Cafe & Restaurant."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">G</div>
+          <div class="brand-text">
+            <span class="brand-name">Gelye Sherane</span>
+            <span class="brand-sub">Café &amp; Restaurant</span>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="#" class="active">Home</a>
+          <a href="#">Menu</a>
+          <a href="#">Reservations</a>
+          <a href="#">Events &amp; Parties</a>
+          <a href="#">Gallery</a>
+          <a href="#">About Us</a>
+          <a href="#">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="lang-btn" type="button">EN</button>
+          <button class="primary-btn small" type="button">Book a Table</button>
+          <button
+            id="staff-portal-trigger"
+            class="secondary-btn small"
+            type="button"
+            aria-expanded="false"
+          >
+            Staff Portal
+          </button>
+        </div>
+      </header>
+
+      <main class="hero-section">
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+          <span class="eyebrow">WELCOME TO</span>
+          <h1>Gelye Sherane<br />Café &amp; Restaurant</h1>
+
+          <div class="tagline-row">
+            <span>Great Food</span>
+            <span>Beautiful Views</span>
+            <span>Unforgettable Moments</span>
+          </div>
+
+          <p>
+            Enjoy delicious food, relaxing atmosphere, and the natural beauty of
+            Gelye Sherane with family and friends.
+          </p>
+
+          <div class="cta-row">
+            <button class="primary-btn" type="button">Book a Table</button>
+            <button class="ghost-btn" type="button">Explore Menu</button>
+          </div>
+        </div>
+
+        <aside class="portal-card" aria-label="Staff portal" aria-hidden="true">
+          <button class="portal-close" type="button" aria-label="Close staff portal">×</button>
+
+          <div class="portal-header">
+            <div class="brand-mini">
+              <div class="brand-mark small">G</div>
+              <div class="brand-text compact">
+                <span class="brand-name">Gelye Sherane</span>
+                <span class="brand-sub">Café &amp; Restaurant</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="portal-body">
+            <h2>Staff Portal</h2>
+            <p>Secure access for authorized employees only</p>
+
+            <div class="stepper" aria-label="Portal steps">
+              <span class="active">1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>4</span>
+            </div>
+
+            <div class="entry-box">
+              <label for="entry-code">Enter Staff Entrance Code</label>
+              <input id="entry-code" type="text" placeholder="Please enter the staff entrance code to continue." />
+            </div>
+
+            <div class="staff-code-row">
+              <div class="staff-code-icon">🔒</div>
+              <input type="text" placeholder="Staff Entrance Code" />
+            </div>
+
+            <button class="primary-btn wide portal-continue" type="button">Continue →</button>
+          </div>
+        </aside>
+      </main>
+
+      <section class="feature-bar" aria-label="Restaurant highlights">
+        <article class="feature-item">
+          <div class="feature-icon">🍽️</div>
+          <div>
+            <h3>Delicious Food</h3>
+            <p>Local &amp; International</p>
+          </div>
+        </article>
+        <article class="feature-item">
+          <div class="feature-icon">🥬</div>
+          <div>
+            <h3>Fresh Ingredients</h3>
+            <p>High Quality &amp; Healthy</p>
+          </div>
+        </article>
+        <article class="feature-item">
+          <div class="feature-icon">👨‍👩‍👧‍👦</div>
+          <div>
+            <h3>Family Friendly</h3>
+            <p>Perfect for Everyone</p>
+          </div>
+        </article>
+        <article class="feature-item">
+          <div class="feature-icon">📅</div>
+          <div>
+            <h3>Table Reservation</h3>
+            <p>Easy Online Booking</p>
+          </div>
+        </article>
+        <article class="feature-item">
+          <div class="feature-icon">🎉</div>
+          <div>
+            <h3>Events &amp; Parties</h3>
+            <p>Special Occasions</p>
+          </div>
+        </article>
+        <article class="feature-item">
+          <div class="feature-icon">🍃</div>
+          <div>
+            <h3>Free Parking</h3>
+            <p>Spacious Parking Area</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="management-structure" aria-label="Management structure overview">
+        <div class="structure-header">
+          <div class="structure-brand">
+            <div class="mini-mark">G</div>
+            <div>
+              <div class="structure-brand-name">Gelye Sherane</div>
+              <div class="structure-brand-sub">Café &amp; Restaurant</div>
+            </div>
+          </div>
+
+          <h2>Gelye Sherane Café Management Showcase</h2>
+
+          <div class="status-pills" aria-label="Status information">
+            <span>✓ 35 original sections preserved</span>
+            <span>✓ 11 main sections</span>
+            <span>✓ No data or permission changes</span>
+          </div>
+        </div>
+
+        <div class="structure-grid">
+          <article class="module-card dashboard-card">
+            <div class="module-head"><span class="module-index">01</span><span class="module-title">Dashboard Management</span></div>
+            <div class="module-preview phone-preview dashboard-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="screen-graph"><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="screen-cards"><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Revenue Overview</span><span>Sales</span><span>KPIs</span></div>
+          </article>
+
+          <article class="module-card blue-card">
+            <div class="module-head"><span class="module-index">02</span><span class="module-title">Tables &amp; Orders Management</span></div>
+            <div class="module-preview phone-preview order-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="table-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Table Map</span><span>Orders</span><span>Kitchen</span></div>
+          </article>
+
+          <article class="module-card green-card">
+            <div class="module-head"><span class="module-index">03</span><span class="module-title">Payment Management</span></div>
+            <div class="module-preview phone-preview payment-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="payment-box"><strong>Payment</strong><span>$125.00</span></div>
+              <div class="payment-row"><span>Card</span><span>Cash</span></div>
+            </div>
+            <div class="row-labels"><span>Invoices</span><span>Discounts</span><span>Refunds</span></div>
+          </article>
+
+          <article class="module-card orange-card">
+            <div class="module-head"><span class="module-index">04</span><span class="module-title">Kitchen Management</span></div>
+            <div class="module-preview phone-preview kitchen-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="kitchen-grid"><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Orders</span><span>Prep</span><span>Inventory</span></div>
+          </article>
+
+          <article class="module-card purple-card">
+            <div class="module-head"><span class="module-index">05</span><span class="module-title">Customer Management</span></div>
+            <div class="module-preview phone-preview customer-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="customer-card"><span class="avatar"></span><div><strong>Ahmad Hassan</strong><small>VIP Customer</small></div></div>
+              <div class="customer-metrics"><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Loyalty</span><span>CRM</span><span>Messaging</span></div>
+          </article>
+
+          <article class="module-card red-card">
+            <div class="module-head"><span class="module-index">06</span><span class="module-title">Statistics Management</span></div>
+            <div class="module-preview phone-preview stats-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="stats-bars"><span></span><span></span><span></span><span></span></div>
+              <div class="donut-wrap"><div class="donut"></div></div>
+            </div>
+            <div class="row-labels"><span>Reports</span><span>Analytics</span><span>Insights</span></div>
+          </article>
+
+          <article class="module-card cyan-card">
+            <div class="module-head"><span class="module-index">07</span><span class="module-title">Employee Management</span></div>
+            <div class="module-preview phone-preview employee-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="employees"><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Roster</span><span>Leaves</span><span>Payroll</span></div>
+          </article>
+
+          <article class="module-card slate-card">
+            <div class="module-head"><span class="module-index">08</span><span class="module-title">Maintenance Management</span></div>
+            <div class="module-preview phone-preview maintenance-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="maintenance-grid"><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Assets</span><span>Repair</span><span>Reports</span></div>
+          </article>
+
+          <article class="module-card pink-card">
+            <div class="module-head"><span class="module-index">09</span><span class="module-title">Notifications Management</span></div>
+            <div class="module-preview phone-preview notification-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="notify-list"><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Alerts</span><span>Messages</span><span>Events</span></div>
+          </article>
+
+          <article class="module-card indigo-card">
+            <div class="module-head"><span class="module-index">10</span><span class="module-title">Settings Management</span></div>
+            <div class="module-preview phone-preview settings-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="settings-grid"><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>System</span><span>Security</span><span>Preferences</span></div>
+          </article>
+
+          <article class="module-card gold-card">
+            <div class="module-head"><span class="module-index">11</span><span class="module-title">Operations Management</span></div>
+            <div class="module-preview phone-preview ops-screen">
+              <div class="mini-topbar"><span></span><span></span><span></span></div>
+              <div class="ops-grid"><span></span><span></span><span></span></div>
+            </div>
+            <div class="row-labels"><span>Branches</span><span>Business</span><span>Logistics</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="dashboard-management-section" aria-label="Section 01 Dashboard Management">
+        <div class="dashboard-shell">
+          <aside class="dashboard-sidebar">
+            <div class="dashboard-brand">
+              <div class="dashboard-mark">G</div>
+              <div class="dashboard-brand-text">
+                <span>GELYE SHERANE</span>
+                <small>CAFÉ &amp; RESTAURANT</small>
+              </div>
+            </div>
+
+            <nav class="dashboard-nav" aria-label="Management navigation">
+              <button class="nav-item active" type="button">Dashboard</button>
+              <button class="nav-item" type="button">Tables &amp; Orders</button>
+              <button class="nav-item" type="button">Payment Management</button>
+              <button class="nav-item" type="button">Kitchen Management</button>
+              <button class="nav-item" type="button">Customer Management</button>
+              <button class="nav-item" type="button">Statistics Management</button>
+              <button class="nav-item" type="button">Employee Management</button>
+              <button class="nav-item" type="button">Maintenance Management</button>
+              <button class="nav-item" type="button">Notifications Management</button>
+              <button class="nav-item" type="button">Settings Management</button>
+              <button class="nav-item" type="button">Operations Management</button>
+            </nav>
+
+            <div class="system-status">
+              <span class="status-label">System Online</span>
+              <strong>v1.0.0</strong>
+              <small>Tue, 14 Oct 2026</small>
+              <small>10:24 AM</small>
+            </div>
+          </aside>
+
+          <div class="dashboard-main-panel">
+            <header class="dashboard-header-row">
+              <div class="dashboard-title-block">
+                <h2>Section 01 – Dashboard Management</h2>
+                <h3>Subcard 01 – Today Revenue Overview</h3>
+              </div>
+              <div class="dashboard-compact-status">
+                <span>Real-time Overview</span>
+                <strong>Subcard 01 of 35</strong>
+              </div>
+            </header>
+
+            <div class="dashboard-toolbar">
+              <div class="search-box">
+                <span class="search-icon">⌕</span>
+                <input type="text" value="Search menus, orders, customers, tables..." aria-label="Search dashboard" />
+              </div>
+
+              <div class="toolbar-actions">
+                <button class="icon-button" type="button">⤴</button>
+                <button class="lang-select" type="button">EN</button>
+                <button class="icon-button" type="button">⚙</button>
+                <div class="user-pill">
+                  <div class="avatar-mini">A</div>
+                  <div>
+                    <strong>Ahmed Hassan</strong>
+                    <small>Manager</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="kpi-grid">
+              <article class="kpi-card accent-green">
+                <div class="kpi-top">
+                  <span>Total Revenue</span>
+                  <span class="kpi-badge">1</span>
+                </div>
+                <strong>1,245,000 IQD</strong>
+                <small>+1.5% vs. previous day</small>
+                <div class="sparkline spark-green"><span></span><span></span><span></span><span></span><span></span></div>
+              </article>
+
+              <article class="kpi-card accent-blue">
+                <div class="kpi-top">
+                  <span>Total Orders</span>
+                  <span class="kpi-badge">2</span>
+                </div>
+                <strong>186</strong>
+                <small>+8.1% vs. previous day</small>
+                <div class="sparkline spark-blue"><span></span><span></span><span></span><span></span><span></span></div>
+              </article>
+
+              <article class="kpi-card accent-orange">
+                <div class="kpi-top">
+                  <span>Total Customers</span>
+                  <span class="kpi-badge">3</span>
+                </div>
+                <strong>142</strong>
+                <small>+15.9% vs. previous day</small>
+                <div class="sparkline spark-orange"><span></span><span></span><span></span><span></span><span></span></div>
+              </article>
+
+              <article class="kpi-card accent-purple">
+                <div class="kpi-top">
+                  <span>Average Order Value</span>
+                  <span class="kpi-badge">4</span>
+                </div>
+                <strong>6,693 IQD</strong>
+                <small>+1.3% vs. previous day</small>
+                <div class="sparkline spark-purple"><span></span><span></span><span></span><span></span><span></span></div>
+              </article>
+            </div>
+
+            <div class="analytics-grid">
+              <div class="analytics-panel chart-panel">
+                <div class="panel-head">
+                  <h4>Revenue &amp; Orders Trend</h4>
+                  <div class="panel-chip">Today</div>
+                </div>
+                <div class="chart-legend">
+                  <span><i class="legend-bar blue"></i>Revenue (IQD)</span>
+                  <span><i class="legend-bar orange"></i>Orders</span>
+                </div>
+                <div class="bar-chart" aria-label="Revenue and order chart">
+                  <div class="bar-group"><span class="bar revenue" style="height: 32%"></span><span class="bar order" style="height: 26%"></span></div>
+                  <div class="bar-group"><span class="bar revenue" style="height: 48%"></span><span class="bar order" style="height: 38%"></span></div>
+                  <div class="bar-group"><span class="bar revenue" style="height: 44%"></span><span class="bar order" style="height: 34%"></span></div>
+                  <div class="bar-group"><span class="bar revenue" style="height: 62%"></span><span class="bar order" style="height: 52%"></span></div>
+                  <div class="bar-group"><span class="bar revenue" style="height: 74%"></span><span class="bar order" style="height: 64%"></span></div>
+                  <div class="bar-group"><span class="bar revenue" style="height: 58%"></span><span class="bar order" style="height: 48%"></span></div>
+                  <div class="bar-group"><span class="bar revenue" style="height: 82%"></span><span class="bar order" style="height: 70%"></span></div>
+                  <div class="bar-group"><span class="bar revenue" style="height: 68%"></span><span class="bar order" style="height: 62%"></span></div>
+                </div>
+              </div>
+
+              <div class="analytics-panel category-panel">
+                <div class="panel-head">
+                  <h4>Revenue by Category</h4>
+                  <div class="panel-chip subtle">6</div>
+                </div>
+                <div class="donut-wrap">
+                  <div class="donut-chart">
+                    <div class="donut-center">1,245,000<br /><small>IQD</small></div>
+                  </div>
+                </div>
+                <ul class="category-list">
+                  <li><span class="dot blue"></span>Food <strong>42%</strong> <em>522,900</em></li>
+                  <li><span class="dot mint"></span>Drinks <strong>28%</strong> <em>348,600</em></li>
+                  <li><span class="dot orange"></span>Nargile <strong>12%</strong> <em>149,400</em></li>
+                  <li><span class="dot violet"></span>Model Orders <strong>8%</strong> <em>99,600</em></li>
+                  <li><span class="dot gray"></span>Takeaway <strong>6%</strong> <em>74,700</em></li>
+                  <li><span class="dot light"></span>Other <strong>4%</strong> <em>49,800</em></li>
+                </ul>
+              </div>
+
+              <div class="phone-preview-panel">
+                <div class="phone-head">
+                  <div class="phone-brand">
+                    <div class="mini-crest">G</div>
+                    <div>
+                      <strong>Gelye Sherane</strong>
+                      <small>Café &amp; Restaurant</small>
+                    </div>
+                  </div>
+                  <div class="phone-time">10:24</div>
+                </div>
+                <div class="phone-summary">
+                  <div class="phone-summary-header">
+                    <span>01 Today Revenue Overview</span>
+                    <small>Tue, 14 Oct 2026</small>
+                  </div>
+                  <div class="phone-total">1,245,000 <small>IQD</small></div>
+                </div>
+                <div class="phone-metrics">
+                  <div class="phone-stat"><span>Orders</span><strong>186</strong></div>
+                  <div class="phone-stat"><span>Avg Order</span><strong>6,693</strong></div>
+                </div>
+                <div class="phone-chart-mini">
+                  <span style="height: 38%"></span>
+                  <span style="height: 52%"></span>
+                  <span style="height: 42%"></span>
+                  <span style="height: 68%"></span>
+                  <span style="height: 56%"></span>
+                  <span style="height: 80%"></span>
+                  <span style="height: 74%"></span>
+                  <span style="height: 94%"></span>
+                </div>
+                <div class="phone-tabs">
+                  <span>Tables</span>
+                  <span>Orders</span>
+                  <span>Payment</span>
+                  <span>Menu</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bottom-dashboard-grid">
+              <article class="info-panel">
+                <div class="panel-head">
+                  <h4>Payment Methods</h4>
+                  <div class="panel-chip">7</div>
+                </div>
+                <div class="method-list">
+                  <div class="method-row"><span>Cash</span><strong>42%</strong><em>522,900</em></div>
+                  <div class="method-row"><span>Card</span><strong>28%</strong><em>348,600</em></div>
+                  <div class="method-row"><span>Credit</span><strong>18%</strong><em>224,100</em></div>
+                  <div class="method-row"><span>Online Payment</span><strong>8%</strong><em>99,600</em></div>
+                  <div class="method-row"><span>Other</span><strong>4%</strong><em>49,800</em></div>
+                </div>
+              </article>
+
+              <article class="info-panel">
+                <div class="panel-head">
+                  <h4>Top Selling Products</h4>
+                  <div class="panel-chip">8</div>
+                </div>
+                <table class="product-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Product</th>
+                      <th>Category</th>
+                      <th>Qty</th>
+                      <th>Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>1</td><td>Grilled Chicken</td><td>Food</td><td>48</td><td>192,000</td></tr>
+                    <tr><td>2</td><td>Tea</td><td>Drinks</td><td>120</td><td>120,000</td></tr>
+                    <tr><td>3</td><td>Nargile Double Apple</td><td>Nargile</td><td>18</td><td>108,000</td></tr>
+                    <tr><td>4</td><td>Fattoush Salad</td><td>Food</td><td>36</td><td>90,000</td></tr>
+                    <tr><td>5</td><td>Beef Burger</td><td>Food</td><td>22</td><td>88,000</td></tr>
+                  </tbody>
+                </table>
+              </article>
+
+              <article class="info-panel small-panel">
+                <div class="panel-head">
+                  <h4>Customer Type Analysis</h4>
+                  <div class="panel-chip">11</div>
+                </div>
+                <div class="donut-mini-wrap">
+                  <div class="mini-donut"></div>
+                </div>
+                <div class="legend-inline">
+                  <span><i class="legend-bar orange"></i>Walk-in</span>
+                  <span><i class="legend-bar blue"></i>Members</span>
+                  <span><i class="legend-bar green"></i>Delivery</span>
+                </div>
+              </article>
+
+              <article class="info-panel small-panel">
+                <div class="panel-head">
+                  <h4>Quick Actions</h4>
+                  <div class="panel-chip">12</div>
+                </div>
+                <div class="quick-actions">
+                  <button type="button">View All Orders</button>
+                  <button type="button">View Revenue Report</button>
+                  <button type="button">View Product Performance</button>
+                  <button type="button">Print Summary</button>
+                </div>
+              </article>
+
+              <article class="info-panel small-panel">
+                <div class="panel-head">
+                  <h4>Comparison</h4>
+                  <div class="panel-chip">13</div>
+                </div>
+                <div class="comparison-grid">
+                  <div><span>Today</span><strong>1,245,000 IQD</strong><em>+12.5%</em></div>
+                  <div><span>Yesterday</span><strong>1,105,000 IQD</strong><em>+27.0%</em></div>
+                  <div><span>Last Week</span><strong>980,000 IQD</strong><em>+22.1%</em></div>
+                  <div><span>Last Month</span><strong>1,020,000 IQD</strong><em>+21.9%</em></div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
