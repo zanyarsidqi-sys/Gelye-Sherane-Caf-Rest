@@ -41,7 +41,15 @@ jobs:
 
       - name: Build web app
         working-directory: flutter_app
-        run: flutter build web --release --base-href /
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_EXPECTED_PROJECT_REF: ${{ vars.SUPABASE_EXPECTED_PROJECT_REF }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_ANON_KEY }}
+        run: |
+          flutter build web --release --base-href / \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_EXPECTED_PROJECT_REF="$SUPABASE_EXPECTED_PROJECT_REF" \
+            --dart-define=SUPABASE_PUBLISHABLE_KEY="$SUPABASE_PUBLISHABLE_KEY"
 
       - name: Version Flutter entrypoint assets
         working-directory: flutter_app/build/web

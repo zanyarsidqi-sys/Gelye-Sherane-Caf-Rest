@@ -50,7 +50,7 @@ void main() {
     expect(find.text('Enter a valid phone number'), findsOneWidget);
   });
 
-  testWidgets('staff portal explains that sign-in is not configured', (
+  testWidgets('staff sign-in explains when Supabase is not configured', (
     tester,
   ) async {
     await tester.pumpWidget(const CafeApp());
@@ -58,10 +58,31 @@ void main() {
 
     await tester.tap(find.byTooltip('Open menu'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Staff portal preview'));
+    await tester.tap(find.text('Staff sign in'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Staff portal preview'), findsOneWidget);
-    expect(find.textContaining('not connected'), findsOneWidget);
+    expect(find.text('Staff sign in'), findsOneWidget);
+    expect(
+      find.textContaining('not configured for this deployment'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('staff sign-in rejects a mismatched Supabase configuration', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const CafeApp(supabaseConfigurationProvided: true));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Open menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Staff sign in'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('incomplete or does not match the approved project'),
+      findsOneWidget,
+    );
+    expect(find.text('Sign in'), findsNothing);
   });
 }

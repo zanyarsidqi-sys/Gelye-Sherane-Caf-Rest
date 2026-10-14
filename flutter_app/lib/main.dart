@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 const _navy = Color(0xFF09243A);
 const _deepNavy = Color(0xFF061A2B);
@@ -7,12 +8,59 @@ const _cream = Color(0xFFFAF8F3);
 const _ink = Color(0xFF182B3A);
 const _muted = Color(0xFF677582);
 
-void main() {
-  runApp(const CafeApp());
+const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const _supabasePublishableKey =
+    String.fromEnvironment(
+      'SUPABASE_PUBLISHABLE_KEY',
+      defaultValue: String.fromEnvironment('SUPABASE_ANON_KEY'),
+    );
+const _supabaseExpectedProjectRef =
+    String.fromEnvironment('SUPABASE_EXPECTED_PROJECT_REF');
+
+bool get _hasSupabaseConfiguration =>
+    _supabaseUrl.isNotEmpty ||
+    _supabasePublishableKey.isNotEmpty ||
+    _supabaseExpectedProjectRef.isNotEmpty;
+
+bool get _hasValidSupabaseConfiguration {
+  final uri = Uri.tryParse(_supabaseUrl);
+  return uri != null &&
+      RegExp(r'^[a-z0-9]{20}$').hasMatch(_supabaseExpectedProjectRef) &&
+      uri.scheme == 'https' &&
+      uri.userInfo.isEmpty &&
+      uri.port == 443 &&
+      uri.host == '$_supabaseExpectedProjectRef.supabase.co' &&
+      (uri.path.isEmpty || uri.path == '/') &&
+      uri.query.isEmpty &&
+      uri.fragment.isEmpty &&
+      _supabasePublishableKey.isNotEmpty;
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (_hasValidSupabaseConfiguration) {
+    await Supabase.initialize(
+      url: _supabaseUrl,
+      publishableKey: _supabasePublishableKey,
+    );
+  }
+  runApp(
+    CafeApp(
+      supabaseConfigured: _hasValidSupabaseConfiguration,
+      supabaseConfigurationProvided: _hasSupabaseConfiguration,
+    ),
+  );
 }
 
 class CafeApp extends StatelessWidget {
-  const CafeApp({super.key});
+  const CafeApp({
+    this.supabaseConfigured = false,
+    this.supabaseConfigurationProvided = false,
+    super.key,
+  });
+
+  final bool supabaseConfigured;
+  final bool supabaseConfigurationProvided;
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +79,23 @@ class CafeApp extends StatelessWidget {
           displayColor: _ink,
         ),
       ),
-      home: const CafeLandingPage(),
+      home: CafeLandingPage(
+        supabaseConfigured: supabaseConfigured,
+        supabaseConfigurationProvided: supabaseConfigurationProvided,
+      ),
     );
   }
 }
 
 class CafeLandingPage extends StatefulWidget {
-  const CafeLandingPage({super.key});
+  const CafeLandingPage({
+    this.supabaseConfigured = false,
+    this.supabaseConfigurationProvided = false,
+    super.key,
+  });
+
+  final bool supabaseConfigured;
+  final bool supabaseConfigurationProvided;
 
   @override
   State<CafeLandingPage> createState() => _CafeLandingPageState();
@@ -76,22 +134,12 @@ class _CafeLandingPageState extends State<CafeLandingPage> {
     );
   }
 
-  void _openStaffPreview() {
+  void _openStaffSignIn() {
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.lock_outline, color: _gold),
-        title: const Text('Staff portal preview'),
-        content: const Text(
-          'Staff sign-in and management tools are not connected in this public '
-          'website preview.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
+      builder: (context) => StaffSignInDialog(
+        supabaseConfigured: widget.supabaseConfigured,
+        supabaseConfigurationProvided: widget.supabaseConfigurationProvided,
       ),
     );
   }
@@ -107,7 +155,7 @@ class _CafeLandingPageState extends State<CafeLandingPage> {
                 onMenu: () => _scrollTo(_menuKey),
                 onAbout: () => _scrollTo(_visitKey),
                 onBook: _openReservation,
-                onStaff: _openStaffPreview,
+                onStaff: _openStaffSignIn,
               ),
               _PageSection(
                 child: _HeroSection(
@@ -170,7 +218,7 @@ class CafeHeader extends StatelessWidget {
                     TextButton.icon(
                       onPressed: onStaff,
                       icon: const Icon(Icons.lock_outline, size: 17),
-                      label: const Text('Staff portal'),
+                      label: const Text('Staff sign in'),
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.white.withValues(alpha: 0.88),
                       ),
@@ -240,7 +288,7 @@ class CafeHeader extends StatelessWidget {
                 },
               ),
               _MobileMenuItem(
-                label: 'Staff portal preview',
+                label: 'Staff sign in',
                 onPressed: () {
                   Navigator.pop(context);
                   onStaff();
@@ -1100,6 +1148,257 @@ class _ReservationDialogState extends State<ReservationDialog> {
         ),
         FilledButton(onPressed: _submit, child: const Text('Send request')),
       ],
+    );
+  }
+}
+
+class StaffSignInDialog extends StatefulWidget {
+  const StaffSignInDialog({
+    required this.supabaseConfigured,
+    required this.supabaseConfigurationProvided,
+    super.key,
+  });
+
+  final bool supabaseConfigured;
+  final bool supabaseConfigurationProvided;
+
+  @override
+  State<StaffSignInDialog> createState() => _StaffSignInDialogState();
+}
+
+class _StaffSignInDialogState extends State<StaffSignInDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String? _error;
+  bool _isSubmitting = false;
+
+  String? get _signedInEmail =>
+      widget.supabaseConfigured
+          ? Supabase.instance.client.auth.currentUser?.email
+          : null;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signIn() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+
+    try {
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (!mounted) return;
+      if (response.session == null || response.user == null) {
+        setState(() {
+          _error = 'Sign-in did not create an authenticated session.';
+        });
+      } else {
+        setState(() {});
+      }
+    } on AuthException {
+      if (mounted) {
+        setState(() {
+          _error = 'Sign-in failed. Check your email and password and try again.';
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _error = 'Could not reach the sign-in service. Check your connection and try again.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _signOut() async {
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    try {
+      await Supabase.instance.client.auth.signOut();
+      if (mounted) setState(() {});
+    } on AuthException {
+      if (mounted) {
+        setState(() {
+          _error = 'Sign-out failed. Please try again.';
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _error = 'Could not reach the sign-in service. Check your connection and try again.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final signedInEmail = _signedInEmail;
+    return AlertDialog(
+      icon: const Icon(Icons.lock_outline, color: _gold),
+      title: Text(signedInEmail == null ? 'Staff sign in' : 'Staff account'),
+      content: SizedBox(
+        width: 400,
+        child: SingleChildScrollView(
+          child: !widget.supabaseConfigured
+              ? _configurationMessage()
+              : signedInEmail != null
+                  ? _signedInContent(signedInEmail)
+                  : _signInForm(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          child: Text(signedInEmail == null ? 'Close' : 'Done'),
+        ),
+        if (widget.supabaseConfigured && signedInEmail != null)
+          FilledButton(
+            onPressed: _isSubmitting ? null : _signOut,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Sign out'),
+          ),
+        if (widget.supabaseConfigured && signedInEmail == null)
+          FilledButton(
+            onPressed: _isSubmitting ? null : _signIn,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Sign in'),
+          ),
+      ],
+    );
+  }
+
+  Widget _configurationMessage() {
+    final message = widget.supabaseConfigurationProvided
+        ? 'Supabase configuration is incomplete or does not match the approved '
+            'project. Check the deployment variables before signing in.'
+        : 'Staff sign-in is not configured for this deployment yet. Add the '
+            'Supabase project URL, expected project reference, and publishable '
+            'key to the deployment settings.';
+    return Text(message, style: const TextStyle(height: 1.5));
+  }
+
+  Widget _signedInContent(String email) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Signed in as $email.'),
+        const SizedBox(height: 12),
+        const Text(
+          'Authentication succeeded. Staff management tools are not connected '
+          'to this website yet.',
+          style: TextStyle(color: _muted, height: 1.45),
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 12),
+          _AuthErrorMessage(_error!),
+        ],
+      ],
+    );
+  }
+
+  Widget _signInForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Use your staff account to continue.',
+              style: TextStyle(color: _muted, height: 1.4),
+            ),
+          ),
+          const SizedBox(height: 18),
+          TextFormField(
+            controller: _emailController,
+            autofocus: true,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.username, AutofillHints.email],
+            decoration: const InputDecoration(
+              labelText: 'Staff email',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.email_outlined),
+            ),
+            validator: (value) {
+              final email = value?.trim() ?? '';
+              if (!email.contains('@') || !email.contains('.')) {
+                return 'Enter a valid email address';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _passwordController,
+            obscureText: true,
+            autofillHints: const [AutofillHints.password],
+            decoration: const InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.password_outlined),
+            ),
+            validator: (value) => value == null || value.isEmpty
+                ? 'Enter your password'
+                : null,
+            onFieldSubmitted: (_) => _isSubmitting ? null : _signIn(),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            _AuthErrorMessage(_error!),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AuthErrorMessage extends StatelessWidget {
+  const _AuthErrorMessage(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        message,
+        style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+      ),
     );
   }
 }
