@@ -25,6 +25,9 @@ import '../shared/app_language.dart';
 import '../sections/payments_management.dart';
 import '../sections/table_orders.dart';
 
+const Set<String> _financeAreaSectionIds =
+    PaymentsManagementScreen.financeAreaSectionIds;
+
 class CafeApp extends StatefulWidget {
   const CafeApp({super.key});
   @override
@@ -36,8 +39,6 @@ class _CafeAppState extends State<CafeApp> {
   Set<String> _restoredSections = <String>{};
 
   static const _languageKey = 'gelye_cafe_rest_language_v1';
-  static const Set<String> _financeAreaSectionIds =
-      PaymentsManagementScreen.financeAreaSectionIds;
   String _language = 'en';
   bool _dark = false;
   ThemeMode _selectedThemeMode = ThemeMode.system;
