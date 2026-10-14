@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'payments_management.dart';
 import '../shared/credit_barcode_panel.dart';
 import '../shared/credit_account_registration_panel.dart';
 import '../shared/credit_identity_review_panel.dart';
 import '../shared/credit_identity_onboarding_panel.dart';
 import '../shared/section_shell.dart';
+import '../shared/payments_reconciliation_screen.dart';
 
 class CreditManagementScreen extends StatelessWidget {
-  const CreditManagementScreen({super.key});
+  const CreditManagementScreen({super.key, this.compact = false});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) => SectionShell(
     title: 'Credit Management',
     description: 'Customer credit and settlements',
     sectionId: 'credit_management',
+    compact: compact,
     authorizedContent: ListView(children: [
       const Padding(
         padding: EdgeInsets.all(12),
@@ -26,14 +29,16 @@ class CreditManagementScreen extends StatelessWidget {
             icon: const Icon(Icons.account_balance_wallet_outlined),
             label: const Text('Review Standing Cash'),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
-              builder: (_) => const PaymentsManagementScreen(initialFocus: 'standing'),
+              builder: (_) =>
+                  const PaymentsReconciliationScreen(initialFocus: 'standing'),
             )),
           ),
           OutlinedButton.icon(
             icon: const Icon(Icons.receipt_long_outlined),
             label: const Text('Inspect Pending Payment'),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
-              builder: (_) => const PaymentsManagementScreen(initialFocus: 'pending'),
+              builder: (_) =>
+                  const PaymentsReconciliationScreen(initialFocus: 'pending'),
             )),
           ),
         ]),

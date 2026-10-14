@@ -56,18 +56,34 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
           );
         }
         final data = snapshot.data!;
+        const financeAreaIds = <String>{
+          'cost',
+          'revenue',
+          'invoices_payments',
+          'discount_management',
+          'credit_management',
+          'payments_management',
+        };
         final tableGrant = data.permissions['tables'];
         final orderGrant = data.permissions['table_orders'];
         final showTables = tableGrant?.canView == true ||
             orderGrant?.canView == true;
+        final financeGrants = data.permissions.entries
+            .where((entry) =>
+                entry.value.canView && financeAreaIds.contains(entry.key))
+            .toList()
+          ..sort((a, b) => a.key.compareTo(b.key));
         final grants = data.permissions.entries
             .where((entry) =>
                 entry.value.canView &&
                 entry.key != 'tables' &&
-                entry.key != 'table_orders')
+                entry.key != 'table_orders' &&
+                !financeAreaIds.contains(entry.key))
             .toList()
           ..sort((a, b) => a.key.compareTo(b.key));
-        final sectionCount = grants.length + (showTables ? 1 : 0);
+        final sectionCount = grants.length +
+            (showTables ? 1 : 0) +
+            (financeGrants.isNotEmpty ? 1 : 0);
         String permissionSummary(SectionPermission? permission) {
           if (permission == null || !permission.canView) return 'No access';
           return [
@@ -111,7 +127,7 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
                 ),
               ],
             ),
-            if (grants.isEmpty && !showTables)
+            if (grants.isEmpty && !showTables && financeGrants.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(12),
                 child: Text('No section permissions are assigned.'),
@@ -127,6 +143,25 @@ class _EmployeeAccessPanelState extends State<EmployeeAccessPanel> {
                     if (grant.value.canDelete) 'Delete',
                   ].join(' · ')),
                   leading: const Icon(Icons.verified_user_outlined),
+                ),
+              ),
+            if (financeGrants.isNotEmpty)
+              Card(
+                child: ExpansionTile(
+                  leading: const Icon(Icons.payments_outlined),
+                  title: const Text('Payment Management'),
+                  subtitle: Text(
+                      '${financeGrants.length} authorized finance area(s)'),
+                  children: [
+                    for (final grant in financeGrants)
+                      ListTile(
+                        dense: true,
+                        title: Text(grant.key.replaceAll('_', ' ')),
+                        subtitle: Text(permissionSummary(grant.value)),
+                        leading:
+                            const Icon(Icons.verified_user_outlined, size: 20),
+                      ),
+                  ],
                 ),
               ),
             if (showTables)

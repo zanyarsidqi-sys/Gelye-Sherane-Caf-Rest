@@ -10,8 +10,8 @@ def source(path: str) -> str:
 
 
 registry = source("lib/app/section_registry.dart")
-assert len(re.findall(r"^\s*CafeSection\(", registry, re.MULTILINE)) == 34, (
-    "The top-level section registry must contain exactly 34 entries."
+assert len(re.findall(r"^\s*CafeSection\(", registry, re.MULTILINE)) == 29, (
+    "The top-level section registry must contain exactly 29 entries."
 )
 assert "CafeSection('tables', \"Tables\", (context) => const TablesAndOrdersScreen())" in registry
 assert not re.search(r"CafeSection\(\s*['\"]table_orders['\"]", registry)
@@ -33,7 +33,8 @@ assert "if (widget.compact)" in shell
 
 app = source("lib/app/cafe_app.dart")
 assert "if (ids.contains('table_orders')) ids.add('tables')" in app
-assert "id == 'table_orders' ? 'tables' : id" in app
+assert "sectionId == 'table_orders'" in app
+assert "? 'tables'" in app
 assert "section.id == 'tables' && _sections.contains('table_orders')" in app
 assert "TablesAndOrdersScreen(initialTabIndex: 1)" in app
 
@@ -57,12 +58,14 @@ for forbidden in (
 ):
     assert forbidden not in migration, f"Unexpected destructive or grant-changing SQL: {forbidden}"
 
-assert source("release/VERSION").strip() == "1.0.0.13"
-workflow = source(".github/workflows/validate-1.0.0.13-tables.yml")
-assert "staging/release-1.0.0.13-tables" in workflow
-assert "APP_RELEASE_VERSION=1.0.0.13" in workflow
+assert source("release/VERSION").strip() == "1.0.0.14"
+workflow = source(
+    ".github/workflows/validate-1.0.0.14-payment-management.yml"
+)
+assert "staging/release-1.0.0.14-payment-management" in workflow
+assert "APP_RELEASE_VERSION=1.0.0.14" in workflow
 assert "Write and verify canonical staging release metadata" in workflow
 assert 'release.json' in workflow and 'release-version.txt' in workflow
 assert 'Staging JavaScript SHA-256 mismatch.' in workflow
 
-print("Tables consolidation contract passed: 34 top-level sections; feature grants preserved.")
+print("Tables consolidation contract passed: 29 top-level sections; feature grants preserved.")

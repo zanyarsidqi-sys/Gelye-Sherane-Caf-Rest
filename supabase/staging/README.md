@@ -32,3 +32,12 @@ Release 1.0.0.13 removes only the duplicate top-level `table_orders` catalog
 row, leaving 34 sections. The separate employee permission row remains intact
 for protected order actions. No employee, customer, order, payment, inventory,
 or other operational records are copied or modified.
+
+Release 1.0.0.14 groups Cost, Revenue, Invoices & Payments, Discount
+Management, Credit Management, and Payment Management under one visible
+Payment Management entry, leaving 29 top-level sections. The staging migration
+removes only the five duplicate catalog rows, keeps the `payments_management`
+catalog key, and verifies that all employee permission grants are unchanged.
+Each nested finance view still checks its original section permission. No
+employee, customer, cost, invoice, discount, credit, order, payment, inventory,
+or other operational records are copied or modified.

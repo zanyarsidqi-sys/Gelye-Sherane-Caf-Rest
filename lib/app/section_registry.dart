@@ -4,11 +4,9 @@ import '../sections/table_orders.dart';
 import '../sections/motel_orders.dart';
 import '../sections/kitchen.dart';
 import '../sections/menu.dart';
+import '../sections/payments_management.dart';
 import '../sections/products_inventory.dart';
 import '../sections/customers.dart';
-import '../sections/cost.dart';
-import '../sections/revenue.dart';
-import '../sections/invoices_payments.dart';
 import '../sections/employees.dart';
 import '../sections/maintenance.dart';
 import '../sections/notifications.dart';
@@ -18,9 +16,6 @@ import '../sections/settings_rules.dart';
 import '../sections/analytics.dart';
 import '../sections/action_center.dart';
 import '../sections/pay_now.dart';
-import '../sections/discount_management.dart';
-import '../sections/payments_management.dart';
-import '../sections/credit_management.dart';
 import '../sections/device_layout_mode.dart';
 import '../sections/appearance_dark_mode.dart';
 import '../sections/dictionary_language_management.dart';
@@ -48,13 +43,11 @@ final List<CafeSection> cafeSections = [
       'motel_orders', "Motel Orders", (context) => const MotelOrdersScreen()),
   CafeSection('kitchen', "Kitchen", (context) => const KitchenScreen()),
   CafeSection('menu', "Menu", (context) => const MenuScreen()),
+  CafeSection('payments_management', "Payment Management",
+      (context) => const PaymentsManagementScreen()),
   CafeSection('products_inventory', "Products & Inventory",
       (context) => const ProductsInventoryScreen()),
   CafeSection('customers', "Customers", (context) => const CustomersScreen()),
-  CafeSection('cost', "Cost", (context) => const CostScreen()),
-  CafeSection('revenue', "Revenue", (context) => const RevenueScreen()),
-  CafeSection('invoices_payments', "Invoices & Payments",
-      (context) => const InvoicesPaymentsScreen()),
   CafeSection('employees', "Employees", (context) => const EmployeesScreen()),
   CafeSection(
       'maintenance', "Maintenance", (context) => const MaintenanceScreen()),
@@ -69,12 +62,6 @@ final List<CafeSection> cafeSections = [
   CafeSection('action_center', "Action Center",
       (context) => const ActionCenterScreen()),
   CafeSection('pay_now', "Pay Now", (context) => const PayNowScreen()),
-  CafeSection('discount_management', "Discount Management",
-      (context) => const DiscountManagementScreen()),
-  CafeSection('payments_management', "Payments Management",
-      (context) => const PaymentsManagementScreen()),
-  CafeSection('credit_management', "Credit Management",
-      (context) => const CreditManagementScreen()),
   CafeSection('device_layout_mode', "Device Layout Mode",
       (context) => const DeviceLayoutModeScreen()),
   CafeSection('appearance_dark_mode', "Appearance & Dark Mode",

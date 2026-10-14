@@ -382,6 +382,12 @@ class _SectionShellState extends State<SectionShell> with WidgetsBindingObserver
       'Profit impact preview'
     ],
     'payments_management': <String>[
+      'Cost planning',
+      'Revenue review',
+      'Invoices and payment preparation',
+      'Discount rule preview',
+      'Customer credit accounts',
+      'Payment and settlement reconciliation',
       'Cashier settlement',
       'Cash and card reconciliation',
       'Wallet and bank transfers',

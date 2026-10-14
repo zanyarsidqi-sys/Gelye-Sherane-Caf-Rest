@@ -13,8 +13,10 @@ production_workflow=(root/'.github/workflows/pages.yml').read_text()
 push=(root/'web/push_client.js').read_text()
 migrations=list((root/'supabase/migrations').glob('*.sql'))
 menu_migrations=[path for path in migrations if path.name.endswith('_menu_management_approval.sql')]
+finance_migrations=[path for path in migrations if path.name.endswith('_payment_management_merge.sql')]
 migration_prefixes=Counter(path.name.split('_',1)[0] for path in migrations)
 menu_migration_prefix=menu_migrations[0].name.split('_',1)[0] if len(menu_migrations)==1 else ''
+finance_migration_prefix=finance_migrations[0].name.split('_',1)[0] if len(finance_migrations)==1 else ''
 checks={
  'version_semver': bool(re.fullmatch(r'\d+\.\d+\.\d+\.\d+',version)),
  'project_footer_removed': 'GelyeCompanyFooter' not in app,
@@ -33,13 +35,20 @@ checks={
   re.fullmatch(r'\d{14}',menu_migration_prefix)
   and migration_prefixes[menu_migration_prefix] == 1
  ),
+ 'finance_migration_has_unique_14_digit_version': bool(
+  re.fullmatch(r'\d{14}',finance_migration_prefix)
+  and migration_prefixes[finance_migration_prefix] == 1
+ ),
+ 'finance_catalog_has_29_visible_entries': len(
+  re.findall(r'^\s*CafeSection\(', (root/'lib/app/section_registry.dart').read_text(), re.MULTILINE)
+ ) == 29,
  'ci_staging_menu_backend_gate': 'gs_menu_public_catalog' in validation_workflow,
  'push_service_worker': (root/'web/push/sw.js').is_file(),
  'push_client_subscription': 'window.cafePushEnable' in push and 'window.cafePushDisable' in push,
  'saved_session_restoration': '_restoreSavedSession' in app,
 }
 report={'candidate_version':version,'source_checks':checks,
- 'requires_manual_verification':['Release-specific staging catalog migration and employee-grant preservation verified','Combined floor map and Live Orders tested on phone and desktop','Existing table, order, reservation, and payment records remain unchanged','Flutter CI build succeeds','Login persists after browser restart without bypassing MFA','Web Push delivered on desktop browser','Web Push delivered on iPhone installed Home Screen app','Production remains unchanged until explicit Update authorization'],
+ 'requires_manual_verification':['Release-specific staging finance catalog migration and employee-grant preservation verified','All six finance areas open within Payment Management and enforce their original permission checks on phone and desktop','Existing finance, table, order, reservation, payment, customer, and inventory records remain unchanged','Flutter CI build succeeds','Login persists after browser restart without bypassing MFA','Web Push delivered on desktop browser','Web Push delivered on iPhone installed Home Screen app','Production remains unchanged until explicit Update authorization'],
  'release_ready':False}
 (root/'release/STAGING_PREFLIGHT_REPORT.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2))

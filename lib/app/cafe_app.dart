@@ -22,6 +22,7 @@ import '../services/saved_session_service.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import 'section_registry.dart';
 import '../shared/app_language.dart';
+import '../sections/payments_management.dart';
 import '../sections/table_orders.dart';
 
 class CafeApp extends StatefulWidget {
@@ -35,6 +36,8 @@ class _CafeAppState extends State<CafeApp> {
   Set<String> _restoredSections = <String>{};
 
   static const _languageKey = 'gelye_cafe_rest_language_v1';
+  static const Set<String> _financeAreaSectionIds =
+      PaymentsManagementScreen.financeAreaSectionIds;
   String _language = 'en';
   bool _dark = false;
   ThemeMode _selectedThemeMode = ThemeMode.system;
@@ -600,6 +603,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
   Set<String> get _navigationSectionIds {
     final ids = Set<String>.of(_sections);
     if (ids.contains('table_orders')) ids.add('tables');
+    if (_financeAreaSectionIds.any(_sections.contains)) {
+      ids.add('payments_management');
+    }
     return ids;
   }
 
@@ -620,7 +626,11 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       final visibleIds = _navigationSectionIds;
       final normalized = <String>{};
       for (final id in stored) {
-        final canonicalId = id == 'table_orders' ? 'tables' : id;
+        final canonicalId = id == 'table_orders'
+            ? 'tables'
+            : _financeAreaSectionIds.contains(id)
+                ? 'payments_management'
+                : id;
         if (visibleIds.contains(canonicalId)) normalized.add(canonicalId);
       }
       setState(() {
@@ -902,8 +912,12 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
       return; // Never navigate on the result of an older review.
     }
     await _checkAccess();
+    final hasFinanceAreaAccess =
+        section.id == 'payments_management' &&
+            _financeAreaSectionIds.any(_sections.contains);
     final hasSectionAccess = _sections.contains(section.id) ||
-        (section.id == 'tables' && _sections.contains('table_orders'));
+        (section.id == 'tables' && _sections.contains('table_orders')) ||
+        hasFinanceAreaAccess;
     if (!mounted || !_authorized || _logoutInProgress ||
         _logoutRecoveryRequired || !hasSectionAccess ||
         _authorizedUserId != Supabase.instance.client.auth.currentUser?.id ||
@@ -927,19 +941,38 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
             childBuilder: (context) => DashboardScreen(
             allowedSections: allowedSectionsSnapshot,
             onOpenSection: (sectionId) {
-              if (!allowedSectionsSnapshot.contains(sectionId)) return;
-              final navigationId =
-                  sectionId == 'table_orders' ? 'tables' : sectionId;
+              final financeArea = _financeAreaSectionIds.contains(sectionId);
+              if (!allowedSectionsSnapshot.contains(sectionId) &&
+                  !(sectionId == 'payments_management' &&
+                      _financeAreaSectionIds
+                          .any(allowedSectionsSnapshot.contains))) {
+                return;
+              }
+              final navigationId = financeArea
+                  ? 'payments_management'
+                  : sectionId == 'table_orders'
+                      ? 'tables'
+                      : sectionId;
               final matches =
                   cafeSections.where((item) => item.id == navigationId);
               if (matches.isNotEmpty) {
-                final destination = sectionId == 'table_orders'
+                final destination = financeArea
                     ? CafeSection(
+                        matches.first.id,
+                        matches.first.title,
+                        (_) => PaymentsManagementScreen(
+                          initialTabIndex:
+                              PaymentsManagementScreen.tabIndexForSectionId(
+                                  sectionId),
+                        ),
+                      )
+                    : sectionId == 'table_orders'
+                        ? CafeSection(
                         matches.first.id,
                         matches.first.title,
                         (_) => const TablesAndOrdersScreen(initialTabIndex: 1),
                       )
-                    : matches.first;
+                        : matches.first;
                 _openSection(destination);
               }
             },
@@ -1085,9 +1118,6 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           'menu' => Icons.restaurant_menu_rounded,
           'products_inventory' => Icons.inventory_2_rounded,
           'customers' => Icons.people_alt_rounded,
-          'cost' => Icons.request_quote_outlined,
-          'revenue' => Icons.trending_up_rounded,
-          'invoices_payments' => Icons.receipt_long_outlined,
           'employees' => Icons.badge_outlined,
           'maintenance' => Icons.build_circle_outlined,
           'notifications' => Icons.notifications_active_outlined,
@@ -1097,9 +1127,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           'analytics' => Icons.insights_rounded,
           'action_center' => Icons.priority_high_rounded,
           'pay_now' => Icons.point_of_sale_rounded,
-          'discount_management' => Icons.local_offer_outlined,
           'payments_management' => Icons.payments_outlined,
-          'credit_management' => Icons.credit_card_outlined,
           'device_layout_mode' => Icons.devices_outlined,
           'appearance_dark_mode' => Icons.palette_outlined,
           'dictionary_language_management' => Icons.translate_rounded,
@@ -1120,11 +1148,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           'motel_orders' => 'Room service & delivery',
           'kitchen' => 'Preparation queue & dispatch',
           'menu' => 'Menus, categories & pricing',
+          'payments_management' =>
+              'Costs, revenue, invoices, discounts, credit & payments',
           'products_inventory' => 'Stock, purchasing & suppliers',
           'customers' => 'Guest profiles & history',
-          'cost' => 'Costs, waste & purchasing',
-          'revenue' => 'Verified revenue overview',
-          'invoices_payments' => 'Invoices & payment records',
           'employees' => 'Staff, roles & attendance',
           'maintenance' => 'Equipment & repair tracking',
           'notifications' => 'Alerts & release notices',
@@ -1134,9 +1161,6 @@ class _ManagementDashboardState extends State<ManagementDashboard> with WidgetsB
           'analytics' => 'Performance trends',
           'action_center' => 'Approvals & urgent tasks',
           'pay_now' => 'Payment workflows',
-          'discount_management' => 'Discounts & promotions',
-          'payments_management' => 'Settlement & reconciliation',
-          'credit_management' => 'Customer credit & balances',
           'device_layout_mode' => 'Workspace device layout',
           'appearance_dark_mode' => 'Theme & display',
           'dictionary_language_management' => 'Languages & translations',

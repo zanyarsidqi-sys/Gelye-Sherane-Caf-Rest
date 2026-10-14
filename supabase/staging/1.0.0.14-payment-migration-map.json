@@ -1,0 +1,17 @@
+{
+  "candidate_version": "1.0.0.14",
+  "environment": "staging only",
+  "migration": "20261014180000_payment_management_merge.sql",
+  "catalog_before": 34,
+  "catalog_after": 29,
+  "removed_catalog_keys": [
+    "cost",
+    "revenue",
+    "invoices_payments",
+    "discount_management",
+    "credit_management"
+  ],
+  "retained_canonical_key": "payments_management",
+  "permission_policy": "Keep all six original employee permission keys and every grant unchanged; each nested view rechecks its own key.",
+  "data_policy": "Do not modify employee profiles, finance rows, orders, customers, inventory, payment data, storage, or production."
+}

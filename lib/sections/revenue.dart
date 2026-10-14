@@ -4,15 +4,18 @@ import '../services/local_order_preview.dart';
 import '../shared/live_order_value_panel.dart';
 
 class RevenueScreen extends StatelessWidget {
-  const RevenueScreen({super.key});
+  const RevenueScreen({super.key, this.compact = false});
+
+  final bool compact;
 
   @override
-  Widget build(BuildContext context) => const SectionShell(
-    title: "Revenue",
-    description: "Income and revenue tracking",
-    sectionId: "revenue",
-    authorizedContent: _RevenueWorkspace(),
-  );
+  Widget build(BuildContext context) => SectionShell(
+        title: "Revenue",
+        description: "Income and revenue tracking",
+        sectionId: "revenue",
+        compact: compact,
+        authorizedContent: const _RevenueWorkspace(),
+      );
 }
 
 
