@@ -13,14 +13,9 @@ not sent or stored, and staff management tools are not connected yet.
 
 ## Enable staff sign-in
 
-In the GitHub repository, open **Settings > Secrets and variables > Actions**:
-
-- Add repository variables `SUPABASE_URL` (the HTTPS project URL) and
-  `SUPABASE_EXPECTED_PROJECT_REF` (the project reference from that URL).
-- Add the Supabase **publishable** key as the `SUPABASE_PUBLISHABLE_KEY`
-  repository secret. The legacy `SUPABASE_ANON_KEY` secret is also supported.
-  Never use a `service_role` key in a client app.
-- Push to `main` to rebuild and deploy with the Supabase configuration.
+The deployment workflow supplies the Supabase project URL, expected project
+reference, and publishable key as Flutter build defines. These are public
+client-side values; never put a `service_role` key in a client app.
 
 The app only initializes Supabase when the URL, expected project reference, and
 publishable/anon key are all present and match. Until then, the sign-in dialog
@@ -29,8 +24,9 @@ staff accounts in Supabase; the app intentionally has no public sign-up.
 Authentication alone does not grant staff permissions: enforce authorization
 and row-level security in the backend before adding management data or actions.
 
-For local development, pass the same values with `--dart-define` to
-`flutter run` or `flutter build web`. Do not commit local credential files.
+For local development, pass `SUPABASE_URL`, `SUPABASE_EXPECTED_PROJECT_REF`,
+and `SUPABASE_PUBLISHABLE_KEY` with `--dart-define` to `flutter run` or
+`flutter build web`. Do not commit local credential files.
 
 ## Local development
 
