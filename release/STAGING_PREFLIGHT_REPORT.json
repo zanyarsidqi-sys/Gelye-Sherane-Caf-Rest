@@ -1,5 +1,5 @@
 {
-  "candidate_version": "1.0.0.11",
+  "candidate_version": "1.0.0.12",
   "source_checks": {
     "version_semver": true,
     "project_footer_removed": true,
@@ -7,11 +7,17 @@
     "ci_release_version_build": true,
     "ci_production_manual_dispatch": true,
     "ci_staging_artifact": true,
+    "ci_staging_version_matches": true,
+    "ci_staging_branch_matches": true,
+    "menu_migration_has_unique_14_digit_version": true,
     "push_service_worker": true,
     "push_client_subscription": true,
     "saved_session_restoration": true
   },
   "requires_manual_verification": [
+    "Staging Menu schema and migration verified",
+    "Menu create/edit, owner approval, availability and public menu checked on phone and desktop",
+    "Existing catalog, order, recipe and stock links unchanged",
     "Flutter CI build succeeds",
     "Login persists after browser restart without bypassing MFA",
     "Web Push delivered on desktop browser",

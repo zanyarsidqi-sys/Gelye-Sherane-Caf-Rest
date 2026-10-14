@@ -24,9 +24,9 @@ CHECKS = [
 (725,'05 Kitchen','Live kitchen status RPC','lib/shared/live_kitchen_panel.dart',['gs_update_kitchen_status']),
 (726,'05 Kitchen','Scheduled motel meals queue','lib/sections/kitchen.dart',['KitchenScheduledMotelMealsPanel']),
 (727,'05 Kitchen','Motel food requests queue','lib/sections/kitchen.dart',['KitchenMotelFoodQueuePanel']),
-(728,'06 Menu','Live product creation RPC','lib/shared/live_menu_product_create.dart',['gs_create_menu_product']),
-(729,'06 Menu','Tourism price field','lib/shared/live_menu_product_create.dart',['p_tourism_price_iqd']),
-(730,'06 Menu','Safe public failure message','lib/shared/live_menu_product_create.dart',['Could not save product. Check your permissions and connection.']),
+(728,'06 Menu','Owner-reviewed menu revisions','supabase/migrations/20261014_1506_menu_management_approval.sql',['gs_menu_submit_product_revision','gs_menu_review_product_revision','gs_menu_user_is_owner()']),
+(729,'06 Menu','Audited menu availability changes','supabase/migrations/20261014_1506_menu_management_approval.sql',['gs_menu_set_product_availability','availability_changed']),
+(730,'06 Menu','Approved public catalog with product photos','lib/shared/public_menu_screen.dart',['gs_menu_public_catalog','service.publicImageUrl']),
 (731,'07 Products & Inventory','Server inventory overview','lib/sections/products_inventory.dart',['gs_inventory_overview']),
 (732,'07 Products & Inventory','Server inventory adjustment','lib/sections/products_inventory.dart',['gs_inventory_adjust']),
 ]
