@@ -109,11 +109,22 @@ create unique index if not exists gs_menu_audit_actor_request_action_uniq
 alter table public.gs_menu_product_revisions enable row level security;
 alter table public.gs_menu_audit_events enable row level security;
 
+create or replace function public.gs_menu_mfa_access(p_action text)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select auth.uid() is not null
+     and coalesce(auth.jwt() ->> 'aal', '') = 'aal2'
+     and public.gs_can_access('menu', p_action);
+$$;
+revoke all on function public.gs_menu_mfa_access(text) from public, anon;
+grant execute on function public.gs_menu_mfa_access(text) to authenticated;
+
 drop policy if exists gs_menu_revisions_read on public.gs_menu_product_revisions;
 create policy gs_menu_revisions_read
   on public.gs_menu_product_revisions for select to authenticated
   using (
-    public.gs_can_access('menu', 'can_view')
+    public.gs_menu_mfa_access('can_view')
     and (
       submitted_by = (select auth.uid())
       or exists (
@@ -129,7 +140,7 @@ create policy gs_menu_revisions_read
 drop policy if exists gs_menu_audit_read on public.gs_menu_audit_events;
 create policy gs_menu_audit_read
   on public.gs_menu_audit_events for select to authenticated
-  using (public.gs_can_access('menu', 'can_view'));
+  using (public.gs_menu_mfa_access('can_view'));
 
 -- No direct insert/update/delete policies are provided for revisions or audit events.
 
@@ -162,7 +173,7 @@ create or replace function public.gs_menu_user_is_owner()
 returns boolean
 language sql stable security definer set search_path = ''
 as $$
-  select auth.uid() is not null
+  select public.gs_menu_mfa_access('can_edit')
      and exists (
        select 1
          from public.employee_profiles employee
@@ -173,6 +184,24 @@ as $$
 $$;
 revoke all on function public.gs_menu_user_is_owner() from public, anon;
 grant execute on function public.gs_menu_user_is_owner() to authenticated;
+
+create or replace function public.gs_menu_station_directory()
+returns table (station_key text, display_name text, enabled boolean)
+language plpgsql stable security definer set search_path = ''
+as $$
+begin
+  if not public.gs_menu_mfa_access('can_view') then
+    raise exception 'MFA Menu view permission required' using errcode = '42501';
+  end if;
+
+  return query
+  select station.station_key, station.display_name, station.enabled
+    from public.gs_cafe_preparation_stations station
+   order by station.display_name, station.station_key;
+end;
+$$;
+revoke all on function public.gs_menu_station_directory() from public, anon;
+grant execute on function public.gs_menu_station_directory() to authenticated;
 
 create or replace function public.gs_menu_admin_products()
 returns table (
@@ -197,7 +226,7 @@ returns table (
 language plpgsql stable security definer set search_path = ''
 as $$
 begin
-  if auth.uid() is null or not public.gs_can_access('menu', 'can_view') then
+  if not public.gs_menu_mfa_access('can_view') then
     raise exception 'Menu view permission required' using errcode = '42501';
   end if;
 
@@ -233,7 +262,7 @@ returns table (category text, product_count bigint, active_count bigint)
 language plpgsql stable security definer set search_path = ''
 as $$
 begin
-  if auth.uid() is null or not public.gs_can_access('menu', 'can_view') then
+  if not public.gs_menu_mfa_access('can_view') then
     raise exception 'Menu view permission required' using errcode = '42501';
   end if;
 

@@ -210,7 +210,7 @@ class MenuManagementService {
   }
 
   Future<List<MenuPreparationStation>> loadStations() async {
-    final response = await _client.rpc('gs_1217_station_directory');
+    final response = await _client.rpc('gs_menu_station_directory');
     return _asRows(response)
         .map(MenuPreparationStation.fromJson)
         .toList(growable: false);

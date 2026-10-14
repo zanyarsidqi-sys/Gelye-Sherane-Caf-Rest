@@ -1,0 +1,83 @@
+{
+  "scope": "staging-only",
+  "stagingProjectRef": "kuibukbtdbvaswgfcfgv",
+  "baseline": {
+    "artifact": "generated-artifacts/gelye-staging-1.0.0.12/schema/production-public-schema.sql",
+    "sha256": "1fef573c65088cf56c9f329a8990f576d449c5532696c6a27ae621241d5eb5e7",
+    "sourceSha256": "78977e059cf27c91ea5f87f49d514bfdf462c1333c21a2b031d17bda1b46e026",
+    "source": "Read-only schema-only export of the production public schema",
+    "tables": 6,
+    "functions": 7,
+    "dataStatements": 0,
+    "defaultPrivileges": "Omitted from the applied baseline because staging's existing default ACLs were verified to match; preserve them unchanged.",
+    "version": "20261014130000",
+    "name": "production_public_schema_baseline"
+  },
+  "migrationMap": [
+    {
+      "source": "supabase/migrations/20261009_001_phase3_order_foundation.sql",
+      "version": "20261014130100",
+      "name": "phase3_order_foundation"
+    },
+    {
+      "source": "supabase/migrations/20261009_003_menu_product_admin.sql",
+      "version": "20261014130200",
+      "name": "menu_product_admin"
+    },
+    {
+      "source": "supabase/migrations/20261009_004_menu_product_edit.sql",
+      "version": "20261014130300",
+      "name": "menu_product_edit"
+    },
+    {
+      "source": "supabase/migrations/20261009_005_website_settings.sql",
+      "version": "20261014130400",
+      "name": "website_settings_canonical"
+    },
+    {
+      "source": "supabase/migrations/20261010_222_printer_registry_queue.sql",
+      "version": "20261014130500",
+      "name": "printer_registry_queue"
+    },
+    {
+      "source": "supabase/migrations/20261010_224_pos_devices_routing_policy.sql",
+      "version": "20261014130600",
+      "name": "pos_devices_routing_policy"
+    },
+    {
+      "source": "supabase/migrations/20261010_229_preparation_station_routing.sql",
+      "version": "20261014130700",
+      "name": "preparation_station_routing"
+    },
+    {
+      "source": "supabase/migrations/20261014150600_menu_management_approval.sql",
+      "version": "20261014150600",
+      "name": "menu_management_approval"
+    },
+    {
+      "source": "supabase/staging/20261014150700_menu_section_catalog_seed.sql",
+      "version": "20261014150700",
+      "name": "verified_menu_section_catalog_seed"
+    },
+    {
+      "source": "supabase/migrations/20261014150800_menu_owner_role_support.sql",
+      "version": "20261014150800",
+      "name": "menu_owner_role_support"
+    }
+  ],
+  "excluded": [
+    {
+      "source": "supabase/migrations/20261009_website_settings.sql",
+      "reason": "Conflicts with the canonical 20261009_005_website_settings.sql variant."
+    },
+    {
+      "source": "supabase/migrations/20261011_1189_station_employee_access.sql and later legacy station workflow migrations",
+      "reason": "They require a wider station-supervisor and ticket workflow chain; Menu now has its own MFA-guarded, read-only station-directory RPC."
+    },
+    {
+      "source": "All other repository migrations",
+      "reason": "Not part of this Menu staging bootstrap; no unapplied migration is presumed applied."
+    }
+  ],
+  "dataPolicy": "No production employee, order, payment, inventory, or customer rows are copied. Only the 35 verified management-section catalog rows are inserted in staging."
+}
