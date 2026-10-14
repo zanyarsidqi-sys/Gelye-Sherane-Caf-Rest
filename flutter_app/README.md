@@ -1,6 +1,6 @@
 # Gelye Sherane Cafe
 
-The Flutter web app is deployed to [GitHub Pages](https://zanyarsidqi-sys.github.io/Gelye-Sherane-Caf-Rest/).
+The Flutter web app is deployed to [GitHub Pages](https://cafe.gelyesheranecompany.com/).
 Push changes to `main` to build, test, and deploy it through GitHub Actions.
 
 To enable the first deployment, set **Settings > Pages > Build and deployment > Source** to **GitHub Actions** in the repository.

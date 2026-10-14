@@ -41,7 +41,7 @@ jobs:
 
       - name: Build web app
         working-directory: flutter_app
-        run: flutter build web --release --base-href /Gelye-Sherane-Caf-Rest/
+        run: flutter build web --release --base-href /
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
