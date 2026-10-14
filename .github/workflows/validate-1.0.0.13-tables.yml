@@ -99,6 +99,50 @@ jobs:
             --dart-define="SUPABASE_EXPECTED_PROJECT_REF=$STAGING_SUPABASE_EXPECTED_PROJECT_REF" \
             --dart-define="SUPABASE_ANON_KEY=$STAGING_SUPABASE_ANON_KEY"
 
+      - name: Write and verify canonical staging release metadata
+        if: steps.staging_config.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, subprocess
+          from pathlib import Path
+          root = Path("build/web")
+          version = Path("release/VERSION").read_text(encoding="utf-8").strip()
+          if version != "1.0.0.13":
+              raise SystemExit("Staging candidate version does not match release/VERSION.")
+          mains = [p for p in root.glob("main*.js")
+                   if p.name == "main.dart.js" or (p.name.startswith("main.") and p.name.endswith(".dart.js"))]
+          if len(mains) != 1:
+              raise SystemExit(f"Expected one Flutter main JS bundle, found {len(mains)}.")
+          main = mains[0]
+          content = main.read_bytes()
+          if version.encode() not in content:
+              raise SystemExit("Built JavaScript does not contain the staging release version.")
+          flutter_version = subprocess.check_output(["flutter", "--version"], text=True).splitlines()[0]
+          release = {
+              "version": version,
+              "main": main.name,
+              "sha256": hashlib.sha256(content).hexdigest(),
+              "built_with": flutter_version,
+          }
+          (root / "release.json").write_text(json.dumps(release, indent=2) + "\n", encoding="utf-8")
+          (root / "release-version.txt").write_text(version + "\n", encoding="utf-8")
+          (root / ".nojekyll").touch()
+          version_path = root / "version.json"
+          version_metadata = json.loads(version_path.read_text(encoding="utf-8"))
+          version_metadata["version"] = version
+          version_path.write_text(json.dumps(version_metadata, separators=(",", ":")) + "\n", encoding="utf-8")
+          if json.loads((root / "release.json").read_text(encoding="utf-8"))["version"] != version:
+              raise SystemExit("release.json version mismatch.")
+          if json.loads(version_path.read_text(encoding="utf-8"))["version"] != version:
+              raise SystemExit("version.json version mismatch.")
+          if (root / "release-version.txt").read_text(encoding="utf-8").strip() != version:
+              raise SystemExit("release-version.txt mismatch.")
+          if hashlib.sha256((root / main.name).read_bytes()).hexdigest() != release["sha256"]:
+              raise SystemExit("Staging JavaScript SHA-256 mismatch.")
+          PY
+
       - name: Upload isolated staging artifact
         if: steps.staging_config.outputs.available == 'true'
         uses: actions/upload-artifact@v4

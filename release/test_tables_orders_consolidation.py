@@ -61,5 +61,8 @@ assert source("release/VERSION").strip() == "1.0.0.13"
 workflow = source(".github/workflows/validate-1.0.0.13-tables.yml")
 assert "staging/release-1.0.0.13-tables" in workflow
 assert "APP_RELEASE_VERSION=1.0.0.13" in workflow
+assert "Write and verify canonical staging release metadata" in workflow
+assert 'release.json' in workflow and 'release-version.txt' in workflow
+assert 'Staging JavaScript SHA-256 mismatch.' in workflow
 
 print("Tables consolidation contract passed: 34 top-level sections; feature grants preserved.")
