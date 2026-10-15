@@ -1154,6 +1154,383 @@ class _ReservationDialogState extends State<ReservationDialog> {
   }
 }
 
+class StaffDashboardPage extends StatefulWidget {
+  const StaffDashboardPage({
+    required this.email,
+    required this.role,
+    super.key,
+  });
+
+  final String email;
+  final String role;
+
+  @override
+  State<StaffDashboardPage> createState() => _StaffDashboardPageState();
+}
+
+class _StaffDashboardPageState extends State<StaffDashboardPage> {
+  static const _sections = [
+    (Icons.restaurant_menu, 'Menu'),
+    (Icons.receipt_long_outlined, 'Orders'),
+    (Icons.event_available_outlined, 'Reservations'),
+    (Icons.bar_chart_outlined, 'Reports'),
+  ];
+
+  int _selectedIndex = 0;
+  bool _isSigningOut = false;
+  String? _signOutError;
+
+  Future<void> _signOut() async {
+    setState(() {
+      _isSigningOut = true;
+      _signOutError = null;
+    });
+    try {
+      await Supabase.instance.client.auth.signOut();
+      if (mounted) Navigator.of(context).pop();
+    } on AuthException {
+      if (mounted) {
+        setState(() {
+          _signOutError = 'Sign-out failed. Please try again.';
+        });
+      }
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _signOutError =
+              'Could not reach the sign-in service. Check your connection.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isSigningOut = false);
+    }
+  }
+
+  Future<void> _addStaffUser() async {
+    final formKey = GlobalKey<FormState>();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    var isSubmitting = false;
+    String? error;
+
+    final created = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          Future<void> submit() async {
+            if (!formKey.currentState!.validate()) return;
+            setDialogState(() {
+              isSubmitting = true;
+              error = null;
+            });
+            try {
+              await Supabase.instance.client.functions.invoke(
+                'create-staff-user',
+                body: {
+                  'email': emailController.text.trim(),
+                  'password': passwordController.text,
+                },
+              );
+              if (dialogContext.mounted) {
+                Navigator.of(dialogContext).pop(true);
+              }
+            } on FunctionException catch (exception) {
+              final details = exception.details;
+              final message = details is Map ? details['error'] : null;
+              if (dialogContext.mounted) {
+                setDialogState(() {
+                  error = message is String
+                      ? message
+                      : 'Could not create the staff account '
+                          '(HTTP ${exception.status}).';
+                });
+              }
+            } on AuthException {
+              if (dialogContext.mounted) {
+                setDialogState(() {
+                  error = 'Your sign-in has expired. Sign in again and retry.';
+                });
+              }
+            } on Exception {
+              if (dialogContext.mounted) {
+                setDialogState(() {
+                  error =
+                      'Could not reach the staff service. Confirm that the '
+                      'database and create-staff-user function are deployed.';
+                });
+              }
+            } finally {
+              if (dialogContext.mounted) {
+                setDialogState(() => isSubmitting = false);
+              }
+            }
+          }
+
+          return PopScope(
+            canPop: !isSubmitting,
+            child: AlertDialog(
+            title: const Text('Add staff user'),
+            content: SizedBox(
+              width: 400,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'New staff email',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        final email = value?.trim() ?? '';
+                        return email.contains('@') && email.contains('.')
+                            ? null
+                            : 'Enter a valid email address';
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Initial password (12+ characters)',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) => value == null || value.length < 12
+                          ? 'Use at least 12 characters'
+                          : null,
+                    ),
+                    if (error != null) ...[
+                      const SizedBox(height: 12),
+                      _AuthErrorMessage(error!),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: isSubmitting ? null : submit,
+                child: isSubmitting
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Create staff account'),
+              ),
+            ],
+            ),
+          );
+        },
+      ),
+    );
+
+    final createdEmail = emailController.text.trim();
+    emailController.dispose();
+    passwordController.dispose();
+    if (created == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Staff account created for $createdEmail.'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: _deepNavy,
+        foregroundColor: Colors.white,
+        title: const Text('Gelye Sherane · Staff'),
+        actions: [
+          if (widget.role == 'admin')
+            IconButton(
+              tooltip: 'Add staff user',
+              onPressed: _addStaffUser,
+              icon: const Icon(Icons.person_add_alt_1),
+            ),
+          if (MediaQuery.sizeOf(context).width >= 600)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Center(
+                child: Text(
+                  '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ),
+            ),
+          IconButton(
+            tooltip: 'Sign out',
+            onPressed: _isSigningOut ? null : _signOut,
+            icon: _isSigningOut
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.logout),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 760;
+          final sectionContent = _sectionContent(_selectedIndex);
+          if (isWide) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                NavigationRail(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: (index) =>
+                      setState(() => _selectedIndex = index),
+                  labelType: NavigationRailLabelType.all,
+                  backgroundColor: Colors.white,
+                  destinations: [
+                    for (final section in _sections)
+                      NavigationRailDestination(
+                        icon: Icon(section.$1),
+                        label: Text(section.$2),
+                      ),
+                  ],
+                ),
+                const VerticalDivider(width: 1),
+                Expanded(child: _contentArea(sectionContent)),
+              ],
+            );
+          }
+          return Column(
+            children: [
+              Expanded(child: _contentArea(sectionContent)),
+              NavigationBar(
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: (index) =>
+                    setState(() => _selectedIndex = index),
+                destinations: [
+                  for (final section in _sections)
+                    NavigationDestination(
+                      icon: Icon(section.$1),
+                      label: section.$2,
+                    ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _contentArea(Widget content) {
+    return SelectionArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_signOutError != null) ...[
+                  _AuthErrorMessage(_signOutError!),
+                  const SizedBox(height: 16),
+                ],
+                content,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionContent(int index) {
+    final title = _sections[index].$2;
+    final descriptions = [
+      'Review the cafe menu. Live menu editing is not connected yet.',
+      'Order management will appear here when an ordering system is connected.',
+      'Reservation requests are preview-only and are not stored yet.',
+      'Reports will be available when live order and reservation data is connected.',
+    ];
+    final icons = [
+      Icons.restaurant_menu,
+      Icons.receipt_long_outlined,
+      Icons.event_available_outlined,
+      Icons.bar_chart_outlined,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.w700,
+            color: _ink,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          descriptions[index],
+          style: const TextStyle(color: _muted, height: 1.5),
+        ),
+        const SizedBox(height: 24),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFECE8E0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icons[index], color: _gold, size: 30),
+              const SizedBox(height: 14),
+              Text(
+                '$title workspace',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'This section is a dashboard preview. It is not connected to '
+                'live restaurant data yet.',
+                style: TextStyle(color: _muted, height: 1.5),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Signed in as ${widget.email}',
+          style: const TextStyle(color: _muted, fontSize: 13),
+        ),
+      ],
+    );
+  }
+}
+
 class StaffSignInDialog extends StatefulWidget {
   const StaffSignInDialog({
     required this.supabaseConfigured,
@@ -1342,9 +1719,24 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
       }
 
       if (!mounted) return;
+      final role = profile['role'];
+      if (role is! String || (role != 'admin' && role != 'staff')) {
+        setState(() {
+          _error = 'This account does not have a valid staff role.';
+        });
+        return;
+      }
       setState(() {
-        _isAdmin = profile['role'] == 'admin';
+        _isAdmin = role == 'admin';
       });
+      await Navigator.of(context).pushReplacement<void, void>(
+        MaterialPageRoute<void>(
+          builder: (_) => StaffDashboardPage(
+            email: user.email ?? '',
+            role: role,
+          ),
+        ),
+      );
     } on PostgrestException catch (exception) {
       if (mounted) {
         setState(() {

@@ -68,10 +68,10 @@ void main() {
     );
   });
 
-  testWidgets('staff sign-in rejects a mismatched Supabase configuration', (
+  testWidgets('staff sign-in explains when Supabase is not configured', (
     tester,
   ) async {
-    await tester.pumpWidget(const CafeApp(supabaseConfigurationProvided: true));
+    await tester.pumpWidget(const CafeApp());
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Open menu'));
@@ -80,9 +80,42 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.textContaining('incomplete or does not match the approved project'),
+      find.textContaining('not configured for this deployment'),
       findsOneWidget,
     );
-    expect(find.text('Sign in'), findsNothing);
+  });
+
+  testWidgets('staff dashboard opens its restaurant sections', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Menu'), findsWidgets);
+    expect(find.text('Orders'), findsWidgets);
+    expect(find.text('Reservations'), findsWidgets);
+    expect(find.text('Reports'), findsWidgets);
+    expect(find.text('Menu workspace'), findsOneWidget);
+
+    await tester.tap(find.text('Orders').first);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Order management will appear here when an ordering system is connected.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('not connected to live restaurant data yet'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byTooltip('Add staff user'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add staff user'), findsOneWidget);
+    expect(find.text('New staff email'), findsOneWidget);
+    expect(find.text('Initial password (12+ characters)'), findsOneWidget);
   });
 }
