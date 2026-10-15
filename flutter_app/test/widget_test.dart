@@ -429,6 +429,22 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.text('Table service board'), findsOneWidget);
+      expect(find.text('Table workflows'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.ensureVisible(find.text('Open Live Tables'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Open Live Tables'));
+      await tester.pumpAndSettle();
+      expect(find.text('Search Live Tables records...'), findsOneWidget);
+      expect(find.text('Tracked records'), findsOneWidget);
+      expect(find.text('Table service board'), findsNothing);
+      await tester.ensureVisible(find.text('Back to Tables & Orders'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Back to Tables & Orders'));
+      await tester.pumpAndSettle();
+
       expect(dashboardCardSize.width, lessThan(200));
       for (final title in [
         'Live Tables',

@@ -3507,9 +3507,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         if (widget.permissionsLoadError != null ||
             (widget.role == 'staff' && widget.grantedPermissions.isEmpty))
           const SizedBox(height: 16),
-        if (index != 0 && index != 2 && subcard == null) ...[
+        if (index == 1 && subcard == null) ...[
           _workspaceConnectionBanner(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          _tablesWorkflowPanel(section, index),
+          const SizedBox(height: 16),
         ],
         if (index == 7 && widget.role == 'admin' && subcard == null) ...[
           _sectionSubcardGrid(index),
@@ -3667,6 +3669,353 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               child: const Text('Retry'),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _tablesWorkflowPanel(
+    ({String key, IconData icon, String title, String description}) section,
+    int sectionIndex,
+  ) {
+    final visibleCards = _visibleSubcards(sectionIndex);
+    final records = _workspaceRecords
+        .where((record) => record.sectionKey == section.key)
+        .toList(growable: false);
+    final openCount = records.where((record) => record.status == 'open').length;
+    final progressCount = records
+        .where((record) => record.status == 'in_progress')
+        .length;
+    final completedCount = records
+        .where((record) => record.status == 'completed')
+        .length;
+
+    Widget lane(String status, String title, Color color) {
+      final laneRecords = records
+          .where((record) => record.status == status)
+          .take(3)
+          .toList(growable: false);
+      return Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAFBFD),
+          border: Border.all(color: const Color(0xFFE4EAF1)),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      color: _ink,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${records.where((record) => record.status == status).length}',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 14),
+            if (_isLoadingRecords)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                child: Center(
+                  child: SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              )
+            else if (_workspaceError != null)
+              const Text(
+                'Records unavailable',
+                style: TextStyle(color: _muted, fontSize: 10),
+              )
+            else if (laneRecords.isEmpty)
+              Text(
+                'No ${title.toLowerCase()} records',
+                style: const TextStyle(color: _muted, fontSize: 10),
+              )
+            else
+              for (final record in laneRecords)
+                _sectionWorkflowRecord(record, sectionIndex, visibleCards),
+          ],
+        ),
+      );
+    }
+
+    final workflowStage = Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFE4EAF1)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Table service board',
+                        style: TextStyle(
+                          color: _navy,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Table, order and reservation records · no sample data',
+                        style: const TextStyle(color: _muted, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+                _workspaceStatusBadge(),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _workflowCount('Open', openCount, const Color(0xFFB9670C)),
+                _workflowCount(
+                  'In progress',
+                  progressCount,
+                  const Color(0xFF2463EB),
+                ),
+                _workflowCount(
+                  'Completed',
+                  completedCount,
+                  const Color(0xFF16814A),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final lanes = [
+                  lane('open', 'Open', const Color(0xFFB9670C)),
+                  lane('in_progress', 'In progress', const Color(0xFF2463EB)),
+                  lane('completed', 'Completed', const Color(0xFF16814A)),
+                ];
+                if (constraints.maxWidth < 460) {
+                  return Column(
+                    children: [
+                      for (var index = 0; index < lanes.length; index++) ...[
+                        if (index > 0) const SizedBox(height: 8),
+                        lanes[index],
+                      ],
+                    ],
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var index = 0; index < lanes.length; index++) ...[
+                      if (index > 0) const SizedBox(width: 8),
+                      Expanded(child: lanes[index]),
+                    ],
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+
+    final workflowActions = Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFE4EAF1)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Table workflows',
+              style: TextStyle(
+                color: _navy,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 3),
+            const Text(
+              'Open a table, order or reservation workspace',
+              style: TextStyle(color: _muted, fontSize: 11),
+            ),
+            const SizedBox(height: 10),
+            if (visibleCards.isEmpty)
+              const Text(
+                'No card actions are assigned.',
+                style: TextStyle(color: _muted, fontSize: 12),
+              )
+            else
+              for (final title in visibleCards.take(5))
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    _metricIcon(title, section.icon),
+                    color: const Color(0xFF4166A3),
+                    size: 19,
+                  ),
+                  title: Text(
+                    'Open $title',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(Icons.chevron_right, size: 18),
+                  onTap: () => setState(() {
+                    _workspaceSearch = '';
+                    _workspaceStatusFilter = 'All';
+                    _selectedSubcard = title;
+                  }),
+                ),
+          ],
+        ),
+      ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 560) {
+          return Column(
+            children: [
+              workflowStage,
+              const SizedBox(height: 10),
+              workflowActions,
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: workflowStage),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: constraints.maxWidth < 760 ? 220 : 280,
+              child: workflowActions,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _workflowCount(String label, int count, Color accent) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(9),
+      border: Border.all(color: const Color(0xFFE4EAF1)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '$count',
+          style: TextStyle(
+            color: accent,
+            fontWeight: FontWeight.w800,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(label, style: const TextStyle(color: _muted, fontSize: 10)),
+      ],
+    ),
+  );
+
+  Widget _sectionWorkflowRecord(
+    CafeWorkspaceRecord record,
+    int sectionIndex,
+    List<String> visibleCards,
+  ) {
+    String? cardTitle;
+    for (final title in visibleCards) {
+      if (_permissionSlug(title) == record.subcardKey) {
+        cardTitle = title;
+        break;
+      }
+    }
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: cardTitle == null
+              ? null
+              : () => setState(() => _selectedSubcard = cardTitle),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+            child: Row(
+              children: [
+                Container(
+                  width: 3,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2463EB),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        record.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: _ink,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        cardTitle ?? _sections[sectionIndex].title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: _muted, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: _muted, size: 18),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
