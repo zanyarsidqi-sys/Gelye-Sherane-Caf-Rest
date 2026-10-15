@@ -24,7 +24,10 @@ SQL Editor, run `supabase/migrations/20261015000000_staff_profiles.sql`, replace
 `REPLACE_WITH_YOUR_SUPABASE_EMAIL` in `supabase/BOOTSTRAP_ADMIN.sql` with that
 user's email, and run the bootstrap SQL once. This one-time step grants that
 existing account the admin role; signing in by itself does not grant admin
-access.
+access. The migration backfills users whose trusted Auth app metadata already
+contains an `admin` or `staff` role and provisions future profiles only for
+those server-assigned roles. It does not grant staff access to ordinary public
+sign-ups.
 
 On first sign-in, the app enrolls an authenticator-app factor and requires a
 current six-digit TOTP before showing staff access. Keep the enrollment key

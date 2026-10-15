@@ -18,6 +18,28 @@ ON CONFLICT (user_id) DO UPDATE
 SET email = EXCLUDED.email,
     role = EXCLUDED.role;
 
+CREATE OR REPLACE FUNCTION public.handle_staff_profile_auth_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  staff_role text := NEW.raw_app_meta_data->>'role';
+BEGIN
+  IF staff_role IN ('admin', 'staff') THEN
+    INSERT INTO public.staff_profiles (user_id, email, role)
+    VALUES (NEW.id, NEW.email, staff_role)
+    ON CONFLICT (user_id) DO UPDATE
+    SET email = EXCLUDED.email,
+        role = EXCLUDED.role;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.handle_staff_profile_auth_user()
+  FROM PUBLIC, anon, authenticated;
+
 ALTER TABLE public.staff_profiles ENABLE ROW LEVEL SECURITY;
 
 -- PostgreSQL privileges and RLS are separate protections.
@@ -50,9 +72,13 @@ USING (
   user_id = (SELECT auth.uid()) OR (SELECT public.is_staff_admin())
 );
 
--- Remove the original unsafe signup trigger if it was installed.
--- This migration does NOT automatically grant a staff profile to new customers.
+-- Replace the original unsafe trigger, which assigned staff access to every
+-- Auth user. Only trusted app_metadata roles are now provisioned.
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_staff_profile_auth_user();
 
 -- Remove the original helper function only when it is the expected signup
 -- helper and is not needed by other components; review dependencies first.

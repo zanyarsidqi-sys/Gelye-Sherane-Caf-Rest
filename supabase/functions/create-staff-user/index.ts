@@ -101,11 +101,16 @@ Deno.serve(async (request: Request) => {
     });
   }
 
-  const { error: profileError } = await adminClient.from("staff_profiles").insert({
-    user_id: createdUser.user.id,
-    email: createdUser.user.email,
-    role: "staff",
-  });
+  const { error: profileError } = await adminClient
+    .from("staff_profiles")
+    .upsert(
+      {
+        user_id: createdUser.user.id,
+        email: createdUser.user.email,
+        role: "staff",
+      },
+      { onConflict: "user_id" },
+    );
   if (profileError) {
     await adminClient.auth.admin.deleteUser(createdUser.user.id).catch(() => {
       // No-op: the database profile is the source of truth for staff access.
