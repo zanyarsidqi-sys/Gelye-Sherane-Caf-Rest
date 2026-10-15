@@ -515,6 +515,95 @@ void main() {
     },
   );
 
+  testWidgets('every payment card opens its finance record detail', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 2600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('management-section-2')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Payment activity'), findsOneWidget);
+    expect(find.text('Transaction ledger'), findsOneWidget);
+    expect(find.text('Finance actions'), findsOneWidget);
+    expect(find.text('Search payment records...'), findsOneWidget);
+
+    const featuredCards = [
+      'Payment Overview',
+      'Receive Payment',
+      'Standing Cash',
+      'Pending Payments',
+      'Collected Cash',
+      'Available Cash',
+      'Owner Cash Out',
+      'Expenses Management',
+      'Confirm Credit Payment',
+      'Invoices & Receipts',
+      'Refunds & Voids',
+      'Table Income',
+      'Payment History',
+    ];
+    const additionalCards = [
+      'Today Revenue',
+      'Revenue',
+      'Cash Over / Short',
+      'Expenses',
+      'Invoices & Payments',
+      'Confirm Credit',
+      'Costs & Expenses',
+      'Invoices',
+      'Payment Collection',
+      'Cash/Card/Online',
+      'Pending Payment',
+      'Customer Credit',
+      'Discounts',
+      'Refunds',
+      'Cash Reconciliation',
+      'Approvals',
+      'Audit',
+    ];
+
+    Future<void> openAndVerify(String title) async {
+      if (find.text(title).evaluate().isEmpty) {
+        final moreCards = find.text('More finance cards (17)');
+        await tester.ensureVisible(moreCards);
+        await tester.tap(moreCards);
+        await tester.pumpAndSettle();
+      }
+      await tester.ensureVisible(find.text(title));
+      await tester.tap(find.text(title));
+      await tester.pumpAndSettle();
+
+      expect(find.text('$title records'), findsOneWidget, reason: title);
+      expect(find.text('Search $title...'), findsOneWidget, reason: title);
+      expect(find.text('Tracked records'), findsOneWidget, reason: title);
+      expect(find.text('Open records'), findsOneWidget, reason: title);
+      expect(find.text('Add record'), findsOneWidget, reason: title);
+      expect(tester.takeException(), isNull, reason: title);
+
+      final back = find.text('Back to Payment Management');
+      await tester.ensureVisible(back);
+      await tester.tap(back);
+      await tester.pumpAndSettle();
+    }
+
+    for (final title in featuredCards) {
+      await openAndVerify(title);
+    }
+    for (final title in additionalCards) {
+      await openAndVerify(title);
+    }
+  });
+
   testWidgets('remaining management sections show reference card groups', (
     tester,
   ) async {

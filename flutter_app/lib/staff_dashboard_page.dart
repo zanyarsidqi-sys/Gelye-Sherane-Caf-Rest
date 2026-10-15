@@ -4579,71 +4579,317 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         (record) => record.sectionKey == 'payment_management',
       ),
     );
-    final recordedAmounts = allRecords
-        .where((record) => record.amount != null)
-        .fold<double>(0, (total, record) => total + record.amount!);
+    final amountRecords = allRecords.where((record) => record.amount != null);
+    final recordedAmounts = amountRecords.fold<double>(
+      0,
+      (total, record) => total + record.amount!,
+    );
     final openCount = allRecords
         .where(
           (record) => record.status == 'open' || record.status == 'in_progress',
         )
         .length;
+    final completedCount = allRecords
+        .where((record) => record.status == 'completed')
+        .length;
+    final refundCount = allRecords
+        .where((record) => record.subcardKey == 'refunds_voids')
+        .length;
+    final query = _financeSearch.trim().toLowerCase();
+    final visibleRecords = allRecords
+        .where((record) {
+          final matchesStatus =
+              _financeStatusFilter == 'All' ||
+              record.status ==
+                  _financeStatusFilter.toLowerCase().replaceAll(' ', '_');
+          final matchesQuery =
+              query.isEmpty ||
+              record.title.toLowerCase().contains(query) ||
+              record.details.toLowerCase().contains(query) ||
+              record.subcardKey.replaceAll('_', ' ').contains(query);
+          return matchesStatus && matchesQuery;
+        })
+        .toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _dateRangeControls(),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(13),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEAF4FF),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFD4E6FA)),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.cloud_done_outlined, color: Color(0xFF2570B8)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  _workspaceError != null
-                      ? 'Finance data unavailable: $_workspaceError'
-                      : _isLoadingRecords
-                      ? 'Loading finance records…'
-                      : '${allRecords.length} tracked record(s) · $openCount open · '
-                            '${allRecords.any((record) => record.amount != null) ? '${recordedAmounts.toStringAsFixed(0)} IQD' : '—'} recorded',
-                  style: const TextStyle(
-                    color: _ink,
-                    fontWeight: FontWeight.w600,
-                    height: 1.35,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _workspaceError == null
-                      ? const Color(0xFFDDF7EC)
-                      : const Color(0xFFFFE8E6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  _workspaceError == null ? 'Live' : 'Unavailable',
-                  style: TextStyle(
-                    color: _workspaceError == null
-                        ? const Color(0xFF138052)
-                        : const Color(0xFFB42318),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
+        const Text(
+          'Payment activity',
+          style: TextStyle(
+            color: _navy,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 3),
+        const Text(
+          'Saved workspace records only · not reconciled to a payment provider.',
+          style: TextStyle(color: _muted, fontSize: 11),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            _financeSummaryCard(
+              icon: Icons.receipt_long_outlined,
+              label: 'Tracked records',
+              value: _workspaceError != null
+                  ? '—'
+                  : _isLoadingRecords
+                  ? '…'
+                  : '${allRecords.length}',
+              tint: Colors.white,
+              accent: const Color(0xFF4166A3),
+            ),
+            _financeSummaryCard(
+              icon: Icons.payments_outlined,
+              label: 'Recorded amount',
+              value: _workspaceError != null
+                  ? '—'
+                  : _isLoadingRecords
+                  ? '…'
+                  : amountRecords.isEmpty
+                  ? '—'
+                  : '${recordedAmounts.toStringAsFixed(0)} ${amountRecords.first.currency}',
+              tint: Colors.white,
+              accent: const Color(0xFF16814A),
+            ),
+            _financeSummaryCard(
+              icon: Icons.schedule_outlined,
+              label: 'Open records',
+              value: _workspaceError != null
+                  ? '—'
+                  : _isLoadingRecords
+                  ? '…'
+                  : '$openCount',
+              tint: Colors.white,
+              accent: const Color(0xFFB9670C),
+            ),
+            _financeSummaryCard(
+              icon: Icons.undo_rounded,
+              label: 'Refund records',
+              value: _workspaceError != null
+                  ? '—'
+                  : _isLoadingRecords
+                  ? '…'
+                  : '$refundCount',
+              tint: Colors.white,
+              accent: const Color(0xFFD7355D),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final ledger = Card(
+              margin: EdgeInsets.zero,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE4EAF1)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Transaction ledger',
+                                style: TextStyle(
+                                  color: _navy,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              SizedBox(height: 3),
+                              Text(
+                                'Reference, workspace card, status and amount',
+                                style: TextStyle(color: _muted, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          _workspaceError == null ? 'IQD' : 'Unavailable',
+                          style: const TextStyle(
+                            color: _muted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      onChanged: (value) =>
+                          setState(() => _financeSearch = value),
+                      decoration: InputDecoration(
+                        hintText: 'Search payment records...',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: const Color(0xFFF6F8FB),
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          for (final status in const [
+                            'All',
+                            'Open',
+                            'In progress',
+                            'Completed',
+                            'Cancelled',
+                          ])
+                            Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: ChoiceChip(
+                                label: Text(status),
+                                selected: _financeStatusFilter == status,
+                                onSelected: (_) => setState(
+                                  () => _financeStatusFilter = status,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (_workspaceError != null)
+                      _AuthErrorMessage(
+                        'Finance data unavailable: $_workspaceError',
+                      )
+                    else if (_isLoadingRecords)
+                      const Center(child: CircularProgressIndicator())
+                    else if (visibleRecords.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        child: Center(
+                          child: Text(
+                            allRecords.isEmpty
+                                ? 'No saved payment records for this date range.'
+                                : 'No payment records match these filters.',
+                            style: const TextStyle(color: _muted),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    else
+                      for (final record in visibleRecords)
+                        _financeRecordTile(
+                          record,
+                          canManage:
+                              widget.role == 'admin' ||
+                              widget.grantedPermissions.contains(
+                                'payment_management:*',
+                              ) ||
+                              widget.grantedPermissions.contains(
+                                'payment_management:${record.subcardKey}',
+                              ),
+                        ),
+                    if (completedCount > 0) ...[
+                      const Divider(height: 22),
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: Text(
+                          '$completedCount completed record(s)',
+                          style: const TextStyle(
+                            color: _muted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+
+            final financeActions = Card(
+              margin: EdgeInsets.zero,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE4EAF1)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Finance actions',
+                      style: TextStyle(
+                        color: _navy,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    const Text(
+                      'Open a permission-assigned finance workspace',
+                      style: TextStyle(color: _muted, fontSize: 11),
+                    ),
+                    const SizedBox(height: 10),
+                    for (final title in featuredCards.take(6))
+                      ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          _metricIcon(title, _sections[2].icon),
+                          color: const Color(0xFF4166A3),
+                          size: 19,
+                        ),
+                        title: Text(
+                          'Open $title',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        trailing: const Icon(Icons.chevron_right, size: 18),
+                        onTap: () => setState(() {
+                          _financeSearch = '';
+                          _financeStatusFilter = 'All';
+                          _selectedSubcard = title;
+                        }),
+                      ),
+                  ],
+                ),
+              ),
+            );
+
+            if (constraints.maxWidth < 900) {
+              return Column(
+                children: [ledger, const SizedBox(height: 10), financeActions],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: ledger),
+                const SizedBox(width: 12),
+                SizedBox(width: 280, child: financeActions),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 16),
         _compactMetricGrid(sectionIndex: 2, titles: featuredCards, height: 150),
         if (additionalCards.isNotEmpty) ...[
           const SizedBox(height: 10),
@@ -5296,31 +5542,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(child: _dateRangeControls()),
-            const SizedBox(width: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
-              decoration: BoxDecoration(
-                color: _workspaceError == null
-                    ? const Color(0xFFE1F6EA)
-                    : const Color(0xFFFFE8E6),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                _workspaceError == null ? '● Live' : 'Unavailable',
-                style: TextStyle(
-                  color: _workspaceError == null
-                      ? const Color(0xFF167344)
-                      : const Color(0xFFB42318),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-          ],
-        ),
+        _dateRangeControls(),
         const SizedBox(height: 14),
         Wrap(
           spacing: 10,
@@ -5329,24 +5551,30 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             _financeSummaryCard(
               icon: Icons.receipt_long_outlined,
               label: 'Tracked records',
-              value: _isLoadingRecords ? '…' : '${records.length}',
-              tint: const Color(0xFFEAF2FF),
+              value: _workspaceError != null
+                  ? '—'
+                  : _isLoadingRecords
+                  ? '…'
+                  : '${records.length}',
+              tint: Colors.white,
               accent: const Color(0xFF2563D9),
             ),
             _financeSummaryCard(
               icon: Icons.payments_outlined,
               label: 'Recorded amount',
-              value: amountRecords.isEmpty
+              value: _workspaceError != null
+                  ? '—'
+                  : amountRecords.isEmpty
                   ? '—'
                   : '${amountTotal.toStringAsFixed(0)} ${amountRecords.first.currency}',
-              tint: const Color(0xFFE8F8EF),
+              tint: Colors.white,
               accent: const Color(0xFF16814A),
             ),
             _financeSummaryCard(
               icon: Icons.schedule_outlined,
               label: 'Open records',
-              value: '$openCount',
-              tint: const Color(0xFFFFF2D8),
+              value: _workspaceError != null ? '—' : '$openCount',
+              tint: Colors.white,
               accent: const Color(0xFFB9670C),
             ),
           ],
