@@ -14,7 +14,7 @@ stored.
 
 After staff authentication, the management UI follows the approved 11-section
 layout. Desktop/web uses a persistent section sidebar; mobile uses Home, Tables,
-Kitchen, Payments, and More navigation. Dashboard and section subcards use the
+Menu, Payments, and More navigation. Dashboard and section subcards use the
 same responsive card component and grid breakpoints. Every section/card uses
 the shared Supabase workspace-record store for authorized, realtime records
 with create, status-update, delete, and automatic database audit capture. This
@@ -22,8 +22,13 @@ is a flexible record workspace, not a card processor or a substitute for
 importing existing cafe transactions; only data actually entered or imported
 is shown.
 
-Tables, customer orders, kitchen, reporting, and operations now surface the
-reference-design cards first. Existing card tools remain available under
+Sections 03–05 now surface the reference-design cards first: Payments includes
+cash, expenses, credit confirmation, invoices, refunds and payment history;
+Menu includes products, categories, pricing, ingredients and import; Kitchen
+includes live orders, preparation, delivery, staffing and settings. The
+displayed Menu and Kitchen section titles retain the existing permission keys
+(`kitchen_management` and `customer_management`) so current staff grants and
+saved records are preserved. Existing card tools remain available under
 **More cards** and existing records and access grants are not removed. New card
 summaries show only records actually saved for that card; illustrative sample
 figures from design references are not presented as live cafe data.
@@ -33,6 +38,12 @@ status-filtered saved records and create/update/delete actions on each card.
 These records are not a dedicated table, order, customer, or payment schema;
 do not treat their counts or amounts as live seating, order processing, or
 payment reconciliation.
+
+Payment, menu and kitchen cards use the shared generic record workspace; they
+do not yet implement a payment processor, dedicated product catalog, inventory
+ledger, or live kitchen order pipeline. Create/edit actions store records for
+the selected card and do not perform real-world payment, stock, or order
+processing.
 
 ## Staff accounts and section permissions
 

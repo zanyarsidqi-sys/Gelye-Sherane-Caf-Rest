@@ -88,8 +88,8 @@ void main() {
       'Dashboard',
       'Tables & Orders',
       'Payment Management',
+      'Menu Management',
       'Kitchen Management',
-      'Customer Management',
       'Statistics Management',
       'Employee Management',
       'Maintenance Management',
@@ -197,13 +197,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    for (final destination in [
-      'Home',
-      'Tables',
-      'Kitchen',
-      'Payments',
-      'More',
-    ]) {
+    for (final destination in ['Home', 'Tables', 'Menu', 'Payments', 'More']) {
       expect(
         find.descendant(
           of: find.byType(NavigationBar),
@@ -217,7 +211,7 @@ void main() {
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
     expect(find.text('More management sections'), findsOneWidget);
-    expect(find.text('Customer Management'), findsOneWidget);
+    expect(find.text('Kitchen Management'), findsOneWidget);
   });
 
   testWidgets(
@@ -307,12 +301,14 @@ void main() {
       expect(find.text('Payments & Finance'), findsOneWidget);
       expect(find.textContaining('Finance data unavailable'), findsOneWidget);
       expect(find.text('Pending Payments'), findsOneWidget);
+      expect(find.text('Receive Payment'), findsOneWidget);
+      expect(find.text('Invoices & Receipts'), findsOneWidget);
 
-      await tester.ensureVisible(find.text('Today Revenue'));
+      await tester.ensureVisible(find.text('Payment Overview'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Today Revenue'));
+      await tester.tap(find.text('Payment Overview'));
       await tester.pumpAndSettle();
-      expect(find.text('Today Revenue records'), findsOneWidget);
+      expect(find.text('Payment Overview records'), findsOneWidget);
       expect(find.text('Add record'), findsOneWidget);
       expect(find.text('No live records for this date range.'), findsNothing);
       expect(find.text('1,250,000 IQD'), findsNothing);
@@ -334,7 +330,24 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Kitchen').last);
+    await tester.tap(find.text('Menu').last);
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Menu Overview',
+      'All Products',
+      'Add / Edit Product',
+      'Categories Management',
+      'Menu Settings',
+      'Kitchen View',
+      'Menu Pricing',
+      'Menu Preview',
+      'Ingredients & Inventory',
+      'Bulk Import',
+    ]) {
+      expect(find.text(title), findsOneWidget, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.byType(ExpansionTile).last);
     await tester.pumpAndSettle();
     for (final title in [
       'Menu Management',
@@ -343,12 +356,29 @@ void main() {
       'Preparation Time',
       'Kitchen Devices',
     ]) {
-      expect(find.text(title), findsOneWidget, reason: title);
+      expect(find.text(title), findsWidgets, reason: title);
     }
 
     await tester.tap(find.text('More'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Customer Management'));
+    await tester.tap(find.text('Kitchen Management'));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Kitchen Overview',
+      'Live Kitchen Orders',
+      'Order Details',
+      'Kitchen Preparation',
+      'Ready for Delivery',
+      'Kitchen Display',
+      'Menu Availability',
+      'Kitchen Staff',
+      'Kitchen Reports',
+      'Kitchen Settings',
+    ]) {
+      expect(find.text(title), findsOneWidget, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.byType(ExpansionTile).last);
     await tester.pumpAndSettle();
     for (final title in [
       'Kitchen Orders',
