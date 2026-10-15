@@ -1,4 +1,9 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+declare const Deno: {
+  env: { get(name: string): string | undefined };
+  serve(handler: (request: Request) => Response | Promise<Response>): void;
+};
+// @ts-ignore Deno resolves npm: specifiers at runtime.
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,10 +12,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-function jsonResponse(
-  status: number,
-  body: Record<string, string | boolean>,
-) {
+function jsonResponse(status: number, body: Record<string, string | boolean>) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -44,11 +46,13 @@ function getJwtClaims(token: string): Record<string, unknown> | null {
     const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
     const bytes = Uint8Array.from(atob(padded), (character) =>
-      character.charCodeAt(0)
+      character.charCodeAt(0),
     );
     const claims: unknown = JSON.parse(new TextDecoder().decode(bytes));
-    return typeof claims === "object" && claims !== null && !Array.isArray(claims)
-      ? claims as Record<string, unknown>
+    return typeof claims === "object" &&
+      claims !== null &&
+      !Array.isArray(claims)
+      ? (claims as Record<string, unknown>)
       : null;
   } catch {
     return null;
@@ -69,8 +73,7 @@ function parsePermissionGrants(input: unknown): PermissionGrant[] | null {
       typeof sectionKey !== "string" ||
       !allowedSectionKeys.has(sectionKey) ||
       typeof subcardKey !== "string" ||
-      (subcardKey !== "*" &&
-        !/^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(subcardKey))
+      (subcardKey !== "*" && !/^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(subcardKey))
     ) {
       return null;
     }
@@ -82,7 +85,7 @@ function parsePermissionGrants(input: unknown): PermissionGrant[] | null {
   return Array.from(grants.entries()).flatMap(([section_key, subcards]) =>
     subcards.has("*")
       ? [{ section_key, subcard_key: "*" }]
-      : Array.from(subcards, (subcard_key) => ({ section_key, subcard_key }))
+      : Array.from(subcards, (subcard_key) => ({ section_key, subcard_key })),
   );
 }
 
@@ -112,16 +115,16 @@ Deno.serve(async (request: Request) => {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  const { data: authData, error: authError } = await adminClient.auth.getUser(
-    token,
-  );
+  const { data: authData, error: authError } =
+    await adminClient.auth.getUser(token);
   if (authError || !authData.user) {
     return jsonResponse(401, { error: "Your sign-in has expired." });
   }
   const claims = getJwtClaims(token);
-  if (claims?.sub !== authData.user.id || claims.aal !== "aal2") {
+  if (claims?.sub !== authData.user.id || claims?.aal !== "aal2") {
     return jsonResponse(403, {
-      error: "Complete authenticator verification before creating staff accounts.",
+      error:
+        "Complete authenticator verification before creating staff accounts.",
     });
   }
 
@@ -185,7 +188,7 @@ Deno.serve(async (request: Request) => {
     });
   }
 
-  const { error: profileError } = await adminClient
+  const { error: profileUpsertError } = await adminClient
     .from("staff_profiles")
     .upsert(
       {
@@ -195,7 +198,7 @@ Deno.serve(async (request: Request) => {
       },
       { onConflict: "user_id" },
     );
-  if (profileError) {
+  if (profileUpsertError) {
     const { error: cleanupError } = await adminClient.auth.admin.deleteUser(
       createdUser.user.id,
     );
@@ -243,7 +246,8 @@ Deno.serve(async (request: Request) => {
         });
       }
       return jsonResponse(500, {
-        error: "Staff permissions could not be saved; the new account was removed.",
+        error:
+          "Staff permissions could not be saved; the new account was removed.",
       });
     }
   }
