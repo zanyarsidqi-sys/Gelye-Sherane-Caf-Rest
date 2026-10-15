@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gelye_sherane_cafe/main.dart';
+import 'package:gelye_sherane_cafe/staff_dashboard_page.dart';
 
 void main() {
   testWidgets('shows the cafe landing page without the management showcase', (
@@ -167,11 +168,88 @@ void main() {
     expect(revenueCard, findsOneWidget);
     expect(cashCard, findsOneWidget);
     expect(tester.getSize(revenueCard), tester.getSize(cashCard));
+    expect(tester.getSize(revenueCard).width, greaterThan(340));
     expect(
       tester.widget<Card>(revenueCard).color,
       tester.widget<Card>(cashCard).color,
     );
     expect(tester.getSize(revenueCard).height, 176);
+    expect(find.text('Café & Restaurant · Management'), findsOneWidget);
+  });
+
+  testWidgets('iPhone navigation keeps key sections and exposes More', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final destination in [
+      'Home',
+      'Tables',
+      'Kitchen',
+      'Payments',
+      'More',
+    ]) {
+      expect(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text(destination),
+        ),
+        findsOneWidget,
+        reason: destination,
+      );
+    }
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    expect(find.text('More management sections'), findsOneWidget);
+    expect(find.text('Customer Management'), findsOneWidget);
+  });
+
+  testWidgets('Dashboard and section cards share the same iPhone layout', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final dashboardCard = find.ancestor(
+      of: find.text('Today Revenue'),
+      matching: find.byType(Card),
+    );
+    final dashboardCardSize = tester.getSize(dashboardCard);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Tables'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final sectionCard = find.ancestor(
+      of: find.text('Table Overview'),
+      matching: find.byType(Card),
+    );
+    expect(sectionCard, findsOneWidget);
+    expect(tester.getSize(sectionCard), dashboardCardSize);
   });
 
   testWidgets('staff permission dialog fits on an iPhone-sized screen', (

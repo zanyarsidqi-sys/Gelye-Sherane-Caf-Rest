@@ -1680,9 +1680,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       } on Exception catch (exception) {
                         if (dialogContext.mounted) {
                           setDialogState(() {
-                            error =
-                                'Record was not saved. Check your section '
-                                'permission and connection, then retry. $exception';
+                            error = _workspaceWriteFailure(exception);
                             submitting = false;
                           });
                         }
@@ -1705,6 +1703,24 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     detailsController.dispose();
     amountController.dispose();
     if (result == true) await _loadWorkspaceRecords();
+  }
+
+  String _workspaceWriteFailure(Exception exception) {
+    if (exception is PostgrestException && exception.code == '42501') {
+      return 'Supabase blocked this save with row-level security (42501); '
+          'the record was not saved. Server reported: ${exception.message}. '
+          'Verify this account has completed authenticator verification '
+          '(AAL2), its staff profile has the correct role, any required '
+          'section/card permission is assigned, and the reported table/schema '
+          'matches this deployed app. If these checks pass, the production '
+          'RLS policy needs a targeted correction. Do not disable RLS.';
+    }
+    if (exception is PostgrestException) {
+      return 'Record was not saved (${exception.code ?? 'unknown'}): '
+          '${exception.message}';
+    }
+    return 'Record was not saved. Check the connection and account access, '
+        'then retry. $exception';
   }
 
   Future<void> _updateRecordStatus(
@@ -2173,12 +2189,28 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isWide = MediaQuery.sizeOf(context).width >= 900;
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: const Color(0xFFF5F7FB),
       drawer: Drawer(child: _navigationPanel()),
       bottomNavigationBar: isWide ? null : _mobileNavigationBar(),
       appBar: AppBar(
         backgroundColor: _deepNavy,
         foregroundColor: Colors.white,
-        title: const Text('Gelye Sherane · Management System'),
+        title: MediaQuery.sizeOf(context).width < 600
+            ? const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Gelye Sherane',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    'Café & Restaurant · Management',
+                    style: TextStyle(fontSize: 11, color: Color(0xFFD8E2F0)),
+                  ),
+                ],
+              )
+            : const Text('Gelye Sherane · Management System'),
         actions: [
           IconButton(
             tooltip: 'Refresh live records',
@@ -2399,7 +2431,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return SelectionArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.all(
-          MediaQuery.sizeOf(context).width < 600 ? 16 : 24,
+          MediaQuery.sizeOf(context).width < 600 ? 16 : 28,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -2440,8 +2472,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         ? 'Administrator dashboard'
                         : 'Staff dashboard')
                   : section.title),
-          style: const TextStyle(
-            fontSize: 30,
+          style: TextStyle(
+            fontSize: MediaQuery.sizeOf(context).width < 600 ? 24 : 30,
             fontWeight: FontWeight.w700,
             color: _ink,
           ),
@@ -2536,11 +2568,26 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (visibleSubcards.isEmpty) {
       return const Text('No cards in this section are assigned to this account.');
     }
+    return _managementCardGrid(
+      sectionIndex: sectionIndex,
+      titles: visibleSubcards,
+    );
+  }
+
+  Widget _managementCardGrid({
+    required int sectionIndex,
+    required List<String> titles,
+    String? revenueCard,
+    double? revenue,
+    bool revenueUnavailable = false,
+  }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columnCount = constraints.maxWidth >= 900
+        final columnCount = constraints.maxWidth >= 1120
+            ? 4
+            : constraints.maxWidth >= 760
             ? 3
-            : constraints.maxWidth >= 560
+            : constraints.maxWidth >= 600
             ? 2
             : 1;
         final cardWidth =
@@ -2549,48 +2596,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           spacing: 12,
           runSpacing: 12,
           children: [
-            for (final subcard in visibleSubcards)
+            for (final title in titles)
               SizedBox(
                 width: cardWidth,
-                child: Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: () => setState(() => _selectedSubcard = subcard),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Icon(_sections[sectionIndex].icon, color: _gold),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  subcard,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  _connectionLabel(
-                                    _sections[sectionIndex].key,
-                                    _permissionSlug(subcard),
-                                  ),
-                                  style: TextStyle(
-                                    color: _muted,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                    ),
-                  ),
+                child: _managementCard(
+                  sectionIndex,
+                  title,
+                  revenue: title == revenueCard ? revenue : null,
+                  revenueUnavailable:
+                      title == revenueCard && revenueUnavailable,
                 ),
               ),
           ],
@@ -2623,41 +2637,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final columnCount = constraints.maxWidth >= 1120
-                ? 4
-                : constraints.maxWidth >= 760
-                ? 3
-                : constraints.maxWidth >= 340
-                ? 2
-                : 1;
-            final cardWidth =
-                (constraints.maxWidth - (columnCount - 1) * 12) / columnCount;
-            return Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                for (final title in assignedCards)
-                  SizedBox(
-                    width: cardWidth,
-                    child: _dashboardTile(
-                      title,
-                      revenue: title == revenueCard &&
-                              _workspaceError == null &&
-                              !_isLoadingRecords &&
-                              hasRevenueRecords
-                          ? revenue
-                          : null,
-                      revenueUnavailable: title == revenueCard &&
-                          (_workspaceError != null ||
-                              _isLoadingRecords ||
-                              !hasRevenueRecords),
-                    ),
-                  ),
-              ],
-            );
-          },
+        _managementCardGrid(
+          sectionIndex: 0,
+          titles: assignedCards,
+          revenueCard: revenueCard,
+          revenue: _workspaceError == null &&
+                  !_isLoadingRecords &&
+                  hasRevenueRecords
+              ? revenue
+              : null,
+          revenueUnavailable: _workspaceError != null ||
+              _isLoadingRecords ||
+              !hasRevenueRecords,
         ),
         const SizedBox(height: 16),
         Container(
@@ -2721,13 +2712,34 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
-  Widget _dashboardTile(
+  Widget _managementCard(
+    int sectionIndex,
     String title, {
     double? revenue,
-    required bool revenueUnavailable,
+    bool revenueUnavailable = false,
   }) {
-    final isRevenueCard = title == _subcards.first.first;
-    final connection = _connectionLabel('dashboard', _permissionSlug(title));
+    final section = _sections[sectionIndex];
+    final isRevenueCard = sectionIndex == 0 && title == _subcards.first.first;
+    final subcardKey = _permissionSlug(title);
+    final records = _recordsFor(section.key, subcardKey);
+    final connection = _connectionLabel(section.key, subcardKey);
+    final recordCountLabel = _isLoadingRecords
+        ? 'Connecting...'
+        : _workspaceError != null
+        ? 'Unavailable'
+        : records.isEmpty
+        ? 'No records'
+        : '${records.length} record${records.length == 1 ? '' : 's'}';
+    final primaryText = isRevenueCard
+        ? revenueUnavailable
+              ? '— IQD'
+              : '${revenue!.toStringAsFixed(0)} IQD'
+        : recordCountLabel;
+    final secondaryText = isRevenueCard
+        ? revenueUnavailable
+              ? connection
+              : 'Tracked records only · excludes unrecorded sales'
+        : _workspaceError ?? 'Live Supabase records';
     return SizedBox(
       height: 176,
       child: Card(
@@ -2755,8 +2767,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         color: const Color(0xFFFFF1DD),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
-                        Icons.circle_outlined,
+                      child: Icon(
+                        section.icon,
                         color: _navy,
                         size: 19,
                       ),
@@ -2778,46 +2790,29 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                if (isRevenueCard)
-                  Text(
-                    revenueUnavailable
-                        ? '— IQD'
-                        : '${revenue!.toStringAsFixed(0)} IQD',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _deepNavy,
-                      fontSize: 21,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  )
-                else
-                  Text(
-                    connection,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _ink,
-                      fontSize: 13,
-                      height: 1.35,
-                      fontWeight: FontWeight.w600,
-                    ),
+                Text(
+                  primaryText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: revenueUnavailable && isRevenueCard
+                        ? _muted
+                        : _deepNavy,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w700,
                   ),
-                if (isRevenueCard) ...[
-                  const SizedBox(height: 5),
-                  Text(
-                    revenueUnavailable
-                        ? connection
-                        : 'Tracked records only · excludes unrecorded sales',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: _muted,
-                      fontSize: 11,
-                      height: 1.25,
-                    ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  secondaryText,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _muted,
+                    fontSize: 11,
+                    height: 1.25,
                   ),
-                ],
+                ),
                 const Spacer(),
                 const Row(
                   children: [
@@ -3013,17 +3008,13 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _mfaCodeController = TextEditingController();
-  final _newStaffEmailController = TextEditingController();
-  final _newStaffPasswordController = TextEditingController();
   String? _error;
-  String? _staffCreatedMessage;
   String? _mfaFactorId;
   String? _mfaEnrollmentSecret;
   bool? _isAdmin;
   bool _mfaPending = false;
   bool _isLoadingRole = false;
   bool _isSubmitting = false;
-  bool _showCreateStaffForm = false;
 
   @override
   void initState() {
@@ -3043,8 +3034,6 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
     _emailController.dispose();
     _passwordController.dispose();
     _mfaCodeController.dispose();
-    _newStaffEmailController.dispose();
-    _newStaffPasswordController.dispose();
     super.dispose();
   }
 
@@ -3301,8 +3290,6 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
         setState(() {
           _isAdmin = null;
           _error = null;
-          _staffCreatedMessage = null;
-          _showCreateStaffForm = false;
           _mfaFactorId = null;
           _mfaEnrollmentSecret = null;
           _mfaPending = false;
@@ -3319,55 +3306,6 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
       if (mounted) {
         setState(() {
           _error = 'Could not reach the sign-in service. Check your connection and try again.';
-        });
-      }
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  Future<void> _createStaffAccount() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() {
-      _isSubmitting = true;
-      _error = null;
-      _staffCreatedMessage = null;
-    });
-
-    final email = _newStaffEmailController.text.trim();
-    try {
-      await Supabase.instance.client.functions.invoke(
-        'create-staff-user',
-        body: {
-          'email': email,
-          'password': _newStaffPasswordController.text,
-        },
-      );
-      if (!mounted) return;
-      setState(() {
-        _staffCreatedMessage = 'Staff account created for $email.';
-        _newStaffEmailController.clear();
-        _newStaffPasswordController.clear();
-        _showCreateStaffForm = false;
-      });
-    } on FunctionException catch (exception) {
-      if (mounted) {
-        setState(() {
-          _error = _staffFunctionFailure(exception);
-        });
-      }
-    } on AuthException {
-      if (mounted) {
-        setState(() {
-          _error = 'Your sign-in has expired. Sign in again and retry.';
-        });
-      }
-    } on Exception {
-      if (mounted) {
-        setState(() {
-          _error =
-              'Could not reach the staff service. Confirm that the database '
-              'and create-staff-user function are deployed.';
         });
       }
     } finally {
@@ -3484,30 +3422,11 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: _isSubmitting
-                ? null
-                : () => setState(() {
-                    _showCreateStaffForm = !_showCreateStaffForm;
-                    _error = null;
-                    _staffCreatedMessage = null;
-                  }),
-            icon: const Icon(Icons.person_add_alt_1),
-            label: Text(
-              _showCreateStaffForm ? 'Cancel adding staff' : 'Add staff user',
-            ),
+          const Text(
+            'Create staff accounts from the management workspace so you can '
+            'assign their section and card permissions.',
+            style: TextStyle(color: _muted, height: 1.45),
           ),
-          if (_showCreateStaffForm) ...[
-            const SizedBox(height: 12),
-            _createStaffForm(),
-          ],
-          if (_staffCreatedMessage != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              _staffCreatedMessage!,
-              style: const TextStyle(color: Colors.green),
-            ),
-          ],
         ] else
           const Text(
             'This account does not have an administrator role. The first '
@@ -3595,60 +3514,6 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
           _AuthErrorMessage(_error!),
         ],
       ],
-    );
-  }
-
-  Widget _createStaffForm() {
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextFormField(
-            controller: _newStaffEmailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'New staff email',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
-            validator: (value) {
-              final email = value?.trim() ?? '';
-              if (!email.contains('@') || !email.contains('.')) {
-                return 'Enter a valid email address';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: _newStaffPasswordController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Initial password (12+ characters)',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.password_outlined),
-            ),
-            validator: (value) => value == null || value.length < 12
-                ? 'Use at least 12 characters'
-                : null,
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _isSubmitting ? null : _createStaffAccount,
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Create staff account'),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

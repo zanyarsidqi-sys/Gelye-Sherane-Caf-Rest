@@ -14,11 +14,13 @@ stored.
 
 After staff authentication, the management UI follows the approved 11-section
 layout. Desktop/web uses a persistent section sidebar; mobile uses Home, Tables,
-Kitchen, Payments, and More navigation. Every section/card uses the shared
-Supabase workspace-record store for authorized, realtime records with create,
-status-update, delete, and automatic database audit capture. This is a flexible record
-workspace, not a card processor or a substitute for importing existing cafe
-transactions; only data actually entered or imported is shown.
+Kitchen, Payments, and More navigation. Dashboard and section subcards use the
+same responsive card component and grid breakpoints. Every section/card uses
+the shared Supabase workspace-record store for authorized, realtime records
+with create, status-update, delete, and automatic database audit capture. This
+is a flexible record workspace, not a card processor or a substitute for
+importing existing cafe transactions; only data actually entered or imported
+is shown.
 
 ## Staff accounts and section permissions
 
@@ -47,6 +49,11 @@ current six-digit TOTP before showing staff access. Keep the enrollment key
 private and save it in an authenticator app. A fixed shared entrance code is
 not used: it would be exposed in browser code and would not provide individual
 second-factor security. Enable TOTP MFA for the Supabase project.
+
+Create staff accounts from the management workspace's **Add staff user** form,
+which saves the selected section/card grants with the account. The public-site
+sign-in dialog does not create accounts, so there is no permission-less
+alternate creation path.
 
 Apply these migrations to the selected project's SQL Editor in timestamp order:
 
@@ -82,7 +89,11 @@ If live records fail to load, the workspace reports the Supabase error and
 offers a retry instead of showing placeholder values. Confirm the two live
 workspace migrations are applied in project `lpxuuzfgiggsyhdbsucv`. If the
 account lacks an administrator role, review the existing staff profile rather
-than granting access through the client.
+than granting access through the client. For a `42501` row-level-security
+denial, verify the session has AAL2, the account's profile role and section/card
+grant, and that the table/schema named in the server error matches the deployed
+app. Keep RLS enabled; correct the specific production policy only after
+confirming the live schema and policy definitions.
 
 For local development, pass `SUPABASE_URL`, `SUPABASE_EXPECTED_PROJECT_REF`,
 and `SUPABASE_PUBLISHABLE_KEY` with `--dart-define` to `flutter run` or
