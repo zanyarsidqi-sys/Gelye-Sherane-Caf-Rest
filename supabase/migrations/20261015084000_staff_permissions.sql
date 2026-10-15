@@ -17,7 +17,20 @@ CREATE TABLE public.staff_permissions (
       'maintenance_management',
       'notifications_management',
       'settings_management',
-      'operations_management'
+      'operations_management',
+      'motel_online_orders',
+      'inventory_management',
+      'customer_directory_management',
+      'reservations_management',
+      'devices_printing_management',
+      'security_audit_management',
+      'system_health_updates_management',
+      'shisha_management',
+      'delivery_management',
+      'marketing_management',
+      'customer_feedback_management',
+      'staff_operations_management',
+      'reports_management'
     )
   ),
   subcard_key text NOT NULL CHECK (

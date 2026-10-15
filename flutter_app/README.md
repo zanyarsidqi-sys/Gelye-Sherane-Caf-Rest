@@ -114,6 +114,19 @@ supabase/migrations/20261015090000_cafe_workspace_records.sql
 supabase/migrations/20261015211000_staff_departments_and_permission_profiles.sql
 ```
 
+The permissions table must include every management section used by the app,
+including Dashboard, Tables & Orders, Payments, Menu, Kitchen, Motel & Online
+Orders, Inventory, Staff, Customers, Reservations, Settings, Notifications,
+Maintenance, Operations, Statistics, Devices & Printing, Security & Audit,
+System Health & Updates, Shisha, Delivery, Marketing, Customer Feedback,
+Staff & Operations, and Reports. If you are upgrading a live project that was
+created from the older partial permission list, run the expansion migration
+after the base migrations:
+
+```text
+supabase/migrations/20261016000000_expand_management_section_permissions.sql
+```
+
 Do not run the staff-profile review candidate. After the migration succeeds,
 deploy the account-creation function to the selected project with the Supabase
 CLI:
