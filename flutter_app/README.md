@@ -22,6 +22,12 @@ is a flexible record workspace, not a card processor or a substitute for
 importing existing cafe transactions; only data actually entered or imported
 is shown.
 
+Tables, customer orders, kitchen, reporting, and operations now surface the
+reference-design cards first. Existing card tools remain available under
+**More cards** and existing records and access grants are not removed. New card
+summaries show only records actually saved for that card; illustrative sample
+figures from design references are not presented as live cafe data.
+
 ## Staff accounts and section permissions
 
 The deployment workflow supplies the Supabase project URL, expected project

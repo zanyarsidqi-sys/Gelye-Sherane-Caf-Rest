@@ -248,13 +248,33 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final sectionCard = find.ancestor(
-        of: find.text('Table Overview'),
+      expect(dashboardCardSize.width, lessThan(150));
+      for (final title in [
+        'Current Customers',
+        'Active Tables',
+        "Today's Customers",
+        "Today's Tables",
+        'Table Status',
+        'Reservations',
+        'Waiting List',
+        'Table Cleaning',
+        'Table Requests',
+        'Table Performance',
+      ]) {
+        expect(find.text(title), findsOneWidget, reason: title);
+      }
+      final tableCard = find.ancestor(
+        of: find.text('Current Customers'),
         matching: find.byType(Card),
       );
-      expect(sectionCard, findsOneWidget);
-      expect(dashboardCardSize.width, lessThan(150));
-      expect(tester.getSize(sectionCard).width, greaterThan(340));
+      expect(tester.getSize(tableCard).width, greaterThan(150));
+      expect(find.text('Live seated guests'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('More cards (13)'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('More cards (13)'));
+      await tester.pumpAndSettle();
+      expect(find.text('Table Overview'), findsOneWidget);
 
       await tester.tap(
         find.descendant(
@@ -267,6 +287,8 @@ void main() {
       expect(find.textContaining('Finance data unavailable'), findsOneWidget);
       expect(find.text('Pending Payments'), findsOneWidget);
 
+      await tester.ensureVisible(find.text('Today Revenue'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Today Revenue'));
       await tester.pumpAndSettle();
       expect(find.text('Today Revenue records'), findsOneWidget);
@@ -275,6 +297,61 @@ void main() {
       expect(find.text('1,250,000 IQD'), findsNothing);
     },
   );
+
+  testWidgets('remaining management sections show reference card groups', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Kitchen').last);
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Menu Management',
+      'Inventory & Stock',
+      'Nargile Management',
+      'Preparation Time',
+      'Kitchen Devices',
+    ]) {
+      expect(find.text(title), findsOneWidget, reason: title);
+    }
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Customer Management'));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Kitchen Orders',
+      'Table Orders',
+      'Online Orders',
+      'Motel Orders',
+      'Takeaway & Delivery',
+    ]) {
+      expect(find.text(title), findsOneWidget, reason: title);
+    }
+
+    await tester.tap(find.text('More'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Operations Management'),
+      240,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(find.text('Operations Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('System Health'), findsOneWidget);
+    expect(find.text('Security Center'), findsOneWidget);
+    expect(find.text('Audit & Activity History'), findsOneWidget);
+  });
 
   testWidgets('employee workspace explains the department-first setup', (
     tester,

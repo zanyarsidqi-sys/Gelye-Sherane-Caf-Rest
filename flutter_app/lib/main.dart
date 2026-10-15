@@ -26,6 +26,83 @@ String _permissionSlug(String label) => label
     .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
     .replaceAll(RegExp(r'^_|_$'), '');
 
+const _featuredSectionCards = {
+  1: [
+    'Current Customers',
+    'Active Tables',
+    "Today's Customers",
+    "Today's Tables",
+    'Table Status',
+    'Reservations',
+    'Waiting List',
+    'Table Cleaning',
+    'Table Requests',
+    'Table Performance',
+  ],
+  3: [
+    'Menu Management',
+    'Inventory & Stock',
+    'Nargile Management',
+    'Preparation Time',
+    'Kitchen Devices',
+  ],
+  4: [
+    'Kitchen Orders',
+    'Table Orders',
+    'Online Orders',
+    'Motel Orders',
+    'Takeaway & Delivery',
+    'Customer Requests',
+  ],
+  5: ['Reports & Analytics'],
+  6: ['Permissions & Roles'],
+  9: [
+    'Settings & Configuration',
+    'Backup & Restore',
+    'Offline & Sync',
+    'System Updates',
+    'Devices & Printers',
+  ],
+  10: [
+    'System Health',
+    'Security Center',
+    'Audit & Activity History',
+  ],
+};
+
+const _sectionCardDescriptions = {
+  'Current Customers': 'Live seated guests',
+  'Active Tables': 'Occupied tables',
+  "Today's Customers": 'Daily guest total',
+  "Today's Tables": 'Visits opened today',
+  'Table Status': 'All table states',
+  'Reservations': 'Bookings & arrivals',
+  'Waiting List': 'Waiting parties',
+  'Table Cleaning': 'Cleaning approvals',
+  'Table Requests': 'Service requests',
+  'Table Performance': 'Turnover & timing',
+  'Kitchen Orders': 'All kitchen orders and status',
+  'Table Orders': 'Orders for occupied tables',
+  'Online Orders': 'Orders from website and app',
+  'Motel Orders': 'Orders from motel guests',
+  'Takeaway & Delivery': 'Pickup and delivery orders',
+  'Menu Management': 'Products, prices and availability',
+  'Inventory & Stock': 'Stock quantities and alerts',
+  'Nargile Management': 'Shisha orders and preparation',
+  'Preparation Time': 'Kitchen speed and delayed orders',
+  'Kitchen Devices': 'Printers, displays and device status',
+  'Reports & Analytics': 'Sales, orders and performance reports',
+  'System Health': 'Service status and system alerts',
+  'Security Center': 'MFA and security monitoring',
+  'Permissions & Roles': 'Employee roles and access control',
+  'Audit & Activity History': 'Track staff system activity',
+  'Backup & Restore': 'Data backup and recovery',
+  'Offline & Sync': 'Pending synchronization and errors',
+  'System Updates': 'App version and release management',
+  'Settings & Configuration': 'Restaurant settings and preferences',
+  'Devices & Printers': 'Manage connected devices',
+};
+
 String _staffFunctionFailure(FunctionException exception) {
   final details = exception.details;
   final serverMessage = details is Map ? details['error'] : null;
@@ -1311,6 +1388,16 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Personalization',
     ],
     [
+      'Current Customers',
+      'Active Tables',
+      "Today's Customers",
+      "Today's Tables",
+      'Table Status',
+      'Reservations',
+      'Waiting List',
+      'Table Cleaning',
+      'Table Requests',
+      'Table Performance',
       'Table Overview',
       'Visual Table Map',
       'Add/Edit Tables & Chairs',
@@ -1318,7 +1405,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Table Orders',
       'Customer QR Screen',
       'Pricing Modes',
-      'Reservations',
       'Join/Transfer',
       'Split Bills',
       'Pay for Others',
@@ -1352,6 +1438,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Audit',
     ],
     [
+      'Menu Management',
+      'Inventory & Stock',
+      'Nargile Management',
+      'Preparation Time',
+      'Kitchen Devices',
       'Kitchen Queue',
       'Stations',
       'Menu Categories',
@@ -1368,9 +1459,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Revisions',
     ],
     [
-      'Customer Directory',
-      'Motel Orders',
+      'Kitchen Orders',
+      'Table Orders',
       'Online Orders',
+      'Motel Orders',
+      'Takeaway & Delivery',
+      'Customer Requests',
+      'Customer Directory',
       'Takeaway',
       'Delivery',
       'QR Customer Ordering',
@@ -1383,6 +1478,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Events',
     ],
     [
+      'Reports & Analytics',
       'Revenue Reports',
       'Cost & Profit',
       'Sales Analytics',
@@ -1397,6 +1493,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Comparisons',
     ],
     [
+      'Permissions & Roles',
       'Staff Directory',
       'Invite/Create Staff',
       'Roles',
@@ -1436,8 +1533,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Acknowledgments',
     ],
     [
-      'General',
+      'Settings & Configuration',
       'Backup & Restore',
+      'Offline & Sync',
+      'System Updates',
+      'Devices & Printers',
+      'General',
       'Device Layout',
       'Appearance/Dark Mode',
       'Dictionary & Languages',
@@ -1450,6 +1551,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Test/Real Mode',
     ],
     [
+      'System Health',
+      'Security Center',
+      'Audit & Activity History',
       'Opening Checklist',
       'Shift Handover',
       'Closing Checklist',
@@ -3323,28 +3427,75 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 2) {
       return _paymentManagementOverview(visibleSubcards);
     }
+    final featuredCards = _featuredSectionCards[sectionIndex];
+    if (featuredCards != null) {
+      final primaryCards = visibleSubcards
+          .where(featuredCards.contains)
+          .toList(growable: false);
+      final additionalCards = visibleSubcards
+          .where((title) => !featuredCards.contains(title))
+          .toList(growable: false);
+      if (primaryCards.isNotEmpty && additionalCards.isNotEmpty) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _managementCardGrid(
+              sectionIndex: sectionIndex,
+              titles: primaryCards,
+              columns: sectionIndex == 1 ? 2 : null,
+            ),
+            const SizedBox(height: 12),
+            Card(
+              margin: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+              child: ExpansionTile(
+                title: Text('More cards (${additionalCards.length})'),
+                childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                children: [
+                  _managementCardGrid(
+                    sectionIndex: sectionIndex,
+                    titles: additionalCards,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }
+      if (primaryCards.isNotEmpty) {
+        return _managementCardGrid(
+          sectionIndex: sectionIndex,
+          titles: primaryCards,
+          columns: sectionIndex == 1 ? 2 : null,
+        );
+      }
+    }
     return _managementCardGrid(
       sectionIndex: sectionIndex,
       titles: visibleSubcards,
+      columns: sectionIndex == 1 ? 2 : null,
     );
   }
 
   Widget _managementCardGrid({
     required int sectionIndex,
     required List<String> titles,
+    int? columns,
     String? revenueCard,
     double? revenue,
     bool revenueUnavailable = false,
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columnCount = constraints.maxWidth >= 1120
-            ? 4
-            : constraints.maxWidth >= 760
-            ? 3
-            : constraints.maxWidth >= 600
-            ? 2
-            : 1;
+        final columnCount =
+            columns ??
+            (constraints.maxWidth >= 1120
+                ? 4
+                : constraints.maxWidth >= 760
+                ? 3
+                : constraints.maxWidth >= 600
+                ? 2
+                : 1);
         final cardWidth =
             (constraints.maxWidth - (columnCount - 1) * 12) / columnCount;
         return Wrap(
@@ -3958,12 +4109,38 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     'Discounts' => Icons.sell_outlined,
     'Credit Accounts' || 'Confirm Credit' => Icons.credit_score_outlined,
     'Tables Occupied' || 'Table Occupancy' => Icons.chair_alt_outlined,
+    'Current Customers' || 'Customers' => Icons.people_outline,
+    'Active Tables' || "Today's Tables" => Icons.table_restaurant_outlined,
+    "Today's Customers" => Icons.groups_outlined,
+    'Table Status' => Icons.grid_view_rounded,
     'Table Map' || 'Visual Table Map' => Icons.map_outlined,
     'Reservations' => Icons.calendar_month_outlined,
-    'Cleaning Needed' || 'Cleaning' => Icons.cleaning_services_outlined,
-    'Kitchen Orders' || 'Kitchen Queue' => Icons.soup_kitchen_outlined,
-    'Menu' || 'Menu Categories' => Icons.restaurant_menu_outlined,
-    'Low Stock' || 'Inventory' => Icons.inventory_2_outlined,
+    'Waiting List' => Icons.access_time_outlined,
+    'Cleaning Needed' || 'Cleaning' || 'Table Cleaning' =>
+      Icons.cleaning_services_outlined,
+    'Table Requests' => Icons.notifications_active_outlined,
+    'Table Performance' || 'Service Speed' => Icons.bar_chart_rounded,
+    'Kitchen Orders' || 'Kitchen Queue' || 'Table Orders' =>
+      Icons.soup_kitchen_outlined,
+    'Menu' || 'Menu Categories' || 'Menu Management' =>
+      Icons.restaurant_menu_outlined,
+    'Low Stock' || 'Inventory' || 'Inventory & Stock' =>
+      Icons.inventory_2_outlined,
+    'Nargile Management' || 'Nargile' => Icons.smoking_rooms_outlined,
+    'Preparation Time' => Icons.timer_outlined,
+    'Kitchen Devices' || 'Devices & Printers' => Icons.print_outlined,
+    'Online Orders' => Icons.language_outlined,
+    'Motel Orders' => Icons.hotel_outlined,
+    'Takeaway & Delivery' => Icons.delivery_dining_outlined,
+    'Reports & Analytics' => Icons.query_stats_outlined,
+    'System Health' => Icons.monitor_heart_outlined,
+    'Security Center' => Icons.shield_outlined,
+    'Permissions & Roles' => Icons.admin_panel_settings_outlined,
+    'Audit & Activity History' => Icons.history_outlined,
+    'Backup & Restore' => Icons.backup_outlined,
+    'Offline & Sync' => Icons.sync_outlined,
+    'System Updates' => Icons.system_update_alt_outlined,
+    'Settings & Configuration' => Icons.settings_outlined,
     'Customers' || 'Customer Directory' => Icons.people_outline,
     'Employees' || 'Staff Directory' => Icons.badge_outlined,
     'Tasks' => Icons.task_alt_outlined,
@@ -4372,13 +4549,26 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isRevenueCard = sectionIndex == 0 && title == _subcards.first.first;
     final subcardKey = _permissionSlug(title);
     final records = _recordsFor(section.key, subcardKey);
-    final connection = _connectionLabel(section.key, subcardKey);
+    const cardPalettes = [
+      (background: Color(0xFFE0F6EF), accent: Color(0xFF12805B)),
+      (background: Color(0xFFE6F0FF), accent: Color(0xFF2363D4)),
+      (background: Color(0xFFF1E8FF), accent: Color(0xFF7638BC)),
+      (background: Color(0xFFFFF0DC), accent: Color(0xFFB75B11)),
+      (background: Color(0xFFE4F5F5), accent: Color(0xFF117D84)),
+      (background: Color(0xFFFFEAF0), accent: Color(0xFFD7355D)),
+    ];
+    final paletteTitles =
+        _featuredSectionCards[sectionIndex] ?? _subcards[sectionIndex];
+    final paletteIndex = paletteTitles.indexOf(title);
+    final palette = cardPalettes[
+      (paletteIndex < 0 ? 0 : paletteIndex) % cardPalettes.length
+    ];
     final recordCountLabel = _isLoadingRecords
         ? 'Connecting...'
         : _workspaceError != null
         ? 'Unavailable'
         : records.isEmpty
-        ? 'No records'
+        ? '0 tracked records'
         : '${records.length} record${records.length == 1 ? '' : 's'}';
     final primaryText = isRevenueCard
         ? revenueUnavailable
@@ -4387,18 +4577,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         : recordCountLabel;
     final secondaryText = isRevenueCard
         ? revenueUnavailable
-              ? connection
+              ? _connectionLabel(section.key, subcardKey)
               : 'Tracked records only · excludes unrecorded sales'
-        : _workspaceError ?? 'Live Supabase records';
+        : _sectionCardDescriptions[title] ?? 'Live Supabase records';
     return SizedBox(
       height: 176,
       child: Card(
         margin: EdgeInsets.zero,
-        color: Colors.white,
+        color: palette.background,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFE5EAF0)),
+          side: BorderSide(color: palette.accent.withValues(alpha: 0.14)),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -4414,32 +4604,51 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF1DD),
+                        color: palette.accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
-                        section.icon,
-                        color: _navy,
+                        _metricIcon(title, section.icon),
+                        color: palette.accent,
                         size: 19,
                       ),
                     ),
-                    const SizedBox(width: 9),
                     Expanded(
-                      child: Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: _ink,
-                          fontSize: 14,
-                          height: 1.2,
-                          fontWeight: FontWeight.w700,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.chevron_right,
+                          color: palette.accent,
+                          size: 20,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _ink,
+                    fontSize: 14,
+                    height: 1.2,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  secondaryText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _muted,
+                    fontSize: 11,
+                    height: 1.2,
+                  ),
+                ),
+                const Spacer(),
                 Text(
                   primaryText,
                   maxLines: 1,
@@ -4447,40 +4656,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   style: TextStyle(
                     color: revenueUnavailable && isRevenueCard
                         ? _muted
-                        : _deepNavy,
-                    fontSize: 21,
+                        : palette.accent,
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  secondaryText,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _muted,
-                    fontSize: 11,
-                    height: 1.25,
-                  ),
-                ),
-                const Spacer(),
-                const Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        'View details',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: _navy,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(Icons.arrow_forward, color: _navy, size: 15),
-                  ],
                 ),
               ],
             ),
