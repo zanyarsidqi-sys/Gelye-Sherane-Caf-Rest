@@ -207,6 +207,22 @@ void main() {
     expect(find.text('Reports Overview'), findsNothing);
   });
 
+  testWidgets('public landing page renders on iPhone without layout errors', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const CafeApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('A taste to look forward to'), findsOneWidget);
+    expect(find.text('Explore menu'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('dashboard shows compact grouped cards on iPhone', (
     tester,
   ) async {

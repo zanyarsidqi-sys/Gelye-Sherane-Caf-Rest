@@ -31,6 +31,19 @@ const allowedSectionKeys = new Set([
   "notifications_management",
   "settings_management",
   "operations_management",
+  "motel_online_orders",
+  "inventory_management",
+  "customer_directory_management",
+  "reservations_management",
+  "devices_printing_management",
+  "security_audit_management",
+  "system_health_updates_management",
+  "shisha_management",
+  "delivery_management",
+  "marketing_management",
+  "customer_feedback_management",
+  "staff_operations_management",
+  "reports_management",
 ]);
 
 type PermissionGrant = {
@@ -202,7 +215,12 @@ Deno.serve(async (request: Request) => {
     return new Response(JSON.stringify({
       departments: departmentsResult.data ?? [],
       permission_profiles: profilesResult.data ?? [],
-      staff: (staffResult.data ?? []).map((member) => ({
+      staff: (staffResult.data ?? []).map((member: {
+        user_id: string;
+        email: string;
+        department_id: string | null;
+        permission_profile_id: string | null;
+      }) => ({
         ...member,
         permissions: permissionsByUser.get(member.user_id) ?? [],
       })),
