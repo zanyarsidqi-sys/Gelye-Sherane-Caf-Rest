@@ -93,14 +93,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Administrator dashboard'), findsOneWidget);
     expect(find.text('Menu'), findsWidgets);
     expect(find.text('Orders'), findsWidgets);
     expect(find.text('Reservations'), findsWidgets);
     expect(find.text('Reports'), findsWidgets);
     expect(find.text('Menu workspace'), findsOneWidget);
 
-    await tester.tap(find.text('Orders').first);
+    await tester.tap(find.text('Orders').last);
     await tester.pumpAndSettle();
+    expect(find.text('Orders workspace'), findsOneWidget);
     expect(
       find.text(
         'Order management will appear here when an ordering system is connected.',

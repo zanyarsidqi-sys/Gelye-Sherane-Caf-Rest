@@ -1479,9 +1479,72 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          widget.role == 'admin' ? 'Administrator dashboard' : 'Staff dashboard',
           style: const TextStyle(
             fontSize: 30,
+            fontWeight: FontWeight.w700,
+            color: _ink,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Choose a section to open its workspace.',
+          style: TextStyle(color: _muted, height: 1.5),
+        ),
+        const SizedBox(height: 20),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columnCount = constraints.maxWidth >= 720
+                ? 4
+                : constraints.maxWidth >= 440
+                ? 2
+                : 1;
+            final cardWidth =
+                (constraints.maxWidth - (columnCount - 1) * 12) / columnCount;
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                for (var sectionIndex = 0;
+                    sectionIndex < _sections.length;
+                    sectionIndex++)
+                  SizedBox(
+                    width: cardWidth,
+                    child: Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () =>
+                            setState(() => _selectedIndex = sectionIndex),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Icon(_sections[sectionIndex].$1, color: _gold),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  _sections[sectionIndex].$2,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 28),
+        Text(
+          '$title workspace',
+          style: const TextStyle(
+            fontSize: 22,
             fontWeight: FontWeight.w700,
             color: _ink,
           ),
@@ -1505,14 +1568,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             children: [
               Icon(icons[index], color: _gold, size: 30),
               const SizedBox(height: 14),
-              Text(
-                '$title workspace',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
               const Text(
                 'This section is a dashboard preview. It is not connected to '
                 'live restaurant data yet.',
@@ -1729,13 +1784,14 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
       setState(() {
         _isAdmin = role == 'admin';
       });
-      await Navigator.of(context).pushReplacement<void, void>(
+      await Navigator.of(context, rootNavigator: true).pushAndRemoveUntil<void>(
         MaterialPageRoute<void>(
           builder: (_) => StaffDashboardPage(
             email: user.email ?? '',
             role: role,
           ),
         ),
+        (route) => route.isFirst,
       );
     } on PostgrestException catch (exception) {
       if (mounted) {
@@ -1743,6 +1799,12 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
           _error =
               'Could not load staff permissions from Supabase '
               '(${exception.code ?? 'unknown'}): ${exception.message}';
+        });
+      }
+    } on Exception catch (exception) {
+      if (mounted) {
+        setState(() {
+          _error = 'Could not open the staff dashboard: $exception';
         });
       }
     } finally {
