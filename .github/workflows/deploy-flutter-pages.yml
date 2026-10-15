@@ -42,9 +42,9 @@ jobs:
       - name: Build web app
         working-directory: flutter_app
         env:
-          SUPABASE_URL: https://axiyxffuagraoydvzicr.supabase.co
-          SUPABASE_EXPECTED_PROJECT_REF: axiyxffuagraoydvzicr
-          SUPABASE_PUBLISHABLE_KEY: sb_publishable_4hoWIw02Uqx5_5WYJxH-Rw_iG7WlLXQ
+          SUPABASE_URL: https://lpxuuzfgiggsyhdbsucv.supabase.co
+          SUPABASE_EXPECTED_PROJECT_REF: lpxuuzfgiggsyhdbsucv
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_NSBWXEwzhojXbSi44DUKZQ_g_LeWtEB
         run: |
           flutter build web --release --base-href / \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
