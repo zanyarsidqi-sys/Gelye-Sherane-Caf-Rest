@@ -78,8 +78,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      MaterialApp(
+        home: StaffDashboard(email: 'admin@example.com', role: 'admin'),
       ),
     );
     await tester.pumpAndSettle();
@@ -110,8 +110,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: StaffDashboardPage(
+      MaterialApp(
+        home: StaffDashboard(
           email: 'staff@example.com',
           role: 'staff',
           grantedPermissions: {
@@ -143,8 +143,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: StaffDashboardPage(
+      MaterialApp(
+        home: StaffDashboard(
           email: 'staff@example.com',
           role: 'staff',
           grantedPermissions: {
@@ -186,8 +186,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      MaterialApp(
+        home: StaffDashboard(email: 'admin@example.com', role: 'admin'),
       ),
     );
     await tester.pumpAndSettle();
@@ -224,8 +224,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      MaterialApp(
+        home: StaffDashboard(email: 'admin@example.com', role: 'admin'),
       ),
     );
     await tester.pumpAndSettle();
@@ -261,8 +261,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      MaterialApp(
+        home: StaffDashboard(email: 'admin@example.com', role: 'admin'),
       ),
     );
     await tester.pumpAndSettle();
