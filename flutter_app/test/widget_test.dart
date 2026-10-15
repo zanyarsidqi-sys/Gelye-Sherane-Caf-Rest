@@ -171,6 +171,38 @@ void main() {
     }
   });
 
+  testWidgets('non-dashboard card opens the shared record workspace', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('management-section-6')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Inventory Overview'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Inventory Overview records'), findsOneWidget);
+    expect(find.text('Tracked records'), findsOneWidget);
+    expect(find.text('Open records'), findsOneWidget);
+    expect(find.text('Completed records'), findsOneWidget);
+    expect(find.text('Search Inventory Overview...'), findsOneWidget);
+    final addRecordButton = find.widgetWithText(FilledButton, 'Add record');
+    expect(addRecordButton, findsOneWidget);
+    expect(tester.widget<FilledButton>(addRecordButton).onPressed, isNull);
+    expect(find.byType(ChoiceChip), findsNWidgets(5));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('staff dashboard shows only assigned sections and cards', (
     tester,
   ) async {

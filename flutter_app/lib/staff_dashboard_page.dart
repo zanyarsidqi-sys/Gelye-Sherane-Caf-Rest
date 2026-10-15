@@ -1633,6 +1633,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   String _financeSearch = '';
   String _tableStatusFilter = 'All';
   String _tableSearch = '';
+  String _workspaceStatusFilter = 'All';
+  String _workspaceSearch = '';
 
   @override
   void initState() {
@@ -3489,38 +3491,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             icon: const Icon(Icons.arrow_back),
             label: Text('Back to ${section.title}'),
           ),
-        if (index != 0 || subcard != null)
-          Text(
-            subcard ?? (index == 2 ? 'Payments & Finance' : section.title),
-            style: TextStyle(
-              fontSize: MediaQuery.sizeOf(context).width < 600 ? 24 : 30,
-              fontWeight: FontWeight.w700,
-              color: _ink,
-            ),
-          ),
-        const SizedBox(height: 8),
-        if (index == 2)
-          Text(
-            subcard == null
-                ? 'View and manage all financial operations.'
-                : 'Live workspace records for $subcard.',
-            style: const TextStyle(color: _muted, height: 1.5),
-          )
-        else if (index == 1)
-          Text(
-            subcard == null
-                ? 'Manage tables, chairs, orders, reservations, payments and service.'
-                : _sectionCardDescriptions[subcard] ??
-                      'Table-management workspace records for $subcard.',
-            style: const TextStyle(color: _muted, height: 1.5),
-          )
-        else if (index != 0)
-          Text(
-            subcard == null
-                ? section.description
-                : 'Details for $subcard in ${section.title}.',
-            style: const TextStyle(color: _muted, height: 1.5),
-          ),
+        if (index != 0) _sectionPageHeading(section, subcard),
+        if (index != 0) const SizedBox(height: 16),
         if (index != 0 && index != 2) const SizedBox(height: 20),
         if (widget.permissionsLoadError != null)
           _AuthErrorMessage(
@@ -3535,7 +3507,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         if (widget.permissionsLoadError != null ||
             (widget.role == 'staff' && widget.grantedPermissions.isEmpty))
           const SizedBox(height: 16),
-        if (index != 0 && index != 2) ...[
+        if (index != 0 && index != 2 && subcard == null) ...[
           _workspaceConnectionBanner(),
           const SizedBox(height: 20),
         ],
@@ -3560,26 +3532,125 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
+  Widget _sectionPageHeading(
+    ({String key, IconData icon, String title, String description}) section,
+    String? subcard,
+  ) {
+    final description = subcard == null
+        ? section.description
+        : _sectionCardDescriptions[subcard] ??
+              'Live workspace records for $subcard.';
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEF3FB),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            subcard == null ? section.icon : _metricIcon(subcard, section.icon),
+            color: const Color(0xFF4166A3),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                subcard == null
+                    ? 'MANAGEMENT / ${section.title}'
+                    : section.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF2463EB),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subcard ??
+                    (section.key == 'payment_management'
+                        ? 'Payments & Finance'
+                        : section.title),
+                style: TextStyle(
+                  color: _navy,
+                  fontSize: MediaQuery.sizeOf(context).width < 600 ? 23 : 28,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: const TextStyle(color: _muted, height: 1.4),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        _workspaceStatusBadge(),
+      ],
+    );
+  }
+
+  Widget _workspaceStatusBadge() {
+    final color = _workspaceError == null
+        ? const Color(0xFF16814A)
+        : const Color(0xFFB42318);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _workspaceError == null ? Icons.circle : Icons.error_outline,
+            size: 8,
+            color: color,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            _workspaceError == null ? 'Live' : 'Unavailable',
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _workspaceConnectionBanner() {
     final connected = _workspaceError == null && !_isLoadingRecords;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       decoration: BoxDecoration(
-        color: connected ? const Color(0xFFEAF5EC) : const Color(0xFFFFF1DD),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: connected ? const Color(0xFFB8D9BD) : const Color(0xFFEBD7AC),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE4EAF1)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
             connected ? Icons.cloud_done_outlined : Icons.cloud_off_outlined,
-            color: connected ? const Color(0xFF27753A) : _ink,
+            color: connected
+                ? const Color(0xFF16814A)
+                : const Color(0xFFB9670C),
+            size: 19,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 9),
           Expanded(
             child: Text(
               _isLoadingRecords
@@ -3587,10 +3658,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   : _workspaceError ??
                         'Connected to live Supabase records. Updates sync '
                             'automatically across authorized sections.',
-              style: TextStyle(
-                color: connected ? const Color(0xFF215D30) : _ink,
-                height: 1.45,
-              ),
+              style: const TextStyle(color: _muted, height: 1.4, fontSize: 12),
             ),
           ),
           if (_workspaceError != null)
@@ -4765,7 +4833,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
             if (canManage)
               FilledButton.icon(
-                onPressed: _isLoadingRecords
+                onPressed: _isLoadingRecords || _workspaceError != null
                     ? null
                     : () => _createWorkspaceRecord(section, subcard),
                 icon: const Icon(Icons.add, size: 18),
@@ -4792,7 +4860,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           )
         else
-          for (final record in filteredRecords) _workspaceRecordTile(record),
+          for (final record in filteredRecords)
+            _workspaceRecordTile(record, canManage: canManage),
       ],
     );
   }
@@ -4958,7 +5027,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                   if (canManage)
                     FilledButton.icon(
-                      onPressed: _isLoadingRecords
+                      onPressed: _isLoadingRecords || _workspaceError != null
                           ? null
                           : () => _createWorkspaceRecord(section, subcard),
                       icon: const Icon(Icons.add, size: 18),
@@ -5273,6 +5342,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           onTap: () => setState(() {
             _tableSearch = '';
             _tableStatusFilter = 'All';
+            _workspaceSearch = '';
+            _workspaceStatusFilter = 'All';
             _selectedSubcard = title;
           }),
           child: Padding(
@@ -5361,22 +5432,48 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         widget.role == 'admin' ||
         widget.grantedPermissions.contains('${section.key}:*') ||
         widget.grantedPermissions.contains('${section.key}:$subcardKey');
+    final query = _workspaceSearch.trim().toLowerCase();
+    final filteredRecords = records
+        .where((record) {
+          final matchesStatus =
+              _workspaceStatusFilter == 'All' ||
+              record.status ==
+                  _workspaceStatusFilter.toLowerCase().replaceAll(' ', '_');
+          final matchesSearch =
+              query.isEmpty ||
+              record.title.toLowerCase().contains(query) ||
+              record.details.toLowerCase().contains(query);
+          return matchesStatus && matchesSearch;
+        })
+        .toList(growable: false);
+    final openCount = records
+        .where(
+          (record) => record.status == 'open' || record.status == 'in_progress',
+        )
+        .length;
+    final completedCount = records
+        .where((record) => record.status == 'completed')
+        .length;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFECE8E0)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE4EAF1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(section.icon, color: _gold, size: 30),
-          const SizedBox(height: 14),
+          Icon(section.icon, color: const Color(0xFF4166A3), size: 22),
+          const SizedBox(height: 8),
           Text(
-            subcard,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            '$subcard records',
+            style: const TextStyle(
+              color: _navy,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -5391,43 +5488,105 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             runSpacing: 8,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Chip(
-                avatar: Icon(
-                  _workspaceError == null
-                      ? Icons.cloud_done_outlined
-                      : Icons.cloud_off_outlined,
-                  size: 18,
-                ),
-                label: Text(_connectionLabel(section.key, subcardKey)),
-              ),
               if (canManage)
                 FilledButton.icon(
-                  onPressed: _isLoadingRecords
+                  onPressed: _isLoadingRecords || _workspaceError != null
                       ? null
                       : () => _createWorkspaceRecord(section, subcard),
                   icon: const Icon(Icons.add),
-                  label: Text('Add $subcard record'),
+                  label: const Text('Add record'),
                 ),
             ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _financeSummaryCard(
+                icon: section.icon,
+                label: 'Tracked records',
+                value: _isLoadingRecords ? '…' : '${records.length}',
+                tint: Colors.white,
+                accent: const Color(0xFF4166A3),
+              ),
+              _financeSummaryCard(
+                icon: Icons.schedule_outlined,
+                label: 'Open records',
+                value: _isLoadingRecords ? '…' : '$openCount',
+                tint: Colors.white,
+                accent: const Color(0xFFB9670C),
+              ),
+              _financeSummaryCard(
+                icon: Icons.check_circle_outline,
+                label: 'Completed records',
+                value: _isLoadingRecords ? '…' : '$completedCount',
+                tint: Colors.white,
+                accent: const Color(0xFF16814A),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            onChanged: (value) => setState(() => _workspaceSearch = value),
+            decoration: InputDecoration(
+              hintText: 'Search $subcard...',
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: const Color(0xFFF6F8FB),
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final status in const [
+                  'All',
+                  'Open',
+                  'In progress',
+                  'Completed',
+                  'Cancelled',
+                ])
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: ChoiceChip(
+                      label: Text(status),
+                      selected: _workspaceStatusFilter == status,
+                      onSelected: (_) =>
+                          setState(() => _workspaceStatusFilter = status),
+                    ),
+                  ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           if (_workspaceError != null)
             _AuthErrorMessage(_workspaceError!)
           else if (_isLoadingRecords)
             const Center(child: CircularProgressIndicator())
-          else if (records.isEmpty)
+          else if (filteredRecords.isEmpty)
             const Text(
-              'No records yet. Add the first record to start tracking this card.',
+              'No records match this card and its current filters.',
               style: TextStyle(color: _muted),
             )
           else
-            for (final record in records) _workspaceRecordTile(record),
+            for (final record in filteredRecords)
+              _workspaceRecordTile(record, canManage: canManage),
         ],
       ),
     );
   }
 
-  Widget _workspaceRecordTile(CafeWorkspaceRecord record) {
+  Widget _workspaceRecordTile(
+    CafeWorkspaceRecord record, {
+    required bool canManage,
+  }) {
     return Card(
       key: ValueKey('workspace-record-${record.id}'),
       margin: const EdgeInsets.only(top: 8),
@@ -5449,11 +5608,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     '${record.amount!.toStringAsFixed(2)} ${record.currency}',
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                IconButton(
-                  tooltip: 'Delete ${record.title}',
-                  onPressed: () => _deleteWorkspaceRecord(record),
-                  icon: const Icon(Icons.delete_outline),
-                ),
+                if (canManage)
+                  IconButton(
+                    tooltip: 'Delete ${record.title}',
+                    onPressed: () => _deleteWorkspaceRecord(record),
+                    icon: const Icon(Icons.delete_outline),
+                  ),
               ],
             ),
             if (record.details.isNotEmpty) Text(record.details),
@@ -5466,30 +5626,33 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     style: const TextStyle(color: _muted, fontSize: 12),
                   ),
                 ),
-                DropdownButton<String>(
-                  value: record.status,
-                  underline: const SizedBox.shrink(),
-                  items: const [
-                    DropdownMenuItem(value: 'open', child: Text('Open')),
-                    DropdownMenuItem(
-                      value: 'in_progress',
-                      child: Text('In progress'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'completed',
-                      child: Text('Completed'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'cancelled',
-                      child: Text('Cancelled'),
-                    ),
-                  ],
-                  onChanged: (status) {
-                    if (status != null && status != record.status) {
-                      unawaited(_updateRecordStatus(record, status));
-                    }
-                  },
-                ),
+                if (canManage)
+                  DropdownButton<String>(
+                    value: record.status,
+                    underline: const SizedBox.shrink(),
+                    items: const [
+                      DropdownMenuItem(value: 'open', child: Text('Open')),
+                      DropdownMenuItem(
+                        value: 'in_progress',
+                        child: Text('In progress'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'completed',
+                        child: Text('Completed'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'cancelled',
+                        child: Text('Cancelled'),
+                      ),
+                    ],
+                    onChanged: (status) {
+                      if (status != null && status != record.status) {
+                        unawaited(_updateRecordStatus(record, status));
+                      }
+                    },
+                  )
+                else
+                  Chip(label: Text(record.status.replaceAll('_', ' '))),
               ],
             ),
           ],
