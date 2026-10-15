@@ -4,22 +4,29 @@ import 'package:gelye_sherane_cafe/main.dart';
 import 'package:gelye_sherane_cafe/staff_dashboard_page.dart';
 
 void main() {
-  testWidgets('shows the cafe landing page without the management showcase', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const CafeApp());
+  testWidgets('shows the management redesign on first load', (tester) async {
+    tester.view.physicalSize = const Size(1440, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    expect(find.text('Gelye Sherane'), findsNWidgets(2));
-    expect(find.text('Gelye Sherane\nCafé & Restaurant'), findsOneWidget);
-    expect(find.text('A taste to look forward to'), findsOneWidget);
-    expect(find.text('Dashboard Management'), findsNothing);
-    expect(find.text('BUILT AROUND HOSPITALITY'), findsNothing);
-    expect(find.text('A thoughtful cafe, well run'), findsNothing);
+    expect(find.text('Gelye Sherane · Management System'), findsOneWidget);
+    expect(find.text('Dashboard'), findsWidgets);
+    expect(find.text('Tables & Orders'), findsWidgets);
+    expect(find.text('Staff Management'), findsWidgets);
+    expect(find.text('A taste to look forward to'), findsNothing);
+    expect(find.text('Book a table'), findsNothing);
   });
 
   testWidgets('menu link scrolls to the menu section', (tester) async {
-    await tester.pumpWidget(const CafeApp());
+    await tester.pumpWidget(const MaterialApp(home: CafeLandingPage()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Explore menu'));
@@ -32,7 +39,7 @@ void main() {
   testWidgets('reservation form validates required contact details', (
     tester,
   ) async {
-    await tester.pumpWidget(const CafeApp());
+    await tester.pumpWidget(const MaterialApp(home: CafeLandingPage()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Book a table').first);
@@ -54,7 +61,7 @@ void main() {
   testWidgets('staff sign-in explains when Supabase is not configured', (
     tester,
   ) async {
-    await tester.pumpWidget(const CafeApp());
+    await tester.pumpWidget(const MaterialApp(home: CafeLandingPage()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Open menu'));
@@ -215,7 +222,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(const CafeApp());
+    await tester.pumpWidget(const MaterialApp(home: CafeLandingPage()));
     await tester.pumpAndSettle();
 
     expect(find.text('A taste to look forward to'), findsOneWidget);

@@ -6,7 +6,6 @@ import 'staff_dashboard_page.dart';
 const _navy = Color(0xFF09243A);
 const _deepNavy = Color(0xFF061A2B);
 const _gold = Color(0xFFD6AA57);
-const _cream = Color(0xFFFAF8F3);
 const _ink = Color(0xFF182B3A);
 const _muted = Color(0xFF677582);
 
@@ -52,21 +51,24 @@ class CafeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gelye Sherane Café & Restaurant',
+      title: 'Gelye Sherane Management System',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        scaffoldBackgroundColor: _cream,
+        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: _gold,
+          seedColor: const Color(0xFF2463EB),
           surface: Colors.white,
         ),
         textTheme: ThemeData.light().textTheme.apply(
-          bodyColor: _ink,
-          displayColor: _ink,
+          bodyColor: const Color(0xFF18283F),
+          displayColor: const Color(0xFF18283F),
         ),
       ),
-      home: const CafeLandingPage(),
+      home: const StaffDashboardPage(
+        email: 'admin@gelyesherane.local',
+        role: 'admin',
+      ),
     );
   }
 }
