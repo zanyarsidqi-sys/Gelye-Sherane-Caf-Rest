@@ -26,6 +26,24 @@ String _permissionSlug(String label) => label
     .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
     .replaceAll(RegExp(r'^_|_$'), '');
 
+String _staffFunctionFailure(FunctionException exception) {
+  final details = exception.details;
+  final serverMessage = details is Map ? details['error'] : null;
+  if (serverMessage is String && serverMessage.isNotEmpty) {
+    return serverMessage;
+  }
+  if (exception.status == 0) {
+    return 'No response was received from create-staff-user. Check the '
+        'internet connection and confirm that this Edge Function is deployed '
+        'to the selected Supabase project.';
+  }
+  if (exception.status == 404) {
+    return 'The create-staff-user Edge Function is not deployed to this '
+        'Supabase project.';
+  }
+  return 'Could not create the staff account (HTTP ${exception.status}).';
+}
+
 bool get _hasSupabaseConfiguration =>
     _supabaseUrl.isNotEmpty ||
     _supabasePublishableKey.isNotEmpty ||
@@ -1864,14 +1882,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 Navigator.of(dialogContext).pop(true);
               }
             } on FunctionException catch (exception) {
-              final details = exception.details;
-              final message = details is Map ? details['error'] : null;
               if (dialogContext.mounted) {
                 setDialogState(() {
-                  error = message is String
-                      ? message
-                      : 'Could not create the staff account '
-                          '(HTTP ${exception.status}).';
+                  error = _staffFunctionFailure(exception);
                 });
               }
             } on AuthException {
@@ -1895,96 +1908,155 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             }
           }
 
+          final dialogHeight = MediaQuery.sizeOf(context).height;
+          final contentHeight = (dialogHeight * 0.74).clamp(280.0, 620.0);
           return PopScope(
             canPop: !isSubmitting,
-            child: AlertDialog(
-            title: const Text('Add staff user'),
-            scrollable: true,
-            content: SizedBox(
-              width: 480,
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextFormField(
-                      controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'New staff email',
-                        border: OutlineInputBorder(),
+            child: Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 20,
+              ),
+              backgroundColor: Colors.transparent,
+              child: SizedBox(
+                width: 560,
+                height: contentHeight,
+                child: Material(
+                  color: const Color(0xFFFFFEFB),
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Color(0xFFE4EAF1)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(20, 18, 20, 14),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Add staff user',
+                                style: TextStyle(
+                                  color: _ink,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Choose the sections and cards this employee can access.',
+                                style: TextStyle(color: _muted, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      validator: (value) {
-                        final email = value?.trim() ?? '';
-                        return email.contains('@') && email.contains('.')
-                            ? null
-                            : 'Enter a valid email address';
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Initial password (12+ characters)',
-                        border: OutlineInputBorder(),
+                      const Divider(height: 1, color: Color(0xFFE4EAF1)),
+                      Expanded(
+                        child: Form(
+                          key: formKey,
+                          child: ListView(
+                            padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
+                            children: [
+                              TextFormField(
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: const InputDecoration(
+                                  labelText: 'New staff email',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  final email = value?.trim() ?? '';
+                                  return email.contains('@') && email.contains('.')
+                                      ? null
+                                      : 'Enter a valid email address';
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: passwordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(
+                                  labelText: 'Initial password (12+ characters)',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) =>
+                                    value == null || value.length < 12
+                                    ? 'Use at least 12 characters'
+                                    : null,
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.only(top: 16, bottom: 8),
+                                child: Text(
+                                  'Dashboard is available to every staff member. '
+                                  'Assign the additional sections or individual '
+                                  'cards this account may access.',
+                                  style: TextStyle(color: _muted, height: 1.4),
+                                ),
+                              ),
+                              _buildStaffPermissionSection(
+                                0,
+                                selectedPermissions,
+                                setDialogState,
+                                isSubmitting,
+                                titlePrefix: 'Dashboard cards',
+                              ),
+                              for (var index = 1;
+                                  index <
+                                      _StaffDashboardPageState._sections.length;
+                                  index++)
+                                _buildStaffPermissionSection(
+                                  index,
+                                  selectedPermissions,
+                                  setDialogState,
+                                  isSubmitting,
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
-                      validator: (value) => value == null || value.length < 12
-                          ? 'Use at least 12 characters'
-                          : null,
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16, bottom: 8),
-                      child: Text(
-                        'Dashboard is available to every staff member. '
-                        'Assign the additional sections or individual cards '
-                        'this account may access.',
-                        style: TextStyle(color: _muted, height: 1.4),
+                      if (error != null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
+                          child: _AuthErrorMessage(error!),
+                        ),
+                      const Divider(height: 1, color: Color(0xFFE4EAF1)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                        child: Wrap(
+                          alignment: WrapAlignment.end,
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            TextButton(
+                              onPressed: isSubmitting
+                                  ? null
+                                  : () =>
+                                        Navigator.of(dialogContext).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            FilledButton(
+                              onPressed: isSubmitting ? null : submit,
+                              child: isSubmitting
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text('Create staff account'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    _buildStaffPermissionSection(
-                      0,
-                      selectedPermissions,
-                      setDialogState,
-                      isSubmitting,
-                      titlePrefix: 'Dashboard cards',
-                    ),
-                    for (var index = 1;
-                        index < _StaffDashboardPageState._sections.length;
-                        index++)
-                      _buildStaffPermissionSection(
-                        index,
-                        selectedPermissions,
-                        setDialogState,
-                        isSubmitting,
-                      ),
-                    if (error != null) ...[
-                      const SizedBox(height: 12),
-                      _AuthErrorMessage(error!),
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: isSubmitting
-                    ? null
-                    : () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: isSubmitting ? null : submit,
-                child: isSubmitting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Create staff account'),
-              ),
-            ],
             ),
           );
         },
@@ -2014,57 +2086,85 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final selected = selectedPermissions[section.key] ?? <String>{};
     final allSelected = selected.contains('*');
     final subcards = _StaffDashboardPageState._subcards[sectionIndex];
-    return ExpansionTile(
-      key: PageStorageKey('staff-permission-${section.key}'),
-      title: Text(titlePrefix ?? section.title),
-      subtitle: Text(
-        allSelected
-            ? 'All cards'
-            : selected.isEmpty
-            ? 'No access assigned'
-            : '${selected.length} card(s) selected',
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFFE4EAF1)),
       ),
-      children: [
-        CheckboxListTile(
-          dense: true,
-          controlAffinity: ListTileControlAffinity.leading,
-          title: const Text('All section cards'),
-          value: allSelected,
-          onChanged: isSubmitting
-              ? null
-              : (checked) => setDialogState(() {
-                  if (checked == true) {
-                    selectedPermissions[section.key] = {'*'};
-                  } else {
-                    selectedPermissions.remove(section.key);
-                  }
-                }),
+      child: ExpansionTile(
+        key: PageStorageKey('staff-permission-${section.key}'),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+        childrenPadding: const EdgeInsets.only(bottom: 8),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        for (final subcard in subcards)
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: Text(
+          titlePrefix ?? section.title,
+          style: const TextStyle(
+            color: _ink,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          allSelected
+              ? 'All cards'
+              : selected.isEmpty
+              ? 'No access assigned'
+              : '${selected.length} card(s) selected',
+          style: const TextStyle(color: _muted, fontSize: 12),
+        ),
+        children: [
           CheckboxListTile(
             dense: true,
+            visualDensity: VisualDensity.compact,
+            activeColor: const Color(0xFF2463EB),
             controlAffinity: ListTileControlAffinity.leading,
-            title: Text(subcard),
-            value: allSelected || selected.contains(_permissionSlug(subcard)),
-            onChanged: isSubmitting || allSelected
+            title: const Text('All section cards'),
+            value: allSelected,
+            onChanged: isSubmitting
                 ? null
                 : (checked) => setDialogState(() {
-                    final sectionSelection = selectedPermissions.putIfAbsent(
-                      section.key,
-                      () => <String>{},
-                    );
-                    final subcardKey = _permissionSlug(subcard);
                     if (checked == true) {
-                      sectionSelection.add(subcardKey);
+                      selectedPermissions[section.key] = {'*'};
                     } else {
-                      sectionSelection.remove(subcardKey);
-                    }
-                    if (sectionSelection.isEmpty) {
                       selectedPermissions.remove(section.key);
                     }
                   }),
           ),
-      ],
+          for (final subcard in subcards)
+            CheckboxListTile(
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              activeColor: const Color(0xFF2463EB),
+              controlAffinity: ListTileControlAffinity.leading,
+              title: Text(subcard),
+              value: allSelected || selected.contains(_permissionSlug(subcard)),
+              onChanged: isSubmitting || allSelected
+                  ? null
+                  : (checked) => setDialogState(() {
+                      final sectionSelection = selectedPermissions.putIfAbsent(
+                        section.key,
+                        () => <String>{},
+                      );
+                      final subcardKey = _permissionSlug(subcard);
+                      if (checked == true) {
+                        sectionSelection.add(subcardKey);
+                      } else {
+                        sectionSelection.remove(subcardKey);
+                      }
+                      if (sectionSelection.isEmpty) {
+                        selectedPermissions.remove(section.key);
+                      }
+                    }),
+            ),
+        ],
+      ),
     );
   }
 
@@ -2508,109 +2608,52 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             : 'Dashboard cards are unavailable until permissions can be loaded.',
       );
     }
-    final revenueCard = assignedCards.contains(_subcards.first.first)
-        ? _subcards.first.first
-        : null;
+    final revenueCard = _subcards.first.first;
     final revenueRecords = _recordsFor(
       'dashboard',
-      _permissionSlug(_subcards.first.first),
+      _permissionSlug(revenueCard),
+    );
+    final hasRevenueRecords = revenueRecords.any(
+      (record) => record.amount != null,
     );
     final revenue = revenueRecords.fold<double>(
       0,
       (total, record) => total + (record.amount ?? 0),
     );
-    final operationalCards = assignedCards.where(
-      (card) => card != revenueCard,
-    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (revenueCard != null)
-          Card(
-          color: _deepNavy,
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: () => setState(() => _selectedSubcard = revenueCard),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Today Revenue',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      _statusPill(
-                        _connectionLabel(
-                          'dashboard',
-                          _permissionSlug(revenueCard),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _workspaceError == null && !_isLoadingRecords
-                        ? '${revenue.toStringAsFixed(0)} IQD'
-                        : '— IQD',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Total of tracked Today Revenue records. It excludes '
-                    'unrecorded sales and card-processor transactions.',
-                    style: TextStyle(color: Colors.white70, height: 1.4),
-                  ),
-                  const SizedBox(height: 8),
-                  const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'View details',
-                        style: TextStyle(
-                          color: Color(0xFF9FC7FF),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward,
-                        color: Color(0xFF9FC7FF),
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          ),
-        if (revenueCard != null) const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
-            final columnCount = constraints.maxWidth >= 560 ? 2 : 1;
+            final columnCount = constraints.maxWidth >= 1120
+                ? 4
+                : constraints.maxWidth >= 760
+                ? 3
+                : constraints.maxWidth >= 340
+                ? 2
+                : 1;
             final cardWidth =
                 (constraints.maxWidth - (columnCount - 1) * 12) / columnCount;
             return Wrap(
               spacing: 12,
               runSpacing: 12,
               children: [
-                for (final title in operationalCards)
+                for (final title in assignedCards)
                   SizedBox(
                     width: cardWidth,
-                    child: _dashboardTile(title),
+                    child: _dashboardTile(
+                      title,
+                      revenue: title == revenueCard &&
+                              _workspaceError == null &&
+                              !_isLoadingRecords &&
+                              hasRevenueRecords
+                          ? revenue
+                          : null,
+                      revenueUnavailable: title == revenueCard &&
+                          (_workspaceError != null ||
+                              _isLoadingRecords ||
+                              !hasRevenueRecords),
+                    ),
                   ),
               ],
             );
@@ -2678,54 +2721,126 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
-  Widget _dashboardTile(String title) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => setState(() => _selectedSubcard = title),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              const Icon(Icons.circle_outlined, color: _navy),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _dashboardTile(
+    String title, {
+    double? revenue,
+    required bool revenueUnavailable,
+  }) {
+    final isRevenueCard = title == _subcards.first.first;
+    final connection = _connectionLabel('dashboard', _permissionSlug(title));
+    return SizedBox(
+      height: 176,
+      child: Card(
+        margin: EdgeInsets.zero,
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFE5EAF0)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => setState(() => _selectedSubcard = title),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _connectionLabel(
-                        'dashboard',
-                        _permissionSlug(title),
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF1DD),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      style: const TextStyle(color: _muted, fontSize: 12),
+                      child: const Icon(
+                        Icons.circle_outlined,
+                        color: _navy,
+                        size: 19,
+                      ),
+                    ),
+                    const SizedBox(width: 9),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: _ink,
+                          fontSize: 14,
+                          height: 1.2,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-              const Icon(Icons.chevron_right),
-            ],
+                const SizedBox(height: 14),
+                if (isRevenueCard)
+                  Text(
+                    revenueUnavailable
+                        ? '— IQD'
+                        : '${revenue!.toStringAsFixed(0)} IQD',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _deepNavy,
+                      fontSize: 21,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  )
+                else
+                  Text(
+                    connection,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _ink,
+                      fontSize: 13,
+                      height: 1.35,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                if (isRevenueCard) ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    revenueUnavailable
+                        ? connection
+                        : 'Tracked records only · excludes unrecorded sales',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _muted,
+                      fontSize: 11,
+                      height: 1.25,
+                    ),
+                  ),
+                ],
+                const Spacer(),
+                const Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'View details',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: _navy,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 4),
+                    Icon(Icons.arrow_forward, color: _navy, size: 15),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _statusPill(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
       ),
     );
   }
@@ -3237,12 +3352,8 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
       });
     } on FunctionException catch (exception) {
       if (mounted) {
-        final details = exception.details;
-        final message = details is Map ? details['error'] : null;
         setState(() {
-          _error = message is String
-              ? message
-              : 'Could not create the staff account (HTTP ${exception.status}).';
+          _error = _staffFunctionFailure(exception);
         });
       }
     } on AuthException {

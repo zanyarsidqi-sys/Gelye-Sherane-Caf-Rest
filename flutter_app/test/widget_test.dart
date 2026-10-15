@@ -78,10 +78,7 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
-        home: StaffDashboardPage(
-          email: 'admin@example.com',
-          role: 'admin',
-        ),
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
       ),
     );
     await tester.pumpAndSettle();
@@ -134,5 +131,97 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Table Overview'), findsOneWidget);
     expect(find.text('Visual Table Map'), findsNothing);
+  });
+
+  testWidgets('dashboard cards share one responsive design on iPhone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(
+          email: 'staff@example.com',
+          role: 'staff',
+          grantedPermissions: {
+            'dashboard:today_revenue',
+            'dashboard:standing_cash',
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final revenueCard = find.ancestor(
+      of: find.text('Today Revenue'),
+      matching: find.byType(Card),
+    );
+    final cashCard = find.ancestor(
+      of: find.text('Standing Cash'),
+      matching: find.byType(Card),
+    );
+
+    expect(revenueCard, findsOneWidget);
+    expect(cashCard, findsOneWidget);
+    expect(tester.getSize(revenueCard), tester.getSize(cashCard));
+    expect(
+      tester.widget<Card>(revenueCard).color,
+      tester.widget<Card>(cashCard).color,
+    );
+    expect(tester.getSize(revenueCard).height, 176);
+  });
+
+  testWidgets('staff permission dialog fits on an iPhone-sized screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Add staff user'));
+    await tester.pumpAndSettle();
+
+    final dialogSurface = find.descendant(
+      of: find.byType(Dialog),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Material && widget.color == const Color(0xFFFFFEFB),
+      ),
+    );
+    final dialogRect = tester.getRect(dialogSurface);
+    expect(dialogRect.width, lessThanOrEqualTo(390));
+    expect(dialogRect.height, lessThan(820));
+    expect(find.text('New staff email'), findsOneWidget);
+    expect(find.text('Initial password (12+ characters)'), findsOneWidget);
+    expect(find.text('Create staff account'), findsOneWidget);
+
+    final permissionList = find.descendant(
+      of: find.byType(Dialog),
+      matching: find.byType(ListView),
+    );
+    for (
+      var attempt = 0;
+      attempt < 8 && find.text('Operations Management').evaluate().isEmpty;
+      attempt++
+    ) {
+      await tester.drag(permissionList, const Offset(0, -320));
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('Operations Management'), findsOneWidget);
+    await tester.tap(find.text('Operations Management'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Closing Checklist'));
+    expect(find.text('Closing Checklist'), findsOneWidget);
   });
 }
