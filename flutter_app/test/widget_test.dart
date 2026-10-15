@@ -69,10 +69,8 @@ void main() {
     );
   });
 
-  testWidgets('admin dashboard shows all 11 management sections', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1440, 1600);
+  testWidgets('admin dashboard shows all management sections', (tester) async {
+    tester.view.physicalSize = const Size(1440, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -90,12 +88,25 @@ void main() {
       'Payment Management',
       'Menu Management',
       'Kitchen Management',
-      'Statistics Management',
-      'Employee Management',
-      'Maintenance Management',
-      'Notifications Management',
+      'Motel & Online Orders',
+      'Inventory Management',
+      'Staff Management',
+      'Customer Management',
+      'Reservations Management',
       'Settings Management',
+      'Notifications Management',
+      'Statistics Management',
+      'Maintenance Management',
       'Operations Management',
+      'Devices & Printing Management',
+      'Security & Audit Management',
+      'System Health & Updates',
+      'Shisha Management',
+      'Delivery Management',
+      'Marketing Management',
+      'Customer Feedback Management',
+      'Staff & Operations Management',
+      'Reports Management',
     ]) {
       expect(find.text(section), findsWidgets, reason: section);
     }
@@ -117,6 +128,15 @@ void main() {
           grantedPermissions: {
             'dashboard:today_revenue',
             'tables_orders:table_overview',
+            'inventory_management:expiry_waste',
+            'devices_printing_management:printer_queue',
+            'security_audit_management:security_alerts',
+            'system_health_updates_management:health_check',
+            'shisha_management:shisha_menu',
+            'delivery_management:delivery_menu',
+            'customer_feedback_management:customer_reviews',
+            'staff_operations_management:check_in_out',
+            'reports_management:sales_reports',
           },
         ),
       ),
@@ -127,11 +147,64 @@ void main() {
     expect(find.text('Payment Management'), findsNothing);
     expect(find.text('Today Revenue'), findsOneWidget);
     expect(find.text('Standing Cash'), findsNothing);
+    expect(find.text('Devices & Printing Management'), findsOneWidget);
+    expect(find.text('Security & Audit Management'), findsOneWidget);
+    expect(find.text('System Health & Updates'), findsOneWidget);
+    expect(find.text('Shisha Management'), findsOneWidget);
+    expect(find.text('Delivery Management'), findsOneWidget);
+    expect(find.text('Customer Feedback Management'), findsOneWidget);
+    expect(find.text('Staff & Operations Management'), findsOneWidget);
+    expect(find.text('Reports Management'), findsOneWidget);
 
     await tester.tap(find.text('Tables & Orders'));
     await tester.pumpAndSettle();
     expect(find.text('Table Overview'), findsOneWidget);
     expect(find.text('Visual Table Map'), findsNothing);
+
+    await tester.tap(find.text('Inventory Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Expiry & Waste'), findsOneWidget);
+    expect(find.text('Inventory Overview'), findsNothing);
+
+    await tester.tap(find.text('Devices & Printing Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Printer Queue'), findsOneWidget);
+    expect(find.text('Devices Overview'), findsNothing);
+
+    await tester.tap(find.text('Security & Audit Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Security Alerts'), findsOneWidget);
+    expect(find.text('Access Management'), findsNothing);
+
+    await tester.tap(find.text('System Health & Updates'));
+    await tester.pumpAndSettle();
+    expect(find.text('Health Check'), findsOneWidget);
+    expect(find.text('System Overview'), findsNothing);
+
+    await tester.tap(find.text('Shisha Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Shisha Menu'), findsOneWidget);
+    expect(find.text('Shisha Overview'), findsNothing);
+
+    await tester.tap(find.text('Delivery Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delivery Menu'), findsOneWidget);
+    expect(find.text('Delivery Overview'), findsNothing);
+
+    await tester.tap(find.text('Customer Feedback Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Customer Reviews'), findsOneWidget);
+    expect(find.text('Feedback Overview'), findsNothing);
+
+    await tester.tap(find.text('Staff & Operations Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Check In & Out'), findsOneWidget);
+    expect(find.text('Staff & Operations Overview'), findsNothing);
+
+    await tester.tap(find.text('Reports Management'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sales Reports'), findsOneWidget);
+    expect(find.text('Reports Overview'), findsNothing);
   });
 
   testWidgets('dashboard shows compact grouped cards on iPhone', (
@@ -197,7 +270,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    for (final destination in ['Home', 'Tables', 'Menu', 'Payments', 'More']) {
+    for (final destination in [
+      'Home',
+      'Tables',
+      'Motel',
+      'Menu',
+      'Reserve',
+      'More',
+    ]) {
       expect(
         find.descendant(
           of: find.byType(NavigationBar),
@@ -291,12 +371,9 @@ void main() {
       expect(find.text('Search Live Tables records...'), findsOneWidget);
       expect(find.text('Add record'), findsOneWidget);
 
-      await tester.tap(
-        find.descendant(
-          of: find.byType(NavigationBar),
-          matching: find.text('Payments'),
-        ),
-      );
+      await tester.tap(find.text('More').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Payment Management').last);
       await tester.pumpAndSettle();
       expect(find.text('Payments & Finance'), findsOneWidget);
       expect(find.textContaining('Finance data unavailable'), findsOneWidget);
@@ -318,7 +395,7 @@ void main() {
   testWidgets('remaining management sections show reference card groups', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(390, 844);
+    tester.view.physicalSize = const Size(390, 3000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -329,6 +406,43 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+
+    Future<void> openMoreSection(String title) async {
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text('More'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('More management sections'), findsOneWidget);
+      final section = find.text(title).last;
+      expect(section, findsOneWidget);
+      await tester.tap(section);
+      await tester.pumpAndSettle();
+    }
+
+    await tester.tap(find.text('Motel').last);
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Motel & Online Orders Overview',
+      'Select Room',
+      'New Motel Order',
+      'New Online Order',
+      'Room Orders',
+      'Motel Orders',
+      'Online Orders',
+      'Order Tracking',
+      'Order History',
+      'Meal Packages',
+      'Delivery Schedule',
+      'Invoices & Receipts',
+      'Delivery Areas',
+      'Payment Options',
+      'Motel Orders Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
 
     await tester.tap(find.text('Menu').last);
     await tester.pumpAndSettle();
@@ -347,7 +461,7 @@ void main() {
       expect(find.text(title), findsOneWidget, reason: title);
     }
     await tester.ensureVisible(find.textContaining('More cards ('));
-    await tester.tap(find.byType(ExpansionTile).last);
+    await tester.tap(find.textContaining('More cards ('));
     await tester.pumpAndSettle();
     for (final title in [
       'Menu Management',
@@ -359,10 +473,7 @@ void main() {
       expect(find.text(title), findsWidgets, reason: title);
     }
 
-    await tester.tap(find.text('More'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Kitchen Management'));
-    await tester.pumpAndSettle();
+    await openMoreSection('Kitchen Management');
     for (final title in [
       'Kitchen Overview',
       'Live Kitchen Orders',
@@ -374,14 +485,14 @@ void main() {
       'Kitchen Staff',
       'Kitchen Reports',
       'Kitchen Settings',
+      'Kitchen Orders',
     ]) {
       expect(find.text(title), findsOneWidget, reason: title);
     }
     await tester.ensureVisible(find.textContaining('More cards ('));
-    await tester.tap(find.byType(ExpansionTile).last);
+    await tester.tap(find.textContaining('More cards ('));
     await tester.pumpAndSettle();
     for (final title in [
-      'Kitchen Orders',
       'Table Orders',
       'Online Orders',
       'Motel Orders',
@@ -390,18 +501,474 @@ void main() {
       expect(find.text(title), findsOneWidget, reason: title);
     }
 
-    await tester.tap(find.text('More'));
+    await openMoreSection('Inventory Management');
+    for (final title in [
+      'Inventory Overview',
+      'All Inventory Items',
+      'Stock In',
+      'Stock Out',
+      'Transfer Stock',
+      'Stock Adjustments',
+      'Inventory Count',
+      'Low Stock Items',
+      'Expiry & Waste',
+      'Inventory Value',
+      'Search & Barcode',
+      'Inventory Reports',
+      'Suppliers Management',
+      'Inventory Settings',
+      'Sync & Backup',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Operations Management'),
-      240,
-      scrollable: find.byType(Scrollable).last,
-    );
-    await tester.tap(find.text('Operations Management'));
+    for (final title in [
+      'Add / Edit Inventory Item',
+      'Inventory Categories',
+      'Purchase Orders',
+      'Inventory Usage Report',
+      'Stock Alerts',
+      'Inventory History',
+      'Inventory Quick Actions',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Staff Management');
+    for (final title in [
+      'Staff Overview',
+      'Staff List',
+      'Add / Edit Employee',
+      'Roles & Permissions',
+      'Attendance',
+      'Shift Schedule',
+      'Leave & Requests',
+      'Payroll',
+      'Staff Documents',
+      'Training',
+      'Staff Messages',
+      'Staff Reports',
+      'Staff Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Customer Management');
+    for (final title in [
+      'Customer Overview',
+      'Customer List',
+      'Add Customer',
+      'Customer Groups',
+      'Customer QR & Loyalty',
+      'Customer Credit Management',
+      'Orders History',
+      'Reservations',
+      'Feedback & Ratings',
+      'Marketing & Communication',
+      'Import / Export',
+      'Customer Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await tester.tap(find.text('Reserve').last);
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Reservations Overview',
+      'Table Reservations',
+      'Event Reservations',
+      'Motel Reservations',
+      'Reservations Calendar',
+      'Table Map & Availability',
+      'Online Bookings',
+      'Waiting List',
+      'Special Requests',
+      'Promotions',
+      'Reservation Reports',
+      'Reservations Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Settings Management');
+    for (final title in [
+      'Settings Overview',
+      'General Settings',
+      'Restaurant Settings',
+      'Motel Settings',
+      'Pricing & Tax Settings',
+      'Payment Methods',
+      'Printers & Devices',
+      'Table & Reservation Settings',
+      'Menu Settings',
+      'User Management',
+      'Notifications',
+      'Language',
+      'System & Backup',
+      'Appearance',
+      'Integrations',
+      'About & Update',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Notifications Management');
+    for (final title in [
+      'Notifications Overview',
+      'Notifications List',
+      'Send Notification',
+      'Notification Templates',
+      'Notification Groups',
+      'System Alerts',
+      'Automations',
+      'Notification History',
+      'Notification Channels',
+      'Notification Settings',
+      'Notification Reports',
+      'Quick Actions',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Maintenance Management');
+    for (final title in [
+      'Maintenance Overview',
+      'Maintenance Requests',
+      'Asset Management',
+      'Preventive Maintenance',
+      'Work Orders',
+      'Parts Inventory',
+      'Vendors & Service Providers',
+      'Maintenance Reports',
+      'Maintenance Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Statistics Management');
+    for (final title in [
+      'Statistics Overview',
+      'Sales Statistics',
+      'Orders Statistics',
+      'Customer Statistics',
+      'Table Statistics',
+      'Product Statistics',
+      'Payment Statistics',
+      'Employee Statistics',
+      'Motel Orders Statistics',
+      'Online Orders Statistics',
+      'Time & Trends',
+      'Custom Reports',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Operations Management');
+    for (final title in [
+      'Daily Operations Overview',
+      'Shift Management',
+      'Task Management',
+      'Service Flow',
+      'Table Operations',
+      'Queue Management',
+      'Order Operations',
+      'Kitchen Operations',
+      'Supply & Inventory',
+      'Opening / Closing Checklists',
+      'Incident Management',
+      'Logs & Audit',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
     await tester.pumpAndSettle();
     expect(find.text('System Health'), findsOneWidget);
     expect(find.text('Security Center'), findsOneWidget);
     expect(find.text('Audit & Activity History'), findsOneWidget);
+
+    await openMoreSection('Devices & Printing Management');
+    for (final title in [
+      'Devices Overview',
+      'Kitchen Printers',
+      'Receipt Printers',
+      'QR Code Printers',
+      'Label Printers',
+      'Display Screens',
+      'POS Devices',
+      'Device Settings',
+      'Monitoring',
+      'Maintenance & Support',
+      'Printer Queue',
+      'Paper & Supplies',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Device Details',
+      'Test Print',
+      'Print QR Codes',
+      'Print Settings',
+      'Recent Device Activity',
+      'Device Logs',
+      'Run Diagnostics',
+      'Firmware Updates',
+      'Cash Drawer',
+      'Contact Support',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Security & Audit Management');
+    for (final title in [
+      'Access Management',
+      'Employee Accounts',
+      'Role Management',
+      'Login Activity',
+      'Audit Logs',
+      'Security Alerts',
+      'Device Management',
+      'Session Management',
+      'IP & Location Control',
+      'Password & MFA',
+      'Data Protection',
+      'System Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Login History',
+      'Failed Logins',
+      'Suspicious Activity',
+      'Access Requests',
+      'Active Sessions',
+      'Security Status',
+      'Security Reports',
+      'Security Settings',
+      'Export Security Report',
+      'MFA Enrollment',
+      'Password Policy',
+      'Device Registrations',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('System Health & Updates');
+    for (final title in [
+      'System Overview',
+      'Server & Database',
+      'Backup & Restore',
+      'Updates Management',
+      'Error Logs',
+      'Performance Monitor',
+      'Online/Offline Sync',
+      'Security Status',
+      'Device Health',
+      'Maintenance Tasks',
+      'Notifications',
+      'System Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'System Services',
+      'Resource Usage',
+      'Backup Status',
+      'Current Version',
+      'Automatic Updates',
+      'Release Information',
+      'Recent System Activity',
+      'Top Issues',
+      'System Logs',
+      'Health Check',
+      'Update History',
+      'Run Diagnostics',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Shisha Management');
+    for (final title in [
+      'Shisha Overview',
+      'Shisha Menu',
+      'New Shisha Order',
+      'Active Shisha Orders',
+      'Shisha Equipment',
+      'Flavors & Stock',
+      'Coal Management',
+      'Cleaning & Maintenance',
+      'Pick Up & Return',
+      'Table Integration',
+      'Reports & Statistics',
+      'Shisha Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Flavor Management',
+      'Equipment Status',
+      'Coal Stock',
+      'Cleaning Records',
+      'Shisha Maintenance History',
+      'Shisha Reports',
+      'Shisha Order History',
+      'Shisha Quick Actions',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Delivery Management');
+    for (final title in [
+      'Delivery Overview',
+      'New Delivery Order',
+      'Active Deliveries',
+      'Delivery Orders',
+      'Delivery Menu',
+      'Customers',
+      'Drivers',
+      'Delivery Zones',
+      'Vehicles',
+      'Route Optimization',
+      'Reports & Statistics',
+      'Delivery Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Driver Management',
+      'Delivery History',
+      'Delivery Fees',
+      'Driver Details',
+      'Delivery Tracking',
+      'Delivery Issues',
+      'Customer Delivery Notes',
+      'Delivery Reports',
+      'Delivery Quick Actions',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Customer Feedback Management');
+    for (final title in [
+      'Feedback Overview',
+      'Customer Reviews',
+      'Live Feedback',
+      'Complaints',
+      'Suggestions',
+      'Surveys',
+      'Service Ratings',
+      'Employee Reviews',
+      'Table Feedback',
+      'Motel & Delivery Feedback',
+      'Reports & Analytics',
+      'Feedback Settings',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Review Details',
+      'Complaint Details',
+      'Customer Survey',
+      'Survey Responses',
+      'Feedback History',
+      'Response Templates',
+      'Resolve Complaint',
+      'Feedback Quick Actions',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Staff & Operations Management');
+    for (final title in [
+      'Staff & Operations Overview',
+      'Employees',
+      'Attendance',
+      'Shifts & Schedule',
+      'Tasks & Assignments',
+      'Roles & Permissions',
+      'Performance',
+      'Salaries & Payments',
+      'Leave Requests',
+      'Training',
+      'Announcements',
+      'Staff Reports',
+      'Staff Operations Settings',
+      'Documents',
+      'Departments',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Add Employee',
+      'Employee Profile',
+      'Check In & Out',
+      'Assign Task',
+      'Process Salary',
+      'Employee Activity',
+      'Department Overview',
+      'Staff Quick Actions',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+
+    await openMoreSection('Reports Management');
+    for (final title in [
+      'Reports Overview',
+      'Financial Reports',
+      'Sales Reports',
+      'Table Reports',
+      'Customer Reports',
+      'Employee Reports',
+      'Motel Orders Reports',
+      'Inventory Reports',
+      'Kitchen Reports',
+      'Marketing Reports',
+      'Reservation Reports',
+      'Delivery Reports',
+      'Tax & Accounting',
+      'Audit Reports',
+      'Custom Reports',
+      'Scheduled Reports',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
+    await tester.ensureVisible(find.textContaining('More cards ('));
+    await tester.tap(find.textContaining('More cards ('));
+    await tester.pumpAndSettle();
+    for (final title in [
+      'Filter & Customize Report',
+      'Report Preview',
+      'Export & Share Report',
+      'Report History',
+      'Saved Reports',
+      'Report Settings',
+      'Report Quick Actions',
+    ]) {
+      expect(find.text(title), findsWidgets, reason: title);
+    }
   });
 
   testWidgets('employee workspace explains the department-first setup', (

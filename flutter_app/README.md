@@ -12,9 +12,10 @@ email/password sign-in with authenticator-app MFA, an administrator-only staff
 account form, and a reservation form preview. Reservations are not sent or
 stored.
 
-After staff authentication, the management UI follows the approved 11-section
-layout. Desktop/web uses a persistent section sidebar; mobile uses Home, Tables,
-Menu, Payments, and More navigation. Dashboard and section subcards use the
+After staff authentication, the management UI has 24 sections. Desktop/web uses
+a persistent section sidebar; mobile uses Home, Tables, Motel, Menu, Reserve,
+and More navigation. Payments and other sections are available from More.
+Dashboard and section subcards use the
 same responsive card component and grid breakpoints. Every section/card uses
 the shared Supabase workspace-record store for authorized, realtime records
 with create, status-update, delete, and automatic database audit capture. This
@@ -22,16 +23,18 @@ is a flexible record workspace, not a card processor or a substitute for
 importing existing cafe transactions; only data actually entered or imported
 is shown.
 
-Sections 03–05 now surface the reference-design cards first: Payments includes
-cash, expenses, credit confirmation, invoices, refunds and payment history;
-Menu includes products, categories, pricing, ingredients and import; Kitchen
-includes live orders, preparation, delivery, staffing and settings. The
-displayed Menu and Kitchen section titles retain the existing permission keys
-(`kitchen_management` and `customer_management`) so current staff grants and
-saved records are preserved. Existing card tools remain available under
-**More cards** and existing records and access grants are not removed. New card
-summaries show only records actually saved for that card; illustrative sample
-figures from design references are not presented as live cafe data.
+Sections 03–24 surface the reference-design card groups for Payments, Menu,
+Kitchen, Motel & Online Orders, Inventory, Staff, Customers, Reservations,
+Settings, Notifications, Maintenance, Operations, Statistics, Devices &
+Printing, Security & Audit, System Health & Updates, Shisha, Delivery, Marketing,
+Customer Feedback, Staff & Operations, and Reports Management.
+Existing permission keys are retained when a section is renamed or reordered.
+The new Motel & Online Orders, Inventory, Customer, Reservations, Devices &
+Printing, Security & Audit, System Health & Updates, Shisha, Delivery, Marketing,
+Customer Feedback, Staff & Operations, and Reports Management sections have separate
+permission keys, so staff must be explicitly granted access. Legacy cards remain available
+under **More cards**; saved records are not removed. Summaries show only
+records actually saved for that card, not illustrative figures from references.
 
 The Tables & Orders section includes the 16 reference cards, with searchable,
 status-filtered saved records and create/update/delete actions on each card.
@@ -39,11 +42,29 @@ These records are not a dedicated table, order, customer, or payment schema;
 do not treat their counts or amounts as live seating, order processing, or
 payment reconciliation.
 
-Payment, menu and kitchen cards use the shared generic record workspace; they
-do not yet implement a payment processor, dedicated product catalog, inventory
-ledger, or live kitchen order pipeline. Create/edit actions store records for
-the selected card and do not perform real-world payment, stock, or order
-processing.
+These management cards use the shared generic record workspace. They do not
+implement a payment processor, dedicated product catalog, inventory ledger,
+live order pipeline, reservation service, notification delivery system, or
+printer/device connection. Device records do not send print jobs, change printer
+settings, monitor hardware, update firmware, or open cash drawers. Security cards store generic
+records only; they do not manage real accounts, sessions, access policies, IP
+restrictions, security alerts, passwords, or MFA settings. System health cards
+do not monitor live services or performance, and do not run backups, restore
+data, synchronize offline changes, diagnose infrastructure, or install updates.
+Shisha cards store menu, order, equipment, stock and service records only; they
+do not dispatch orders, decrement inventory, or monitor equipment. Delivery
+cards store order, route, vehicle, driver and customer records; they do not
+provide GPS/live maps, optimize routes, send driver assignments, process
+payments, or dispatch deliveries. Marketing and feedback cards store manually
+entered campaign, audience, review, survey and complaint records; they do not
+send campaigns, publish external content, collect customer submissions, or
+deliver surveys. Staff & Operations cards store directory, attendance, shift,
+task, payroll, leave and department records; they do not check staff in or out,
+process payroll, or replace the separate Staff Management account and permission
+workflow. Report cards store report requests and saved report records; they do
+not calculate live business analytics or create/export report files.
+Create/edit actions store records for the selected card and do not perform
+real-world payment, stock, order, reservation, or notification processing.
 
 ## Staff accounts and section permissions
 
@@ -73,7 +94,7 @@ private and save it in an authenticator app. A fixed shared entrance code is
 not used: it would be exposed in browser code and would not provide individual
 second-factor security. Enable TOTP MFA for the Supabase project.
 
-Create staff access from **Employee Management** in this order:
+Create staff access from **Staff Management** in this order:
 
 1. Add a department (for example, Kitchen or Front of House).
 2. Create a permission profile for that department and select its sections
@@ -103,11 +124,11 @@ supabase functions deploy create-staff-user --project-ref lpxuuzfgiggsyhdbsucv
 
 The function uses Supabase's server-side `SUPABASE_SERVICE_ROLE_KEY` environment
 secret. Keep it in Supabase's function environment only; never copy it into the
-Flutter app. Create access profiles in **Employee Management** and assign a
+Flutter app. Create access profiles in **Staff Management** and assign a
 profile and department to each new account. The staff workspace opens
 automatically after sign-in: Dashboard is always available, while only assigned
 sections/cards are shown. Missing or unreadable grants fail closed to Dashboard
-only. Administrators see all eleven sections.
+only. Administrators see all twenty-four sections.
 
 Each card can store records with a title, details, status, and optional IQD
 amount; changes appear live for authorized users. Dashboard and Payments &
