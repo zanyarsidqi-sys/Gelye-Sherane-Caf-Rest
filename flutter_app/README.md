@@ -28,6 +28,12 @@ reference-design cards first. Existing card tools remain available under
 summaries show only records actually saved for that card; illustrative sample
 figures from design references are not presented as live cafe data.
 
+The Tables & Orders section includes the 16 reference cards, with searchable,
+status-filtered saved records and create/update/delete actions on each card.
+These records are not a dedicated table, order, customer, or payment schema;
+do not treat their counts or amounts as live seating, order processing, or
+payment reconciliation.
+
 ## Staff accounts and section permissions
 
 The deployment workflow supplies the Supabase project URL, expected project

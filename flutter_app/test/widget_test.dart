@@ -250,31 +250,52 @@ void main() {
 
       expect(dashboardCardSize.width, lessThan(150));
       for (final title in [
-        'Current Customers',
-        'Active Tables',
-        "Today's Customers",
-        "Today's Tables",
-        'Table Status',
-        'Reservations',
-        'Waiting List',
-        'Table Cleaning',
-        'Table Requests',
-        'Table Performance',
+        'Live Tables',
+        'Add / Edit Tables',
+        'Table Map',
+        'Table Orders',
+        'Chairs Management',
+        'Table QR Codes',
+        'Customer QR Ordering',
+        'Table Reservations',
+        'Join / Transfer Tables',
+        'Table Payments',
+        'Pricing Modes',
+        'Table Service Requests',
+        'Table Checkout & Cleaning',
+        'Table History',
+        'Table Settings',
+        'Table Availability',
       ]) {
         expect(find.text(title), findsOneWidget, reason: title);
       }
       final tableCard = find.ancestor(
-        of: find.text('Current Customers'),
+        of: find.text('Live Tables'),
         matching: find.byType(Card),
       );
-      expect(tester.getSize(tableCard).width, greaterThan(150));
-      expect(find.text('Live seated guests'), findsOneWidget);
+      expect(tester.getSize(tableCard).width, greaterThan(100));
+      expect(tester.getSize(tableCard).width, lessThan(150));
+      expect(
+        find.text('Live table records and current status'),
+        findsOneWidget,
+      );
 
-      await tester.ensureVisible(find.text('More cards (13)'));
+      await tester.ensureVisible(find.text('More cards (20)'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('More cards (13)'));
+      await tester.tap(find.text('More cards (20)'));
       await tester.pumpAndSettle();
       expect(find.text('Table Overview'), findsOneWidget);
+      await tester.tap(find.text('More cards (20)'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Live Tables'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Live Tables'));
+      await tester.pumpAndSettle();
+      expect(find.text('Tracked records'), findsOneWidget);
+      expect(find.text('Open records'), findsOneWidget);
+      expect(find.textContaining('Supabase is not configured'), findsWidgets);
+      expect(find.text('Search Live Tables records...'), findsOneWidget);
+      expect(find.text('Add record'), findsOneWidget);
 
       await tester.tap(
         find.descendant(

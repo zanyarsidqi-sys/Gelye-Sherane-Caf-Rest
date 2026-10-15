@@ -28,16 +28,22 @@ String _permissionSlug(String label) => label
 
 const _featuredSectionCards = {
   1: [
-    'Current Customers',
-    'Active Tables',
-    "Today's Customers",
-    "Today's Tables",
-    'Table Status',
-    'Reservations',
-    'Waiting List',
-    'Table Cleaning',
-    'Table Requests',
-    'Table Performance',
+    'Live Tables',
+    'Add / Edit Tables',
+    'Table Map',
+    'Table Orders',
+    'Chairs Management',
+    'Table QR Codes',
+    'Customer QR Ordering',
+    'Table Reservations',
+    'Join / Transfer Tables',
+    'Table Payments',
+    'Pricing Modes',
+    'Table Service Requests',
+    'Table Checkout & Cleaning',
+    'Table History',
+    'Table Settings',
+    'Table Availability',
   ],
   3: [
     'Menu Management',
@@ -71,18 +77,23 @@ const _featuredSectionCards = {
 };
 
 const _sectionCardDescriptions = {
-  'Current Customers': 'Live seated guests',
-  'Active Tables': 'Occupied tables',
-  "Today's Customers": 'Daily guest total',
-  "Today's Tables": 'Visits opened today',
-  'Table Status': 'All table states',
-  'Reservations': 'Bookings & arrivals',
-  'Waiting List': 'Waiting parties',
-  'Table Cleaning': 'Cleaning approvals',
-  'Table Requests': 'Service requests',
-  'Table Performance': 'Turnover & timing',
-  'Kitchen Orders': 'All kitchen orders and status',
+  'Live Tables': 'Live table records and current status',
+  'Add / Edit Tables': 'Create and update table records',
+  'Table Map': 'View and manage table map records',
   'Table Orders': 'Orders for occupied tables',
+  'Chairs Management': 'Add, remove and arrange chairs',
+  'Table QR Codes': 'Generate and manage table QR records',
+  'Customer QR Ordering': 'Customer ordering records via QR',
+  'Table Reservations': 'Bookings and table arrivals',
+  'Join / Transfer Tables': 'Table joins and transfer records',
+  'Table Payments': 'Payments and balances recorded for tables',
+  'Pricing Modes': 'Normal, tourism and owner pricing records',
+  'Table Service Requests': 'Extra chairs, tissues and service requests',
+  'Table Checkout & Cleaning': 'Checkout, payment and cleaning records',
+  'Table History': 'Table order and payment activity',
+  'Table Settings': 'Table areas, types, capacity and configuration',
+  'Table Availability': 'Availability and occupancy records',
+  'Kitchen Orders': 'All kitchen orders and status',
   'Online Orders': 'Orders from website and app',
   'Motel Orders': 'Orders from motel guests',
   'Takeaway & Delivery': 'Pickup and delivery orders',
@@ -1388,12 +1399,27 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Personalization',
     ],
     [
+      'Live Tables',
+      'Add / Edit Tables',
+      'Table Map',
+      'Table Orders',
+      'Chairs Management',
+      'Table QR Codes',
+      'Customer QR Ordering',
+      'Table Reservations',
+      'Join / Transfer Tables',
+      'Table Payments',
+      'Pricing Modes',
+      'Table Service Requests',
+      'Table Checkout & Cleaning',
+      'Table History',
+      'Table Settings',
+      'Table Availability',
       'Current Customers',
       'Active Tables',
       "Today's Customers",
       "Today's Tables",
       'Table Status',
-      'Reservations',
       'Waiting List',
       'Table Cleaning',
       'Table Requests',
@@ -1402,15 +1428,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Visual Table Map',
       'Add/Edit Tables & Chairs',
       'QR Generate/Print/Revoke',
-      'Table Orders',
       'Customer QR Screen',
-      'Pricing Modes',
       'Join/Transfer',
       'Split Bills',
       'Pay for Others',
       'Cleaning',
-      'Table History',
       'Extra Chairs',
+      'Reservations',
     ],
     [
       'Today Revenue',
@@ -1613,6 +1637,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   String _selectedDateRange = 'Today';
   String _financeStatusFilter = 'All';
   String _financeSearch = '';
+  String _tableStatusFilter = 'All';
+  String _tableSearch = '';
 
   @override
   void initState() {
@@ -3328,6 +3354,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 : 'Live workspace records for $subcard.',
             style: const TextStyle(color: _muted, height: 1.5),
           )
+        else if (index == 1)
+          Text(
+            subcard == null
+                ? 'Manage tables, chairs, orders, reservations, payments and service.'
+                : _sectionCardDescriptions[subcard] ??
+                      'Table-management workspace records for $subcard.',
+            style: const TextStyle(color: _muted, height: 1.5),
+          )
         else if (index != 0)
           Text(
             subcard == null
@@ -3358,6 +3392,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _employeeManagementPanel()
         else if (index == 2 && subcard != null)
           _financeDetail(section, subcard)
+        else if (index == 1 && subcard != null)
+          _tableManagementDetail(section, subcard)
         else if (subcard == null)
           _sectionSubcardGrid(index)
         else
@@ -3442,7 +3478,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             _managementCardGrid(
               sectionIndex: sectionIndex,
               titles: primaryCards,
-              columns: sectionIndex == 1 ? 2 : null,
+              minimumColumns: sectionIndex == 1 ? 3 : null,
             ),
             const SizedBox(height: 12),
             Card(
@@ -3466,36 +3502,39 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         return _managementCardGrid(
           sectionIndex: sectionIndex,
           titles: primaryCards,
-          columns: sectionIndex == 1 ? 2 : null,
+          minimumColumns: sectionIndex == 1 ? 3 : null,
         );
       }
     }
     return _managementCardGrid(
       sectionIndex: sectionIndex,
       titles: visibleSubcards,
-      columns: sectionIndex == 1 ? 2 : null,
+      minimumColumns: sectionIndex == 1 ? 3 : null,
     );
   }
 
   Widget _managementCardGrid({
     required int sectionIndex,
     required List<String> titles,
-    int? columns,
+    int? minimumColumns,
     String? revenueCard,
     double? revenue,
     bool revenueUnavailable = false,
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columnCount =
-            columns ??
-            (constraints.maxWidth >= 1120
-                ? 4
-                : constraints.maxWidth >= 760
-                ? 3
-                : constraints.maxWidth >= 600
-                ? 2
-                : 1);
+        final responsiveColumns = constraints.maxWidth >= 1120
+            ? 4
+            : constraints.maxWidth >= 760
+            ? 3
+            : constraints.maxWidth >= 600
+            ? 2
+            : 1;
+        final columnCount = minimumColumns == null
+            ? responsiveColumns
+            : responsiveColumns < minimumColumns
+            ? minimumColumns
+            : responsiveColumns;
         final cardWidth =
             (constraints.maxWidth - (columnCount - 1) * 12) / columnCount;
         return Wrap(
@@ -4032,6 +4071,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           if (sectionIndex == 2) {
             _financeSearch = '';
             _financeStatusFilter = 'All';
+          } else if (sectionIndex == 1) {
+            _tableSearch = '';
+            _tableStatusFilter = 'All';
           }
           _selectedSubcard = title;
         }),
@@ -4108,18 +4150,35 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     'Cash Over / Short' => Icons.balance_outlined,
     'Discounts' => Icons.sell_outlined,
     'Credit Accounts' || 'Confirm Credit' => Icons.credit_score_outlined,
-    'Tables Occupied' || 'Table Occupancy' => Icons.chair_alt_outlined,
+    'Tables Occupied' ||
+    'Table Occupancy' ||
+    'Live Tables' ||
+    'Table Availability' => Icons.table_restaurant_outlined,
     'Current Customers' || 'Customers' => Icons.people_outline,
     'Active Tables' || "Today's Tables" => Icons.table_restaurant_outlined,
     "Today's Customers" => Icons.groups_outlined,
     'Table Status' => Icons.grid_view_rounded,
     'Table Map' || 'Visual Table Map' => Icons.map_outlined,
-    'Reservations' => Icons.calendar_month_outlined,
+    'Add / Edit Tables' || 'Add/Edit Tables & Chairs' => Icons.add_box_outlined,
+    'Chairs Management' || 'Extra Chairs' => Icons.chair_alt_outlined,
+    'Table QR Codes' || 'QR Generate/Print/Revoke' => Icons.qr_code_2_outlined,
+    'Customer QR Ordering' || 'Customer QR Screen' =>
+      Icons.qr_code_scanner_outlined,
+    'Reservations' || 'Table Reservations' => Icons.calendar_month_outlined,
     'Waiting List' => Icons.access_time_outlined,
-    'Cleaning Needed' || 'Cleaning' || 'Table Cleaning' =>
-      Icons.cleaning_services_outlined,
-    'Table Requests' => Icons.notifications_active_outlined,
+    'Cleaning Needed' ||
+    'Cleaning' ||
+    'Table Cleaning' ||
+    'Table Checkout & Cleaning' => Icons.cleaning_services_outlined,
+    'Table Requests' || 'Table Service Requests' =>
+      Icons.notifications_active_outlined,
     'Table Performance' || 'Service Speed' => Icons.bar_chart_rounded,
+    'Join / Transfer Tables' || 'Join/Transfer' => Icons.swap_horiz_rounded,
+    'Table Payments' || 'Split Bills' || 'Pay for Others' =>
+      Icons.payments_outlined,
+    'Pricing Modes' => Icons.price_change_outlined,
+    'Table History' => Icons.history_outlined,
+    'Table Settings' => Icons.settings_outlined,
     'Kitchen Orders' || 'Kitchen Queue' || 'Table Orders' =>
       Icons.soup_kitchen_outlined,
     'Menu' || 'Menu Categories' || 'Menu Management' =>
@@ -4154,6 +4213,236 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     'Table Income' => Icons.table_restaurant_outlined,
     _ => fallback,
   };
+
+  Widget _tableManagementDetail(
+    ({String key, IconData icon, String title, String description}) section,
+    String subcard,
+  ) {
+    final subcardKey = _permissionSlug(subcard);
+    final records = _recordsFor(section.key, subcardKey);
+    final canManage =
+        widget.role == 'admin' ||
+        widget.grantedPermissions.contains('${section.key}:*') ||
+        widget.grantedPermissions.contains('${section.key}:$subcardKey');
+    final statusCounts = {
+      'open': records.where((record) => record.status == 'open').length,
+      'in_progress': records
+          .where((record) => record.status == 'in_progress')
+          .length,
+      'completed': records
+          .where((record) => record.status == 'completed')
+          .length,
+    };
+    final query = _tableSearch.trim().toLowerCase();
+    final filteredRecords = records.where((record) {
+      final matchesStatus =
+          _tableStatusFilter == 'All' ||
+          record.status ==
+              _tableStatusFilter.toLowerCase().replaceAll(' ', '_');
+      final matchesSearch =
+          query.isEmpty ||
+          record.title.toLowerCase().contains(query) ||
+          record.details.toLowerCase().contains(query);
+      return matchesStatus && matchesSearch;
+    }).toList(growable: false);
+    final description =
+        _sectionCardDescriptions[subcard] ??
+        'Table-management workspace records for $subcard.';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF4FF),
+            border: Border.all(color: const Color(0xFFD4E6FA)),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                _workspaceError == null
+                    ? Icons.cloud_done_outlined
+                    : Icons.cloud_off_outlined,
+                color: const Color(0xFF2463D3),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _workspaceError ??
+                      'Tracked records for this card only. '
+                          'No sample table data is shown.',
+                  style: const TextStyle(
+                    color: _ink,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth < 420 ? 1 : 3;
+            final width =
+                (constraints.maxWidth - (columns - 1) * 8) / columns;
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _tableSummaryCard(
+                  width: width,
+                  label: 'Tracked records',
+                  value: _isLoadingRecords ? '…' : '${records.length}',
+                  icon: Icons.table_restaurant_outlined,
+                  color: const Color(0xFF2463D3),
+                ),
+                _tableSummaryCard(
+                  width: width,
+                  label: 'Open records',
+                  value: _isLoadingRecords ? '…' : '${statusCounts['open']}',
+                  icon: Icons.schedule_outlined,
+                  color: const Color(0xFFD07813),
+                ),
+                _tableSummaryCard(
+                  width: width,
+                  label: 'Completed records',
+                  value: _isLoadingRecords
+                      ? '…'
+                      : '${statusCounts['completed']}',
+                  icon: Icons.check_circle_outline,
+                  color: const Color(0xFF16814A),
+                ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          onChanged: (value) => setState(() => _tableSearch = value),
+          decoration: InputDecoration(
+            hintText: 'Search $subcard records...',
+            prefixIcon: const Icon(Icons.search),
+            filled: true,
+            fillColor: Colors.white,
+            isDense: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE1E7EF)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final status in const [
+                'All',
+                'Open',
+                'In progress',
+                'Completed',
+                'Cancelled',
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: ChoiceChip(
+                    label: Text(status),
+                    selected: _tableStatusFilter == status,
+                    onSelected: (_) =>
+                        setState(() => _tableStatusFilter = status),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                description,
+                style: const TextStyle(color: _muted, height: 1.4),
+              ),
+            ),
+            if (canManage)
+              FilledButton.icon(
+                onPressed: _isLoadingRecords
+                    ? null
+                    : () => _createWorkspaceRecord(section, subcard),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add record'),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (_workspaceError != null)
+          _AuthErrorMessage(_workspaceError!)
+        else if (_isLoadingRecords)
+          const Center(child: CircularProgressIndicator())
+        else if (filteredRecords.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 22),
+            child: Center(
+              child: Text(
+                records.isEmpty
+                    ? 'No saved records for this card yet.'
+                    : 'No records match the current search or status filter.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: _muted),
+              ),
+            ),
+          )
+        else
+          for (final record in filteredRecords) _workspaceRecordTile(record),
+      ],
+    );
+  }
+
+  Widget _tableSummaryCard({
+    required double width,
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return SizedBox(
+      width: width,
+      child: Card(
+        margin: EdgeInsets.zero,
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(icon, color: color),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: const TextStyle(color: _muted)),
+                    const SizedBox(height: 2),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _financeDetail(
     ({String key, IconData icon, String title, String description}) section,
@@ -4568,8 +4857,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         : _workspaceError != null
         ? 'Unavailable'
         : records.isEmpty
-        ? '0 tracked records'
-        : '${records.length} record${records.length == 1 ? '' : 's'}';
+        ? sectionIndex == 1
+              ? '0 records'
+              : '0 tracked records'
+        : '${records.length} ${sectionIndex == 1 ? 'records' : 'record${records.length == 1 ? '' : 's'}'}';
     final primaryText = isRevenueCard
         ? revenueUnavailable
               ? '— IQD'
@@ -4592,7 +4883,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => setState(() => _selectedSubcard = title),
+          onTap: () => setState(() {
+            _tableSearch = '';
+            _tableStatusFilter = 'All';
+            _selectedSubcard = title;
+          }),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -4628,11 +4923,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 const SizedBox(height: 12),
                 Text(
                   title,
-                  maxLines: 1,
+                  maxLines: sectionIndex == 1 ? 2 : 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _ink,
-                    fontSize: 14,
+                    fontSize: sectionIndex == 1 ? 12 : 14,
                     height: 1.2,
                     fontWeight: FontWeight.w700,
                   ),
