@@ -33,15 +33,15 @@ String _staffFunctionFailure(FunctionException exception) {
     return serverMessage;
   }
   if (exception.status == 0) {
-    return 'No response was received from create-staff-user. Check the '
+    return 'No response was received from the staff management service. Check the '
         'internet connection and confirm that this Edge Function is deployed '
         'to the selected Supabase project.';
   }
   if (exception.status == 404) {
-    return 'The create-staff-user Edge Function is not deployed to this '
+    return 'The staff management Edge Function is not deployed to this '
         'Supabase project.';
   }
-  return 'Could not create the staff account (HTTP ${exception.status}).';
+  return 'The staff management request failed (HTTP ${exception.status}).';
 }
 
 bool get _hasSupabaseConfiguration =>
@@ -1203,7 +1203,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       key: 'dashboard',
       icon: Icons.dashboard_outlined,
       title: 'Dashboard',
-      description: 'Operational command center for the cafe.',
+      description: 'Live overview of your restaurant operations.',
     ),
     (
       key: 'tables_orders',
@@ -1272,20 +1272,40 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Today Revenue',
       'Standing Cash',
       'Pending Payment',
+      'Invoices',
+      'Discounts',
+      'Credit Accounts',
+      'Tables Occupied',
+      'Table Map',
+      'Cleaning Needed',
+      'Guests Today',
       'Today Orders',
+      'Kitchen Orders',
+      'Menu',
+      'Low Stock',
+      'Nargile Orders',
       'Table Occupancy',
       'Kitchen Queue',
       'Motel Orders',
+      'Online Orders',
       'Tourism Customers',
       'Reservations',
       'Customer Requests',
       'Takeaway & Delivery',
       'Attendance',
+      'Customers',
+      'Employees',
+      'Tasks',
+      'Events',
       'Cash Reconciliation',
       'Product Performance',
       'Service Speed',
       'Feedback',
       'Maintenance',
+      'Reports',
+      'Security',
+      'Backup',
+      'Offline Mode',
       'System Health',
       'Audit & Activity',
       'Personalization',
@@ -1307,12 +1327,22 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Extra Chairs',
     ],
     [
+      'Today Revenue',
       'Revenue',
+      'Standing Cash',
+      'Pending Payments',
+      'Collected Cash',
+      'Available Cash',
+      'Cash Over / Short',
+      'Expenses',
+      'Invoices & Payments',
+      'Table Income',
+      'Refunds & Voids',
+      'Confirm Credit',
       'Costs & Expenses',
       'Invoices',
       'Payment Collection',
       'Cash/Card/Online',
-      'Standing Cash',
       'Pending Payment',
       'Customer Credit',
       'Discounts',
@@ -1470,11 +1500,23 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   bool _isLoadingRecords = true;
   bool _isFetchingRecords = false;
   String? _workspaceError;
+  List<Map<String, dynamic>> _staffDepartments = const [];
+  List<Map<String, dynamic>> _staffPermissionProfiles = const [];
+  List<Map<String, dynamic>> _staffMembers = const [];
+  bool _isLoadingEmployeeData = false;
+  String? _employeeManagementError;
+  DateTime _selectedReportDate = DateTime.now();
+  String _selectedDateRange = 'Today';
+  String _financeStatusFilter = 'All';
+  String _financeSearch = '';
 
   @override
   void initState() {
     super.initState();
     unawaited(_connectWorkspace());
+    if (widget.role == 'admin') {
+      unawaited(_loadEmployeeManagement());
+    }
   }
 
   @override
@@ -1562,6 +1604,37 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           )
           .toList(growable: false);
 
+  List<CafeWorkspaceRecord> _recordsInSelectedRange(
+    Iterable<CafeWorkspaceRecord> records,
+  ) {
+    final selectedDay = DateTime(
+      _selectedReportDate.year,
+      _selectedReportDate.month,
+      _selectedReportDate.day,
+    );
+    final start = switch (_selectedDateRange) {
+      'Yesterday' => selectedDay.subtract(const Duration(days: 1)),
+      'This Week' => selectedDay.subtract(
+        Duration(days: selectedDay.weekday - 1),
+      ),
+      'This Month' => DateTime(selectedDay.year, selectedDay.month),
+      'This Year' => DateTime(selectedDay.year),
+      _ => selectedDay,
+    };
+    final end = switch (_selectedDateRange) {
+      'This Week' => start.add(const Duration(days: 7)),
+      'This Month' => DateTime(start.year, start.month + 1),
+      'This Year' => DateTime(start.year + 1),
+      _ => start.add(const Duration(days: 1)),
+    };
+    return records
+        .where(
+          (record) =>
+              !record.createdAt.isBefore(start) && record.createdAt.isBefore(end),
+        )
+        .toList(growable: false);
+  }
+
   String _connectionLabel(String sectionKey, String subcardKey) {
     if (_workspaceError != null) return 'Unavailable';
     if (_isLoadingRecords) return 'Connecting...';
@@ -1569,6 +1642,70 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return count == 0
         ? 'Connected · no records'
         : 'Connected · $count record${count == 1 ? '' : 's'}';
+  }
+
+  Future<Map<String, dynamic>> _callStaffFunction(
+    String action, [
+    Map<String, Object?> payload = const {},
+  ]) async {
+    if (!_hasValidSupabaseConfiguration) {
+      throw const FormatException(
+        'Supabase is not configured for employee management.',
+      );
+    }
+    final response = await Supabase.instance.client.functions.invoke(
+      'create-staff-user',
+      body: {'action': action, ...payload},
+    );
+    if (response.data is! Map) {
+      throw const FormatException(
+        'The staff management service returned an invalid response.',
+      );
+    }
+    return Map<String, dynamic>.from(response.data as Map);
+  }
+
+  List<Map<String, dynamic>> _mapList(dynamic value) {
+    if (value is! List) return const [];
+    return value
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList(growable: false);
+  }
+
+  Future<void> _loadEmployeeManagement() async {
+    if (!mounted || _isLoadingEmployeeData) return;
+    if (!_hasValidSupabaseConfiguration) {
+      setState(() {
+        _employeeManagementError =
+            'Supabase is not configured for employee management in this deployment.';
+      });
+      return;
+    }
+    setState(() {
+      _isLoadingEmployeeData = true;
+      _employeeManagementError = null;
+    });
+    try {
+      final result = await _callStaffFunction('list-management');
+      if (!mounted) return;
+      setState(() {
+        _staffDepartments = _mapList(result['departments']);
+        _staffPermissionProfiles = _mapList(result['permission_profiles']);
+        _staffMembers = _mapList(result['staff']);
+      });
+    } on FunctionException catch (exception) {
+      if (!mounted) return;
+      setState(() => _employeeManagementError = _staffFunctionFailure(exception));
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _employeeManagementError =
+            'Could not load employee management data: $exception';
+      });
+    } finally {
+      if (mounted) setState(() => _isLoadingEmployeeData = false);
+    }
   }
 
   Future<void> _createWorkspaceRecord(
@@ -1847,248 +1984,635 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
-  Future<void> _addStaffUser() async {
+  Future<void> _saveDepartment({Map<String, dynamic>? department}) async {
     final formKey = GlobalKey<FormState>();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    final selectedPermissions = <String, Set<String>>{};
-    var isSubmitting = false;
+    final controller = TextEditingController(
+      text: department?['name'] as String? ?? '',
+    );
+    var saving = false;
     String? error;
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(department == null ? 'Add department' : 'Edit department'),
+          content: SizedBox(
+            width: 420,
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: controller,
+                    autofocus: true,
+                    maxLength: 80,
+                    decoration: const InputDecoration(
+                      labelText: 'Department name',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) =>
+                        value == null || value.trim().isEmpty
+                        ? 'Enter a department name'
+                        : null,
+                  ),
+                  if (error != null) ...[
+                    const SizedBox(height: 10),
+                    _AuthErrorMessage(error!),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: saving
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setDialogState(() {
+                        saving = true;
+                        error = null;
+                      });
+                      try {
+                        await _callStaffFunction('save-department', {
+                          if (department != null) 'id': department['id'],
+                          'name': controller.text.trim(),
+                        });
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop(true);
+                        }
+                      } on FunctionException catch (exception) {
+                        if (dialogContext.mounted) {
+                          setDialogState(
+                            () => error = _staffFunctionFailure(exception),
+                          );
+                        }
+                      } on Exception catch (exception) {
+                        if (dialogContext.mounted) {
+                          setDialogState(
+                            () => error = 'Could not save department: $exception',
+                          );
+                        }
+                      } finally {
+                        if (dialogContext.mounted) {
+                          setDialogState(() => saving = false);
+                        }
+                      }
+                    },
+              child: Text(saving ? 'Saving…' : 'Save department'),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+    if (saved == true) await _loadEmployeeManagement();
+  }
 
-    final created = await showDialog<bool>(
+  Future<void> _savePermissionProfile({
+    Map<String, dynamic>? permissionProfile,
+  }) async {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(
+      text: permissionProfile?['name'] as String? ?? '',
+    );
+    final selectedPermissions = <String, Set<String>>{};
+    final grants = permissionProfile?['permissions'];
+    if (grants is List) {
+      for (final grant in grants.whereType<Map>()) {
+        final sectionKey = grant['section_key'];
+        final subcardKey = grant['subcard_key'];
+        if (sectionKey is String && subcardKey is String) {
+          selectedPermissions
+              .putIfAbsent(sectionKey, () => <String>{})
+              .add(subcardKey);
+        }
+      }
+    }
+    String? selectedDepartmentId =
+        permissionProfile?['department_id'] as String? ??
+        (_staffDepartments.isEmpty
+            ? null
+            : _staffDepartments.first['id'] as String?);
+    var saving = false;
+    String? error;
+    final saved = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           Future<void> submit() async {
             if (!formKey.currentState!.validate()) return;
+            if (selectedDepartmentId == null) {
+              setDialogState(() => error = 'Create a department first.');
+              return;
+            }
+            final permissions = [
+              for (final entry in selectedPermissions.entries)
+                for (final subcardKey in entry.value)
+                  {'section_key': entry.key, 'subcard_key': subcardKey},
+            ];
+            if (permissions.isEmpty) {
+              setDialogState(
+                () => error = 'Select at least one section or card.',
+              );
+              return;
+            }
             setDialogState(() {
-              isSubmitting = true;
+              saving = true;
               error = null;
             });
             try {
-              final response = await Supabase.instance.client.functions.invoke(
-                'create-staff-user',
-                body: {
-                  'email': emailController.text.trim(),
-                  'password': passwordController.text,
-                  'permissions': [
-                    for (final grant in selectedPermissions.entries)
-                      for (final subcardKey in grant.value)
-                        {
-                          'section_key': grant.key,
-                          'subcard_key': subcardKey,
-                        },
-                  ],
-                },
-              );
-              final result = response.data;
-              if (result is! Map || result['permissions_saved'] != true) {
-                if (dialogContext.mounted) {
-                  setDialogState(() {
-                    error =
-                        'The account may have been created, but the deployed '
-                        'staff service did not confirm saving its section '
-                        'permissions. The account can access Dashboard only '
-                        'until an administrator verifies and assigns access.';
-                  });
-                }
-                return;
-              }
+              await _callStaffFunction('save-permission-profile', {
+                if (permissionProfile != null) 'id': permissionProfile['id'],
+                'department_id': selectedDepartmentId,
+                'name': nameController.text.trim(),
+                'permissions': permissions,
+              });
               if (dialogContext.mounted) {
                 Navigator.of(dialogContext).pop(true);
               }
             } on FunctionException catch (exception) {
               if (dialogContext.mounted) {
-                setDialogState(() {
-                  error = _staffFunctionFailure(exception);
-                });
+                setDialogState(
+                  () => error = _staffFunctionFailure(exception),
+                );
               }
-            } on AuthException {
+            } on Exception catch (exception) {
               if (dialogContext.mounted) {
-                setDialogState(() {
-                  error = 'Your sign-in has expired. Sign in again and retry.';
-                });
-              }
-            } on Exception {
-              if (dialogContext.mounted) {
-                setDialogState(() {
-                  error =
-                      'Could not reach the staff service. Confirm that the '
-                      'database and create-staff-user function are deployed.';
-                });
+                setDialogState(
+                  () => error = 'Could not save permission profile: $exception',
+                );
               }
             } finally {
               if (dialogContext.mounted) {
-                setDialogState(() => isSubmitting = false);
+                setDialogState(() => saving = false);
               }
             }
           }
 
           final dialogHeight = MediaQuery.sizeOf(context).height;
-          final contentHeight = (dialogHeight * 0.74).clamp(280.0, 620.0);
-          return PopScope(
-            canPop: !isSubmitting,
-            child: Dialog(
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 20,
-              ),
-              backgroundColor: Colors.transparent,
-              child: SizedBox(
-                width: 560,
-                height: contentHeight,
-                child: Material(
-                  color: const Color(0xFFFFFEFB),
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Color(0xFFE4EAF1)),
-                  ),
-                  child: Column(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(20, 18, 20, 14),
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Add staff user',
-                                style: TextStyle(
-                                  color: _ink,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Choose the sections and cards this employee can access.',
-                                style: TextStyle(color: _muted, fontSize: 13),
-                              ),
-                            ],
+          final contentHeight = (dialogHeight * 0.78).clamp(320.0, 680.0);
+          return Dialog(
+            insetPadding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: 560,
+              height: contentHeight,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            permissionProfile == null
+                                ? 'Create permission profile'
+                                : 'Edit permission profile',
+                            style: const TextStyle(
+                              color: _ink,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Save a reusable set of section and card access.',
+                            style: TextStyle(color: _muted, fontSize: 13),
+                          ),
+                        ],
                       ),
-                      const Divider(height: 1, color: Color(0xFFE4EAF1)),
-                      Expanded(
-                        child: Form(
-                          key: formKey,
-                          child: ListView(
-                            padding: const EdgeInsets.fromLTRB(18, 16, 18, 12),
-                            children: [
-                              TextFormField(
-                                controller: emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: const InputDecoration(
-                                  labelText: 'New staff email',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (value) {
-                                  final email = value?.trim() ?? '';
-                                  return email.contains('@') && email.contains('.')
-                                      ? null
-                                      : 'Enter a valid email address';
-                                },
-                              ),
-                              const SizedBox(height: 12),
-                              TextFormField(
-                                controller: passwordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  labelText: 'Initial password (12+ characters)',
-                                  border: OutlineInputBorder(),
-                                ),
-                                validator: (value) =>
-                                    value == null || value.length < 12
-                                    ? 'Use at least 12 characters'
-                                    : null,
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(top: 16, bottom: 8),
-                                child: Text(
-                                  'Dashboard is available to every staff member. '
-                                  'Assign the additional sections or individual '
-                                  'cards this account may access.',
-                                  style: TextStyle(color: _muted, height: 1.4),
-                                ),
-                              ),
-                              _buildStaffPermissionSection(
-                                0,
-                                selectedPermissions,
-                                setDialogState,
-                                isSubmitting,
-                                titlePrefix: 'Dashboard cards',
-                              ),
-                              for (var index = 1;
-                                  index <
-                                      _StaffDashboardPageState._sections.length;
-                                  index++)
-                                _buildStaffPermissionSection(
-                                  index,
-                                  selectedPermissions,
-                                  setDialogState,
-                                  isSubmitting,
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: Form(
+                      key: formKey,
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          TextFormField(
+                            controller: nameController,
+                            maxLength: 80,
+                            decoration: const InputDecoration(
+                              labelText: 'Permission profile name',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) =>
+                                value == null || value.trim().isEmpty
+                                ? 'Enter a profile name'
+                                : null,
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedDepartmentId,
+                            decoration: const InputDecoration(
+                              labelText: 'Department',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: [
+                              for (final department in _staffDepartments)
+                                DropdownMenuItem(
+                                  value: department['id'] as String,
+                                  child: Text(department['name'] as String),
                                 ),
                             ],
+                            onChanged: saving
+                                ? null
+                                : (value) => setDialogState(
+                                    () => selectedDepartmentId = value,
+                                  ),
+                            validator: (value) => value == null
+                                ? 'Choose a department'
+                                : null,
+                          ),
+                          const SizedBox(height: 12),
+                          for (var index = 0;
+                              index < _StaffDashboardPageState._sections.length;
+                              index++)
+                            _buildStaffPermissionSection(
+                              index,
+                              selectedPermissions,
+                              setDialogState,
+                              saving,
+                              titlePrefix: index == 0
+                                  ? 'Dashboard cards'
+                                  : null,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (error != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: _AuthErrorMessage(error!),
+                    ),
+                  const Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: saving
+                              ? null
+                              : () => Navigator.of(dialogContext).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton(
+                          onPressed: saving ? null : submit,
+                          child: Text(
+                            saving ? 'Saving…' : 'Save permission profile',
                           ),
                         ),
-                      ),
-                      if (error != null)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
-                          child: _AuthErrorMessage(error!),
-                        ),
-                      const Divider(height: 1, color: Color(0xFFE4EAF1)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-                        child: Wrap(
-                          alignment: WrapAlignment.end,
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            TextButton(
-                              onPressed: isSubmitting
-                                  ? null
-                                  : () =>
-                                        Navigator.of(dialogContext).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                            FilledButton(
-                              onPressed: isSubmitting ? null : submit,
-                              child: isSubmitting
-                                  ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Text('Create staff account'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           );
         },
       ),
     );
+    nameController.dispose();
+    if (saved == true) await _loadEmployeeManagement();
+  }
 
+  Future<void> _addStaffUser() async {
+    final formKey = GlobalKey<FormState>();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final messenger = ScaffoldMessenger.of(context);
+    String? departmentId;
+    String? permissionProfileId;
+    var saving = false;
+    String? error;
+    final created = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final availableProfiles = _staffPermissionProfiles
+              .where((profile) => profile['department_id'] == departmentId)
+              .toList(growable: false);
+          if (!availableProfiles.any(
+            (profile) => profile['id'] == permissionProfileId,
+          )) {
+            permissionProfileId = null;
+          }
+          Future<void> submit() async {
+            if (!formKey.currentState!.validate()) return;
+            setDialogState(() {
+              saving = true;
+              error = null;
+            });
+            try {
+              final result = await _callStaffFunction('create-staff-user', {
+                'email': emailController.text.trim(),
+                'password': passwordController.text,
+                'department_id': departmentId,
+                'permission_profile_id': permissionProfileId,
+              });
+              if (result['permissions_saved'] != true) {
+                throw const FormatException(
+                  'The service did not confirm saving staff permissions.',
+                );
+              }
+              if (dialogContext.mounted) {
+                Navigator.of(dialogContext).pop(true);
+              }
+            } on FunctionException catch (exception) {
+              if (dialogContext.mounted) {
+                setDialogState(
+                  () => error = _staffFunctionFailure(exception),
+                );
+              }
+            } on AuthException {
+              if (dialogContext.mounted) {
+                setDialogState(
+                  () => error = 'Your sign-in has expired. Sign in again.',
+                );
+              }
+            } on Exception catch (exception) {
+              if (dialogContext.mounted) {
+                setDialogState(
+                  () => error = 'Could not create staff account: $exception',
+                );
+              }
+            } finally {
+              if (dialogContext.mounted) {
+                setDialogState(() => saving = false);
+              }
+            }
+          }
+
+          return AlertDialog(
+            title: const Text('Add staff account'),
+            content: SizedBox(
+              width: 460,
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          labelText: 'Staff email',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          final email = value?.trim() ?? '';
+                          return email.contains('@') && email.contains('.')
+                              ? null
+                              : 'Enter a valid email address';
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Initial password (12+ characters)',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) =>
+                            value == null || value.length < 12
+                            ? 'Use at least 12 characters'
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: departmentId,
+                        decoration: const InputDecoration(
+                          labelText: 'Department',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          for (final department in _staffDepartments)
+                            DropdownMenuItem(
+                              value: department['id'] as String,
+                              child: Text(department['name'] as String),
+                            ),
+                        ],
+                        onChanged: saving
+                            ? null
+                            : (value) => setDialogState(() {
+                                departmentId = value;
+                                permissionProfileId = null;
+                              }),
+                        validator: (value) =>
+                            value == null ? 'Choose a department' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: permissionProfileId,
+                        decoration: const InputDecoration(
+                          labelText: 'Permission profile',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          for (final profile in availableProfiles)
+                            DropdownMenuItem(
+                              value: profile['id'] as String,
+                              child: Text(profile['name'] as String),
+                            ),
+                        ],
+                        onChanged: saving || departmentId == null
+                            ? null
+                            : (value) => setDialogState(
+                                () => permissionProfileId = value,
+                              ),
+                        validator: (value) => value == null
+                            ? 'Create and choose a permission profile'
+                            : null,
+                      ),
+                      const SizedBox(height: 10),
+                      const Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          'Create a department and permission profile first. '
+                          'The account will receive that profile’s access.',
+                          style: TextStyle(color: _muted, height: 1.4),
+                        ),
+                      ),
+                      if (error != null) ...[
+                        const SizedBox(height: 12),
+                        _AuthErrorMessage(error!),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving
+                    ? null
+                    : () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: saving ? null : submit,
+                child: Text(saving ? 'Creating…' : 'Create staff account'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
     final createdEmail = emailController.text.trim();
     emailController.dispose();
     passwordController.dispose();
-    if (created == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Staff account created for $createdEmail.'),
-        ),
+    if (created == true && context.mounted) {
+      await _loadEmployeeManagement();
+      messenger.showSnackBar(
+        SnackBar(content: Text('Staff account created for $createdEmail.')),
       );
     }
+  }
+
+  Future<void> _editStaffAccess(Map<String, dynamic> member) async {
+    String? departmentId = member['department_id'] as String?;
+    String? permissionProfileId = member['permission_profile_id'] as String?;
+    var saving = false;
+    String? error;
+    final updated = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final availableProfiles = _staffPermissionProfiles
+              .where((profile) => profile['department_id'] == departmentId)
+              .toList(growable: false);
+          if (!availableProfiles.any(
+            (profile) => profile['id'] == permissionProfileId,
+          )) {
+            permissionProfileId = null;
+          }
+          return AlertDialog(
+            title: Text('Edit access · ${member['email']}'),
+            content: SizedBox(
+              width: 420,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    initialValue: departmentId,
+                    decoration: const InputDecoration(
+                      labelText: 'Department',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      for (final department in _staffDepartments)
+                        DropdownMenuItem(
+                          value: department['id'] as String,
+                          child: Text(department['name'] as String),
+                        ),
+                    ],
+                    onChanged: saving
+                        ? null
+                        : (value) => setDialogState(() {
+                            departmentId = value;
+                            permissionProfileId = null;
+                          }),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: permissionProfileId,
+                    decoration: const InputDecoration(
+                      labelText: 'Permission profile',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      for (final profile in availableProfiles)
+                        DropdownMenuItem(
+                          value: profile['id'] as String,
+                          child: Text(profile['name'] as String),
+                        ),
+                    ],
+                    onChanged: saving || departmentId == null
+                        ? null
+                        : (value) => setDialogState(
+                            () => permissionProfileId = value,
+                          ),
+                  ),
+                  if (error != null) ...[
+                    const SizedBox(height: 12),
+                    _AuthErrorMessage(error!),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving
+                    ? null
+                    : () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (departmentId == null ||
+                            permissionProfileId == null) {
+                          setDialogState(
+                            () => error =
+                                'Choose a department and permission profile.',
+                          );
+                          return;
+                        }
+                        setDialogState(() {
+                          saving = true;
+                          error = null;
+                        });
+                        try {
+                          await _callStaffFunction('update-staff-access', {
+                            'user_id': member['user_id'],
+                            'department_id': departmentId,
+                            'permission_profile_id': permissionProfileId,
+                          });
+                          if (dialogContext.mounted) {
+                            Navigator.of(dialogContext).pop(true);
+                          }
+                        } on FunctionException catch (exception) {
+                          if (dialogContext.mounted) {
+                            setDialogState(
+                              () => error = _staffFunctionFailure(exception),
+                            );
+                          }
+                        } on Exception catch (exception) {
+                          if (dialogContext.mounted) {
+                            setDialogState(
+                              () => error = 'Could not update staff access: $exception',
+                            );
+                          }
+                        } finally {
+                          if (dialogContext.mounted) {
+                            setDialogState(() => saving = false);
+                          }
+                        }
+                      },
+                child: Text(saving ? 'Saving…' : 'Save access'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (updated == true) await _loadEmployeeManagement();
   }
 
   Widget _buildStaffPermissionSection(
@@ -2184,6 +2708,215 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
+  Widget _employeeManagementPanel() {
+    String departmentName(Object? id) {
+      for (final department in _staffDepartments) {
+        if (department['id'] == id) return department['name'] as String;
+      }
+      return 'No department';
+    }
+
+    String permissionProfileName(Object? id) {
+      for (final profile in _staffPermissionProfiles) {
+        if (profile['id'] == id) return profile['name'] as String;
+      }
+      return 'No permission profile';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Employee workspace',
+          style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Set up departments and reusable access profiles first, then create '
+          'staff accounts. You can change a staff member’s department and '
+          'permissions at any time.',
+          style: TextStyle(color: _muted, height: 1.5),
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            FilledButton.icon(
+              onPressed: () => _saveDepartment(),
+              icon: const Icon(Icons.add_business_outlined),
+              label: const Text('Add department'),
+            ),
+            OutlinedButton.icon(
+              onPressed: _staffDepartments.isEmpty
+                  ? null
+                  : () => _savePermissionProfile(),
+              icon: const Icon(Icons.checklist_outlined),
+              label: const Text('Create permission profile'),
+            ),
+            OutlinedButton.icon(
+              onPressed: _staffDepartments.isEmpty ||
+                      _staffPermissionProfiles.isEmpty
+                  ? null
+                  : _addStaffUser,
+              icon: const Icon(Icons.person_add_alt_1),
+              label: const Text('Add staff account'),
+            ),
+            IconButton(
+              tooltip: 'Refresh employee management',
+              onPressed: _isLoadingEmployeeData
+                  ? null
+                  : () => unawaited(_loadEmployeeManagement()),
+              icon: _isLoadingEmployeeData
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
+            ),
+          ],
+        ),
+        if (_employeeManagementError != null) ...[
+          const SizedBox(height: 12),
+          _AuthErrorMessage(_employeeManagementError!),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton(
+              onPressed: _isLoadingEmployeeData
+                  ? null
+                  : () => unawaited(_loadEmployeeManagement()),
+              child: const Text('Retry loading employee data'),
+            ),
+          ),
+        ],
+        if (_isLoadingEmployeeData &&
+            _staffDepartments.isEmpty &&
+            _employeeManagementError == null)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        const SizedBox(height: 12),
+        _employeeGroupHeading(
+          'Departments',
+          '${_staffDepartments.length} department(s)',
+        ),
+        if (_staffDepartments.isEmpty)
+          _employeeEmptyHint(
+            'No departments yet. Add a department before creating a '
+            'permission profile or staff account.',
+          ),
+        for (final department in _staffDepartments)
+          Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: const CircleAvatar(
+                child: Icon(Icons.apartment_outlined),
+              ),
+              title: Text(department['name'] as String),
+              subtitle: Text(
+                '${_staffPermissionProfiles.where((profile) => profile['department_id'] == department['id']).length} permission profile(s)',
+              ),
+              trailing: IconButton(
+                tooltip: 'Edit ${department['name']}',
+                onPressed: () => _saveDepartment(department: department),
+                icon: const Icon(Icons.edit_outlined),
+              ),
+            ),
+          ),
+        const SizedBox(height: 18),
+        _employeeGroupHeading(
+          'Permission profiles',
+          '${_staffPermissionProfiles.length} profile(s)',
+        ),
+        if (_staffDepartments.isNotEmpty &&
+            _staffPermissionProfiles.isEmpty)
+          _employeeEmptyHint(
+            'Create a profile for each role or access level, such as “Cashier” '
+            'or “Kitchen staff”. Choose exactly which sections and cards it '
+            'can open.',
+          ),
+        for (final profile in _staffPermissionProfiles)
+          Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: const CircleAvatar(
+                child: Icon(Icons.admin_panel_settings_outlined),
+              ),
+              title: Text(profile['name'] as String),
+              subtitle: Text(
+                '${departmentName(profile['department_id'])} · '
+                '${(profile['permissions'] as List? ?? const []).length} access grant(s)',
+              ),
+              trailing: IconButton(
+                tooltip: 'Edit ${profile['name']}',
+                onPressed: () =>
+                    _savePermissionProfile(permissionProfile: profile),
+                icon: const Icon(Icons.edit_outlined),
+              ),
+            ),
+          ),
+        const SizedBox(height: 18),
+        _employeeGroupHeading('Staff accounts', '${_staffMembers.length} account(s)'),
+        if (_staffMembers.isEmpty)
+          _employeeEmptyHint(
+            _staffPermissionProfiles.isEmpty
+                ? 'Create a department and permission profile before adding '
+                    'your first staff account.'
+                : 'No staff accounts have been created yet.',
+          ),
+        for (final member in _staffMembers)
+          Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: const CircleAvatar(child: Icon(Icons.person_outline)),
+              title: Text(member['email'] as String? ?? 'Staff account'),
+              subtitle: Text(
+                '${departmentName(member['department_id'])} · '
+                '${permissionProfileName(member['permission_profile_id'])}',
+              ),
+              trailing: IconButton(
+                tooltip: 'Edit staff access',
+                onPressed: _staffDepartments.isEmpty ||
+                        _staffPermissionProfiles.isEmpty
+                    ? null
+                    : () => _editStaffAccess(member),
+                icon: const Icon(Icons.edit_outlined),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _employeeGroupHeading(String title, String count) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          ),
+        ),
+        Text(count, style: const TextStyle(color: _muted, fontSize: 12)),
+      ],
+    ),
+  );
+
+  Widget _employeeEmptyHint(String text) => Container(
+    width: double.infinity,
+    margin: const EdgeInsets.only(bottom: 8),
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      border: Border.all(color: const Color(0xFFE5EAF0)),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Text(text, style: const TextStyle(color: _muted, height: 1.45)),
+  );
+
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.sizeOf(context).width >= 900;
@@ -2239,9 +2972,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           if (widget.role == 'admin')
             IconButton(
-              tooltip: 'Add staff user',
-              onPressed: _addStaffUser,
-              icon: const Icon(Icons.person_add_alt_1),
+              tooltip: 'Employee workspace',
+              onPressed: () => setState(() {
+                _selectedIndex = 6;
+                _selectedSubcard = null;
+              }),
+              icon: const Icon(Icons.groups_outlined),
             ),
           if (MediaQuery.sizeOf(context).width >= 600)
             Padding(
@@ -2469,9 +3205,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           subcard ??
               (index == 0
                   ? (widget.role == 'admin'
-                        ? 'Administrator dashboard'
-                        : 'Staff dashboard')
-                  : section.title),
+                            ? 'Administrator Dashboard'
+                            : 'Staff Dashboard')
+                      : index == 2
+                      ? 'Payments & Finance'
+                      : section.title),
           style: TextStyle(
             fontSize: MediaQuery.sizeOf(context).width < 600 ? 24 : 30,
             fontWeight: FontWeight.w700,
@@ -2479,13 +3217,21 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          subcard == null
-              ? section.description
-              : 'Details for $subcard in ${section.title}.',
-          style: TextStyle(color: _muted, height: 1.5),
-        ),
-        const SizedBox(height: 20),
+        if (index == 2)
+          Text(
+            subcard == null
+                ? 'View and manage all financial operations.'
+                : 'Live workspace records for $subcard.',
+            style: const TextStyle(color: _muted, height: 1.5),
+          )
+        else if (index != 0)
+          Text(
+            subcard == null
+                ? section.description
+                : 'Details for $subcard in ${section.title}.',
+            style: const TextStyle(color: _muted, height: 1.5),
+          ),
+        if (index != 0 && index != 2) const SizedBox(height: 20),
         if (widget.permissionsLoadError != null)
           _AuthErrorMessage(
             'Could not load section permissions. Dashboard is open, but no '
@@ -2500,9 +3246,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         if (widget.permissionsLoadError != null ||
             (widget.role == 'staff' && widget.grantedPermissions.isEmpty))
           const SizedBox(height: 16),
-        _workspaceConnectionBanner(),
-        const SizedBox(height: 20),
-        if (subcard == null)
+        if (index != 0 && index != 2) ...[
+          _workspaceConnectionBanner(),
+          const SizedBox(height: 20),
+        ],
+        if (index == 6 && widget.role == 'admin' && subcard == null)
+          _employeeManagementPanel()
+        else if (index == 2 && subcard != null)
+          _financeDetail(section, subcard)
+        else if (subcard == null)
           _sectionSubcardGrid(index)
         else
           _subcardDetail(section, subcard),
@@ -2568,6 +3320,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (visibleSubcards.isEmpty) {
       return const Text('No cards in this section are assigned to this account.');
     }
+    if (sectionIndex == 2) {
+      return _paymentManagementOverview(visibleSubcards);
+    }
     return _managementCardGrid(
       sectionIndex: sectionIndex,
       titles: visibleSubcards,
@@ -2622,34 +3377,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             : 'Dashboard cards are unavailable until permissions can be loaded.',
       );
     }
-    final revenueCard = _subcards.first.first;
-    final revenueRecords = _recordsFor(
-      'dashboard',
-      _permissionSlug(revenueCard),
-    );
-    final hasRevenueRecords = revenueRecords.any(
-      (record) => record.amount != null,
-    );
-    final revenue = revenueRecords.fold<double>(
-      0,
-      (total, record) => total + (record.amount ?? 0),
-    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _managementCardGrid(
-          sectionIndex: 0,
-          titles: assignedCards,
-          revenueCard: revenueCard,
-          revenue: _workspaceError == null &&
-                  !_isLoadingRecords &&
-                  hasRevenueRecords
-              ? revenue
-              : null,
-          revenueUnavailable: _workspaceError != null ||
-              _isLoadingRecords ||
-              !hasRevenueRecords,
-        ),
+        _dateRangeControls(),
+        const SizedBox(height: 12),
+        for (final group in _dashboardGroups)
+          _dashboardGroup(
+            group,
+            assignedCards
+                .where(group.cards.contains)
+                .toList(growable: false),
+          ),
         const SizedBox(height: 16),
         Container(
           width: double.infinity,
@@ -2709,6 +3448,917 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ],
         ),
       ],
+    );
+  }
+
+  static const _dashboardGroups = [
+    (
+      title: 'Payments & Finance',
+      icon: Icons.payments_outlined,
+      tint: Color(0xFFDDF7EC),
+      iconColor: Color(0xFF138052),
+      cards: [
+        'Today Revenue',
+        'Standing Cash',
+        'Pending Payment',
+        'Invoices',
+        'Discounts',
+        'Credit Accounts',
+        'Cash Reconciliation',
+      ],
+    ),
+    (
+      title: 'Tables & Reservations',
+      icon: Icons.table_restaurant_outlined,
+      tint: Color(0xFFE5EEFF),
+      iconColor: Color(0xFF2463D3),
+      cards: [
+        'Tables Occupied',
+        'Table Map',
+        'Reservations',
+        'Cleaning Needed',
+        'Service Speed',
+        'Guests Today',
+        'Table Occupancy',
+      ],
+    ),
+    (
+      title: 'Kitchen & Orders',
+      icon: Icons.soup_kitchen_outlined,
+      tint: Color(0xFFFFEBD1),
+      iconColor: Color(0xFFB75B11),
+      cards: [
+        'Kitchen Orders',
+        'Menu',
+        'Low Stock',
+        'Nargile Orders',
+        'Motel Orders',
+        'Online Orders',
+        'Today Orders',
+        'Kitchen Queue',
+        'Takeaway & Delivery',
+      ],
+    ),
+    (
+      title: 'Management & Operations',
+      icon: Icons.groups_outlined,
+      tint: Color(0xFFF0E4FF),
+      iconColor: Color(0xFF7638BC),
+      cards: [
+        'Customers',
+        'Employees',
+        'Tasks',
+        'Events',
+        'Feedback',
+        'Maintenance',
+        'Tourism Customers',
+        'Customer Requests',
+        'Attendance',
+      ],
+    ),
+    (
+      title: 'Reports, Settings & Security',
+      icon: Icons.bar_chart_outlined,
+      tint: Color(0xFFDFF5F6),
+      iconColor: Color(0xFF117D84),
+      cards: [
+        'Reports',
+        'Security',
+        'Backup',
+        'Offline Mode',
+        'System Health',
+        'Audit & Activity',
+        'Product Performance',
+        'Personalization',
+      ],
+    ),
+  ];
+
+  Widget _dashboardGroup(
+    ({
+      String title,
+      IconData icon,
+      Color tint,
+      Color iconColor,
+      List<String> cards,
+    }) group,
+    List<String> visibleCards,
+  ) {
+    if (visibleCards.isEmpty) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1209243A),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: true,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
+          backgroundColor: Colors.white,
+          collapsedBackgroundColor: group.tint.withValues(alpha: 0.55),
+          title: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: group.iconColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(group.icon, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  group.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _ink,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                'See all (${visibleCards.length})',
+                style: TextStyle(
+                  color: group.iconColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          children: [
+            _compactMetricGrid(
+              sectionIndex: 0,
+              titles: visibleCards,
+              height: 118,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dateRangeControls() {
+    final dateLabel =
+        '${_selectedReportDate.day}/${_selectedReportDate.month}/${_selectedReportDate.year}';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OutlinedButton.icon(
+          onPressed: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: _selectedReportDate,
+              firstDate: DateTime(2020),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
+            );
+            if (date != null && mounted) {
+              setState(() {
+                _selectedReportDate = date;
+                _selectedDateRange = 'Today';
+              });
+            }
+          },
+          icon: const Icon(Icons.calendar_month_outlined, size: 18),
+          label: Text('$dateLabel · $_selectedDateRange'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: _ink,
+            backgroundColor: Colors.white,
+            side: const BorderSide(color: Color(0xFFE3E8F0)),
+          ),
+        ),
+        const SizedBox(height: 9),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final range in const [
+                'Today',
+                'Yesterday',
+                'This Week',
+                'This Month',
+                'This Year',
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(right: 7),
+                  child: ChoiceChip(
+                    label: Text(range),
+                    selected: _selectedDateRange == range,
+                    onSelected: (_) =>
+                        setState(() => _selectedDateRange = range),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _paymentManagementOverview(List<String> titles) {
+    const featuredFinanceCards = [
+      'Today Revenue',
+      'Standing Cash',
+      'Pending Payments',
+      'Collected Cash',
+      'Available Cash',
+      'Cash Over / Short',
+      'Expenses',
+      'Invoices & Payments',
+      'Table Income',
+      'Refunds & Voids',
+      'Confirm Credit',
+    ];
+    final featuredCards = [
+      for (final title in featuredFinanceCards)
+        if (titles.contains(title)) title,
+    ];
+    final additionalCards = titles
+        .where((title) => !featuredFinanceCards.contains(title))
+        .toList(growable: false);
+    final allRecords = _recordsInSelectedRange(
+      _workspaceRecords.where((record) => record.sectionKey == 'payment_management'),
+    );
+    final recordedAmounts = allRecords
+        .where((record) => record.amount != null)
+        .fold<double>(0, (total, record) => total + record.amount!);
+    final openCount = allRecords
+        .where((record) => record.status == 'open' || record.status == 'in_progress')
+        .length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _dateRangeControls(),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEAF4FF),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFD4E6FA)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.cloud_done_outlined, color: Color(0xFF2570B8)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _workspaceError != null
+                      ? 'Finance data unavailable: $_workspaceError'
+                      : _isLoadingRecords
+                      ? 'Loading finance records…'
+                      : '${allRecords.length} tracked record(s) · $openCount open · '
+                                '${allRecords.any((record) => record.amount != null) ? '${recordedAmounts.toStringAsFixed(0)} IQD' : '—'} recorded',
+                  style: const TextStyle(
+                    color: _ink,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: _workspaceError == null
+                      ? const Color(0xFFDDF7EC)
+                      : const Color(0xFFFFE8E6),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  _workspaceError == null ? 'Live' : 'Unavailable',
+                  style: TextStyle(
+                    color: _workspaceError == null
+                        ? const Color(0xFF138052)
+                        : const Color(0xFFB42318),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        _compactMetricGrid(
+          sectionIndex: 2,
+          titles: featuredCards,
+          height: 150,
+        ),
+        if (additionalCards.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: ExpansionTile(
+              title: Text('More finance cards (${additionalCards.length})'),
+              childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
+              children: [
+                _compactMetricGrid(
+                  sectionIndex: 2,
+                  titles: additionalCards,
+                  height: 150,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _compactMetricGrid({
+    required int sectionIndex,
+    required List<String> titles,
+    required double height,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth < 460
+            ? 3
+            : constraints.maxWidth < 760
+            ? 3
+            : constraints.maxWidth < 1120
+            ? 3
+            : 4;
+        final spacing = 8.0;
+        final width =
+            (constraints.maxWidth - (columns - 1) * spacing) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (var index = 0; index < titles.length; index++)
+              SizedBox(
+                width: width,
+                height: height,
+                child: _compactMetricCard(
+                  sectionIndex: sectionIndex,
+                  title: titles[index],
+                  index: index,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _compactMetricCard({
+    required int sectionIndex,
+    required String title,
+    required int index,
+  }) {
+    const colors = [
+      (background: Color(0xFFEAF8F0), accent: Color(0xFF17864D)),
+      (background: Color(0xFFFFF5DC), accent: Color(0xFFC77A12)),
+      (background: Color(0xFFFFEDF1), accent: Color(0xFFD7355D)),
+      (background: Color(0xFFF2EAFE), accent: Color(0xFF7436C8)),
+      (background: Color(0xFFEAF4FF), accent: Color(0xFF2463D3)),
+      (background: Color(0xFFE5F8F7), accent: Color(0xFF148A8F)),
+    ];
+    final palette = colors[index % colors.length];
+    final section = _sections[sectionIndex];
+    final records = _recordsInSelectedRange(
+      _recordsFor(section.key, _permissionSlug(title)),
+    );
+    final amountRecords = records.where((record) => record.amount != null);
+    final recordedAmount = amountRecords.fold<double>(
+      0,
+      (total, record) => total + record.amount!,
+    );
+    final currency = amountRecords.isEmpty ? 'IQD' : amountRecords.first.currency;
+    final unavailable = _workspaceError != null;
+    final isLoading = _isLoadingRecords;
+    final primary = unavailable
+        ? '—'
+        : isLoading
+        ? '…'
+        : records.isEmpty
+        ? '—'
+        : amountRecords.isNotEmpty
+        ? '${recordedAmount.toStringAsFixed(0)} $currency'
+        : '${records.length}';
+    final supporting = unavailable
+        ? 'Unavailable'
+        : isLoading
+        ? 'Loading live data'
+        : records.isEmpty
+        ? 'No records'
+        : amountRecords.isNotEmpty
+        ? '${records.length} tracked record(s)'
+        : records.length == 1
+        ? '1 tracked record'
+        : 'Tracked records';
+    return Card(
+      margin: EdgeInsets.zero,
+      color: palette.background,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: palette.accent.withValues(alpha: 0.12)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => setState(() {
+          if (sectionIndex == 2) {
+            _financeSearch = '';
+            _financeStatusFilter = 'All';
+          }
+          _selectedSubcard = title;
+        }),
+        child: Padding(
+          padding: const EdgeInsets.all(9),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: palette.accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: Icon(
+                      _metricIcon(title, section.icon),
+                      color: palette.accent,
+                      size: 18,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.chevron_right,
+                    color: palette.accent,
+                    size: 19,
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: _ink,
+                  fontSize: 11,
+                  height: 1.1,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: unavailable ? _muted : palette.accent,
+                  fontSize: sectionIndex == 0 ? 14 : 15,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Text(
+                supporting,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: _muted, fontSize: 9),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _metricIcon(String title, IconData fallback) => switch (title) {
+    'Today Revenue' || 'Revenue' => Icons.bar_chart_rounded,
+    'Standing Cash' || 'Available Cash' => Icons.account_balance_wallet_outlined,
+    'Pending Payment' || 'Pending Payments' => Icons.schedule_rounded,
+    'Invoices' || 'Invoices & Payments' => Icons.receipt_long_outlined,
+    'Collected Cash' || 'Cash/Card/Online' => Icons.payments_outlined,
+    'Cash Over / Short' => Icons.balance_outlined,
+    'Discounts' => Icons.sell_outlined,
+    'Credit Accounts' || 'Confirm Credit' => Icons.credit_score_outlined,
+    'Tables Occupied' || 'Table Occupancy' => Icons.chair_alt_outlined,
+    'Table Map' || 'Visual Table Map' => Icons.map_outlined,
+    'Reservations' => Icons.calendar_month_outlined,
+    'Cleaning Needed' || 'Cleaning' => Icons.cleaning_services_outlined,
+    'Kitchen Orders' || 'Kitchen Queue' => Icons.soup_kitchen_outlined,
+    'Menu' || 'Menu Categories' => Icons.restaurant_menu_outlined,
+    'Low Stock' || 'Inventory' => Icons.inventory_2_outlined,
+    'Customers' || 'Customer Directory' => Icons.people_outline,
+    'Employees' || 'Staff Directory' => Icons.badge_outlined,
+    'Tasks' => Icons.task_alt_outlined,
+    'Events' => Icons.event_outlined,
+    'Reports' || 'Revenue Reports' => Icons.query_stats_outlined,
+    'Security' => Icons.shield_outlined,
+    'Backup' => Icons.backup_outlined,
+    'Offline Mode' => Icons.wifi_off_outlined,
+    'Expenses' || 'Costs & Expenses' => Icons.receipt_long_outlined,
+    'Refunds & Voids' || 'Refunds' => Icons.undo_rounded,
+    'Table Income' => Icons.table_restaurant_outlined,
+    _ => fallback,
+  };
+
+  Widget _financeDetail(
+    ({String key, IconData icon, String title, String description}) section,
+    String subcard,
+  ) {
+    final subcardKey = _permissionSlug(subcard);
+    final canManage =
+        widget.role == 'admin' ||
+        widget.grantedPermissions.contains('${section.key}:*') ||
+        widget.grantedPermissions.contains('${section.key}:$subcardKey');
+    final records = _recordsInSelectedRange(
+      _recordsFor(section.key, subcardKey),
+    );
+    final matchingRecords = records.where((record) {
+      final matchesStatus =
+          _financeStatusFilter == 'All' ||
+          record.status == _financeStatusFilter.toLowerCase().replaceAll(' ', '_');
+      final query = _financeSearch.trim().toLowerCase();
+      final matchesQuery =
+          query.isEmpty ||
+          record.title.toLowerCase().contains(query) ||
+          record.details.toLowerCase().contains(query);
+      return matchesStatus && matchesQuery;
+    }).toList(growable: false);
+    final amountRecords = records.where((record) => record.amount != null);
+    final amountTotal = amountRecords.fold<double>(
+      0,
+      (total, record) => total + record.amount!,
+    );
+    final openCount = records
+        .where((record) => record.status == 'open' || record.status == 'in_progress')
+        .length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(child: _dateRangeControls()),
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+              decoration: BoxDecoration(
+                color: _workspaceError == null
+                    ? const Color(0xFFE1F6EA)
+                    : const Color(0xFFFFE8E6),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _workspaceError == null ? '● Live' : 'Unavailable',
+                style: TextStyle(
+                  color: _workspaceError == null
+                      ? const Color(0xFF167344)
+                      : const Color(0xFFB42318),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            _financeSummaryCard(
+              icon: Icons.receipt_long_outlined,
+              label: 'Tracked records',
+              value: _isLoadingRecords ? '…' : '${records.length}',
+              tint: const Color(0xFFEAF2FF),
+              accent: const Color(0xFF2563D9),
+            ),
+            _financeSummaryCard(
+              icon: Icons.payments_outlined,
+              label: 'Recorded amount',
+              value: amountRecords.isEmpty
+                  ? '—'
+                  : '${amountTotal.toStringAsFixed(0)} ${amountRecords.first.currency}',
+              tint: const Color(0xFFE8F8EF),
+              accent: const Color(0xFF16814A),
+            ),
+            _financeSummaryCard(
+              icon: Icons.schedule_outlined,
+              label: 'Open records',
+              value: '$openCount',
+              tint: const Color(0xFFFFF2D8),
+              accent: const Color(0xFFB9670C),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFE1E7EF)),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '$subcard records',
+                      style: const TextStyle(
+                        color: _ink,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  if (canManage)
+                    FilledButton.icon(
+                      onPressed: _isLoadingRecords
+                          ? null
+                          : () => _createWorkspaceRecord(section, subcard),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Add record'),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                onChanged: (value) => setState(() => _financeSearch = value),
+                decoration: InputDecoration(
+                  hintText: 'Search $subcard...',
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: const Color(0xFFF6F8FB),
+                  isDense: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final status in const [
+                      'All',
+                      'Open',
+                      'In progress',
+                      'Completed',
+                      'Cancelled',
+                    ])
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: ChoiceChip(
+                          label: Text(status),
+                          selected: _financeStatusFilter == status,
+                          onSelected: (_) =>
+                              setState(() => _financeStatusFilter = status),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              if (_workspaceError != null)
+                _AuthErrorMessage(_workspaceError!)
+              else if (_isLoadingRecords)
+                const Center(child: CircularProgressIndicator())
+              else if (matchingRecords.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 22),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 34,
+                          color: Colors.blueGrey.shade300,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          records.isEmpty
+                              ? 'No live records for this date range.'
+                              : 'No records match these filters.',
+                          style: const TextStyle(color: _muted),
+                        ),
+                        if (canManage && records.isEmpty) ...[
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Add a record to begin tracking this card.',
+                            style: TextStyle(color: _muted, fontSize: 12),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                )
+              else
+                for (final record in matchingRecords)
+                  _financeRecordTile(record, canManage: canManage),
+              if (amountRecords.isNotEmpty) ...[
+                const Divider(height: 22),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    'Tracked amount total · ${amountTotal.toStringAsFixed(0)} ${amountRecords.first.currency}',
+                    style: const TextStyle(
+                      color: _ink,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 4),
+              const Text(
+                'Totals include only records saved in this workspace. They are '
+                'not reconciled against a payment provider or cash register.',
+                style: TextStyle(color: _muted, fontSize: 11, height: 1.4),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _financeSummaryCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color tint,
+    required Color accent,
+  }) => Container(
+    width: 150,
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: tint,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: accent.withValues(alpha: 0.12)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: accent, size: 20),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: accent,
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          maxLines: 2,
+          style: const TextStyle(color: _muted, fontSize: 11),
+        ),
+      ],
+    ),
+  );
+
+  Widget _financeRecordTile(
+    CafeWorkspaceRecord record, {
+    required bool canManage,
+  }) {
+    final statusColor = switch (record.status) {
+      'completed' => const Color(0xFF16814A),
+      'cancelled' => const Color(0xFFB42318),
+      'in_progress' => const Color(0xFF2563D9),
+      _ => const Color(0xFFB9670C),
+    };
+    return Container(
+      key: ValueKey('finance-record-${record.id}'),
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFCFDFE),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: const Color(0xFFE6EBF1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF2FF),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.receipt_long_outlined,
+                  color: Color(0xFF2563D9),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      record.title,
+                      style: const TextStyle(
+                        color: _ink,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      'Updated ${record.updatedAt.toLocal().toString().substring(0, 16)}',
+                      style: const TextStyle(color: _muted, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+              if (record.amount != null)
+                Text(
+                  '${record.amount!.toStringAsFixed(0)} ${record.currency}',
+                  style: const TextStyle(
+                    color: _ink,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              if (canManage)
+                PopupMenuButton<String>(
+                  tooltip: 'Record actions',
+                  onSelected: (action) {
+                    if (action == 'delete') {
+                      unawaited(_deleteWorkspaceRecord(record));
+                    } else {
+                      unawaited(_updateRecordStatus(record, action));
+                    }
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: 'open', child: Text('Mark open')),
+                    PopupMenuItem(
+                      value: 'in_progress',
+                      child: Text('Mark in progress'),
+                    ),
+                    PopupMenuItem(
+                      value: 'completed',
+                      child: Text('Mark completed'),
+                    ),
+                    PopupMenuItem(
+                      value: 'cancelled',
+                      child: Text('Mark cancelled'),
+                    ),
+                    PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete record'),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          if (record.details.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(record.details, style: const TextStyle(color: _muted)),
+          ],
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              record.status.replaceAll('_', ' ').toUpperCase(),
+              style: TextStyle(
+                color: statusColor,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

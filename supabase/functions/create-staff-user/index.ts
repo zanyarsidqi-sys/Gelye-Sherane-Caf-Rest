@@ -38,6 +38,8 @@ type PermissionGrant = {
   subcard_key: string;
 };
 
+type StaffFunctionBody = Record<string, unknown>;
+
 function getJwtClaims(token: string): Record<string, unknown> | null {
   const payload = token.split(".")[1];
   if (!payload) return null;
@@ -154,10 +156,197 @@ Deno.serve(async (request: Request) => {
     return jsonResponse(400, { error: "Provide a valid JSON request body." });
   }
 
-  const payload = body as Record<string, unknown>;
+  const payload = body as StaffFunctionBody;
+  const action = typeof payload.action === "string"
+    ? payload.action
+    : "create-staff-user";
+
+  if (action === "list-management") {
+    const [departmentsResult, profilesResult, staffResult, permissionsResult] =
+      await Promise.all([
+        adminClient.from("staff_departments").select("id, name").order("name"),
+        adminClient
+          .from("staff_permission_profiles")
+          .select("id, name, department_id, permissions")
+          .order("name"),
+        adminClient
+          .from("staff_profiles")
+          .select("user_id, email, department_id, permission_profile_id")
+          .eq("role", "staff")
+          .order("email"),
+        adminClient
+          .from("staff_permissions")
+          .select("user_id, section_key, subcard_key"),
+      ]);
+    const failure = departmentsResult.error ??
+      profilesResult.error ??
+      staffResult.error ??
+      permissionsResult.error;
+    if (failure) {
+      console.error("Could not load employee management data", failure.message);
+      return jsonResponse(500, {
+        error: `Could not load employee management data: ${failure.message}`,
+      });
+    }
+
+    const permissionsByUser = new Map<string, PermissionGrant[]>();
+    for (const row of permissionsResult.data ?? []) {
+      const grants = permissionsByUser.get(row.user_id) ?? [];
+      grants.push({
+        section_key: row.section_key,
+        subcard_key: row.subcard_key,
+      });
+      permissionsByUser.set(row.user_id, grants);
+    }
+
+    return new Response(JSON.stringify({
+      departments: departmentsResult.data ?? [],
+      permission_profiles: profilesResult.data ?? [],
+      staff: (staffResult.data ?? []).map((member) => ({
+        ...member,
+        permissions: permissionsByUser.get(member.user_id) ?? [],
+      })),
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (action === "save-department") {
+    const id = payload.id;
+    const name = typeof payload.name === "string" ? payload.name.trim() : "";
+    if (name.length < 1 || name.length > 80) {
+      return jsonResponse(400, { error: "Department names must be 1–80 characters." });
+    }
+    const departmentQuery = adminClient.from("staff_departments");
+    const result = typeof id === "string" && id.length > 0
+      ? await departmentQuery
+        .update({ name })
+        .eq("id", id)
+        .select("id, name")
+        .single()
+      : await departmentQuery
+        .insert({ name, created_by: authData.user.id })
+        .select("id, name")
+        .single();
+    if (result.error) {
+      return jsonResponse(400, {
+        error: `Could not save department: ${result.error.message}`,
+      });
+    }
+    return new Response(JSON.stringify({ department: result.data }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (action === "save-permission-profile") {
+    const id = payload.id;
+    const departmentId = payload.department_id;
+    const name = typeof payload.name === "string" ? payload.name.trim() : "";
+    const permissions = parsePermissionGrants(payload.permissions);
+    if (
+      typeof departmentId !== "string" ||
+      name.length < 1 ||
+      name.length > 80 ||
+      permissions === null ||
+      permissions.length === 0
+    ) {
+      return jsonResponse(400, {
+        error: "Choose a department, a 1–80 character name, and at least one permission.",
+      });
+    }
+    const profileQuery = adminClient.from("staff_permission_profiles");
+    const result = typeof id === "string" && id.length > 0
+      ? await profileQuery
+        .update({
+          department_id: departmentId,
+          name,
+          permissions,
+          updated_by: authData.user.id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .select("id, name, department_id, permissions")
+        .single()
+      : await profileQuery
+        .insert({
+          department_id: departmentId,
+          name,
+          permissions,
+          created_by: authData.user.id,
+          updated_by: authData.user.id,
+        })
+        .select("id, name, department_id, permissions")
+        .single();
+    if (result.error) {
+      return jsonResponse(400, {
+        error: `Could not save permission profile: ${result.error.message}`,
+      });
+    }
+    return new Response(JSON.stringify({ permission_profile: result.data }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  if (action === "update-staff-access") {
+    const userId = payload.user_id;
+    const departmentId = payload.department_id;
+    const permissionProfileId = payload.permission_profile_id;
+    if (
+      typeof userId !== "string" ||
+      typeof departmentId !== "string" ||
+      typeof permissionProfileId !== "string"
+    ) {
+      return jsonResponse(400, {
+        error: "Choose a department and permission profile for this staff member.",
+      });
+    }
+    const { data: permissionProfile, error: permissionProfileError } =
+      await adminClient
+        .from("staff_permission_profiles")
+        .select("department_id, permissions")
+        .eq("id", permissionProfileId)
+        .single();
+    if (
+      permissionProfileError ||
+      permissionProfile?.department_id !== departmentId
+    ) {
+      return jsonResponse(400, {
+        error: "The permission profile does not belong to the selected department.",
+      });
+    }
+    const grants = parsePermissionGrants(permissionProfile.permissions);
+    if (grants === null || grants.length === 0) {
+      return jsonResponse(400, { error: "The permission profile has no valid access grants." });
+    }
+    const { error: updateError } = await adminClient.rpc(
+      "admin_update_staff_access",
+      {
+        target_user_id: userId,
+        target_department_id: departmentId,
+        target_permission_profile_id: permissionProfileId,
+        permission_grants: grants,
+        assigned_by_user_id: authData.user.id,
+      },
+    );
+    if (updateError) {
+      return jsonResponse(500, {
+        error: `Could not update staff access: ${updateError.message}`,
+      });
+    }
+    return jsonResponse(200, { message: "Staff access updated.", permissions_saved: true });
+  }
+
+  if (action !== "create-staff-user") {
+    return jsonResponse(400, { error: "Unknown staff management action." });
+  }
+
   const email = payload.email;
   const password = payload.password;
-  const permissions = parsePermissionGrants(payload.permissions);
+  const departmentId = payload.department_id;
+  const permissionProfileId = payload.permission_profile_id;
   if (
     typeof email !== "string" ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
@@ -169,9 +358,28 @@ Deno.serve(async (request: Request) => {
       error: "The initial password must be at least 12 characters.",
     });
   }
-  if (permissions === null) {
+  if (typeof departmentId !== "string" || typeof permissionProfileId !== "string") {
     return jsonResponse(400, {
-      error: "Choose valid sections or cards for the staff account.",
+      error: "Choose a department and permission profile before creating the account.",
+    });
+  }
+  const { data: selectedProfile, error: selectedProfileError } = await adminClient
+    .from("staff_permission_profiles")
+    .select("department_id, permissions")
+    .eq("id", permissionProfileId)
+    .single();
+  if (
+    selectedProfileError ||
+    selectedProfile?.department_id !== departmentId
+  ) {
+    return jsonResponse(400, {
+      error: "The permission profile does not belong to the selected department.",
+    });
+  }
+  const permissions = parsePermissionGrants(selectedProfile.permissions);
+  if (permissions === null || permissions.length === 0) {
+    return jsonResponse(400, {
+      error: "The selected permission profile has no valid access grants.",
     });
   }
 
@@ -195,6 +403,8 @@ Deno.serve(async (request: Request) => {
         user_id: createdUser.user.id,
         email: createdUser.user.email,
         role: "staff",
+        department_id: departmentId,
+        permission_profile_id: permissionProfileId,
       },
       { onConflict: "user_id" },
     );

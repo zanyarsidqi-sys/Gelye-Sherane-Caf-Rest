@@ -50,16 +50,24 @@ private and save it in an authenticator app. A fixed shared entrance code is
 not used: it would be exposed in browser code and would not provide individual
 second-factor security. Enable TOTP MFA for the Supabase project.
 
-Create staff accounts from the management workspace's **Add staff user** form,
-which saves the selected section/card grants with the account. The public-site
-sign-in dialog does not create accounts, so there is no permission-less
-alternate creation path.
+Create staff access from **Employee Management** in this order:
+
+1. Add a department (for example, Kitchen or Front of House).
+2. Create a permission profile for that department and select its sections
+   and cards (for example, Kitchen staff).
+3. Create a staff account by choosing its department and permission profile.
+4. Use the staff directory's edit action to change the department/profile later.
+
+Editing a permission profile updates the grants of all staff assigned to it.
+The public-site sign-in dialog does not create accounts, so there is no
+permission-less alternate creation path.
 
 Apply these migrations to the selected project's SQL Editor in timestamp order:
 
 ```text
 supabase/migrations/20261015084000_staff_permissions.sql
 supabase/migrations/20261015090000_cafe_workspace_records.sql
+supabase/migrations/20261015211000_staff_departments_and_permission_profiles.sql
 ```
 
 Do not run the staff-profile review candidate. After the migration succeeds,
@@ -72,22 +80,23 @@ supabase functions deploy create-staff-user --project-ref lpxuuzfgiggsyhdbsucv
 
 The function uses Supabase's server-side `SUPABASE_SERVICE_ROLE_KEY` environment
 secret. Keep it in Supabase's function environment only; never copy it into the
-Flutter app. In the administrator's **Add staff user** form, select full
-sections or individual cards when creating the account. The staff workspace
-opens automatically after sign-in: Dashboard is always available, while only
-assigned sections/cards are shown. Missing or unreadable grants fail closed to
-Dashboard only. Administrators see all eleven sections.
+Flutter app. Create access profiles in **Employee Management** and assign a
+profile and department to each new account. The staff workspace opens
+automatically after sign-in: Dashboard is always available, while only assigned
+sections/cards are shown. Missing or unreadable grants fail closed to Dashboard
+only. Administrators see all eleven sections.
 
 Each card can store records with a title, details, status, and optional IQD
-amount; changes appear live for authorized users. The Dashboard revenue tile
-totals only the amounts entered under its Today Revenue card; it is not
-reconciled against payments, cash drawers, or a card-payment processor. These
-generic records do not import old transactions. Disable public sign-ups in
-Supabase Auth.
+amount; changes appear live for authorized users. Dashboard and Payments &
+Finance summaries use only those saved records and date filters; they do not
+invent totals or reconcile against a card-payment processor or cash register.
+These generic records do not import old transactions. Disable public sign-ups
+in Supabase Auth.
 
 If live records fail to load, the workspace reports the Supabase error and
-offers a retry instead of showing placeholder values. Confirm the two live
-workspace migrations are applied in project `lpxuuzfgiggsyhdbsucv`. If the
+offers a retry instead of showing placeholder values. Confirm the required
+live permissions, workspace-record, and staff-management migrations are
+applied in project `lpxuuzfgiggsyhdbsucv`. If the
 account lacks an administrator role, review the existing staff profile rather
 than granting access through the client. For a `42501` row-level-security
 denial, verify the session has AAL2, the account's profile role and section/card
