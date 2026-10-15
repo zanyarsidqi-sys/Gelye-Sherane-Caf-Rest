@@ -1329,21 +1329,28 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
           .select('role')
           .eq('user_id', user.id)
           .maybeSingle();
+
+      if (profile == null) {
+        if (!mounted) return;
+        setState(() {
+          _error =
+              'No staff profile exists for this account. Run the staff '
+              'migration and admin bootstrap SQL in the Supabase project '
+              'configured for this site.';
+        });
+        return;
+      }
+
       if (!mounted) return;
       setState(() {
-        _isAdmin = profile?['role'] == 'admin';
-        if (profile == null) {
-          _error =
-              'Your account is signed in but has no staff role yet. Ask the '
-              'project owner to grant the first admin role.';
-        }
+        _isAdmin = profile['role'] == 'admin';
       });
-    } on PostgrestException {
+    } on PostgrestException catch (exception) {
       if (mounted) {
         setState(() {
           _error =
-              'Could not load staff permissions. The staff database setup may '
-              'not have been applied yet.';
+              'Could not load staff permissions from Supabase '
+              '(${exception.code ?? 'unknown'}): ${exception.message}';
         });
       }
     } finally {

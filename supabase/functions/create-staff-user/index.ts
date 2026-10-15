@@ -88,14 +88,31 @@ Deno.serve(async (request: Request) => {
     });
   }
 
-  const { error: createError } = await adminClient.auth.admin.createUser({
-    email: email.trim(),
-    password,
-    email_confirm: true,
-    app_metadata: { role: "staff" },
+  const { data: createdUser, error: createError } =
+    await adminClient.auth.admin.createUser({
+      email: email.trim(),
+      password,
+      email_confirm: true,
+      app_metadata: { role: "staff" },
+    });
+  if (createError || !createdUser?.user) {
+    return jsonResponse(400, {
+      error: createError?.message ?? "Could not create the staff account.",
+    });
+  }
+
+  const { error: profileError } = await adminClient.from("staff_profiles").insert({
+    user_id: createdUser.user.id,
+    email: createdUser.user.email,
+    role: "staff",
   });
-  if (createError) {
-    return jsonResponse(400, { error: createError.message });
+  if (profileError) {
+    await adminClient.auth.admin.deleteUser(createdUser.user.id).catch(() => {
+      // No-op: the database profile is the source of truth for staff access.
+    });
+    return jsonResponse(500, {
+      error: "The staff profile record could not be created.",
+    });
   }
 
   return jsonResponse(201, { message: "Staff account created." });

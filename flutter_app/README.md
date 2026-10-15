@@ -36,7 +36,7 @@ Deploy the account-creation function with the Supabase CLI, linked to the same
 project:
 
 ```powershell
-supabase functions deploy create-staff-user --project-ref lpxuuzfgiggsyhdbsucv
+supabase functions deploy create-staff-user --project-ref axiyxffuagraoydvzicr
 ```
 
 The function uses Supabase's server-side `SUPABASE_SERVICE_ROLE_KEY` environment
