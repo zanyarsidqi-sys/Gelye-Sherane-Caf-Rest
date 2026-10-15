@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'cafe_workspace_repository.dart';
+
 const _navy = Color(0xFF09243A);
 const _deepNavy = Color(0xFF061A2B);
 const _gold = Color(0xFFD6AA57);
@@ -1444,6 +1446,299 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   String? _selectedSubcard;
   bool _isSigningOut = false;
   String? _signOutError;
+  CafeWorkspaceRepository? _workspaceRepository;
+  RealtimeChannel? _workspaceChannel;
+  List<CafeWorkspaceRecord> _workspaceRecords = const [];
+  bool _isLoadingRecords = true;
+  bool _isFetchingRecords = false;
+  String? _workspaceError;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_connectWorkspace());
+  }
+
+  @override
+  void dispose() {
+    final channel = _workspaceChannel;
+    final repository = _workspaceRepository;
+    if (channel != null && repository != null) {
+      unawaited(repository.removeChannel(channel));
+    }
+    super.dispose();
+  }
+
+  Future<void> _connectWorkspace() async {
+    if (!_hasValidSupabaseConfiguration) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingRecords = false;
+        _workspaceError =
+            'Supabase is not configured with a valid project URL and key.';
+      });
+      return;
+    }
+    try {
+      final repository = CafeWorkspaceRepository(
+        Supabase.instance.client,
+      );
+      _workspaceRepository = repository;
+      _workspaceChannel = repository.subscribe(() {
+        unawaited(_loadWorkspaceRecords());
+      });
+      await _loadWorkspaceRecords();
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingRecords = false;
+        _workspaceError = 'Supabase is not configured for this app: $exception';
+      });
+    }
+  }
+
+  Future<void> _loadWorkspaceRecords() async {
+    final repository = _workspaceRepository;
+    if (repository == null || _isFetchingRecords) return;
+    _isFetchingRecords = true;
+    if (mounted) {
+      setState(() {
+        _isLoadingRecords = true;
+        _workspaceError = null;
+      });
+    }
+    try {
+      final records = await repository.fetchRecords();
+      if (!mounted) return;
+      setState(() {
+        _workspaceRecords = records;
+        _workspaceError = null;
+      });
+    } on PostgrestException catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _workspaceError =
+            'Live records could not be loaded (${exception.code ?? 'unknown'}): '
+            '${exception.message}';
+      });
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _workspaceError = 'Live records could not be loaded: $exception';
+      });
+    } finally {
+      _isFetchingRecords = false;
+      if (mounted) setState(() => _isLoadingRecords = false);
+    }
+  }
+
+  List<CafeWorkspaceRecord> _recordsFor(
+    String sectionKey,
+    String subcardKey,
+  ) =>
+      _workspaceRecords
+          .where(
+            (record) =>
+                record.sectionKey == sectionKey &&
+                record.subcardKey == subcardKey,
+          )
+          .toList(growable: false);
+
+  String _connectionLabel(String sectionKey, String subcardKey) {
+    if (_workspaceError != null) return 'Unavailable';
+    if (_isLoadingRecords) return 'Connecting...';
+    final count = _recordsFor(sectionKey, subcardKey).length;
+    return count == 0
+        ? 'Connected · no records'
+        : 'Connected · $count record${count == 1 ? '' : 's'}';
+  }
+
+  Future<void> _createWorkspaceRecord(
+    ({String key, IconData icon, String title, String description}) section,
+    String subcard,
+  ) async {
+    final repository = _workspaceRepository;
+    if (repository == null) {
+      setState(() {
+        _workspaceError = 'The live Supabase service is not available.';
+      });
+      return;
+    }
+
+    final formKey = GlobalKey<FormState>();
+    final titleController = TextEditingController();
+    final detailsController = TextEditingController();
+    final amountController = TextEditingController();
+    var error = '';
+    var submitting = false;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Add $subcard record'),
+          content: SizedBox(
+            width: 460,
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: titleController,
+                    maxLength: 160,
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Enter a title'
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: detailsController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Details',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: amountController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount (optional, IQD)',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) return null;
+                      return double.tryParse(value.trim()) == null
+                          ? 'Enter a valid amount'
+                          : null;
+                    },
+                  ),
+                  if (error.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    _AuthErrorMessage(error),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: submitting
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: submitting
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setDialogState(() {
+                        submitting = true;
+                        error = '';
+                      });
+                      try {
+                        await repository.createRecord(
+                          sectionKey: section.key,
+                          subcardKey: _permissionSlug(subcard),
+                          title: titleController.text.trim(),
+                          details: detailsController.text.trim(),
+                          amount: amountController.text.trim().isEmpty
+                              ? null
+                              : double.parse(amountController.text.trim()),
+                        );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop(true);
+                        }
+                      } on Exception catch (exception) {
+                        if (dialogContext.mounted) {
+                          setDialogState(() {
+                            error =
+                                'Record was not saved. Check your section '
+                                'permission and connection, then retry. $exception';
+                            submitting = false;
+                          });
+                        }
+                      }
+                    },
+              child: submitting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save record'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    titleController.dispose();
+    detailsController.dispose();
+    amountController.dispose();
+    if (result == true) await _loadWorkspaceRecords();
+  }
+
+  Future<void> _updateRecordStatus(
+    CafeWorkspaceRecord record,
+    String status,
+  ) async {
+    final repository = _workspaceRepository;
+    if (repository == null) return;
+    try {
+      await repository.updateStatus(recordId: record.id, status: status);
+      await _loadWorkspaceRecords();
+    } on Exception catch (exception) {
+      if (mounted) {
+        setState(() {
+          _workspaceError = 'Could not update this record: $exception';
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteWorkspaceRecord(CafeWorkspaceRecord record) async {
+    final repository = _workspaceRepository;
+    if (repository == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete record?'),
+        content: Text('Delete "${record.title}"? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await repository.deleteRecord(record.id);
+      await _loadWorkspaceRecords();
+    } on Exception catch (exception) {
+      if (mounted) {
+        setState(() {
+          _workspaceError = 'Could not delete this record: $exception';
+        });
+      }
+    }
+  }
 
   Future<void> _signOut() async {
     setState(() {
@@ -1785,6 +2080,22 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         foregroundColor: Colors.white,
         title: const Text('Gelye Sherane · Management System'),
         actions: [
+          IconButton(
+            tooltip: 'Refresh live records',
+            onPressed: _isLoadingRecords
+                ? null
+                : () => unawaited(_loadWorkspaceRecords()),
+            icon: _isLoadingRecords
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.refresh),
+          ),
           if (_hasSectionAccess(8))
             IconButton(
               tooltip: 'Notifications',
@@ -2057,30 +2368,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         if (widget.permissionsLoadError != null ||
             (widget.role == 'staff' && widget.grantedPermissions.isEmpty))
           const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFF5E2),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFEBD7AC)),
-          ),
-          child: const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.info_outline, color: _ink),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Preview only: operational data tables and secure services '
-                  'are not available in this Supabase project yet. No live '
-                  'values or management actions are available here.',
-                  style: TextStyle(color: _ink, height: 1.45),
-                ),
-              ),
-            ],
-          ),
-        ),
+        _workspaceConnectionBanner(),
         const SizedBox(height: 20),
         if (subcard == null)
           _sectionSubcardGrid(index)
@@ -2092,6 +2380,53 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           style: const TextStyle(color: _muted, fontSize: 13),
         ),
       ],
+    );
+  }
+
+  Widget _workspaceConnectionBanner() {
+    final connected = _workspaceError == null && !_isLoadingRecords;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: connected
+            ? const Color(0xFFEAF5EC)
+            : const Color(0xFFFFF1DD),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: connected
+              ? const Color(0xFFB8D9BD)
+              : const Color(0xFFEBD7AC),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            connected ? Icons.cloud_done_outlined : Icons.cloud_off_outlined,
+            color: connected ? const Color(0xFF27753A) : _ink,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _isLoadingRecords
+                  ? 'Connecting to live Supabase records...'
+                  : _workspaceError ??
+                        'Connected to live Supabase records. Updates sync '
+                        'automatically across authorized sections.',
+              style: TextStyle(
+                color: connected ? const Color(0xFF215D30) : _ink,
+                height: 1.45,
+              ),
+            ),
+          ),
+          if (_workspaceError != null)
+            TextButton(
+              onPressed: () => unawaited(_loadWorkspaceRecords()),
+              child: const Text('Retry'),
+            ),
+        ],
+      ),
     );
   }
 
@@ -2138,8 +2473,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 5),
-                                const Text(
-                                  'Not connected',
+                                Text(
+                                  _connectionLabel(
+                                    _sections[sectionIndex].key,
+                                    _permissionSlug(subcard),
+                                  ),
                                   style: TextStyle(
                                     color: _muted,
                                     fontSize: 12,
@@ -2170,21 +2508,29 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             : 'Dashboard cards are unavailable until permissions can be loaded.',
       );
     }
-    final revenue = assignedCards.contains(_subcards.first.first)
+    final revenueCard = assignedCards.contains(_subcards.first.first)
         ? _subcards.first.first
         : null;
+    final revenueRecords = _recordsFor(
+      'dashboard',
+      _permissionSlug(_subcards.first.first),
+    );
+    final revenue = revenueRecords.fold<double>(
+      0,
+      (total, record) => total + (record.amount ?? 0),
+    );
     final operationalCards = assignedCards.where(
-      (card) => card != revenue,
+      (card) => card != revenueCard,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (revenue != null)
+        if (revenueCard != null)
           Card(
           color: _deepNavy,
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: () => setState(() => _selectedSubcard = revenue),
+            onTap: () => setState(() => _selectedSubcard = revenueCard),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -2202,13 +2548,20 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           ),
                         ),
                       ),
-                      _statusPill('Not connected'),
+                      _statusPill(
+                        _connectionLabel(
+                          'dashboard',
+                          _permissionSlug(revenueCard),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    '— IQD',
-                    style: TextStyle(
+                  Text(
+                    _workspaceError == null && !_isLoadingRecords
+                        ? '${revenue.toStringAsFixed(0)} IQD'
+                        : '— IQD',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 30,
                       fontWeight: FontWeight.w700,
@@ -2216,8 +2569,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'Live totals will appear when the authorized reporting '
-                    'service is available.',
+                    'Total of tracked Today Revenue records. It excludes '
+                    'unrecorded sales and card-processor transactions.',
                     style: TextStyle(color: Colors.white70, height: 1.4),
                   ),
                   const SizedBox(height: 8),
@@ -2244,7 +2597,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           ),
           ),
-        if (revenue != null) const SizedBox(height: 16),
+        if (revenueCard != null) const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
             final columnCount = constraints.maxWidth >= 560 ? 2 : 1;
@@ -2271,14 +2624,26 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             color: const Color(0xFFFFF1DD),
             borderRadius: BorderRadius.circular(14),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Color(0xFF9A5B00)),
-              SizedBox(width: 10),
+              Icon(
+                _workspaceError == null
+                    ? Icons.cloud_done_outlined
+                    : Icons.warning_amber_rounded,
+                color: _workspaceError == null
+                    ? const Color(0xFF27753A)
+                    : const Color(0xFF9A5B00),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Operational data is not connected. No live alerts are shown.',
-                  style: TextStyle(color: _ink, fontWeight: FontWeight.w600),
+                  _workspaceError ??
+                      'Live records are shared across the workspace. '
+                          'No card processor is connected.',
+                  style: const TextStyle(
+                    color: _ink,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -2333,9 +2698,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Not connected',
-                      style: TextStyle(color: _muted, fontSize: 12),
+                    Text(
+                      _connectionLabel(
+                        'dashboard',
+                        _permissionSlug(title),
+                      ),
+                      style: const TextStyle(color: _muted, fontSize: 12),
                     ),
                   ],
                 ),
@@ -2366,6 +2734,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     ({String key, IconData icon, String title, String description}) section,
     String subcard,
   ) {
+    final subcardKey = _permissionSlug(subcard);
+    final records = _recordsFor(section.key, subcardKey);
+    final canManage =
+        widget.role == 'admin' ||
+        widget.grantedPermissions.contains('${section.key}:*') ||
+        widget.grantedPermissions.contains('${section.key}:$subcardKey');
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -2384,13 +2758,121 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'This management area is specified, but its live data source, '
-            'permissions, and operational actions are not implemented yet. '
-            'No changes have been made.',
-            style: TextStyle(color: _muted, height: 1.5),
+          Text(
+            _workspaceError ??
+                'Live Supabase records for this card. Records and status '
+                    'changes are visible to users authorized for this card.',
+            style: const TextStyle(color: _muted, height: 1.5),
           ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Chip(
+                avatar: Icon(
+                  _workspaceError == null
+                      ? Icons.cloud_done_outlined
+                      : Icons.cloud_off_outlined,
+                  size: 18,
+                ),
+                label: Text(_connectionLabel(section.key, subcardKey)),
+              ),
+              if (canManage)
+                FilledButton.icon(
+                  onPressed: _isLoadingRecords
+                      ? null
+                      : () => _createWorkspaceRecord(section, subcard),
+                  icon: const Icon(Icons.add),
+                  label: Text('Add $subcard record'),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (_workspaceError != null)
+            _AuthErrorMessage(_workspaceError!)
+          else if (_isLoadingRecords)
+            const Center(child: CircularProgressIndicator())
+          else if (records.isEmpty)
+            const Text(
+              'No records yet. Add the first record to start tracking this card.',
+              style: TextStyle(color: _muted),
+            )
+          else
+            for (final record in records) _workspaceRecordTile(record),
         ],
+      ),
+    );
+  }
+
+  Widget _workspaceRecordTile(CafeWorkspaceRecord record) {
+    return Card(
+      key: ValueKey('workspace-record-${record.id}'),
+      margin: const EdgeInsets.only(top: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    record.title,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                if (record.amount != null)
+                  Text(
+                    '${record.amount!.toStringAsFixed(2)} ${record.currency}',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                IconButton(
+                  tooltip: 'Delete ${record.title}',
+                  onPressed: () => _deleteWorkspaceRecord(record),
+                  icon: const Icon(Icons.delete_outline),
+                ),
+              ],
+            ),
+            if (record.details.isNotEmpty) Text(record.details),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Updated ${record.updatedAt.toLocal().toString().substring(0, 16)}',
+                    style: const TextStyle(color: _muted, fontSize: 12),
+                  ),
+                ),
+                DropdownButton<String>(
+                  value: record.status,
+                  underline: const SizedBox.shrink(),
+                  items: const [
+                    DropdownMenuItem(value: 'open', child: Text('Open')),
+                    DropdownMenuItem(
+                      value: 'in_progress',
+                      child: Text('In progress'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'completed',
+                      child: Text('Completed'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'cancelled',
+                      child: Text('Cancelled'),
+                    ),
+                  ],
+                  onChanged: (status) {
+                    if (status != null && status != record.status) {
+                      unawaited(_updateRecordStatus(record, status));
+                    }
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
