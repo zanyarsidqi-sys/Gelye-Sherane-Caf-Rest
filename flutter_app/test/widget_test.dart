@@ -17,7 +17,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Gelye Sherane · Management System'), findsOneWidget);
+    expect(find.text('Gelye Sherane'), findsOneWidget);
+    expect(find.text('Workspace'), findsOneWidget);
     expect(find.text('Dashboard'), findsWidgets);
     expect(find.text('Tables & Orders'), findsWidgets);
     expect(find.text('Staff Management'), findsWidgets);
@@ -119,10 +120,61 @@ void main() {
     }
   });
 
+  testWidgets('every management section opens without layout exceptions', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const sectionTitles = [
+      'Dashboard',
+      'Tables & Orders',
+      'Payment Management',
+      'Menu Management',
+      'Kitchen Management',
+      'Motel & Online Orders',
+      'Inventory Management',
+      'Staff Management',
+      'Customer Management',
+      'Reservations Management',
+      'Settings Management',
+      'Notifications Management',
+      'Statistics Management',
+      'Maintenance Management',
+      'Operations Management',
+      'Devices & Printing Management',
+      'Security & Audit Management',
+      'System Health & Updates',
+      'Shisha Management',
+      'Delivery Management',
+      'Marketing Management',
+      'Customer Feedback Management',
+      'Staff & Operations Management',
+      'Reports Management',
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (var index = 0; index < sectionTitles.length; index++) {
+      final section = find.byKey(ValueKey('management-section-$index'));
+      expect(section, findsOneWidget, reason: sectionTitles[index]);
+      await tester.tap(section);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: sectionTitles[index]);
+    }
+  });
+
   testWidgets('staff dashboard shows only assigned sections and cards', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1440, 1200);
+    tester.view.physicalSize = const Size(1440, 1900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -266,13 +318,13 @@ void main() {
 
     expect(revenueCard, findsOneWidget);
     expect(cashCard, findsOneWidget);
-    expect(tester.getSize(revenueCard), tester.getSize(cashCard));
-    expect(tester.getSize(revenueCard).width, lessThan(150));
-    expect(tester.widget<Card>(revenueCard).color, isNot(Colors.white));
-    expect(tester.widget<Card>(cashCard).color, isNot(Colors.white));
+    expect(tester.getSize(revenueCard).height, tester.getSize(cashCard).height);
+    expect(tester.getSize(revenueCard).width, lessThan(200));
+    expect(tester.widget<Card>(revenueCard).color, Colors.white);
+    expect(tester.widget<Card>(cashCard).color, Colors.white);
     expect(tester.getSize(revenueCard).height, 118);
+    expect(find.text('Today at a glance'), findsOneWidget);
     expect(find.text('Payments & Finance'), findsOneWidget);
-    expect(find.text('Tables & Reservations'), findsOneWidget);
     expect(find.text('Reports, Settings & Security'), findsOneWidget);
     expect(find.textContaining('· Today'), findsOneWidget);
     expect(find.text('Café & Restaurant · Management'), findsOneWidget);
@@ -345,7 +397,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(dashboardCardSize.width, lessThan(150));
+      expect(dashboardCardSize.width, lessThan(200));
       for (final title in [
         'Live Tables',
         'Add / Edit Tables',

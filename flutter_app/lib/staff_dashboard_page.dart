@@ -3036,109 +3036,222 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.sizeOf(context).width >= 900;
+    final isWide = MediaQuery.sizeOf(context).width >= 760;
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF5F7FB),
       drawer: Drawer(child: _navigationPanel()),
       bottomNavigationBar: isWide ? null : _mobileNavigationBar(),
-      appBar: AppBar(
-        backgroundColor: _deepNavy,
-        foregroundColor: Colors.white,
-        title: MediaQuery.sizeOf(context).width < 600
-            ? const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Gelye Sherane',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-                  ),
-                  Text(
-                    'Café & Restaurant · Management',
-                    style: TextStyle(fontSize: 11, color: Color(0xFFD8E2F0)),
-                  ),
-                ],
-              )
-            : const Text('Gelye Sherane · Management System'),
-        actions: [
-          IconButton(
-            tooltip: 'Refresh live records',
-            onPressed: _isLoadingRecords
-                ? null
-                : () => unawaited(_loadWorkspaceRecords()),
-            icon: _isLoadingRecords
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.refresh),
-          ),
-          if (_hasSectionAccess(11))
-            IconButton(
-              tooltip: 'Notifications',
-              onPressed: () => setState(() {
-                _selectedIndex = 11;
-                _selectedSubcard = null;
-              }),
-              icon: const Icon(Icons.notifications_none_outlined),
-            ),
-          if (widget.role == 'admin')
-            IconButton(
-              tooltip: 'Employee workspace',
-              onPressed: () => setState(() {
-                _selectedIndex = 7;
-                _selectedSubcard = null;
-              }),
-              icon: const Icon(Icons.groups_outlined),
-            ),
-          if (MediaQuery.sizeOf(context).width >= 600)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Center(
-                child: Text(
-                  '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
-                  style: const TextStyle(fontSize: 13),
+      appBar: isWide
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white,
+              foregroundColor: _ink,
+              surfaceTintColor: Colors.white,
+              elevation: 0,
+              shape: const Border(bottom: BorderSide(color: Color(0xFFE4EAF1))),
+              title: MediaQuery.sizeOf(context).width < 600
+                  ? const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Gelye Sherane',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          'Café & Restaurant · Management',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFFD8E2F0),
+                          ),
+                        ),
+                      ],
+                    )
+                  : const Text('Gelye Sherane · Management System'),
+              actions: [
+                IconButton(
+                  tooltip: 'Refresh live records',
+                  onPressed: _isLoadingRecords
+                      ? null
+                      : () => unawaited(_loadWorkspaceRecords()),
+                  icon: _isLoadingRecords
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.refresh),
                 ),
-              ),
-            ),
-          IconButton(
-            tooltip: 'Sign out',
-            onPressed: _isSigningOut ? null : _signOut,
-            icon: _isSigningOut
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
+                if (_hasSectionAccess(11))
+                  IconButton(
+                    tooltip: 'Notifications',
+                    onPressed: () => setState(() {
+                      _selectedIndex = 11;
+                      _selectedSubcard = null;
+                    }),
+                    icon: const Icon(Icons.notifications_none_outlined),
+                  ),
+                if (widget.role == 'admin')
+                  IconButton(
+                    tooltip: 'Employee workspace',
+                    onPressed: () => setState(() {
+                      _selectedIndex = 7;
+                      _selectedSubcard = null;
+                    }),
+                    icon: const Icon(Icons.groups_outlined),
+                  ),
+                if (MediaQuery.sizeOf(context).width >= 600)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Center(
+                      child: Text(
+                        '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
+                        style: const TextStyle(fontSize: 13),
+                      ),
                     ),
-                  )
-                : const Icon(Icons.logout),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
+                  ),
+                IconButton(
+                  tooltip: 'Sign out',
+                  onPressed: _isSigningOut ? null : _signOut,
+                  icon: _isSigningOut
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.logout),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final showSidebar = constraints.maxWidth >= 900;
+          final showSidebar = constraints.maxWidth >= 760;
           final sectionContent = _sectionContent(_selectedIndex);
           if (showSidebar) {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(width: 280, child: _navigationPanel()),
-                const VerticalDivider(width: 1),
-                Expanded(child: _contentArea(sectionContent)),
+                SizedBox(width: 248, child: _navigationPanel()),
+                Expanded(
+                  child: Column(
+                    children: [
+                      _desktopTopbar(),
+                      Expanded(child: _contentArea(sectionContent)),
+                    ],
+                  ),
+                ),
               ],
             );
           }
           return _contentArea(sectionContent);
         },
+      ),
+    );
+  }
+
+  Widget _desktopTopbar() {
+    return Container(
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFE4EAF1))),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            if (constraints.maxWidth >= 600) ...[
+              const Text('Workspace', style: TextStyle(color: _muted)),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Icon(Icons.chevron_right, color: Color(0xFF9AA6B5)),
+              ),
+            ],
+            Expanded(
+              child: Text(
+                _sections[_selectedIndex].title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: _ink,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            if (constraints.maxWidth >= 760)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      _workspaceError == null
+                          ? Icons.circle
+                          : Icons.error_outline,
+                      size: 8,
+                      color: _workspaceError == null
+                          ? const Color(0xFF16814A)
+                          : const Color(0xFFB42318),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _workspaceError == null ? 'Live data' : 'Unavailable',
+                      style: const TextStyle(color: _muted, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            IconButton(
+              tooltip: 'Refresh live records',
+              onPressed: _isLoadingRecords
+                  ? null
+                  : () => unawaited(_loadWorkspaceRecords()),
+              icon: const Icon(Icons.refresh),
+            ),
+            if (_hasSectionAccess(11))
+              IconButton(
+                tooltip: 'Notifications',
+                onPressed: () => setState(() {
+                  _selectedIndex = 11;
+                  _selectedSubcard = null;
+                }),
+                icon: const Icon(Icons.notifications_none_outlined),
+              ),
+            if (widget.role == 'admin' && constraints.maxWidth >= 600)
+              IconButton(
+                tooltip: 'Employee workspace',
+                onPressed: () => setState(() {
+                  _selectedIndex = 7;
+                  _selectedSubcard = null;
+                }),
+                icon: const Icon(Icons.groups_outlined),
+              ),
+            if (constraints.maxWidth >= 960)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
+                  style: const TextStyle(color: _muted, fontSize: 11),
+                ),
+              ),
+            IconButton(
+              tooltip: 'Sign out',
+              onPressed: _isSigningOut ? null : _signOut,
+              icon: const Icon(Icons.logout),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -3346,7 +3459,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         ),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
+            constraints: const BoxConstraints(maxWidth: 1540),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -3376,21 +3489,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             icon: const Icon(Icons.arrow_back),
             label: Text('Back to ${section.title}'),
           ),
-        Text(
-          subcard ??
-              (index == 0
-                  ? (widget.role == 'admin'
-                        ? 'Administrator Dashboard'
-                        : 'Staff Dashboard')
-                  : index == 2
-                  ? 'Payments & Finance'
-                  : section.title),
-          style: TextStyle(
-            fontSize: MediaQuery.sizeOf(context).width < 600 ? 24 : 30,
-            fontWeight: FontWeight.w700,
-            color: _ink,
+        if (index != 0 || subcard != null)
+          Text(
+            subcard ?? (index == 2 ? 'Payments & Finance' : section.title),
+            style: TextStyle(
+              fontSize: MediaQuery.sizeOf(context).width < 600 ? 24 : 30,
+              fontWeight: FontWeight.w700,
+              color: _ink,
+            ),
           ),
-        ),
         const SizedBox(height: 8),
         if (index == 2)
           Text(
@@ -3605,6 +3712,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _dashboardLayout() {
     final assignedCards = _visibleSubcards(0);
+    const glanceCandidates = [
+      'Today Revenue',
+      'Tables Occupied',
+      'Kitchen Orders',
+      'Pending Payment',
+    ];
+    final glanceCards = glanceCandidates
+        .where(assignedCards.contains)
+        .toList(growable: false);
     if (assignedCards.isEmpty) {
       return Text(
         widget.permissionsLoadError == null
@@ -3615,12 +3731,122 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dateRangeControls(),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final pageHeading = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Operational overview',
+                  style: TextStyle(
+                    color: Color(0xFF2463EB),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  'Dashboard',
+                  style: TextStyle(
+                    color: _navy,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'A clear view of today’s service, team and priorities.',
+                  style: TextStyle(color: _muted, fontSize: 13),
+                ),
+              ],
+            );
+            final pageActions = Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _isLoadingRecords
+                      ? null
+                      : () => unawaited(_loadWorkspaceRecords()),
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: const Text('Refresh'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _ink,
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFE4EAF1)),
+                  ),
+                ),
+                _dateRangeControls(),
+              ],
+            );
+            if (constraints.maxWidth < 760) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  pageHeading,
+                  const SizedBox(height: 12),
+                  pageActions,
+                ],
+              );
+            }
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(child: pageHeading),
+                pageActions,
+              ],
+            );
+          },
+        ),
         const SizedBox(height: 12),
+        if (glanceCards.isNotEmpty) ...[
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Today at a glance',
+                      style: TextStyle(
+                        color: _navy,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Values are based only on saved workspace records.',
+                      style: TextStyle(color: _muted, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) => _compactMetricGrid(
+              sectionIndex: 0,
+              titles: glanceCards,
+              height: constraints.maxWidth < 520 ? 118 : 150,
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
         for (final group in _dashboardGroups)
           _dashboardGroup(
             group,
-            assignedCards.where(group.cards.contains).toList(growable: false),
+            assignedCards
+                .where(
+                  (title) =>
+                      group.cards.contains(title) &&
+                      !glanceCards.contains(title),
+                )
+                .toList(growable: false),
           ),
         const SizedBox(height: 16),
         Container(
@@ -3804,17 +4030,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
           backgroundColor: Colors.white,
-          collapsedBackgroundColor: group.tint.withValues(alpha: 0.55),
+          collapsedBackgroundColor: Colors.white,
           title: Row(
             children: [
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: group.iconColor,
+                  color: group.tint,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(group.icon, color: Colors.white, size: 20),
+                child: Icon(group.icon, color: group.iconColor, size: 20),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -4031,10 +4257,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth < 460
-            ? 3
-            : constraints.maxWidth < 760
-            ? 3
+        final columns = constraints.maxWidth < 820
+            ? 2
             : constraints.maxWidth < 1120
             ? 3
             : 4;
@@ -4066,15 +4290,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     required String title,
     required int index,
   }) {
-    const colors = [
-      (background: Color(0xFFEAF8F0), accent: Color(0xFF17864D)),
-      (background: Color(0xFFFFF5DC), accent: Color(0xFFC77A12)),
-      (background: Color(0xFFFFEDF1), accent: Color(0xFFD7355D)),
-      (background: Color(0xFFF2EAFE), accent: Color(0xFF7436C8)),
-      (background: Color(0xFFEAF4FF), accent: Color(0xFF2463D3)),
-      (background: Color(0xFFE5F8F7), accent: Color(0xFF148A8F)),
-    ];
-    final palette = colors[index % colors.length];
+    const palette = (background: Colors.white, accent: Color(0xFF2463EB));
     final section = _sections[sectionIndex];
     final records = _recordsInSelectedRange(
       _recordsFor(section.key, _permissionSlug(title)),
@@ -4115,7 +4331,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: palette.accent.withValues(alpha: 0.12)),
+        side: const BorderSide(color: Color(0xFFE4EAF1)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -4140,7 +4356,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: palette.accent.withValues(alpha: 0.12),
+                      color: const Color(0xFFEEF3FB),
                       borderRadius: BorderRadius.circular(9),
                     ),
                     child: Icon(
@@ -5022,20 +5238,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isRevenueCard = sectionIndex == 0 && title == _subcards.first.first;
     final subcardKey = _permissionSlug(title);
     final records = _recordsFor(section.key, subcardKey);
-    const cardPalettes = [
-      (background: Color(0xFFE0F6EF), accent: Color(0xFF12805B)),
-      (background: Color(0xFFE6F0FF), accent: Color(0xFF2363D4)),
-      (background: Color(0xFFF1E8FF), accent: Color(0xFF7638BC)),
-      (background: Color(0xFFFFF0DC), accent: Color(0xFFB75B11)),
-      (background: Color(0xFFE4F5F5), accent: Color(0xFF117D84)),
-      (background: Color(0xFFFFEAF0), accent: Color(0xFFD7355D)),
-    ];
-    final paletteTitles =
-        _featuredSectionCards[sectionIndex] ?? _subcards[sectionIndex];
-    final paletteIndex = paletteTitles.indexOf(title);
-    final palette =
-        cardPalettes[(paletteIndex < 0 ? 0 : paletteIndex) %
-            cardPalettes.length];
+    const palette = (background: Colors.white, accent: Color(0xFF2463EB));
     final recordCountLabel = _isLoadingRecords
         ? 'Connecting...'
         : _workspaceError != null
@@ -5063,7 +5266,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: palette.accent.withValues(alpha: 0.14)),
+          side: const BorderSide(color: Color(0xFFE4EAF1)),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -5083,7 +5286,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       width: 34,
                       height: 34,
                       decoration: BoxDecoration(
-                        color: palette.accent.withValues(alpha: 0.12),
+                        color: const Color(0xFFEEF3FB),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
