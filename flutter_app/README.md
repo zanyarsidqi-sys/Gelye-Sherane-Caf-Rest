@@ -134,9 +134,12 @@ supabase/migrations/20261016000000_expand_management_section_permissions.sql
 After the base workspace migrations and permission expansion, apply
 `supabase/migrations/20261016010000_cafe_dining_tables.sql` to create the
 dedicated dining-table store, row-level security policies, audit capture, and
-Realtime publication. The Add / Edit Tables permission controls table writes;
-the Table Overview and map permissions provide read-only access. Apply this
-migration before deploying the UI that uses the floor map.
+Realtime publication. Apply
+`supabase/migrations/20261016020000_harden_cafe_dining_table_insert.sql` after
+it to have the database set table actor IDs and use the same MFA-protected
+permission check for inserts. The Add / Edit Tables permission controls table
+writes; the Table Overview and map permissions provide read-only access. Apply
+both migrations before deploying the UI that uses the floor map.
 
 Do not run the staff-profile review candidate. After the migration succeeds,
 deploy the account-creation function to the selected project with the Supabase

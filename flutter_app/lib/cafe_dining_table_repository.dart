@@ -60,7 +60,7 @@ class CafeDiningTableRepository {
     required double y,
   }) async {
     _validate(name: name, area: area, seats: seats, x: x, y: y);
-    final userId = _requireSignedIn();
+    _requireSignedIn();
     final row = await _client
         .from('cafe_dining_tables')
         .insert({
@@ -69,8 +69,6 @@ class CafeDiningTableRepository {
           'seats': seats,
           'position_x': x,
           'position_y': y,
-          'created_by': userId,
-          'updated_by': userId,
         })
         .select(_tableColumns)
         .single();
