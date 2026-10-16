@@ -65,10 +65,7 @@ class CafeApp extends StatelessWidget {
           displayColor: const Color(0xFF18283F),
         ),
       ),
-      home: const StaffDashboardPage(
-        email: 'admin@gelyesherane.local',
-        role: 'admin',
-      ),
+      home: const CafeLandingPage(),
     );
   }
 }

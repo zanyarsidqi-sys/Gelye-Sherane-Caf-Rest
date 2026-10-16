@@ -4,6 +4,14 @@ import 'package:gelye_sherane_cafe/main.dart';
 import 'package:gelye_sherane_cafe/staff_dashboard_page.dart';
 
 void main() {
+  testWidgets('app starts on the public landing page', (tester) async {
+    await tester.pumpWidget(const CafeApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('A taste to look forward to'), findsOneWidget);
+    expect(find.text('admin@gelyesherane.local'), findsNothing);
+  });
+
   testWidgets('shows the management redesign on first load', (tester) async {
     tester.view.physicalSize = const Size(1440, 2400);
     tester.view.devicePixelRatio = 1;
