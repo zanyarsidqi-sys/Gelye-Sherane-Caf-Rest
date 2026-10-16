@@ -234,6 +234,155 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('dashboard preserves legacy cards and stages the full catalog', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 2800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    const categories = [
+      'Today at a Glance',
+      'Payments & Finance',
+      'Tables & Reservations',
+      'Kitchen & Minibar',
+      'Orders & Customer Service',
+      'Employees & Operations',
+      'Inventory & Purchasing',
+      'Reports & System',
+    ];
+    for (final category in categories) {
+      expect(find.text(category), findsWidgets, reason: category);
+    }
+
+    const proposedCards = [
+      'Today Revenue',
+      'Tables Occupied',
+      'Kitchen Orders',
+      'Pending Payment',
+      'Today’s Orders',
+      'Today’s Customers',
+      'Motel Orders',
+      'Online & Walk-In Orders',
+      'Standing Cash',
+      'Invoices',
+      'Discounts',
+      'Credit Accounts',
+      'Cash Reconciliation',
+      'Cash Out — Owner',
+      'Cash & Payment Methods',
+      'Refunds & Adjustments',
+      'Daily Financial Summary',
+      'Expenses',
+      'Remaining Cash',
+      'Confirm Credit',
+      'Cash Received',
+      'Cash In',
+      'Pending Expenses',
+      'Accounts Payable',
+      'Accounts Receivable',
+      'Credit Collections',
+      'Credit Approval History',
+      'Cash Transfers',
+      'Expected vs Actual Cash',
+      'Financial Alerts',
+      'Live Tables',
+      'Table Reservations',
+      'Available Tables',
+      'Waiting List',
+      'Guest Check-In',
+      'Table Cleaning',
+      'Table Service Requests',
+      'Kitchen Live Board',
+      'Minibar Live Board',
+      'Orders Preparing',
+      'Ready for Delivery',
+      'Delayed Orders',
+      'Station Printers',
+      'Menu Availability',
+      'Table Orders',
+      'Motel Orders Tracking',
+      'Online Orders Tracking',
+      'Walk-In Orders Tracking',
+      'Customer Requests',
+      'Customer Feedback',
+      'Service Speed',
+      'Employee Attendance',
+      'Employee Assignments',
+      'Pending Staff Tasks',
+      'Staff Performance',
+      'Maintenance Requests',
+      'Notifications & Alerts',
+      'Inventory Overview',
+      'Low Stock Alerts',
+      'Purchase Requests',
+      'Pending Approvals',
+      'Supplier Deliveries',
+      'Inventory Waste',
+      'Sales Performance',
+      'Product Performance',
+      'Table Occupancy Reports',
+      'Audit & Activity History',
+      'System Health',
+      'Backup & Sync Status',
+      'Dashboard Personalization',
+    ];
+    expect(proposedCards, hasLength(70));
+    for (final title in proposedCards) {
+      expect(find.text(title), findsOneWidget, reason: title);
+    }
+
+    for (final legacyCard in [
+      'Today Orders',
+      'Guests Today',
+      'Tourism Customers',
+      'Table Map',
+      'Table Occupancy',
+      'Cleaning Needed',
+      'Reservations',
+      'Menu',
+      'Low Stock',
+      'Nargile Orders',
+      'Kitchen Queue',
+      'Online Orders',
+      'Takeaway & Delivery',
+      'Attendance',
+      'Customers',
+      'Employees',
+      'Tasks',
+      'Events',
+      'Feedback',
+      'Maintenance',
+      'Reports',
+      'Security',
+      'Backup',
+      'Offline Mode',
+      'Audit & Activity',
+      'Personalization',
+    ]) {
+      expect(find.text(legacyCard), findsOneWidget, reason: legacyCard);
+    }
+
+    final previewCard = find.text('Cash Out — Owner');
+    await tester.ensureVisible(previewCard);
+    await tester.tap(previewCard);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Design preview — not live'), findsOneWidget);
+    expect(find.textContaining('authoritative data source'), findsOneWidget);
+    expect(find.text('Add record'), findsNothing);
+    expect(find.text('Search Cash Out — Owner...'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('staff dashboard shows only assigned sections and cards', (
     tester,
   ) async {
@@ -386,9 +535,15 @@ void main() {
     expect(tester.widget<Card>(revenueCard).color, Colors.white);
     expect(tester.widget<Card>(cashCard).color, Colors.white);
     expect(tester.getSize(revenueCard).height, 118);
-    expect(find.text('Today at a glance'), findsOneWidget);
-    expect(find.text('Payments & Finance'), findsOneWidget);
-    expect(find.text('Reports, Settings & Security'), findsOneWidget);
+    expect(find.text('Today at a Glance'), findsWidgets);
+    expect(find.text('Payments & Finance'), findsWidgets);
+    expect(find.text('Reports & System'), findsWidgets);
+    final reportsTab = find.byKey(const ValueKey('dashboard-category-tab-7'));
+    expect(reportsTab, findsOneWidget);
+    await tester.ensureVisible(reportsTab);
+    await tester.tap(reportsTab);
+    await tester.pumpAndSettle();
+    expect(tester.widget<ChoiceChip>(reportsTab).selected, isTrue);
     expect(find.textContaining('· Today'), findsOneWidget);
     expect(find.text('Café & Restaurant · Management'), findsOneWidget);
   });

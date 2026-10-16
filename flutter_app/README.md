@@ -23,6 +23,13 @@ capture. This is a flexible record workspace, not a card processor or a
 substitute for importing existing cafe transactions; only data actually
 entered or imported is shown.
 
+The Dashboard presents the supplied eight-category, 70-card catalog and keeps
+all 40 pre-existing Dashboard cards and their permission keys available.
+Pre-existing cards continue to show only their saved generic workspace records;
+newly proposed cards without a verified authoritative source are labeled as
+design previews and do not show record counts or offer record-writing actions.
+Dashboard figures are not reconciled financial or operational totals.
+
 Sections 03–24 surface the reference-design card groups for Payments, Menu,
 Kitchen, Motel & Online Orders, Inventory, Staff, Customers, Reservations,
 Settings, Notifications, Maintenance, Operations, Statistics, Devices &

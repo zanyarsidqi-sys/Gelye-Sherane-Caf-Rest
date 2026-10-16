@@ -472,12 +472,10 @@ const _inventoryCardPurposes = <String, String>{
   'Stock Adjustments': 'Design preview for reviewed stock adjustments.',
   'Batch & Lot Tracking': 'Design preview for batch and lot traceability.',
   'Expiry Date Tracking': 'Review existing expiry and waste records.',
-  'Stock Count & Reconciliation':
-      'Review existing inventory count records.',
+  'Stock Count & Reconciliation': 'Review existing inventory count records.',
   'Barcode & SKU Management': 'Review existing search and barcode records.',
   'Stores & Branches': 'Design preview for inventory stores and branches.',
-  'Storage Locations & Bins':
-      'Design preview for storage locations and bins.',
+  'Storage Locations & Bins': 'Design preview for storage locations and bins.',
   'Transfer Stock': 'Design preview for inter-location stock transfers.',
   'Transfer Requests & Approvals':
       'Design preview for controlled transfer approvals.',
@@ -497,8 +495,7 @@ const _inventoryCardPurposes = <String, String>{
       'Design preview for ingredient and recipe stock links.',
   'Kitchen Consumption':
       'Design preview for approved kitchen stock consumption.',
-  'Minibar Drinks Inventory':
-      'Design preview for minibar beverage inventory.',
+  'Minibar Drinks Inventory': 'Design preview for minibar beverage inventory.',
   'Nargile Materials Inventory':
       'Design preview for Nargile material inventory.',
   'Automatic Consumption Rules':
@@ -2179,7 +2176,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 1) {
       return _canViewDiningTables ? const ['Add Table'] : const [];
     }
-    final sectionSubcards = sectionIndex == 3
+    final sectionSubcards = sectionIndex == 0
+        ? <String>{
+            for (final group in _dashboardGroups) ...group.cards,
+            ..._subcards[sectionIndex],
+          }.toList(growable: false)
+        : sectionIndex == 3
         ? <String>{
             for (final category in _menuManagementCategories) ...category.cards,
             ..._subcards[sectionIndex],
@@ -2207,10 +2209,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       return sectionSubcards;
     }
     if (sectionIndex == 6) {
-      bool hasCardPermission(String title) =>
-          widget.grantedPermissions.contains(
-            '$sectionKey:${_permissionSlug(title)}',
-          );
+      bool hasCardPermission(String title) => widget.grantedPermissions
+          .contains('$sectionKey:${_permissionSlug(title)}');
       return sectionSubcards
           .where((title) {
             final legacyTitle = _inventoryCardRouteTitles[title];
@@ -2240,6 +2240,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   int _selectedMotelOrdersCategory = 0;
   int _selectedInventoryCategory = 0;
   String _inventoryCardSearch = '';
+  int _selectedDashboardCategory = 0;
+  final List<GlobalKey> _dashboardCategoryKeys = List.generate(
+    8,
+    (_) => GlobalKey(),
+  );
   bool _isSigningOut = false;
   String? _signOutError;
   CafeWorkspaceRepository? _workspaceRepository;
@@ -4931,6 +4936,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _employeeManagementPanel(),
         ] else if (index == 2 && subcard != null)
           _financeDetail(section, subcard)
+        else if (index == 0 &&
+            subcard != null &&
+            !_subcards[0].contains(subcard))
+          _dashboardCardDesignDetail(subcard)
         else if (index == 1 && subcard != null)
           _tablesChairsCardDetail(section, subcard)
         else if (index == 3 &&
@@ -4982,7 +4991,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               _menuCardPurposes[subcard] ??
               _kitchenCardPurposes[subcard] ??
               _sectionCardDescriptions[subcard] ??
-              'Live workspace records for $subcard.';
+              (section.key == 'dashboard'
+                  ? 'Dashboard preview; its live source is not verified.'
+                  : 'Live workspace records for $subcard.');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -5555,9 +5566,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         .where((title) {
           if (query.isEmpty) return true;
           return title.toLowerCase().contains(query) ||
-              (_inventoryCardPurposes[title] ?? '')
-                  .toLowerCase()
-                  .contains(query);
+              (_inventoryCardPurposes[title] ?? '').toLowerCase().contains(
+                query,
+              );
         })
         .toList(growable: false);
     final categoryCounts = [
@@ -5835,10 +5846,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: theme.colorScheme.primary,
-                ),
+                Icon(Icons.info_outline, color: theme.colorScheme.primary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -6883,15 +6891,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _dashboardLayout() {
     final assignedCards = _visibleSubcards(0);
-    const glanceCandidates = [
-      'Today Revenue',
-      'Tables Occupied',
-      'Kitchen Orders',
-      'Pending Payment',
-    ];
-    final glanceCards = glanceCandidates
-        .where(assignedCards.contains)
+    List<String> cardsForGroup(int index) => assignedCards
+        .where(_dashboardGroups[index].cards.contains)
         .toList(growable: false);
+    final visibleGroupIndices = [
+      for (var index = 0; index < _dashboardGroups.length; index++)
+        if (cardsForGroup(index).isNotEmpty) index,
+    ];
     if (assignedCards.isEmpty) {
       return Text(
         widget.permissionsLoadError == null
@@ -6972,53 +6978,61 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           },
         ),
         const SizedBox(height: 12),
-        if (glanceCards.isNotEmpty) ...[
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Today at a glance',
-                      style: TextStyle(
-                        color: _navy,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final mobile = constraints.maxWidth < 760;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (mobile && visibleGroupIndices.length > 1) ...[
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final index in visibleGroupIndices) ...[
+                          if (index != visibleGroupIndices.first)
+                            const SizedBox(width: 8),
+                          ChoiceChip(
+                            key: ValueKey('dashboard-category-tab-$index'),
+                            avatar: Icon(
+                              _dashboardGroups[index].icon,
+                              size: 17,
+                            ),
+                            label: Text(_dashboardGroups[index].title),
+                            selected: _selectedDashboardCategory == index,
+                            onSelected: (_) {
+                              setState(
+                                () => _selectedDashboardCategory = index,
+                              );
+                              final targetContext =
+                                  _dashboardCategoryKeys[index].currentContext;
+                              if (targetContext != null) {
+                                unawaited(
+                                  Scrollable.ensureVisible(
+                                    targetContext,
+                                    alignment: 0.08,
+                                    duration: const Duration(milliseconds: 250),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ],
                     ),
-                    SizedBox(height: 3),
-                    Text(
-                      'Values are based only on saved workspace records.',
-                      style: TextStyle(color: _muted, fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          LayoutBuilder(
-            builder: (context, constraints) => _compactMetricGrid(
-              sectionIndex: 0,
-              titles: glanceCards,
-              height: constraints.maxWidth < 520 ? 118 : 150,
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-        for (final group in _dashboardGroups)
-          _dashboardGroup(
-            group,
-            assignedCards
-                .where(
-                  (title) =>
-                      group.cards.contains(title) &&
-                      !glanceCards.contains(title),
-                )
-                .toList(growable: false),
-          ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                for (final index in visibleGroupIndices)
+                  _dashboardGroup(
+                    index: index,
+                    group: _dashboardGroups[index],
+                    visibleCards: cardsForGroup(index),
+                  ),
+              ],
+            );
+          },
+        ),
         const SizedBox(height: 16),
         Container(
           width: double.infinity,
@@ -7041,7 +7055,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               Expanded(
                 child: Text(
                   _workspaceError ??
-                      'Live records are shared across the workspace. '
+                      'Existing cards show saved workspace records only. '
+                          'Proposed dashboard cards are design previews until '
+                          'their authoritative source integrations are verified. '
                           'No card processor is connected.',
                   style: const TextStyle(
                     color: _ink,
@@ -7087,18 +7103,49 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   static const _dashboardGroups = [
     (
+      title: 'Today at a Glance',
+      icon: Icons.dashboard_outlined,
+      tint: Color(0xFFE9EFFD),
+      iconColor: Color(0xFF3562B5),
+      cards: [
+        'Today Revenue',
+        'Tables Occupied',
+        'Kitchen Orders',
+        'Pending Payment',
+        'Today’s Orders',
+        'Today’s Customers',
+        'Motel Orders',
+        'Online & Walk-In Orders',
+      ],
+    ),
+    (
       title: 'Payments & Finance',
       icon: Icons.payments_outlined,
       tint: Color(0xFFDDF7EC),
       iconColor: Color(0xFF138052),
       cards: [
-        'Today Revenue',
         'Standing Cash',
-        'Pending Payment',
         'Invoices',
         'Discounts',
         'Credit Accounts',
         'Cash Reconciliation',
+        'Cash Out — Owner',
+        'Cash & Payment Methods',
+        'Refunds & Adjustments',
+        'Daily Financial Summary',
+        'Expenses',
+        'Remaining Cash',
+        'Confirm Credit',
+        'Cash Received',
+        'Cash In',
+        'Pending Expenses',
+        'Accounts Payable',
+        'Accounts Receivable',
+        'Credit Collections',
+        'Credit Approval History',
+        'Cash Transfers',
+        'Expected vs Actual Cash',
+        'Financial Alerts',
       ],
     ),
     (
@@ -7107,69 +7154,119 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       tint: Color(0xFFE5EEFF),
       iconColor: Color(0xFF2463D3),
       cards: [
-        'Tables Occupied',
+        'Live Tables',
+        'Table Reservations',
+        'Available Tables',
+        'Waiting List',
+        'Guest Check-In',
+        'Table Cleaning',
+        'Table Service Requests',
+        'Guests Today',
         'Table Map',
         'Reservations',
         'Cleaning Needed',
-        'Service Speed',
-        'Guests Today',
         'Table Occupancy',
       ],
     ),
     (
-      title: 'Kitchen & Orders',
+      title: 'Kitchen & Minibar',
       icon: Icons.soup_kitchen_outlined,
       tint: Color(0xFFFFEBD1),
       iconColor: Color(0xFFB75B11),
       cards: [
-        'Kitchen Orders',
+        'Kitchen Live Board',
+        'Minibar Live Board',
+        'Orders Preparing',
+        'Ready for Delivery',
+        'Delayed Orders',
+        'Station Printers',
+        'Menu Availability',
         'Menu',
         'Low Stock',
         'Nargile Orders',
-        'Motel Orders',
-        'Online Orders',
-        'Today Orders',
         'Kitchen Queue',
-        'Takeaway & Delivery',
       ],
     ),
     (
-      title: 'Management & Operations',
+      title: 'Orders & Customer Service',
+      icon: Icons.support_agent_outlined,
+      tint: Color(0xFFE1F3F1),
+      iconColor: Color(0xFF128277),
+      cards: [
+        'Table Orders',
+        'Motel Orders Tracking',
+        'Online Orders Tracking',
+        'Walk-In Orders Tracking',
+        'Customer Requests',
+        'Customer Feedback',
+        'Service Speed',
+        'Today Orders',
+        'Online Orders',
+        'Takeaway & Delivery',
+        'Feedback',
+      ],
+    ),
+    (
+      title: 'Employees & Operations',
       icon: Icons.groups_outlined,
       tint: Color(0xFFF0E4FF),
       iconColor: Color(0xFF7638BC),
       cards: [
+        'Employee Attendance',
+        'Employee Assignments',
+        'Pending Staff Tasks',
+        'Staff Performance',
+        'Maintenance Requests',
+        'Notifications & Alerts',
         'Customers',
         'Employees',
         'Tasks',
         'Events',
-        'Feedback',
         'Maintenance',
-        'Tourism Customers',
-        'Customer Requests',
         'Attendance',
+        'Tourism Customers',
       ],
     ),
     (
-      title: 'Reports, Settings & Security',
+      title: 'Inventory & Purchasing',
+      icon: Icons.inventory_2_outlined,
+      tint: Color(0xFFFFF1D8),
+      iconColor: Color(0xFFAC6C00),
+      cards: [
+        'Inventory Overview',
+        'Low Stock Alerts',
+        'Purchase Requests',
+        'Pending Approvals',
+        'Supplier Deliveries',
+        'Inventory Waste',
+      ],
+    ),
+    (
+      title: 'Reports & System',
       icon: Icons.bar_chart_outlined,
       tint: Color(0xFFDFF5F6),
       iconColor: Color(0xFF117D84),
       cards: [
+        'Sales Performance',
+        'Product Performance',
+        'Table Occupancy Reports',
+        'Audit & Activity History',
+        'System Health',
+        'Backup & Sync Status',
+        'Dashboard Personalization',
         'Reports',
         'Security',
         'Backup',
         'Offline Mode',
-        'System Health',
         'Audit & Activity',
-        'Product Performance',
         'Personalization',
       ],
     ),
   ];
 
-  Widget _dashboardGroup(
-    ({
+  Widget _dashboardGroup({
+    required int index,
+    required ({
       String title,
       IconData icon,
       Color tint,
@@ -7177,10 +7274,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       List<String> cards,
     })
     group,
-    List<String> visibleCards,
-  ) {
+    required List<String> visibleCards,
+  }) {
     if (visibleCards.isEmpty) return const SizedBox.shrink();
     return Container(
+      key: _dashboardCategoryKeys[index],
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -7245,6 +7343,80 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _dashboardCardDesignDetail(String title) {
+    final group = _dashboardGroups.firstWhere(
+      (candidate) => candidate.cards.contains(title),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE4EAF1)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: group.tint,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(group.icon, color: group.iconColor),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: _navy,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      group.title.toUpperCase(),
+                      style: TextStyle(
+                        color: group.iconColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Design preview — not live',
+                      style: TextStyle(
+                        color: Color(0xFF9A5B00),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'The authoritative data source and integration for this '
+                      'Dashboard card have not been verified. It does not '
+                      'show live figures or perform business operations.',
+                      style: TextStyle(color: _muted, height: 1.45),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -7712,9 +7884,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   }) {
     const palette = (background: Colors.white, accent: Color(0xFF2463EB));
     final section = _sections[sectionIndex];
-    final records = _recordsInSelectedRange(
-      _recordsFor(section.key, _permissionSlug(title)),
-    );
+    final designOnly =
+        sectionIndex == 0 && !_subcards[sectionIndex].contains(title);
+    final records = designOnly
+        ? const <CafeWorkspaceRecord>[]
+        : _recordsInSelectedRange(
+            _recordsFor(section.key, _permissionSlug(title)),
+          );
     final amountRecords = records.where((record) => record.amount != null);
     final recordedAmount = amountRecords.fold<double>(
       0,
@@ -7725,7 +7901,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         : amountRecords.first.currency;
     final unavailable = _workspaceError != null;
     final isLoading = _isLoadingRecords;
-    final primary = unavailable
+    final primary = designOnly
+        ? 'Preview'
+        : unavailable
         ? '—'
         : isLoading
         ? '…'
@@ -7734,7 +7912,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         : amountRecords.isNotEmpty
         ? '${recordedAmount.toStringAsFixed(0)} $currency'
         : '${records.length}';
-    final supporting = unavailable
+    final supporting = designOnly
+        ? 'Not connected'
+        : unavailable
         ? 'Unavailable'
         : isLoading
         ? 'Loading live data'
