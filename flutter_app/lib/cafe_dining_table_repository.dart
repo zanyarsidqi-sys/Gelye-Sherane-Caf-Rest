@@ -1,5 +1,32 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class CafeDiningTableMapChange {
+  const CafeDiningTableMapChange({
+    required this.id,
+    required this.expectedUpdatedAt,
+    required this.expectedX,
+    required this.expectedY,
+    required this.x,
+    required this.y,
+  });
+
+  final String id;
+  final DateTime expectedUpdatedAt;
+  final double expectedX;
+  final double expectedY;
+  final double x;
+  final double y;
+
+  Map<String, Object> toJson() => {
+    'id': id,
+    'expected_updated_at': expectedUpdatedAt.toUtc().toIso8601String(),
+    'expected_position_x': expectedX,
+    'expected_position_y': expectedY,
+    'position_x': x,
+    'position_y': y,
+  };
+}
+
 class CafeDiningTable {
   const CafeDiningTable({
     required this.id,
@@ -10,6 +37,7 @@ class CafeDiningTable {
     required this.pricingMode,
     required this.x,
     required this.y,
+    required this.updatedAt,
   });
 
   factory CafeDiningTable.fromJson(Map<String, dynamic> json) {
@@ -22,6 +50,9 @@ class CafeDiningTable {
       pricingMode: json['pricing_mode'] as String,
       x: (json['position_x'] as num).toDouble(),
       y: (json['position_y'] as num).toDouble(),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
     );
   }
 
@@ -33,6 +64,7 @@ class CafeDiningTable {
   final String pricingMode;
   final double x;
   final double y;
+  final DateTime? updatedAt;
 }
 
 class CafeDiningTableRepository {
@@ -40,6 +72,10 @@ class CafeDiningTableRepository {
 
   static const statuses = {'available', 'occupied', 'reserved', 'cleaning'};
   static const pricingModes = {'normal'};
+  static const mapCanvasWidth = 900.0;
+  static const mapCanvasHeight = 520.0;
+  static const mapTableWidth = 128.0;
+  static const mapTableHeight = 86.0;
 
   final SupabaseClient _client;
 
@@ -101,19 +137,55 @@ class CafeDiningTableRepository {
         .single();
   }
 
-  Future<void> updatePosition({
-    required String id,
-    required double x,
-    required double y,
+  Future<void> saveMapLayout({
+    required String requestId,
+    required List<CafeDiningTableMapChange> changes,
   }) async {
-    _validate(name: 'table', area: 'area', seats: 1, x: x, y: y);
-    final userId = _requireSignedIn();
-    await _client
-        .from('cafe_dining_tables')
-        .update({'position_x': x, 'position_y': y, 'updated_by': userId})
-        .eq('id', id)
-        .select('id')
-        .single();
+    _validateMapLayout(changes);
+    _requireSignedIn();
+    final saved = await _client.rpc(
+      'save_cafe_dining_table_map_layout',
+      params: {
+        'p_request_id': requestId,
+        'p_changes': changes.map((change) => change.toJson()).toList(),
+      },
+    );
+    if (saved is! List || saved.length != changes.length) {
+      throw const FormatException(
+        'The server did not confirm every table-map position.',
+      );
+    }
+    final expectedIds = changes.map((change) => change.id).toSet();
+    final savedIds = <String>{};
+    for (final row in saved) {
+      if (row is! Map) {
+        throw const FormatException(
+          'The server returned an invalid table-map position.',
+        );
+      }
+      final value = Map<String, dynamic>.from(row);
+      final id = value['id'];
+      final x = value['position_x'];
+      final y = value['position_y'];
+      final updatedAt = value['updated_at'];
+      if (id is! String ||
+          !expectedIds.contains(id) ||
+          !savedIds.add(id) ||
+          x is! num ||
+          y is! num ||
+          updatedAt is! String ||
+          DateTime.tryParse(updatedAt) == null ||
+          !x.toDouble().isFinite ||
+          !y.toDouble().isFinite ||
+          x < 0 ||
+          x > 1 ||
+          y < 0 ||
+          y > 1) {
+        throw const FormatException(
+          'The server returned an invalid table-map position.',
+        );
+      }
+    }
   }
 
   Future<void> updateStatus({
@@ -217,6 +289,57 @@ class CafeDiningTableRepository {
   static void _validatePricingMode(String pricingMode) {
     if (!pricingModes.contains(pricingMode)) {
       throw const FormatException('Choose a supported table pricing mode.');
+    }
+  }
+
+  static void _validateMapLayout(List<CafeDiningTableMapChange> changes) {
+    if (changes.isEmpty || changes.length > 500) {
+      throw const FormatException(
+        'Save a map layout containing between 1 and 500 tables.',
+      );
+    }
+    final ids = <String>{};
+    for (final change in changes) {
+      if (change.id.isEmpty || !ids.add(change.id)) {
+        throw const FormatException(
+          'A table can appear only once in a map layout.',
+        );
+      }
+      if (!change.x.isFinite ||
+          !change.y.isFinite ||
+          change.x < 0 ||
+          change.x > 1 ||
+          change.y < 0 ||
+          change.y > 1 ||
+          !change.expectedX.isFinite ||
+          !change.expectedY.isFinite ||
+          change.expectedX < 0 ||
+          change.expectedX > 1 ||
+          change.expectedY < 0 ||
+          change.expectedY > 1) {
+        throw const FormatException(
+          'A table position is outside the floor map.',
+        );
+      }
+    }
+
+    final minimumHorizontalGap = mapTableWidth / mapCanvasWidth;
+    final minimumVerticalGap = mapTableHeight / mapCanvasHeight;
+    for (var firstIndex = 0; firstIndex < changes.length; firstIndex++) {
+      final first = changes[firstIndex];
+      for (
+        var secondIndex = firstIndex + 1;
+        secondIndex < changes.length;
+        secondIndex++
+      ) {
+        final second = changes[secondIndex];
+        if ((first.x - second.x).abs() < minimumHorizontalGap &&
+            (first.y - second.y).abs() < minimumVerticalGap) {
+          throw const FormatException(
+            'Separate overlapping tables before saving the map.',
+          );
+        }
+      }
     }
   }
 }

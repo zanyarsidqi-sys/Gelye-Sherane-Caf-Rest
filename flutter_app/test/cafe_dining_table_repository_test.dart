@@ -66,6 +66,55 @@ void main() {
     expect(CafeDiningTableRepository.pricingModes, {'normal'});
   });
 
+  test('map saves reject overlapping positions before making a request', () {
+    final expectedUpdatedAt = DateTime.utc(2026, 10, 16);
+    expect(
+      repository.saveMapLayout(
+        requestId: 'request-id',
+        changes: [
+          CafeDiningTableMapChange(
+            id: 'table-a',
+            expectedUpdatedAt: expectedUpdatedAt,
+            expectedX: 0.3,
+            expectedY: 0.4,
+            x: 0.3,
+            y: 0.4,
+          ),
+          CafeDiningTableMapChange(
+            id: 'table-b',
+            expectedUpdatedAt: expectedUpdatedAt,
+            expectedX: 0.4,
+            expectedY: 0.4,
+            x: 0.35,
+            y: 0.4,
+          ),
+        ],
+      ),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('map layout validation rejects duplicate table identifiers', () {
+    final expectedUpdatedAt = DateTime.utc(2026, 10, 16);
+    CafeDiningTableMapChange change(String id, double x) =>
+        CafeDiningTableMapChange(
+          id: id,
+          expectedUpdatedAt: expectedUpdatedAt,
+          expectedX: x,
+          expectedY: 0.4,
+          x: x,
+          y: 0.4,
+        );
+
+    expect(
+      repository.saveMapLayout(
+        requestId: 'request-id',
+        changes: [change('table-a', 0.2), change('table-a', 0.6)],
+      ),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
   test('table creation rejects unsupported pricing modes', () async {
     await expectLater(
       repository.createTable(
@@ -89,10 +138,6 @@ void main() {
         x: 0.5,
         y: 0.5,
       ),
-      throwsA(isA<AuthException>()),
-    );
-    await expectLater(
-      repository.updatePosition(id: 'table-id', x: 0.5, y: 0.5),
       throwsA(isA<AuthException>()),
     );
     await expectLater(

@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:printing/printing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'cafe_request_id.dart';
 import 'cafe_workspace_repository.dart';
 import 'cafe_dining_table_repository.dart';
 import 'cafe_table_reservation_repository.dart';
@@ -2260,6 +2261,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   bool _isSavingDiningTablePanel = false;
   bool _diningTablePanelOnMobile = false;
   bool _diningTablePanelShowMap = false;
+  bool _isEditingDiningTableMap = false;
+  bool _isSavingDiningTableMap = false;
   int _diningTableEditorTab = 0;
   String _diningTablePanelPricingMode = 'normal';
   String? _diningTablePanelError;
@@ -2292,6 +2295,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   String? _diningTableError;
   String? _tableReservationsError;
   final _diningTableMapKey = GlobalKey();
+  final _diningTableMapTransformationController = TransformationController();
+  final Map<String, CafeDiningTable> _diningTableMapSnapshot = {};
+  final Map<String, (double, double)> _diningTableMapDraftPositions = {};
+  String? _diningTableMapRequestId;
   List<CafeWorkspaceRecord> _workspaceRecords = const [];
   bool _isLoadingRecords = true;
   bool _isFetchingRecords = false;
@@ -2345,6 +2352,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     _diningTablePanelNameController.dispose();
     _diningTablePanelAreaController.dispose();
     _diningTablePanelSeatsController.dispose();
+    _diningTableMapTransformationController.dispose();
     super.dispose();
   }
 
@@ -2476,6 +2484,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   String _diningTableFailure(Exception exception) {
     if (exception is PostgrestException) {
+      if (exception.code == '40001') {
+        return 'The table list or layout changed while you were editing. '
+            'Discard the draft to reload the latest saved map, then try again.';
+      }
+      if (exception.code == '22023') {
+        return exception.message;
+      }
       if (exception.code == '42P01' || exception.code == 'PGRST205') {
         return 'Dining-table storage is not installed in Supabase. Apply the '
             'cafe_dining_tables migration before using the floor map.';
@@ -2513,15 +2528,151 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return 'Dining-table request failed: $exception';
   }
 
-  Future<void> _reauthenticateDiningTableSession() async {
-    await showDialog<void>(
+  Future<bool> _reauthenticateDiningTableSession() async {
+    final auth = Supabase.instance.client.auth;
+    if (auth.currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign in again to load this table QR.')),
+        );
+      }
+      return false;
+    }
+    if (auth.mfa.getAuthenticatorAssuranceLevel().currentLevel ==
+        AuthenticatorAssuranceLevels.aal2) {
+      return true;
+    }
+
+    late final AuthMFAListFactorsResponse factors;
+    try {
+      factors = await auth.mfa.listFactors();
+    } on AuthException catch (exception) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Could not load authenticator factors: ${exception.message}',
+            ),
+          ),
+        );
+      }
+      return false;
+    } on Exception catch (exception) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not load authenticator factors: $exception'),
+          ),
+        );
+      }
+      return false;
+    }
+    if (!mounted) return false;
+    if (factors.totp.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Set up an authenticator for this staff account, then retry the QR.',
+            ),
+          ),
+        );
+      }
+      return false;
+    }
+
+    final formKey = GlobalKey<FormState>();
+    final codeController = TextEditingController();
+    var isVerifying = false;
+    var error = '';
+    final verified = await showDialog<bool>(
       context: context,
-      builder: (_) => StaffSignInDialog(
-        supabaseConfigured: _hasValidSupabaseConfiguration,
-        supabaseConfigurationProvided:
-            _supabaseUrl.isNotEmpty && _supabasePublishableKey.isNotEmpty,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Verify staff session'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Enter the current six-digit code from your authenticator '
+                  'app to load this table QR.',
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: codeController,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  decoration: const InputDecoration(
+                    labelText: 'Authenticator code',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                      RegExp(r'^\d{6}$').hasMatch(value?.trim() ?? '')
+                      ? null
+                      : 'Enter the six-digit authenticator code',
+                ),
+                if (error.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _AuthErrorMessage(error),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isVerifying
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: isVerifying
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setDialogState(() {
+                        isVerifying = true;
+                        error = '';
+                      });
+                      try {
+                        await auth.mfa.challengeAndVerify(
+                          factorId: factors.totp.first.id,
+                          code: codeController.text.trim(),
+                        );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop(true);
+                        }
+                      } on AuthException catch (exception) {
+                        setDialogState(() {
+                          error = exception.message;
+                          isVerifying = false;
+                        });
+                      } on Exception catch (exception) {
+                        setDialogState(() {
+                          error =
+                              'Authenticator verification failed: $exception';
+                          isVerifying = false;
+                        });
+                      }
+                    },
+              child: isVerifying
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Verify & load QR'),
+            ),
+          ],
+        ),
       ),
     );
+    codeController.dispose();
+    return verified == true &&
+        auth.mfa.getAuthenticatorAssuranceLevel().currentLevel ==
+            AuthenticatorAssuranceLevels.aal2;
   }
 
   bool get _canManageDiningTables =>
@@ -3304,6 +3455,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   Future<void> _showDiningTableQr(CafeDiningTable table) async {
     final repository = _diningTableRepository;
     if (repository == null) return;
+    final assurance = Supabase.instance.client.auth.mfa
+        .getAuthenticatorAssuranceLevel();
+    if (assurance.currentLevel != AuthenticatorAssuranceLevels.aal2) {
+      final verified = await _reauthenticateDiningTableSession();
+      if (!verified || !mounted) return;
+    }
     String token;
     try {
       token = await repository.fetchQrToken(table.id);
@@ -3326,7 +3483,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ? SnackBarAction(
                   label: 'Verify session',
                   onPressed: () =>
-                      unawaited(_reauthenticateDiningTableSession()),
+                      unawaited(_retryDiningTableQrAfterVerification(table)),
                 )
               : null,
         ),
@@ -3499,6 +3656,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         },
       ),
     );
+  }
+
+  Future<void> _retryDiningTableQrAfterVerification(
+    CafeDiningTable table,
+  ) async {
+    if (await _reauthenticateDiningTableSession() && mounted) {
+      await _showDiningTableQr(table);
+    }
   }
 
   pw.Document _diningTableQrPdf(CafeDiningTable table, String url) {
@@ -3690,32 +3855,167 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
-  Future<void> _moveDiningTable(
-    CafeDiningTable table,
-    DraggableDetails details,
-  ) async {
-    final repository = _diningTableRepository;
-    final renderObject = _diningTableMapKey.currentContext?.findRenderObject();
-    if (repository == null || renderObject is! RenderBox) return;
-    final mapSize = renderObject.size;
-    final center = renderObject.globalToLocal(
-      details.offset + const Offset(64, 42),
-    );
-    if (center.dx < 0 ||
-        center.dx > mapSize.width ||
-        center.dy < 0 ||
-        center.dy > mapSize.height) {
+  void _startDiningTableMapEdit() {
+    if (!_canManageDiningTables || _diningTables.isEmpty) return;
+    if (_diningTables.any((table) => table.updatedAt == null)) {
+      setState(() {
+        _diningTableError =
+            'Map editing needs current table update timestamps. Refresh the '
+            'saved tables before entering edit mode.';
+      });
       return;
     }
-    final x = (center.dx / mapSize.width).clamp(0.04, 0.96).toDouble();
-    final y = (center.dy / mapSize.height).clamp(0.06, 0.94).toDouble();
+    setState(() {
+      _diningTableMapSnapshot
+        ..clear()
+        ..addEntries(_diningTables.map((table) => MapEntry(table.id, table)));
+      _diningTableMapDraftPositions.clear();
+      _diningTableMapRequestId = null;
+      _isEditingDiningTableMap = true;
+      _diningTableError = null;
+    });
+  }
+
+  Future<void> _discardDiningTableMapEdit() async {
+    setState(() {
+      _isEditingDiningTableMap = false;
+      _isSavingDiningTableMap = false;
+      _diningTableMapSnapshot.clear();
+      _diningTableMapDraftPositions.clear();
+      _diningTableMapRequestId = null;
+      _diningTableError = null;
+      _diningTableMapTransformationController.value =
+          _diningTableMapTransformationController.value.clone()..setIdentity();
+    });
+    await _loadDiningTables();
+  }
+
+  Future<void> _saveDiningTableMapEdit() async {
+    if (!_isEditingDiningTableMap || _isSavingDiningTableMap) return;
+    final repository = _diningTableRepository;
+    if (repository == null) {
+      setState(() {
+        _diningTableError =
+            'Table storage is unavailable. Check the connection and retry.';
+      });
+      return;
+    }
+    final currentTableIds = _diningTables.map((table) => table.id).toSet();
+    if (_diningTableMapSnapshot.length != _diningTables.length ||
+        !_diningTableMapSnapshot.keys.every(currentTableIds.contains)) {
+      setState(() {
+        _diningTableError =
+            'The saved table list changed while the map was open. Discard '
+            'the draft to reload before saving.';
+      });
+      return;
+    }
+    final changes = _diningTableMapSnapshot.values
+        .map((table) {
+          final position =
+              _diningTableMapDraftPositions[table.id] ?? (table.x, table.y);
+          final updatedAt = table.updatedAt;
+          if (updatedAt == null) {
+            throw StateError('A saved table is missing its update timestamp.');
+          }
+          return CafeDiningTableMapChange(
+            id: table.id,
+            expectedUpdatedAt: updatedAt,
+            expectedX: table.x,
+            expectedY: table.y,
+            x: position.$1,
+            y: position.$2,
+          );
+        })
+        .toList(growable: false);
+    setState(() {
+      _isSavingDiningTableMap = true;
+      _diningTableError = null;
+    });
     try {
-      await repository.updatePosition(id: table.id, x: x, y: y);
-      await _loadDiningTables();
+      await repository.saveMapLayout(
+        requestId: _diningTableMapRequestId ??= newCafeRequestId(),
+        changes: changes,
+      );
+      final tables = await repository.fetchTables();
+      if (!mounted) return;
+      setState(() {
+        _diningTables = tables;
+        _isEditingDiningTableMap = false;
+        _isSavingDiningTableMap = false;
+        _diningTableMapSnapshot.clear();
+        _diningTableMapDraftPositions.clear();
+        _diningTableMapRequestId = null;
+        _diningTableError = null;
+      });
+    } on PostgrestException catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _isSavingDiningTableMap = false;
+        _diningTableError = _diningTableFailure(exception);
+      });
     } on Exception catch (exception) {
       if (!mounted) return;
-      setState(() => _diningTableError = _diningTableFailure(exception));
+      setState(() {
+        _isSavingDiningTableMap = false;
+        _diningTableError =
+            'Map save could not be confirmed. Keep this draft open and retry; '
+            'the same request ID will be reused. $exception';
+      });
     }
+  }
+
+  (double, double) _diningTableMapPosition(CafeDiningTable table) {
+    final draft = _diningTableMapDraftPositions[table.id];
+    if (draft != null) return draft;
+    final snapshot = _diningTableMapSnapshot[table.id];
+    return snapshot == null ? (table.x, table.y) : (snapshot.x, snapshot.y);
+  }
+
+  void _nudgeDiningTableMapPosition(
+    CafeDiningTable table,
+    double dx,
+    double dy,
+  ) {
+    if (!_isEditingDiningTableMap || _isSavingDiningTableMap) return;
+    final position = _diningTableMapPosition(table);
+    final xMargin =
+        CafeDiningTableRepository.mapTableWidth /
+        CafeDiningTableRepository.mapCanvasWidth /
+        2;
+    final yMargin =
+        CafeDiningTableRepository.mapTableHeight /
+        CafeDiningTableRepository.mapCanvasHeight /
+        2;
+    setState(() {
+      _diningTableMapDraftPositions[table.id] = (
+        (position.$1 + dx).clamp(xMargin, 1 - xMargin).toDouble(),
+        (position.$2 + dy).clamp(yMargin, 1 - yMargin).toDouble(),
+      );
+    });
+  }
+
+  void _moveDiningTable(CafeDiningTable table, DraggableDetails details) {
+    if (!_isEditingDiningTableMap || _isSavingDiningTableMap) return;
+    final renderObject = _diningTableMapKey.currentContext?.findRenderObject();
+    if (renderObject is! RenderBox) return;
+    final mapSize = renderObject.size;
+    final center = renderObject.globalToLocal(
+      details.offset +
+          Offset(
+            CafeDiningTableRepository.mapTableWidth / 2,
+            CafeDiningTableRepository.mapTableHeight / 2,
+          ),
+    );
+    final xMargin = CafeDiningTableRepository.mapTableWidth / mapSize.width / 2;
+    final yMargin =
+        CafeDiningTableRepository.mapTableHeight / mapSize.height / 2;
+    setState(() {
+      _diningTableMapDraftPositions[table.id] = (
+        (center.dx / mapSize.width).clamp(xMargin, 1 - xMargin).toDouble(),
+        (center.dy / mapSize.height).clamp(yMargin, 1 - yMargin).toDouble(),
+      );
+    });
   }
 
   Future<void> _updateRecordStatus(
@@ -5742,77 +6042,203 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     List<CafeDiningTable> tables, {
     required bool allowTableEditing,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final mapWidth = constraints.maxWidth < 640
-            ? 640.0
-            : constraints.maxWidth;
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            key: _diningTableMapKey,
-            width: mapWidth,
-            height: 470,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9FBFE),
-              border: Border.all(color: const Color(0xFFD9E1EB)),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Stack(
-              clipBehavior: Clip.hardEdge,
-              children: [
-                const PositionedDirectional(
-                  start: 12,
-                  top: 10,
-                  child: Text(
-                    'FLOOR PLAN',
-                    style: TextStyle(
-                      color: Color(0xFF8491A4),
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
+    final canEdit =
+        _canManageDiningTables &&
+        allowTableEditing &&
+        _selectedSubcard == 'Table Map';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            if (canEdit && _isEditingDiningTableMap) ...[
+              OutlinedButton.icon(
+                key: const ValueKey('dining-map-discard'),
+                onPressed: _isSavingDiningTableMap
+                    ? null
+                    : _discardDiningTableMapEdit,
+                icon: const Icon(Icons.undo_outlined),
+                label: const Text('Discard'),
+              ),
+              FilledButton.icon(
+                key: const ValueKey('dining-map-save'),
+                onPressed: _isSavingDiningTableMap
+                    ? null
+                    : _saveDiningTableMapEdit,
+                icon: _isSavingDiningTableMap
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.save_outlined),
+                label: Text(
+                  _isSavingDiningTableMap ? 'Saving…' : 'Save layout',
                 ),
-                for (final table in tables)
-                  Align(
-                    alignment: Alignment(table.x * 2 - 1, table.y * 2 - 1),
-                    child: _canManageDiningTables && allowTableEditing
-                        ? LongPressDraggable<CafeDiningTable>(
-                            data: table,
-                            dragAnchorStrategy: pointerDragAnchorStrategy,
-                            feedback: Material(
-                              color: Colors.transparent,
-                              child: _diningTableTile(
-                                table,
-                                isDragging: true,
-                                allowTableEditing: allowTableEditing,
-                              ),
-                            ),
-                            childWhenDragging: Opacity(
-                              opacity: 0.28,
-                              child: _diningTableTile(
-                                table,
-                                allowTableEditing: allowTableEditing,
-                              ),
-                            ),
-                            onDragEnd: (details) =>
-                                _moveDiningTable(table, details),
-                            child: _diningTableTile(
-                              table,
-                              allowTableEditing: allowTableEditing,
-                            ),
-                          )
-                        : _diningTableTile(
-                            table,
-                            allowTableEditing: allowTableEditing,
-                          ),
-                  ),
-              ],
+              ),
+            ] else if (canEdit)
+              FilledButton.tonalIcon(
+                key: const ValueKey('dining-map-edit'),
+                onPressed: _isLoadingDiningTables
+                    ? null
+                    : _startDiningTableMapEdit,
+                icon: const Icon(Icons.edit_location_alt_outlined),
+                label: const Text('Edit map'),
+              ),
+            IconButton(
+              tooltip: 'Zoom in on table map',
+              onPressed: () {
+                _diningTableMapTransformationController.value =
+                    _diningTableMapTransformationController.value.clone()
+                      ..scaleByDouble(1.2, 1.2, 1.2, 1);
+              },
+              icon: const Icon(Icons.zoom_in),
+            ),
+            IconButton(
+              tooltip: 'Zoom out on table map',
+              onPressed: () {
+                _diningTableMapTransformationController.value =
+                    _diningTableMapTransformationController.value.clone()
+                      ..scaleByDouble(1 / 1.2, 1 / 1.2, 1 / 1.2, 1);
+              },
+              icon: const Icon(Icons.zoom_out),
+            ),
+            IconButton(
+              tooltip: 'Fit table map to screen',
+              onPressed: () {
+                _diningTableMapTransformationController.value =
+                    _diningTableMapTransformationController.value.clone()
+                      ..setIdentity();
+              },
+              icon: const Icon(Icons.fit_screen_outlined),
+            ),
+          ],
+        ),
+        if (_isEditingDiningTableMap && canEdit)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              'Long-press and drag tables to arrange them. Use the list view '
+              'for keyboard-accessible position controls.',
+              style: TextStyle(color: _executiveMuted, fontSize: 12),
             ),
           ),
-        );
-      },
+        SizedBox(
+          height: 470,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: InteractiveViewer(
+              key: const ValueKey('dining-table-map-viewer'),
+              transformationController: _diningTableMapTransformationController,
+              minScale: 0.35,
+              maxScale: 3,
+              boundaryMargin: const EdgeInsets.all(220),
+              child: Container(
+                key: _diningTableMapKey,
+                width: CafeDiningTableRepository.mapCanvasWidth,
+                height: CafeDiningTableRepository.mapCanvasHeight,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FBFE),
+                  border: Border.all(color: const Color(0xFFD9E1EB)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.hardEdge,
+                  children: [
+                    const PositionedDirectional(
+                      start: 12,
+                      top: 10,
+                      child: Text(
+                        'SINGLE-FLOOR VIEW · SAVED AREAS',
+                        style: TextStyle(
+                          color: Color(0xFF8491A4),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                    for (final table in tables)
+                      Builder(
+                        builder: (context) {
+                          final position = _diningTableMapPosition(table);
+                          final tile = _diningTableTile(
+                            table,
+                            allowTableEditing: allowTableEditing,
+                          );
+                          return Align(
+                            alignment: Alignment(
+                              position.$1 * 2 - 1,
+                              position.$2 * 2 - 1,
+                            ),
+                            child: canEdit && _isEditingDiningTableMap
+                                ? LongPressDraggable<CafeDiningTable>(
+                                    data: table,
+                                    dragAnchorStrategy:
+                                        pointerDragAnchorStrategy,
+                                    maxSimultaneousDrags:
+                                        _isSavingDiningTableMap ? 0 : 1,
+                                    feedback: Material(
+                                      color: Colors.transparent,
+                                      child: _diningTableTile(
+                                        table,
+                                        isDragging: true,
+                                        allowTableEditing: allowTableEditing,
+                                      ),
+                                    ),
+                                    childWhenDragging: Opacity(
+                                      opacity: 0.28,
+                                      child: tile,
+                                    ),
+                                    onDragEnd: (details) =>
+                                        _moveDiningTable(table, details),
+                                    child: tile,
+                                  )
+                                : tile,
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 12,
+          runSpacing: 6,
+          children: [
+            for (final status in CafeDiningTableRepository.statuses)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 9,
+                    color: _diningTableStatusColor(status),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    _diningTableStatusLabel(status),
+                    style: const TextStyle(
+                      color: _executiveMuted,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            const Text(
+              'Saved table status (not live occupancy)',
+              style: TextStyle(color: _executiveMuted, fontSize: 11),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -5826,7 +6252,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: _canManageDiningTables && allowTableEditing
+        onTap: _selectedSubcard == 'Table Map'
+            ? () => _selectDiningTableInPanel(table)
+            : _canManageDiningTables && allowTableEditing
             ? () => _showDiningTableForm(table: table)
             : () => _showDiningTableDetails(table),
         borderRadius: BorderRadius.circular(12),
@@ -5909,6 +6337,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     required bool allowTableEditing,
   }) {
     final reservations = _reservationsForTable(table);
+    final isMapCard = _selectedSubcard == 'Table Map';
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -5929,25 +6358,35 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 2,
           children: [
-            DropdownButton<String>(
-              value: table.status,
-              underline: const SizedBox.shrink(),
-              items: [
-                for (final status in CafeDiningTableRepository.statuses)
-                  DropdownMenuItem(
-                    value: status,
-                    child: Text(_diningTableStatusLabel(status)),
-                  ),
-              ],
-              onChanged: _canManageDiningTables
-                  ? (status) {
-                      if (status != null) {
-                        unawaited(_updateDiningTableStatus(table, status));
+            if (isMapCard) ...[
+              Text(
+                _diningTableStatusLabel(table.status),
+                style: TextStyle(
+                  color: _diningTableStatusColor(table.status),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              if (_isEditingDiningTableMap) _tableMapListNudgers(table),
+            ] else
+              DropdownButton<String>(
+                value: table.status,
+                underline: const SizedBox.shrink(),
+                items: [
+                  for (final status in CafeDiningTableRepository.statuses)
+                    DropdownMenuItem(
+                      value: status,
+                      child: Text(_diningTableStatusLabel(status)),
+                    ),
+                ],
+                onChanged: _canManageDiningTables
+                    ? (status) {
+                        if (status != null) {
+                          unawaited(_updateDiningTableStatus(table, status));
+                        }
                       }
-                    }
-                  : null,
-            ),
-            if (_canManageDiningTables && allowTableEditing) ...[
+                    : null,
+              ),
+            if (_canManageDiningTables && allowTableEditing && !isMapCard) ...[
               IconButton(
                 tooltip: 'Show ${table.name} QR code',
                 onPressed: () => _showDiningTableQr(table),
@@ -5967,6 +6406,56 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _tableMapListNudgers(CafeDiningTable table) {
+    Widget nudge({
+      required String direction,
+      required IconData icon,
+      required double dx,
+      required double dy,
+    }) {
+      return IconButton(
+        tooltip: 'Move ${table.name} $direction on map',
+        visualDensity: VisualDensity.compact,
+        onPressed: _isSavingDiningTableMap
+            ? null
+            : () => _nudgeDiningTableMapPosition(table, dx, dy),
+        icon: Icon(icon, size: 18),
+      );
+    }
+
+    const horizontalStep = 14 / CafeDiningTableRepository.mapCanvasWidth;
+    const verticalStep = 14 / CafeDiningTableRepository.mapCanvasHeight;
+    return Wrap(
+      spacing: 0,
+      children: [
+        nudge(
+          direction: 'left',
+          icon: Icons.chevron_left,
+          dx: -horizontalStep,
+          dy: 0,
+        ),
+        nudge(
+          direction: 'up',
+          icon: Icons.keyboard_arrow_up,
+          dx: 0,
+          dy: -verticalStep,
+        ),
+        nudge(
+          direction: 'down',
+          icon: Icons.keyboard_arrow_down,
+          dx: 0,
+          dy: verticalStep,
+        ),
+        nudge(
+          direction: 'right',
+          icon: Icons.chevron_right,
+          dx: horizontalStep,
+          dy: 0,
+        ),
+      ],
     );
   }
 
@@ -6174,22 +6663,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                DropdownButton<String>(
-                  value: selectedArea,
-                  items: [
-                    const DropdownMenuItem(
-                      value: 'All areas',
-                      child: Text('All areas'),
-                    ),
-                    for (final area in areas)
-                      DropdownMenuItem(value: area, child: Text(area)),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedDiningTableArea = value);
-                    }
-                  },
-                ),
+                for (final area in ['All areas', ...areas])
+                  ChoiceChip(
+                    key: ValueKey('dining-map-area-tab-$area'),
+                    label: Text(area),
+                    selected: selectedArea == area,
+                    onSelected: (_) =>
+                        setState(() => _selectedDiningTableArea = area),
+                  ),
                 DropdownButton<String>(
                   key: const ValueKey('dining-table-status-filter'),
                   value: _tableStatusFilter,
@@ -6265,7 +6746,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 allowTableEditing: _canManageDiningTables,
               )
             else
-              for (final table in tables.take(8))
+              for (final table in tables.take(
+                _selectedSubcard == 'Table Map' && _isEditingDiningTableMap
+                    ? tables.length
+                    : 8,
+              ))
                 Card(
                   key: ValueKey('saved-table-row-${table.id}'),
                   margin: const EdgeInsets.only(top: 6),
@@ -6296,7 +6781,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        if (_canManageDiningTables)
+                        if (_selectedSubcard == 'Table Map' &&
+                            _isEditingDiningTableMap)
+                          _tableMapListNudgers(table),
+                        if (_canManageDiningTables &&
+                            _selectedSubcard != 'Table Map')
                           IconButton(
                             tooltip: 'Show ${table.name} QR',
                             onPressed: () => _showDiningTableQr(table),
@@ -6309,7 +6798,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     ),
                   ),
                 ),
-            if (tables.length > 8 && !_diningTablePanelShowMap)
+            if (tables.length > 8 &&
+                !_diningTablePanelShowMap &&
+                !(_selectedSubcard == 'Table Map' && _isEditingDiningTableMap))
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
@@ -7876,13 +8367,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   'Table Map',
                   'QR Code Management',
                   'Table Reservations',
+                  'Chairs Management',
                 }.contains(title);
                 final description = switch (title) {
                   'Add Table' => 'Create and manage saved dining tables.',
                   'Edit & Manage Tables' =>
                     'View, edit, and maintain saved dining tables.',
                   'Table Map' =>
-                    'View and arrange saved tables on the current floor map.',
+                    'Pan, zoom, and save an authorized layout of saved tables.',
+                  'Chairs Management' =>
+                    'Review base capacity; chair changes stay locked until '
+                        'verified sources and guest counts are available.',
                   'QR Code Management' =>
                     'View, print, and rotate saved table QR codes.',
                   'Table Reservations' =>
@@ -10075,10 +10570,145 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     }
   }
 
+  Widget _chairsManagementWorkspace() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF14243A),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF30435A)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Chair operations',
+                style: TextStyle(
+                  color: _executiveText,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Chair changes are locked until the spare-chair source and '
+                'authoritative occupied/reserved guest counts are connected. '
+                'The current database has no chair-pool, active-visit/order, '
+                'or production reservation records.',
+                key: ValueKey('chairs-safety-blocker'),
+                style: TextStyle(color: _executiveMuted, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: null,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Give extra chairs'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: null,
+                    icon: const Icon(Icons.remove),
+                    label: const Text('Take chairs'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: null,
+                    icon: const Icon(Icons.swap_horiz),
+                    label: const Text('Transfer chairs'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: null,
+                    icon: const Icon(Icons.history),
+                    label: const Text('Movement history'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          color: _executiveSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: const BorderSide(color: _executiveBorder),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Verified base table capacity',
+                  style: TextStyle(
+                    color: _executiveText,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'These are original saved seat capacities only. Current '
+                  'chair totals and adjustments are not available yet.',
+                  style: TextStyle(color: _executiveMuted, height: 1.4),
+                ),
+                if (_isLoadingDiningTables)
+                  const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (_diningTableError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: _AuthErrorMessage(_diningTableError!),
+                  )
+                else if (_diningTables.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: Text(
+                      'No saved tables are available for this account.',
+                      style: TextStyle(color: _executiveMuted),
+                    ),
+                  )
+                else
+                  for (final table in _diningTables)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        table.name,
+                        style: const TextStyle(color: _executiveText),
+                      ),
+                      subtitle: Text(
+                        '${table.area} · ${_diningTableStatusLabel(table.status)}',
+                        style: const TextStyle(color: _executiveMuted),
+                      ),
+                      trailing: Text(
+                        '${table.seats} base seats',
+                        style: const TextStyle(
+                          color: _executiveText,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _tableManagementDetail(
     ({String key, IconData icon, String title, String description}) section,
     String subcard,
   ) {
+    if (subcard == 'Chairs Management') {
+      return _chairsManagementWorkspace();
+    }
     if (subcard == 'Table Reservations') {
       return _tableReservationsWorkspace();
     }
