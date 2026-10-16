@@ -48,6 +48,14 @@ because their table details cannot be inferred safely.
 The Windows and iPhone design review for the remaining 28 cards is available
 in [`../design/section-02-remaining-cards-concept.html`](../design/section-02-remaining-cards-concept.html).
 
+Menu Management now has a six-category, 49-card workspace. Previously
+available generic-record routes remain accessible in a collapsed section and
+retain their existing permission keys. Cards requiring product catalog,
+pricing, inventory, ordering, or publishing integrations are clearly marked
+as design-only until their authoritative sources are verified. The Menu
+workspace interface is deployed; those operational integrations remain
+unavailable, and no production database schema was changed.
+
 Kitchen Management now has a seven-category workspace with 36 specification
 cards. Its prior generic-record routes remain accessible; they are not live
 kitchen orders. Cards requiring order, station, printer, menu, or inventory

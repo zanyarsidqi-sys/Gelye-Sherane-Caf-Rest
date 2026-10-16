@@ -702,10 +702,7 @@ void main() {
       find.byKey(const ValueKey('tables-category-card-Chairs Management')),
     );
     await tester.pumpAndSettle();
-    expect(
-      find.text('Search Chairs Management records...'),
-      findsOneWidget,
-    );
+    expect(find.text('Search Chairs Management records...'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Back to Tables & Chairs'));
     await tester.pumpAndSettle();
@@ -793,32 +790,134 @@ void main() {
 
     await tester.tap(find.text('Menu').last);
     await tester.pumpAndSettle();
-    for (final title in [
-      'Menu Overview',
-      'All Products',
-      'Add / Edit Product',
-      'Categories Management',
-      'Menu Settings',
-      'Kitchen View',
-      'Menu Pricing',
-      'Menu Preview',
-      'Ingredients & Inventory',
-      'Bulk Import',
-    ]) {
-      expect(find.text(title), findsOneWidget, reason: title);
+    const menuCategories = [
+      [
+        'Menu Overview',
+        'Add New Product',
+        'Edit & Manage Products',
+        'Product Categories',
+        'Product Images & Descriptions',
+        'Product Variations & Add-ons',
+        'Product Availability',
+        'Bulk Product Management',
+        'Product Combos & Meal Packages',
+        'Product Scheduling',
+        'Product Allergens & Nutrition',
+      ],
+      [
+        'Normal Pricing',
+        'Tourism Pricing',
+        'Owner Pricing',
+        'Discount Pricing',
+        'Price Change History',
+        'Pricing Rules & Approvals',
+        'Product Cost & Profit Margin',
+        'Happy Hour & Promotions',
+      ],
+      [
+        'Product Station Assignment',
+        'Kitchen Products',
+        'Minibar Products — Nargile & Drinks',
+        'Product Ingredients & Recipes',
+        'Preparation Time & Instructions',
+        'Product Printing Routing',
+        'Recipe & Portion Management',
+        'Product Preparation Options',
+        'Station Availability & Failover',
+      ],
+      [
+        'Customer Digital Menu',
+        'Table QR Menu',
+        'Online Ordering Menu',
+        'Motel Menu',
+        'Multilingual Menu',
+        'Menu Display & Appearance',
+        'Menu Publishing & Scheduling',
+        'Menu QR & Sharing',
+        'Customer Favorites & Popular Items',
+      ],
+      [
+        'Product Stock Integration',
+        'Out-of-Stock Management',
+        'Product Sales & Performance',
+        'Product Feedback & Ratings',
+        'Product Recommendations',
+        'Menu Reports',
+        'Product Waste & Returns',
+      ],
+      [
+        'Menu Permissions',
+        'Menu Settings',
+        'Menu Audit History',
+        'Menu Import & Export',
+        'Product Change Approval',
+      ],
+    ];
+    expect(find.byType(ChoiceChip), findsNWidgets(6));
+    var menuCardTotal = 0;
+    for (var index = 0; index < menuCategories.length; index++) {
+      final tab = find.byKey(ValueKey('menu-category-tab-$index'));
+      await tester.ensureVisible(tab);
+      await tester.tap(tab);
+      await tester.pumpAndSettle();
+      final categoryGrid = find.byKey(ValueKey('menu-category-cards-$index'));
+      expect(
+        find.descendant(of: categoryGrid, matching: find.byType(Card)),
+        findsNWidgets(menuCategories[index].length),
+      );
+      for (final title in menuCategories[index]) {
+        expect(
+          find.byKey(ValueKey('menu-category-card-$title')),
+          findsOneWidget,
+          reason: title,
+        );
+      }
+      menuCardTotal += menuCategories[index].length;
     }
-    await tester.ensureVisible(find.textContaining('More cards ('));
-    await tester.tap(find.textContaining('More cards ('));
+    expect(menuCardTotal, 49);
+
+    final productsTab = find.byKey(const ValueKey('menu-category-tab-0'));
+    await tester.ensureVisible(productsTab);
+    await tester.tap(productsTab);
     await tester.pumpAndSettle();
-    for (final title in [
-      'Menu Management',
-      'Inventory & Stock',
-      'Nargile Management',
-      'Preparation Time',
-      'Kitchen Devices',
-    ]) {
-      expect(find.text(title), findsWidgets, reason: title);
-    }
+    await tester.tap(
+      find.byKey(const ValueKey('menu-category-card-Add New Product')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Design only'), findsOneWidget);
+    expect(
+      find.textContaining('Product-specific data sources'),
+      findsOneWidget,
+    );
+    expect(find.text('Add record'), findsNothing);
+    await tester.tap(find.text('Back to Menu Management'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-category-tab-0')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('menu-category-card-Menu Overview')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Menu Overview records'), findsOneWidget);
+    expect(find.textContaining('generic record workspace'), findsOneWidget);
+    expect(find.text('Search Menu Overview...'), findsOneWidget);
+    await tester.tap(find.text('Back to Menu Management'));
+    await tester.pumpAndSettle();
+
+    final preservedWorkspaces = find.byKey(
+      const PageStorageKey<String>('menu-preserved-workspaces'),
+    );
+    await tester.ensureVisible(preservedWorkspaces);
+    await tester.tap(preservedWorkspaces);
+    await tester.pumpAndSettle();
+    final modifiersCard = find.byKey(
+      const ValueKey('management-card-kitchen_management-modifiers'),
+    );
+    await tester.ensureVisible(modifiersCard);
+    await tester.tap(modifiersCard);
+    await tester.pumpAndSettle();
+    expect(find.text('Modifiers records'), findsOneWidget);
+    expect(find.text('Search Modifiers...'), findsOneWidget);
 
     await openMoreSection('Inventory Management');
     for (final title in [

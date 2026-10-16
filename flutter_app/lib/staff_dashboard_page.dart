@@ -82,6 +82,94 @@ const _tablesChairsCategories = [
   ),
 ];
 
+const _menuManagementCategories = [
+  (
+    title: 'Menu & Products',
+    icon: Icons.restaurant_menu_outlined,
+    cards: [
+      'Menu Overview',
+      'Add New Product',
+      'Edit & Manage Products',
+      'Product Categories',
+      'Product Images & Descriptions',
+      'Product Variations & Add-ons',
+      'Product Availability',
+      'Bulk Product Management',
+      'Product Combos & Meal Packages',
+      'Product Scheduling',
+      'Product Allergens & Nutrition',
+    ],
+  ),
+  (
+    title: 'Pricing & Discounts',
+    icon: Icons.price_change_outlined,
+    cards: [
+      'Normal Pricing',
+      'Tourism Pricing',
+      'Owner Pricing',
+      'Discount Pricing',
+      'Price Change History',
+      'Pricing Rules & Approvals',
+      'Product Cost & Profit Margin',
+      'Happy Hour & Promotions',
+    ],
+  ),
+  (
+    title: 'Kitchen & Minibar Integration',
+    icon: Icons.soup_kitchen_outlined,
+    cards: [
+      'Product Station Assignment',
+      'Kitchen Products',
+      'Minibar Products — Nargile & Drinks',
+      'Product Ingredients & Recipes',
+      'Preparation Time & Instructions',
+      'Product Printing Routing',
+      'Recipe & Portion Management',
+      'Product Preparation Options',
+      'Station Availability & Failover',
+    ],
+  ),
+  (
+    title: 'Digital Menu',
+    icon: Icons.qr_code_2_outlined,
+    cards: [
+      'Customer Digital Menu',
+      'Table QR Menu',
+      'Online Ordering Menu',
+      'Motel Menu',
+      'Multilingual Menu',
+      'Menu Display & Appearance',
+      'Menu Publishing & Scheduling',
+      'Menu QR & Sharing',
+      'Customer Favorites & Popular Items',
+    ],
+  ),
+  (
+    title: 'Inventory & Performance',
+    icon: Icons.inventory_2_outlined,
+    cards: [
+      'Product Stock Integration',
+      'Out-of-Stock Management',
+      'Product Sales & Performance',
+      'Product Feedback & Ratings',
+      'Product Recommendations',
+      'Menu Reports',
+      'Product Waste & Returns',
+    ],
+  ),
+  (
+    title: 'Administration',
+    icon: Icons.admin_panel_settings_outlined,
+    cards: [
+      'Menu Permissions',
+      'Menu Settings',
+      'Menu Audit History',
+      'Menu Import & Export',
+      'Product Change Approval',
+    ],
+  ),
+];
+
 const _kitchenManagementCategories = [
   (
     title: 'Kitchen Overview',
@@ -204,6 +292,69 @@ const _kitchenCardPurposes = <String, String>{
   'Minibar Printing Management':
       'Configure and monitor minibar ticket routing.',
   'Kitchen Settings': 'Review kitchen workflow configuration.',
+};
+
+const _menuCardPurposes = <String, String>{
+  'Menu Overview': 'Summary of product counts, active/inactive items, unpublished changes, category distribution and actionable exceptions.',
+  'Add New Product': 'Create a product with identity, category, language, image, availability, prices, variants and station assignment.',
+  'Edit & Manage Products': 'Search, filter, edit, archive, duplicate and inspect products without destroying historical references.',
+  'Product Categories': 'Maintain hierarchical categories, display order, translations, visibility and channel eligibility.',
+  'Product Images & Descriptions': 'Manage optimized product images, alt text, translations and publication readiness.',
+  'Product Variations & Add-ons': 'Manage size, flavor, extras, required choices, price deltas and min/max selections.',
+  'Product Availability': 'Control sellable state by channel and station, with reasons and inventory-aware rules.',
+  'Bulk Product Management': 'Preview, validate and approve bulk category, availability, station or pricing edits.',
+  'Product Combos & Meal Packages': 'Define bundles with component quantities, allowed substitutions, price rules and inventory decomposition.',
+  'Product Scheduling':
+      'Set availability by date, weekday, time window, season and timezone.',
+  'Product Allergens & Nutrition': 'Maintain verified allergens, ingredient warnings, dietary tags and optional nutritional values.',
+  'Normal Pricing': 'Manage base prices in IQD and effective dates.',
+  'Tourism Pricing': 'Manage tourism prices applied to eligible orders, including motel orders.',
+  'Owner Pricing':
+      'Manage owner-specific price mode with authorization and audit.',
+  'Discount Pricing':
+      'Manage authorized fixed-amount and percentage discounts and precedence.',
+  'Price Change History': 'Show before/after prices, effective time, actor, approval and impacted channels.',
+  'Pricing Rules & Approvals': 'Define pricing permissions, approval thresholds, rounding and conflict resolution.',
+  'Product Cost & Profit Margin': 'Compute cost and gross margin from versioned verified inputs without treating estimates as settled financial data.',
+  'Happy Hour & Promotions': 'Schedule eligible promotions, exclusions, caps, stacking restrictions and expiry.',
+  'Product Station Assignment':
+      'Route product line items to an active authorized preparation station.',
+  'Kitchen Products': 'Manage food items prepared by kitchen stations.',
+  'Minibar Products — Nargile & Drinks': 'Manage only Nargile/shisha and café drinks for dedicated minibar stations.',
+  'Product Ingredients & Recipes':
+      'Maintain ingredient links and recipe reference records.',
+  'Preparation Time & Instructions':
+      'Maintain item preparation instructions and estimated time per station.',
+  'Product Printing Routing': 'Map new/revised order tickets to station-specific printers and safe retry queues.',
+  'Recipe & Portion Management': 'Define exact ingredient quantities, yield, portion size and approved recipe revisions.',
+  'Product Preparation Options': 'Define choices such as cooking preference, sugar, drink size and Nargile flavor.',
+  'Station Availability & Failover': 'Handle unavailable stations using approved rerouting or pause selling; never silently send to an unsuitable station.',
+  'Customer Digital Menu': 'Public product browsing, item detail, pricing, cart and channel-specific eligibility.',
+  'Table QR Menu': 'Open table-bound customer menu with validated table context; no privileged access in QR payload.',
+  'Online Ordering Menu':
+      'Expose eligible online delivery/takeaway items and availability.',
+  'Motel Menu': 'Expose eligible motel items and tourism pricing; preserve prepaid versus pay-on-delivery handling.',
+  'Multilingual Menu': 'Support English, Arabic and Kurdish translations, fallbacks and RTL layout.',
+  'Menu Display & Appearance': 'Configure category order, product tiles, images, badges and responsive design.',
+  'Menu Publishing & Scheduling':
+      'Stage, preview, approve and schedule menu releases per channel.',
+  'Menu QR & Sharing': 'Provide general menu share links and QR distinct from table-specific QR.',
+  'Customer Favorites & Popular Items': 'Use opt-in customer favorites and verified eligible sales metrics; no invented rankings.',
+  'Product Stock Integration': 'Connect recipes and product sellability to inventory stock and movements.',
+  'Out-of-Stock Management': 'Detect and handle shortages; support manual overrides with authorization.',
+  'Product Sales & Performance': 'Analyze item sales, quantities, mix and performance from settled/eligible order records.',
+  'Product Feedback & Ratings':
+      'Collect and moderate product ratings and feedback.',
+  'Product Recommendations': 'Capture staff and customer suggestions, review decisions and completion status.',
+  'Menu Reports': 'Provide filterable and exportable operational and financial menu reports.',
+  'Product Waste & Returns': 'Track waste, returns, reasons, approvals and links to inventory and financial reconciliation.',
+  'Menu Permissions': 'Manage role-scoped view/edit/approve/publish permissions enforced server-side.',
+  'Menu Settings':
+      'Configure defaults, currency, language, channel rules and validations.',
+  'Menu Audit History':
+      'Immutable actor/time/before-after audit views for sensitive actions.',
+  'Menu Import & Export': 'Validated import preview, error reports and safe exports without exposing secrets.',
+  'Product Change Approval': 'Queue sensitive product changes for authorized review before activation.',
 };
 
 const _featuredSectionCards = {
@@ -1772,7 +1923,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 1) {
       return _canViewDiningTables ? const ['Add Table'] : const [];
     }
-    final sectionSubcards = sectionIndex == 4
+    final sectionSubcards = sectionIndex == 3
+        ? <String>{
+            for (final category in _menuManagementCategories) ...category.cards,
+            ..._subcards[sectionIndex],
+          }.toList(growable: false)
+        : sectionIndex == 4
         ? <String>{
             for (final category in _kitchenManagementCategories)
               ...category.cards,
@@ -1797,6 +1953,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   int _selectedIndex = 0;
   String? _selectedSubcard;
   int _selectedTablesCategory = 0;
+  int _selectedMenuCategory = 0;
+  String _menuCardSearch = '';
   int _selectedKitchenCategory = 0;
   String _kitchenCardSearch = '';
   bool _isSigningOut = false;
@@ -4492,6 +4650,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _financeDetail(section, subcard)
         else if (index == 1 && subcard != null)
           _tablesChairsCardDetail(section, subcard)
+        else if (index == 3 &&
+            subcard != null &&
+            !_subcards[3].contains(subcard))
+          _menuCardDesignDetail(subcard)
+        else if (index == 3 && subcard != null)
+          _menuLegacyCardDetail(section, subcard)
         else if (index == 4 &&
             subcard != null &&
             !_subcards[4].contains(subcard))
@@ -4519,7 +4683,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   ) {
     final description = subcard == null
         ? section.description
-        : _kitchenCardPurposes[subcard] ??
+        : _menuCardPurposes[subcard] ??
+              _kitchenCardPurposes[subcard] ??
               _sectionCardDescriptions[subcard] ??
               'Live workspace records for $subcard.';
     return Row(
@@ -5010,6 +5175,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 2) {
       return _paymentManagementOverview(visibleSubcards);
     }
+    if (sectionIndex == 3) {
+      return _menuManagementWorkspace(visibleSubcards);
+    }
     if (sectionIndex == 4) {
       return _kitchenManagementWorkspace(visibleSubcards);
     }
@@ -5061,6 +5229,139 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       sectionIndex: sectionIndex,
       titles: visibleSubcards,
       minimumColumns: sectionIndex == 1 ? 3 : null,
+    );
+  }
+
+  Widget _menuManagementWorkspace(List<String> visibleSubcards) {
+    final category = _menuManagementCategories[_selectedMenuCategory];
+    final query = _menuCardSearch.trim().toLowerCase();
+    final categoryCards = category.cards
+        .where(visibleSubcards.contains)
+        .where((title) {
+          if (query.isEmpty) return true;
+          return title.toLowerCase().contains(query) ||
+              (_menuCardPurposes[title] ?? '').toLowerCase().contains(query);
+        })
+        .toList(growable: false);
+    final legacyCards = _subcards[3]
+        .where(visibleSubcards.contains)
+        .where((title) => !_menuCardPurposes.containsKey(title))
+        .toList(growable: false);
+    final categoryCounts = [
+      for (final menuCategory in _menuManagementCategories)
+        menuCategory.cards.where(visibleSubcards.contains).length,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (
+                var index = 0;
+                index < _menuManagementCategories.length;
+                index++
+              ) ...[
+                if (index > 0) const SizedBox(width: 8),
+                ChoiceChip(
+                  key: ValueKey('menu-category-tab-$index'),
+                  avatar: Icon(_menuManagementCategories[index].icon, size: 17),
+                  label: Text(
+                    '${_menuManagementCategories[index].title} '
+                    '(${categoryCounts[index]})',
+                  ),
+                  selected: _selectedMenuCategory == index,
+                  onSelected: (_) => setState(() {
+                    _selectedMenuCategory = index;
+                    _menuCardSearch = '';
+                  }),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          key: const ValueKey('menu-card-search'),
+          onChanged: (value) => setState(() => _menuCardSearch = value),
+          decoration: InputDecoration(
+            hintText: 'Search ${category.title.toLowerCase()} cards...',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: query.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear menu card search',
+                    onPressed: () => setState(() => _menuCardSearch = ''),
+                    icon: const Icon(Icons.close),
+                  ),
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            isDense: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE1E7EF)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (categoryCards.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              query.isEmpty
+                  ? 'No cards in this category are assigned to this account.'
+                  : 'No menu cards match "$_menuCardSearch".',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: _muted),
+            ),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 1120
+                  ? 4
+                  : constraints.maxWidth >= 760
+                  ? 3
+                  : constraints.maxWidth >= 500
+                  ? 2
+                  : 1;
+              final width =
+                  (constraints.maxWidth - (columns - 1) * 12) / columns;
+              return Wrap(
+                key: ValueKey('menu-category-cards-$_selectedMenuCategory'),
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final title in categoryCards)
+                    SizedBox(width: width, child: _menuCategoryCard(title)),
+                ],
+              );
+            },
+          ),
+        if (legacyCards.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: ExpansionTile(
+              key: const PageStorageKey<String>('menu-preserved-workspaces'),
+              title: Text(
+                'Previously available menu workspaces '
+                '(${legacyCards.length})',
+              ),
+              subtitle: const Text(
+                'Preserved routes and records; not verified product features.',
+              ),
+              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              children: [
+                _managementCardGrid(sectionIndex: 3, titles: legacyCards),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -5371,6 +5672,184 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             'This existing route and its saved records are preserved in the '
             'generic workspace. They are not connected to a verified live '
             'kitchen order, station, or printer system.',
+            style: TextStyle(height: 1.4),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _subcardDetail(section, subcard),
+      ],
+    );
+  }
+
+  Widget _menuCategoryCard(String title) {
+    final theme = Theme.of(context);
+    final purpose = _menuCardPurposes[title]!;
+    final isExistingWorkspace = _subcards[3].contains(title);
+    return Semantics(
+      button: true,
+      label:
+          '$title. $purpose. '
+          '${isExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
+      child: Card(
+        key: ValueKey('menu-category-card-$title'),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        child: InkWell(
+          onTap: () => setState(() {
+            _workspaceSearch = '';
+            _workspaceStatusFilter = 'All';
+            _selectedSubcard = title;
+          }),
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _metricIcon(title, Icons.restaurant_menu_outlined),
+                      color: theme.colorScheme.primary,
+                      size: 22,
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_outward,
+                      size: 17,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  purpose,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    isExistingWorkspace
+                        ? 'Existing generic workspace'
+                        : 'Design only · integration unverified',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _menuCardDesignDetail(String title) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  _metricIcon(title, Icons.restaurant_menu_outlined),
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Chip(
+                  label: Text('Design only'),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _menuCardPurposes[title]!,
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.45),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Product-specific data sources and integrations have not been '
+                'verified. This workspace is a design preview only: no catalog '
+                'records are loaded or changed, and operational actions are '
+                'not available.',
+                style: TextStyle(height: 1.45),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _menuLegacyCardDetail(
+    ({String key, IconData icon, String title, String description}) section,
+    String subcard,
+  ) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Text(
+            'This existing route and its stored workspace records are preserved. '
+            'They use the generic record workspace and are not verified product '
+            'catalog, pricing, inventory, or order integrations.',
             style: TextStyle(height: 1.4),
           ),
         ),
