@@ -10,6 +10,7 @@ class CafeWorkspaceRecord {
     required this.status,
     required this.amount,
     required this.currency,
+    required this.metadata,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -24,6 +25,9 @@ class CafeWorkspaceRecord {
       status: json['status'] as String,
       amount: (json['amount'] as num?)?.toDouble(),
       currency: json['currency'] as String,
+      metadata: json['metadata'] is Map
+          ? Map<String, dynamic>.from(json['metadata'] as Map)
+          : const {},
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -37,6 +41,7 @@ class CafeWorkspaceRecord {
   final String status;
   final double? amount;
   final String currency;
+  final Map<String, dynamic> metadata;
   final DateTime createdAt;
   final DateTime updatedAt;
 }
@@ -64,7 +69,7 @@ class CafeWorkspaceRepository {
           .from('cafe_workspace_records')
           .select(
             'id,section_key,subcard_key,title,details,status,amount,currency,'
-            'created_at,updated_at',
+            'metadata,created_at,updated_at',
           )
           .order('updated_at', ascending: false)
           .order('id')
@@ -90,6 +95,7 @@ class CafeWorkspaceRepository {
     required String title,
     required String details,
     required double? amount,
+    Map<String, dynamic> metadata = const {},
   }) async {
     final normalizedSectionKey = _validatedKey(sectionKey, 'section');
     final normalizedSubcardKey = _validatedKey(subcardKey, 'subcard');
@@ -107,6 +113,7 @@ class CafeWorkspaceRepository {
       'title': normalizedTitle,
       'details': details,
       'amount': amount,
+      'metadata': metadata,
       'created_by': userId,
       'updated_by': userId,
     });
@@ -117,6 +124,7 @@ class CafeWorkspaceRepository {
     required String title,
     required String details,
     required double? amount,
+    Map<String, dynamic> metadata = const {},
   }) async {
     final normalizedTitle = _validatedTitle(title);
     _validateAmount(amount);
@@ -128,6 +136,7 @@ class CafeWorkspaceRepository {
           'title': normalizedTitle,
           'details': details,
           'amount': amount,
+          'metadata': metadata,
           'updated_by': userId,
         })
         .eq('id', recordId)

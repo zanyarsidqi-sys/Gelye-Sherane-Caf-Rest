@@ -36,17 +36,11 @@ class CafeDiningTableRepository {
   const CafeDiningTableRepository(this._client);
 
   static const statuses = {'available', 'occupied', 'reserved', 'cleaning'};
-  static const _tableColumns =
-      'id,name,area,seats,status,position_x,position_y';
 
   final SupabaseClient _client;
 
   Future<List<CafeDiningTable>> fetchTables() async {
-    final rows = await _client
-        .from('cafe_dining_tables')
-        .select(_tableColumns)
-        .order('area')
-        .order('name');
+    final rows = await _client.rpc('list_cafe_dining_tables');
     return rows
         .map((row) => CafeDiningTable.fromJson(Map<String, dynamic>.from(row)))
         .toList(growable: false);
@@ -136,6 +130,30 @@ class CafeDiningTableRepository {
         .eq('id', id)
         .select('id')
         .single();
+  }
+
+  Future<String> fetchQrToken(String tableId) async {
+    _requireSignedIn();
+    final token = await _client.rpc(
+      'get_cafe_dining_table_qr_token',
+      params: {'p_table_id': tableId},
+    );
+    if (token is! String || token.isEmpty) {
+      throw const FormatException('The server returned an invalid table QR.');
+    }
+    return token;
+  }
+
+  Future<String> regenerateQrToken(String tableId) async {
+    _requireSignedIn();
+    final token = await _client.rpc(
+      'regenerate_cafe_dining_table_qr_token',
+      params: {'p_table_id': tableId},
+    );
+    if (token is! String || token.isEmpty) {
+      throw const FormatException('The server returned an invalid table QR.');
+    }
+    return token;
   }
 
   RealtimeChannel subscribe(void Function() onChange) {

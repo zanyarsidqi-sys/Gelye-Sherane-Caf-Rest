@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gelye_sherane_cafe/cafe_guest_page.dart';
 import 'package:gelye_sherane_cafe/main.dart';
 import 'package:gelye_sherane_cafe/staff_dashboard_page.dart';
 
@@ -10,6 +11,28 @@ void main() {
 
     expect(find.text('A taste to look forward to'), findsOneWidget);
     expect(find.text('admin@gelyesherane.local'), findsNothing);
+  });
+
+  testWidgets('guest QR page explains when verification is not configured', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: CafeGuestPage(
+          qrToken: '00000000-0000-4000-8000-000000000001',
+          supabaseConfigured: false,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining(
+        'Table QR verification is not configured for this site.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Try again'), findsOneWidget);
   });
 
   testWidgets('shows the management redesign on first load', (tester) async {
@@ -28,7 +51,7 @@ void main() {
     expect(find.text('Gelye Sherane'), findsOneWidget);
     expect(find.text('Workspace'), findsOneWidget);
     expect(find.text('Dashboard'), findsWidgets);
-    expect(find.text('Tables & Orders'), findsWidgets);
+    expect(find.text('Tables & Chairs'), findsWidgets);
     expect(find.text('Staff Management'), findsWidgets);
     expect(find.text('A taste to look forward to'), findsNothing);
     expect(find.text('Book a table'), findsNothing);
@@ -100,7 +123,7 @@ void main() {
 
     for (final section in [
       'Dashboard',
-      'Tables & Orders',
+      'Tables & Chairs',
       'Payment Management',
       'Menu Management',
       'Kitchen Management',
@@ -138,7 +161,7 @@ void main() {
 
     const sectionTitles = [
       'Dashboard',
-      'Tables & Orders',
+      'Tables & Chairs',
       'Payment Management',
       'Menu Management',
       'Kitchen Management',
@@ -242,7 +265,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Tables & Orders'), findsOneWidget);
+    expect(find.text('Tables & Chairs'), findsWidgets);
     expect(find.text('Payment Management'), findsNothing);
     expect(find.text('Today Revenue'), findsOneWidget);
     expect(find.text('Standing Cash'), findsNothing);
@@ -255,10 +278,10 @@ void main() {
     expect(find.text('Staff & Operations Management'), findsOneWidget);
     expect(find.text('Reports Management'), findsOneWidget);
 
-    await tester.tap(find.text('Tables & Orders'));
+    await tester.tap(find.text('Tables & Chairs'));
     await tester.pumpAndSettle();
-    expect(find.text('Table Overview'), findsOneWidget);
-    expect(find.text('Visual Table Map'), findsNothing);
+    expect(find.text('Add Table'), findsOneWidget);
+    expect(find.text('Table Overview'), findsNothing);
 
     await tester.tap(find.text('Inventory Management'));
     await tester.pumpAndSettle();
@@ -437,74 +460,32 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Table service board'), findsOneWidget);
-      expect(find.text('Table workflows'), findsOneWidget);
+      expect(find.text('Tables & Chairs'), findsWidgets);
+      expect(find.text('Add Table'), findsOneWidget);
+      expect(find.text('Table service board'), findsNothing);
+      expect(find.text('Table workflows'), findsNothing);
       expect(tester.takeException(), isNull);
 
-      await tester.ensureVisible(find.text('Open Live Tables'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Open Live Tables'));
-      await tester.pumpAndSettle();
-      expect(
-        find.textContaining('Drag table tiles to arrange the floor.'),
-        findsOneWidget,
+      final addTableCard = find.byKey(
+        const ValueKey('tables-category-card-Add Table'),
       );
-      expect(find.text('Add table'), findsOneWidget);
-      expect(find.text('Table service board'), findsNothing);
-      await tester.ensureVisible(find.text('Back to Tables & Orders'));
+      expect(tester.getSize(addTableCard).width, greaterThan(200));
+      await tester.tap(addTableCard);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Back to Tables & Orders'));
+      expect(find.byKey(const ValueKey('add-dining-table')), findsOneWidget);
+      expect(find.textContaining('Manage saved tables'), findsOneWidget);
+      expect(find.text('Add table'), findsOneWidget);
+      expect(find.text('Floor map'), findsNothing);
+      expect(find.text('Table workflows'), findsNothing);
+      await tester.ensureVisible(find.text('Back to Tables & Chairs'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Back to Tables & Chairs'));
       await tester.pumpAndSettle();
 
       expect(dashboardCardSize.width, lessThan(200));
-      for (final title in [
-        'Live Tables',
-        'Add / Edit Tables',
-        'Table Map',
-        'Table Orders',
-        'Chairs Management',
-        'Table QR Codes',
-        'Customer QR Ordering',
-        'Table Reservations',
-        'Join / Transfer Tables',
-        'Table Payments',
-        'Pricing Modes',
-        'Table Service Requests',
-        'Table Checkout & Cleaning',
-        'Table History',
-        'Table Settings',
-        'Table Availability',
-      ]) {
-        expect(find.text(title), findsOneWidget, reason: title);
-      }
-      final tableCard = find.ancestor(
-        of: find.text('Live Tables'),
-        matching: find.byType(Card),
-      );
-      expect(tester.getSize(tableCard).width, greaterThan(100));
-      expect(tester.getSize(tableCard).width, lessThan(150));
-      expect(
-        find.text('Live table records and current status'),
-        findsOneWidget,
-      );
-
-      await tester.ensureVisible(find.text('More cards (20)'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('More cards (20)'));
-      await tester.pumpAndSettle();
-      expect(find.text('Table Overview'), findsOneWidget);
-      await tester.tap(find.text('More cards (20)'));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Live Tables'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Live Tables'));
-      await tester.pumpAndSettle();
-      expect(
-        find.textContaining('Drag table tiles to arrange the floor.'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('Supabase is not configured'), findsWidgets);
-      expect(find.text('Add table'), findsOneWidget);
+      expect(find.text('More cards (20)'), findsNothing);
+      expect(find.text('Live Tables'), findsNothing);
+      expect(find.text('Table Orders'), findsNothing);
 
       await tester.tap(find.text('More').last);
       await tester.pumpAndSettle();
@@ -616,7 +597,9 @@ void main() {
     }
   });
 
-  testWidgets('every table card opens its scoped table detail', (tester) async {
+  testWidgets('Tables & Chairs has four categories and 29 staged cards', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1440, 2600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -631,124 +614,129 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('management-section-1')));
     await tester.pumpAndSettle();
 
-    for (final view in const ['Floor map', 'Table list', 'Reservations']) {
-      await tester.tap(find.widgetWithText(ChoiceChip, view));
+    Future<void> selectCategory(int index) async {
+      final category = find.byKey(ValueKey('tables-category-$index'));
+      await tester.ensureVisible(category);
+      await tester.tap(category);
       await tester.pumpAndSettle();
-      expect(find.text('$view records'), findsOneWidget);
     }
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Floor map'));
-    await tester.pumpAndSettle();
 
-    const featuredCards = [
-      'Live Tables',
-      'Add / Edit Tables',
+    expect(find.text('Tables & Chairs'), findsWidgets);
+    expect(find.byType(ChoiceChip), findsNWidgets(4));
+    const categoryCardCounts = [8, 9, 6, 6];
+    expect(categoryCardCounts.reduce((sum, count) => sum + count), 29);
+    for (final title in [
+      'Add Table',
+      'Edit & Manage Tables',
       'Table Map',
-      'Table Orders',
+      'QR Code Management',
       'Chairs Management',
-      'Table QR Codes',
-      'Customer QR Ordering',
+      'Bulk Table Creation',
+      'Areas & Sections',
+      'Table Floor Plans',
+    ]) {
+      expect(find.text(title), findsOneWidget, reason: title);
+    }
+    expect(find.text('Table service board'), findsNothing);
+    expect(find.text('Available'), findsNothing);
+    expect(find.text('Occupied'), findsNothing);
+    expect(find.text('Reserved'), findsNothing);
+    expect(find.text('Floor map'), findsNothing);
+    expect(find.text('Table list'), findsNothing);
+    expect(find.text('Reservations records'), findsNothing);
+    expect(find.text('Table workflows'), findsNothing);
+    expect(find.text('Table Orders'), findsNothing);
+    expect(find.text('More cards'), findsNothing);
+
+    await selectCategory(1);
+    for (final title in [
       'Table Reservations',
-      'Join / Transfer Tables',
-      'Table Payments',
-      'Pricing Modes',
-      'Table Service Requests',
-      'Table Checkout & Cleaning',
-      'Table History',
-      'Table Settings',
       'Table Availability',
-    ];
-    const additionalCards = [
-      'Current Customers',
-      'Active Tables',
-      "Today's Customers",
-      "Today's Tables",
+      'Live Tables',
       'Table Status',
-      'Waiting List',
-      'Table Cleaning',
-      'Table Requests',
-      'Table Performance',
-      'Table Overview',
-      'Visual Table Map',
-      'Add/Edit Tables & Chairs',
-      'QR Generate/Print/Revoke',
-      'Customer QR Screen',
-      'Join/Transfer',
-      'Split Bills',
-      'Pay for Others',
-      'Cleaning',
-      'Extra Chairs',
-      'Reservations',
-    ];
-    String permissionSlug(String label) => label
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-        .replaceAll(RegExp(r'^_|_$'), '');
-
-    Future<void> openAndVerify(String title) async {
-      final card = find.byKey(
-        ValueKey('management-card-tables_orders-${permissionSlug(title)}'),
-      );
-      if (card.evaluate().isEmpty) {
-        final moreCards = find.text('More cards (20)');
-        await tester.ensureVisible(moreCards);
-        await tester.tap(moreCards);
-        await tester.pumpAndSettle();
-      }
-      final visibleCard = find.byKey(
-        ValueKey('management-card-tables_orders-${permissionSlug(title)}'),
-      );
-      await tester.ensureVisible(visibleCard);
-      await tester.tap(visibleCard);
-      await tester.pumpAndSettle();
-
-      const diningTableCards = {
-        'Live Tables',
-        'Add / Edit Tables',
-        'Table Map',
-        'Table Availability',
-        'Active Tables',
-        'Table Status',
-        'Table Overview',
-        'Visual Table Map',
-        'Add/Edit Tables & Chairs',
-      };
-      if (diningTableCards.contains(title)) {
-        expect(
-          find.textContaining('Drag table tiles to arrange'),
-          findsOneWidget,
-        );
-        expect(find.byKey(const ValueKey('add-dining-table')), findsOneWidget);
-        expect(tester.takeException(), isNull, reason: title);
-
-        final back = find.text('Back to Tables & Orders');
-        await tester.ensureVisible(back);
-        await tester.tap(back);
-        await tester.pumpAndSettle();
-        return;
-      }
-
+      'Join & Split Tables',
+      'Extra Chairs Requests',
+      'Reservation Waiting List',
+      'Guest Check-In & No-Show',
+      'Table Assignment',
+    ]) {
       expect(
-        find.text('Search $title records...'),
+        find.byKey(ValueKey('tables-category-card-$title')),
         findsOneWidget,
         reason: title,
       );
-      expect(find.text('Tracked records'), findsOneWidget, reason: title);
-      expect(find.text('Open records'), findsOneWidget, reason: title);
-      expect(find.text('Add record'), findsOneWidget, reason: title);
-      expect(tester.takeException(), isNull, reason: title);
-
-      final back = find.text('Back to Tables & Orders');
-      await tester.ensureVisible(back);
-      await tester.tap(back);
-      await tester.pumpAndSettle();
+    }
+    await selectCategory(2);
+    for (final title in [
+      'Table Transfer',
+      'Table Cleaning',
+      'Table Session Management',
+      'Waiter Table Assignment',
+      'Table Service Requests',
+      'Table Ordering',
+    ]) {
+      expect(
+        find.byKey(ValueKey('tables-category-card-$title')),
+        findsOneWidget,
+        reason: title,
+      );
+    }
+    await selectCategory(3);
+    for (final title in [
+      'Table Maintenance',
+      'Table History & Audit',
+      'Table Reports',
+      'Table Settings',
+      'Table Permissions',
+      'Table Alerts & Notifications',
+    ]) {
+      expect(
+        find.byKey(ValueKey('tables-category-card-$title')),
+        findsOneWidget,
+        reason: title,
+      );
     }
 
-    for (final title in featuredCards) {
-      await openAndVerify(title);
-    }
-    for (final title in additionalCards) {
-      await openAndVerify(title);
-    }
+    await selectCategory(0);
+    await tester.tap(
+      find.byKey(const ValueKey('tables-category-card-Chairs Management')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Search Chairs Management records...'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Back to Tables & Chairs'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('tables-category-card-Table Map')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Coming Soon — Awaiting Specification'), findsOneWidget);
+    expect(find.textContaining('not operational yet'), findsOneWidget);
+    await tester.tap(find.text('Back to Tables & Chairs'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('tables-category-card-Add Table')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('add-dining-table')), findsOneWidget);
+    expect(find.text('Add table'), findsOneWidget);
+    expect(find.text('Floor map'), findsNothing);
+    expect(find.text('Table workflows'), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Back to Tables & Chairs'));
+    await tester.pumpAndSettle();
+    tester.view.physicalSize = const Size(390, 844);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('tables-category-cards-0')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('tables-category-3')), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('remaining management sections show reference card groups', (

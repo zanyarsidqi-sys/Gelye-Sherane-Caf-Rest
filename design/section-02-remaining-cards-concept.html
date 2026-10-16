@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Section 02 — Remaining 28 Cards | Design approval</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #12253f;
+      --navy-2: #1d3555;
+      --blue: #2463eb;
+      --blue-soft: #edf3ff;
+      --canvas: #f4f6fa;
+      --ink: #18283f;
+      --muted: #61718a;
+      --line: #e4eaf1;
+      --gold: #d6aa57;
+      --font: "Aptos", "Inter", "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #e9edf4; font: 13px/1.45 var(--font); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #9bb9ff; outline-offset: 2px; }
+    .reviewbar {
+      position: sticky; top: 0; z-index: 5; display: flex; align-items: center;
+      justify-content: space-between; gap: 18px; padding: 12px 22px;
+      color: #eef3fb; background: #0d1e33; box-shadow: 0 4px 16px #0d1e3322;
+    }
+    .review-title { font-weight: 800; }
+    .review-sub { color: #aebbd0; font-size: 11px; }
+    .badge {
+      padding: 5px 9px; border: 1px solid #71809a; border-radius: 999px;
+      color: #f2d79e; font-size: 10px; font-weight: 800; letter-spacing: .08em;
+      white-space: nowrap;
+    }
+    main { width: min(1660px, 100%); margin: 0 auto; padding: 18px; }
+    .notice {
+      padding: 13px 15px; border: 1px solid #ead7aa; border-radius: 12px;
+      color: #684b14; background: #fff9e9;
+    }
+    .notice strong { display: block; margin-bottom: 3px; }
+    .categories {
+      display: flex; gap: 8px; overflow-x: auto; margin: 16px 0 12px; padding: 2px 1px 7px;
+      scrollbar-width: thin;
+    }
+    .category {
+      min-height: 40px; padding: 8px 13px; flex: 0 0 auto; border: 1px solid #d7dfeb;
+      border-radius: 10px; color: #354860; background: #fff; font-weight: 750;
+    }
+    .category.active { color: #fff; border-color: var(--navy); background: var(--navy); }
+    .catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 10px; }
+    h1 { margin: 0; color: var(--navy); font-size: 23px; }
+    .muted { color: var(--muted); }
+    .catalog { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 12px 0 18px; }
+    .card {
+      min-height: 100px; display: flex; align-items: flex-start; gap: 11px; padding: 13px;
+      border: 1px solid var(--line); border-radius: 13px; background: #fff;
+      text-align: left; box-shadow: 0 3px 14px #12253f08;
+    }
+    .card:hover, .card.active { border-color: #9db8ef; box-shadow: 0 7px 18px #12253f12; }
+    .card.active { background: #f5f8ff; }
+    .card-icon {
+      width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center;
+      border-radius: 11px; color: var(--blue); background: var(--blue-soft); font-size: 18px;
+    }
+    .card-copy { min-width: 0; }
+    .card-id { color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+    .card-name { margin: 2px 0 4px; color: var(--navy); font-weight: 800; }
+    .card-status { color: var(--muted); font-size: 10px; }
+    .board-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 0; }
+    .board-title h2 { margin: 0; color: var(--navy); font-size: 17px; }
+    .previews { display: grid; grid-template-columns: minmax(0, 1fr) 390px; align-items: start; gap: 16px; }
+    .device-label { display: flex; justify-content: space-between; margin: 0 0 7px; color: #354860; font-weight: 800; font-size: 11px; }
+    .device-label span:last-child { color: #7a8799; font-weight: 600; }
+    .desktop-window { overflow: hidden; border: 1px solid #d5dce7; border-radius: 14px; background: #fff; box-shadow: 0 12px 34px #12253f17; }
+    .windowbar { height: 27px; display: flex; align-items: center; gap: 6px; padding: 0 10px; color: #748198; border-bottom: 1px solid var(--line); font-size: 9px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #c7ced8; }
+    .desktop-app { min-height: 610px; display: grid; grid-template-columns: 174px minmax(0, 1fr); }
+    .sidebar { display: flex; flex-direction: column; color: #d6dfeb; background: var(--navy); }
+    .brand { min-height: 57px; display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-bottom: 1px solid #ffffff17; }
+    .mark { width: 30px; height: 30px; display: grid; place-items: center; flex: 0 0 30px; border-radius: 50%; color: var(--navy); background: #e8c273; font-weight: 900; }
+    .brand-name { color: white; font-size: 10px; font-weight: 800; line-height: 1.15; }
+    .brand-sub { margin-top: 3px; color: #aab8ca; font-size: 7px; letter-spacing: .1em; }
+    .nav-label { margin: 17px 11px 5px; color: #91a1b8; font-size: 8px; font-weight: 800; letter-spacing: .1em; }
+    .nav-item { margin: 2px 7px; padding: 7px 9px; border-radius: 7px; color: #c5d0df; font-size: 9px; }
+    .nav-item.active { color: #fff; background: #263f62; font-weight: 750; }
+    .desk-main { min-width: 0; background: var(--canvas); }
+    .topbar { height: 42px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; color: var(--muted); background: #fff; border-bottom: 1px solid var(--line); font-size: 9px; }
+    .desk-content { padding: 15px 16px; }
+    .crumb { color: var(--blue); font-size: 8px; font-weight: 800; letter-spacing: .08em; }
+    .workspace-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin: 3px 0 5px; }
+    .workspace-title h2 { margin: 0; color: var(--navy); font-size: 19px; }
+    .state-pill { padding: 4px 8px; border: 1px solid #d5dce7; border-radius: 999px; color: #626f82; background: white; font-size: 9px; font-weight: 750; white-space: nowrap; }
+    .scope { max-width: 820px; margin: 0; color: var(--muted); font-size: 10px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+    .action {
+      min-height: 30px; padding: 6px 9px; border: 1px solid #d8e0ea; border-radius: 8px;
+      color: #43536a; background: #fff; font-size: 9px; font-weight: 700;
+    }
+    .action.primary { color: white; border-color: var(--blue); background: var(--blue); }
+    .action:disabled { opacity: .55; cursor: default; }
+    .filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .filter { padding: 4px 8px; border: 1px solid var(--line); border-radius: 999px; color: #54647a; background: white; font-size: 8px; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+    .stat, .panel { border: 1px solid var(--line); border-radius: 10px; background: white; }
+    .stat { padding: 9px 10px; }
+    .stat-label { color: var(--muted); font-size: 8px; }
+    .stat-value { margin-top: 3px; color: var(--navy); font-size: 15px; font-weight: 800; }
+    .workarea { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(180px, .8fr); gap: 9px; }
+    .panel { min-width: 0; padding: 11px; }
+    .panel h3 { margin: 0 0 8px; color: var(--navy); font-size: 10px; }
+    .empty { min-height: 125px; display: grid; place-items: center; padding: 15px; border: 1px dashed #ccd6e4; border-radius: 8px; color: #79869a; background: #fafbfd; text-align: center; font-size: 9px; }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .field { display: block; color: var(--muted); font-size: 8px; }
+    .field span { display: block; margin-bottom: 4px; }
+    .field input { width: 100%; height: 29px; padding: 5px 7px; border: 1px solid #dce3ec; border-radius: 7px; color: #8490a1; background: #f9fafc; font-size: 9px; }
+    .list-row { display: grid; grid-template-columns: 1.1fr 1fr .8fr; gap: 5px; padding: 7px 0; border-bottom: 1px solid #eef1f5; color: #6b788b; font-size: 8px; }
+    .list-head { color: #41536c; font-weight: 800; }
+    .mobile-frame { width: 100%; padding: 9px; border: 1px solid #cbd3df; border-radius: 28px; background: #152236; box-shadow: 0 12px 30px #12253f20; }
+    .phone-screen { min-height: 730px; overflow: hidden; border-radius: 21px; background: var(--canvas); }
+    .phone-status { height: 25px; padding: 5px 13px 0; color: #2f3b4e; background: #fff; font-size: 8px; font-weight: 800; }
+    .phone-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: white; background: var(--navy); }
+    .phone-header .mark { width: 27px; height: 27px; flex-basis: 27px; font-size: 12px; }
+    .phone-name { font-size: 10px; font-weight: 800; }
+    .phone-category { display: flex; gap: 6px; overflow-x: auto; padding: 8px; background: white; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+    .phone-category span { flex: 0 0 auto; padding: 5px 7px; border-radius: 999px; color: #52627a; background: #f1f4f8; font-size: 7px; }
+    .phone-category span.active { color: white; background: var(--blue); }
+    .phone-content { padding: 12px; }
+    .phone-content .workspace-title h2 { font-size: 16px; }
+    .phone-content .scope { font-size: 9px; }
+    .phone-content .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .phone-content .stats .stat:last-child { display: none; }
+    .phone-content .workarea { grid-template-columns: 1fr; }
+    .phone-content .workarea .panel:nth-child(2) { display: none; }
+    .phone-content .field-grid { grid-template-columns: 1fr; }
+    .phone-content .field:nth-child(n+4) { display: none; }
+    .phone-content .toolbar { gap: 5px; }
+    .phone-content .action { flex: 1 1 42%; min-height: 35px; }
+    .phone-content .empty { min-height: 100px; }
+    .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 30px; }
+    .spec-panel { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+    .spec-panel h3 { margin: 0 0 7px; color: var(--navy); font-size: 12px; }
+    .spec-panel p { margin: 0; color: var(--muted); font-size: 11px; }
+    .spec-panel.full { grid-column: 1 / -1; }
+    .approved-link { color: #dbe7ff; font-size: 10px; }
+    @media (max-width: 1120px) {
+      .catalog { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .previews { grid-template-columns: minmax(0, 1fr) 350px; }
+    }
+    @media (max-width: 900px) {
+      .previews { grid-template-columns: minmax(0, 1fr); }
+      .mobile-frame { width: min(390px, 100%); margin: 0 auto; }
+      .desktop-app { grid-template-columns: 150px minmax(0, 1fr); }
+    }
+    @media (max-width: 600px) {
+      main { padding: 12px; }
+      .reviewbar { align-items: flex-start; padding: 10px 13px; }
+      .review-sub { max-width: 240px; }
+      .catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+      .card { min-height: 106px; padding: 10px; gap: 8px; }
+      .card-icon { width: 31px; height: 31px; flex-basis: 31px; }
+      .card-name { font-size: 11px; }
+      .card-status { font-size: 9px; }
+      .desktop-window { overflow-x: auto; }
+      .desktop-app { min-width: 730px; }
+      .spec-grid { grid-template-columns: 1fr; }
+      .spec-panel.full { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="reviewbar">
+    <div>
+      <div class="review-title">Section 02 · Remaining 28 Cards</div>
+      <div class="review-sub">Windows and iPhone design previews · Gelye Sherane Café &amp; Restaurant</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+      <a class="approved-link" href="./add-table-card-01-concept.html">View Card 01 — Add Table</a>
+      <span class="badge">DESIGN ONLY · APPROVAL REQUIRED</span>
+    </div>
+  </header>
+  <main>
+    <div class="notice">
+      <strong>Review the proposed layout before implementation</strong>
+      These are visual previews only. No records are loaded or saved, no actions execute, and no database, order, payment, reservation, staff, or notification behavior is changed. Card 31 Table Ordering is a navigation hand-off concept to the existing Section 03 workflow, not a second order system.
+    </div>
+    <nav class="categories" id="categories" aria-label="Section 02 categories"></nav>
+    <div class="catalog-head">
+      <div>
+        <h1 id="category-title">Table Management</h1>
+        <div class="muted" id="category-count"></div>
+      </div>
+      <span class="badge" style="color:#6b541c;border-color:#e5d2a3;background:#fff9e9">PREVIEW RECORDS ARE EMPTY</span>
+    </div>
+    <section class="catalog" id="catalog" aria-label="Cards in selected category"></section>
+    <div class="board-title">
+      <h2 id="preview-heading">Card preview</h2>
+      <span class="muted">Windows workspace + iPhone screen</span>
+    </div>
+    <section class="previews" aria-label="Windows and iPhone previews">
+      <div>
+        <div class="device-label"><span>Windows / Web</span><span>Desktop layout</span></div>
+        <div class="desktop-window">
+          <div class="windowbar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>Gelye Sherane Management System</span></div>
+          <div class="desktop-app">
+            <aside class="sidebar">
+              <div class="brand"><div class="mark">G</div><div><div class="brand-name">Gelye Sherane</div><div class="brand-sub">CAFÉ &amp; RESTAURANT</div></div></div>
+              <div class="nav-label">WORKSPACE</div>
+              <div class="nav-item">▦ &nbsp; Dashboard</div>
+              <div class="nav-item active">▤ &nbsp; Tables &amp; Chairs</div>
+              <div class="nav-item">▣ &nbsp; Payment Management</div>
+              <div class="nav-item">♨ &nbsp; Menu Management</div>
+              <div class="nav-item">◷ &nbsp; Kitchen Management</div>
+              <div class="nav-label">SECTION 02</div>
+              <div class="nav-item active" id="desktop-category">Table Management</div>
+              <div class="nav-item" id="desktop-card">Card 02</div>
+              <div style="flex:1"></div>
+              <div class="nav-item">● &nbsp; Signed in as Staff</div>
+            </aside>
+            <div class="desk-main">
+              <div class="topbar"><span>Workspace / Tables &amp; Chairs</span><span>Staff · Verified session</span></div>
+              <div class="desk-content" id="desktop-preview"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="device-label"><span>iPhone</span><span>390 px responsive layout</span></div>
+        <div class="mobile-frame">
+          <div class="phone-screen">
+            <div class="phone-status">9:41 &nbsp; ● ● ●</div>
+            <div class="phone-header"><div class="mark">G</div><div class="phone-name">Gelye Sherane · Tables</div></div>
+            <div class="phone-category" id="phone-category"></div>
+            <div class="phone-content" id="phone-preview"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="spec-grid" aria-label="Functional specification for selected card">
+      <div class="spec-panel">
+        <h3>Workspace scope</h3>
+        <p id="spec-scope"></p>
+      </div>
+      <div class="spec-panel">
+        <h3>Integration and safeguards</h3>
+        <p id="spec-safety"></p>
+      </div>
+      <div class="spec-panel full">
+        <h3>Approval boundary</h3>
+        <p>Every card requires owner approval of its Windows and iPhone design before implementation. Existing working screens and shared Section 03 order/payment sources must be preserved; no production release is included in this design review.</p>
+      </div>
+    </section>
+  </main>
+  <script>
+    const categories = [
+      { name: 'Table Management', cards: [
+        { id: '02', name: 'Edit & Manage Tables', icon: '✎', mode: 'list', scope: 'Search and filter the saved tables; edit labels, area, capacity, type, and active state while protecting occupied or reserved records.', safety: 'Keep table-number uniqueness. Check permissions on the server and record before/after audit values. Reuse the existing dining-table records.', filters: ['Search table', 'Area', 'Status'], fields: ['Table number/name', 'Area / section', 'Capacity', 'Table type', 'Active state'], actions: ['Edit selected', 'Save changes', 'Cancel'] },
+        { id: '03', name: 'Table Map', icon: '⌖', mode: 'map', scope: 'Drag and drop table positions; zoom the floor, filter areas, visualize chairs, and save or revert a floor layout.', safety: 'Persist coordinates with version checks. Do not move an active table identity or its order links.', filters: ['Area', 'Floor plan', 'Zoom'], fields: ['Table tile', 'Chair visualization', 'Position controls'], actions: ['Undo move', 'Save layout', 'Revert draft'] },
+        { id: '04', name: 'QR Code Management', icon: '▦', mode: 'qr', scope: 'List table QR codes; preview, print, export PDF, verify, and regenerate an authorized code.', safety: 'Use opaque public identifiers, never credentials. Support revocation, audit history, and retain historical orders.', filters: ['Area', 'QR status', 'Search table'], fields: ['Table identity', 'QR preview', 'Last rotated'], actions: ['Preview QR', 'Print', 'Download PDF', 'Regenerate'] },
+        { id: '05', name: 'Chairs Management', icon: '♧', mode: 'chairs', scope: 'Preserve the existing chair workflow; manage chair count, arrangement, availability, and the associated table.', safety: 'Do not rewrite the ready behavior. Verify its existing code, schema, and tests before extending it.', filters: ['Area', 'Table', 'Availability'], fields: ['Table', 'Chair count', 'Arrangement', 'Availability'], actions: ['Open existing chair workflow', 'Save arrangement'] },
+        { id: '06', name: 'Bulk Table Creation', icon: '▤', mode: 'form', scope: 'Create numbered batches by area, type, capacity, and chair defaults, with a preview before commit.', safety: 'Prevent duplicates. Create transactionally/idempotently and report partial errors clearly.', filters: ['Area', 'Number range'], fields: ['First number', 'Last number', 'Area', 'Type', 'Capacity', 'Chair defaults'], actions: ['Preview batch', 'Create batch'] },
+        { id: '07', name: 'Areas & Sections', icon: '▥', mode: 'list', scope: 'Create and edit dining areas, choose display order, and assign tables to areas.', safety: 'Do not orphan tables or reservations when an area is deactivated.', filters: ['Search area', 'Active state'], fields: ['Area name', 'Display order', 'Assigned tables', 'Active state'], actions: ['Add area', 'Edit area', 'Deactivate'] },
+        { id: '21', name: 'Table Floor Plans', icon: '▦', mode: 'floor', scope: 'Maintain multiple floor/zone plan versions, drafts, and active published layouts.', safety: 'Keep plan versions separate from live Table Map coordinates. Make activation and rollback safe.', filters: ['Zone', 'Version', 'Draft / active'], fields: ['Plan name', 'Zone', 'Version', 'Activation date'], actions: ['New draft', 'Preview', 'Publish', 'Rollback'] }
+      ]},
+      { name: 'Reservations & Availability', cards: [
+        { id: '08', name: 'Table Reservations', icon: '▣', mode: 'calendar', scope: 'Create, edit, confirm, cancel, and view bookings by time, party size, and table.', safety: 'Check conflicts, timezone-aware windows, authorization, notification, and audit.', filters: ['Date', 'Time', 'Area', 'Status'], fields: ['Guest', 'Party size', 'Time window', 'Table', 'Contact'], actions: ['New reservation', 'Confirm', 'Cancel'] },
+        { id: '09', name: 'Table Availability', icon: '◷', mode: 'search', scope: 'Search available tables by date, time, party size, area, and accessibility settings.', safety: 'Calculate from bookings, sessions, and table state; recheck before assignment to avoid stale results.', filters: ['Date', 'Time', 'Party size', 'Area', 'Accessibility'], fields: ['Availability results', 'Capacity fit', 'Time window'], actions: ['Search tables', 'Select table'] },
+        { id: '10', name: 'Live Tables', icon: '◉', mode: 'status', scope: 'Show a real-time overview of available, occupied, reserved, cleaning, and out-of-service tables.', safety: 'Use the shared status source; do not create a manually inconsistent parallel status model.', filters: ['Area', 'Status', 'Refresh'], fields: ['Table', 'Status', 'Current session', 'Updated'], actions: ['Open table', 'Refresh'] },
+        { id: '11', name: 'Table Status', icon: '⇄', mode: 'status', scope: 'Allow authorized staff to perform guarded status changes and supply a reason; show clear live state.', safety: 'Enforce state-machine transitions. Never mark an occupied table free without proper checkout.', filters: ['Area', 'Current status'], fields: ['Current status', 'New status', 'Reason'], actions: ['Change status', 'View history'] },
+        { id: '12', name: 'Join & Split Tables', icon: '⫶', mode: 'join', scope: 'Combine seating groups or separate them while maintaining each table identity.', safety: 'Preserve reservation, session, order, and billing links. Do not silently transfer settled items.', filters: ['Area', 'Active session'], fields: ['Source table(s)', 'Destination table(s)', 'Party split'], actions: ['Preview change', 'Join tables', 'Split tables'] },
+        { id: '13', name: 'Extra Chairs Requests', icon: '♧', mode: 'requests', scope: 'Request extra seating, review capacity, and approve or decline with staff notification.', safety: 'Validate physical capacity and reservation conflicts; audit each decision.', filters: ['Area', 'Request status'], fields: ['Table', 'Requested chairs', 'Current capacity', 'Reason'], actions: ['Approve', 'Decline', 'Notify staff'] },
+        { id: '24', name: 'Reservation Waiting List', icon: '☷', mode: 'list', scope: 'Queue guests, estimate their wait without guaranteeing a time, and offer newly available seating.', safety: 'Prevent double offers; track offer expiry and guest response.', filters: ['Date', 'Party size', 'Queue status'], fields: ['Queue order', 'Guest', 'Party size', 'Wait estimate', 'Offer expiry'], actions: ['Add guest', 'Offer table', 'Record response'] },
+        { id: '25', name: 'Guest Check-In & No-Show', icon: '✓', mode: 'checkin', scope: 'Record arrivals, lateness, cancellations, and no-shows; manage table-release rules.', safety: 'Use configurable grace periods. Do not charge automatically without an explicit payment policy.', filters: ['Date', 'Arrival state', 'Area'], fields: ['Reservation', 'Arrival time', 'Grace period', 'Release decision'], actions: ['Check in', 'Mark no-show', 'Release table'] },
+        { id: '26', name: 'Table Assignment', icon: '⇥', mode: 'assignment', scope: 'Recommend and assign suitable tables to walk-ins and booked guests.', safety: 'Recheck availability atomically at assignment and prevent simultaneous double assignment.', filters: ['Party size', 'Area', 'Time', 'Accessibility'], fields: ['Guest / booking', 'Recommended table', 'Capacity fit'], actions: ['Recommend', 'Assign table'] }
+      ]},
+      { name: 'Customer Service', cards: [
+        { id: '14', name: 'Table Transfer', icon: '↗', mode: 'transfer', scope: 'Move an active visit or eligible unsettled items between tables.', safety: 'Preserve pricing, payment history, and audit. Do not transfer settled items.', filters: ['Area', 'Active session'], fields: ['Source table', 'Destination table', 'Items to move', 'Reason'], actions: ['Preview transfer', 'Confirm transfer'] },
+        { id: '15', name: 'Table Cleaning', icon: '✧', mode: 'cleaning', scope: 'Create cleaning tasks after checkout, assign staff, and mark inspected/ready.', safety: 'Prevent reopening until an authorized readiness check; integrate with the existing task queue.', filters: ['Area', 'Cleaning state', 'Assigned staff'], fields: ['Table', 'Task', 'Assigned employee', 'Inspection'], actions: ['Assign task', 'Mark cleaned', 'Inspect / ready'] },
+        { id: '27', name: 'Table Session Management', icon: '◷', mode: 'session', scope: 'Track seated guests, session start/end, occupancy, checkout, and table turnover.', safety: 'Link to shared table sessions, Section 03 orders, and payment state.', filters: ['Area', 'Session state', 'Date'], fields: ['Table', 'Session start', 'Party size', 'Order link', 'Checkout'], actions: ['Open session', 'Checkout', 'View orders'] },
+        { id: '28', name: 'Waiter Table Assignment', icon: '♙', mode: 'waiter', scope: 'Assign responsible waiters by table, zone, and shift; support hand-off.', safety: 'Honor employee availability and permissions; retain assignment history.', filters: ['Shift', 'Zone', 'Employee'], fields: ['Waiter', 'Tables / zone', 'Shift', 'Hand-off note'], actions: ['Assign', 'Hand off', 'End assignment'] },
+        { id: '29', name: 'Table Service Requests', icon: '♧', mode: 'requests', scope: 'Receive, prioritize, assign, and resolve guest calls and item/service requests.', safety: 'Reuse existing customer request records and employee notifications.', filters: ['Priority', 'Type', 'Status', 'Assigned staff'], fields: ['Table', 'Request', 'Priority', 'Assigned employee', 'Age'], actions: ['Assign', 'Acknowledge', 'Resolve'] },
+        { id: '31', name: 'Table Ordering', icon: '↗', mode: 'orderlink', scope: 'Open the existing Section 03 Table Orders workflow from Section 02.', safety: 'Navigation/integration only. Do not build a duplicate order, kitchen, pricing, or payment engine.', filters: ['Table', 'Active session'], fields: ['Shared table identity', 'Section 03 order destination'], actions: ['Open Section 03 Table Orders'] }
+      ]},
+      { name: 'Administration', cards: [
+        { id: '16', name: 'Table Maintenance', icon: '⚒', mode: 'maintenance', scope: 'Log defects, take unsafe tables/chairs out of service, assign repairs, and return inspected equipment to service.', safety: 'Record evidence and authorized inspection; keep availability synchronized.', filters: ['Area', 'Severity', 'Repair state'], fields: ['Asset / table', 'Defect', 'Evidence', 'Assigned repair', 'Inspection'], actions: ['Report defect', 'Assign repair', 'Return to service'] },
+        { id: '17', name: 'Table History & Audit', icon: '☷', mode: 'audit', scope: 'Search historical table changes, QR rotations, sessions, assignments, and actions.', safety: 'Provide an append-only, authorized audit view with retention and access controls.', filters: ['Date range', 'Table', 'Actor', 'Action'], fields: ['Timestamp', 'Actor', 'Action', 'Before / after'], actions: ['Search history', 'Export authorized view'] },
+        { id: '18', name: 'Table Reports', icon: '▥', mode: 'reports', scope: 'Report occupancy, turnover, reservation outcomes, utilization, and service performance.', safety: 'Use source-of-truth definitions and selected time ranges; do not invent KPIs.', filters: ['Date range', 'Area', 'Metric'], fields: ['Occupancy', 'Turnover', 'Reservation outcomes', 'Utilization'], actions: ['Run report', 'Export'] },
+        { id: '19', name: 'Table Settings', icon: '⚙', mode: 'settings', scope: 'Configure numbering, seating defaults, booking rules, and status behavior.', safety: 'Version settings and protect high-impact changes with elevated permissions.', filters: ['Setting group'], fields: ['Numbering', 'Seating defaults', 'Booking rules', 'Status transitions'], actions: ['Edit draft', 'Review changes', 'Publish settings'] },
+        { id: '20', name: 'Table Permissions', icon: '♙', mode: 'permissions', scope: 'Configure employee access to table actions and category workspaces.', safety: 'Hiding UI is not security; enforce backend RLS/authorization and MFA as applicable.', filters: ['Employee', 'Role', 'Category'], fields: ['Employee / role', 'Category grants', 'Card actions'], actions: ['Review access', 'Save grants', 'Audit change'] },
+        { id: '30', name: 'Table Alerts & Notifications', icon: '♧', mode: 'alerts', scope: 'Show alerts for arrivals, cleaning, waiting list, maintenance, and service requests.', safety: 'Deduplicate event notifications and show delivery status according to staff visibility rules.', filters: ['Event type', 'Priority', 'Delivery state'], fields: ['Alert', 'Table', 'Recipient', 'Delivery state'], actions: ['Acknowledge', 'Assign', 'Review delivery'] }
+      ]}
+    ];
+
+    let selectedCategory = 0;
+    let selectedCard = categories[0].cards[0];
+    const categoriesNode = document.getElementById('categories');
+    const catalogNode = document.getElementById('catalog');
+    const icons = { 'Table Management': '▦', 'Reservations & Availability': '▣', 'Customer Service': '♧', 'Administration': '⚙' };
+
+    function renderCategories() {
+      categoriesNode.innerHTML = categories.map((category, index) =>
+        `<button class="category ${index === selectedCategory ? 'active' : ''}" role="tab" aria-selected="${index === selectedCategory}" data-category="${index}">${icons[category.name]} &nbsp; ${category.name} <span aria-hidden="true">(${category.cards.length + (index === 0 ? 1 : 0)})</span></button>`
+      ).join('');
+      categoriesNode.querySelectorAll('[data-category]').forEach(button => {
+        button.addEventListener('click', () => {
+          selectedCategory = Number(button.dataset.category);
+          selectedCard = categories[selectedCategory].cards[0];
+          render();
+        });
+      });
+    }
+
+    function renderCatalog() {
+      const category = categories[selectedCategory];
+      const addTable = selectedCategory === 0
+        ? `<a class="card" href="./add-table-card-01-concept.html" style="text-decoration:none;color:inherit"><span class="card-icon">＋</span><span class="card-copy"><span class="card-id">CARD 01</span><span class="card-name" style="display:block">Add Table</span><span class="card-status">Approved separately · Existing workspace</span></span></a>`
+        : '';
+      catalogNode.innerHTML = addTable + category.cards.map(card =>
+        `<button class="card ${card === selectedCard ? 'active' : ''}" data-id="${card.id}" aria-pressed="${card === selectedCard}"><span class="card-icon">${card.icon}</span><span class="card-copy"><span class="card-id">CARD ${card.id}</span><span class="card-name" style="display:block">${card.name}</span><span class="card-status">Design preview · Approval pending</span></span></button>`
+      ).join('');
+      catalogNode.querySelectorAll('[data-id]').forEach(button => {
+        button.addEventListener('click', () => {
+          selectedCard = category.cards.find(card => card.id === button.dataset.id);
+          render();
+        });
+      });
+      document.getElementById('category-title').textContent = category.name;
+      document.getElementById('category-count').textContent =
+        `${category.cards.length + (selectedCategory === 0 ? 1 : 0)} cards · only cards in this category are listed`;
+    }
+
+    function actionsMarkup(card) {
+      return card.actions.map((action, index) =>
+        `<button class="action ${index === 0 ? 'primary' : ''}" disabled>${action}</button>`
+      ).join('');
+    }
+
+    function workspaceMarkup(card, compact) {
+      const fields = card.fields.map((field, index) =>
+        `<label class="field"><span>${field}</span><input disabled placeholder="${index === 0 ? 'Select or enter…' : 'Not connected in preview'}"></label>`
+      ).join('');
+      const filters = card.filters.map(filter => `<span class="filter">${filter} ▾</span>`).join('');
+      let work = '';
+      if (['map', 'floor'].includes(card.mode)) {
+        work = `<div class="empty" style="min-height:${compact ? '135px' : '205px'}"><div><div style="font-size:24px">${card.mode === 'map' ? '⌖' : '▦'}</div><strong>Floor-plan preview</strong><br>Saved table positions and zones will appear here after approval.</div></div>`;
+      } else if (card.mode === 'reports') {
+        work = `<div class="empty"><div><strong>Report visualization preview</strong><br>Metrics are blank until source data and definitions are approved.</div></div>`;
+      } else if (card.mode === 'audit') {
+        work = `<div class="empty"><div><strong>Audit timeline preview</strong><br>Authorized history entries will appear here.</div></div>`;
+      } else if (['list', 'calendar', 'status', 'requests', 'waitlist', 'checkin', 'assignment', 'cleaning', 'session', 'waiter', 'maintenance', 'alerts'].includes(card.mode)) {
+        work = `<div class="list-row list-head"><span>Record</span><span>Details</span><span>State</span></div><div class="empty" style="min-height:${compact ? '85px' : '115px'}"><div>No live records are loaded in this design preview.<br>List and detail actions remain disabled.</div></div>`;
+      } else {
+        work = `<div class="field-grid">${fields}</div>`;
+      }
+      const stats = ['Live records', 'Pending review', 'Updated'].map(label =>
+        `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">—</div></div>`
+      ).join('');
+      return `
+        <div class="crumb">TABLES &amp; CHAIRS / ${categories[selectedCategory].name.toUpperCase()}</div>
+        <div class="workspace-title"><h2>Card ${card.id} · ${card.name}</h2><span class="state-pill">Preview only</span></div>
+        <p class="scope">${card.scope}</p>
+        <div class="toolbar">${actionsMarkup(card)}</div>
+        <div class="filters">${filters}</div>
+        <div class="stats">${stats}</div>
+        <div class="workarea">
+          <section class="panel"><h3>${card.mode === 'map' || card.mode === 'floor' ? 'Layout workspace' : card.mode === 'reports' ? 'Report results' : card.mode === 'audit' ? 'History' : 'Records / workflow'}</h3>${work}</section>
+          <section class="panel"><h3>Selected ${card.mode === 'map' ? 'table' : 'record'}</h3>
+            <div class="field-grid">${fields}</div>
+            <div style="margin-top:10px;padding:8px;border-radius:8px;background:#f7f9fc;color:#61718a;font-size:8px">No data changes in this prototype.</div>
+          </section>
+        </div>`;
+    }
+
+    function renderPreview() {
+      document.getElementById('desktop-category').textContent = categories[selectedCategory].name;
+      document.getElementById('desktop-card').textContent = `Card ${selectedCard.id}`;
+      document.getElementById('preview-heading').textContent = `Card ${selectedCard.id} — ${selectedCard.name}`;
+      document.getElementById('desktop-preview').innerHTML = workspaceMarkup(selectedCard, false);
+      document.getElementById('phone-preview').innerHTML = workspaceMarkup(selectedCard, true);
+      document.getElementById('phone-category').innerHTML = categories.map((category, index) =>
+        `<span class="${index === selectedCategory ? 'active' : ''}">${category.name}</span>`
+      ).join('');
+      document.getElementById('spec-scope').textContent = selectedCard.scope;
+      document.getElementById('spec-safety').textContent = selectedCard.safety;
+    }
+
+    function render() {
+      renderCategories();
+      renderCatalog();
+      renderPreview();
+    }
+    render();
+  </script>
+</body>
+</html>

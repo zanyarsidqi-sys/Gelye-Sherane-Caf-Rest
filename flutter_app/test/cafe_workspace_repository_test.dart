@@ -15,6 +15,29 @@ void main() {
     await client.dispose();
   });
 
+  test('workspace records retain dining-table reservation links', () {
+    final record = CafeWorkspaceRecord.fromJson({
+      'id': 'reservation-id',
+      'section_key': 'tables_orders',
+      'subcard_key': 'table_reservations',
+      'title': 'Dinner booking',
+      'details': 'Window seat',
+      'status': 'open',
+      'amount': null,
+      'currency': 'IQD',
+      'metadata': {
+        'table_id': 'table-id',
+        'table_name': 'Table 2',
+        'table_area': 'Main',
+      },
+      'created_at': '2026-10-16T08:00:00Z',
+      'updated_at': '2026-10-16T08:00:00Z',
+    });
+
+    expect(record.metadata['table_id'], 'table-id');
+    expect(record.metadata['table_name'], 'Table 2');
+  });
+
   test('create rejects malformed section keys before making a request', () {
     expect(
       () => repository.createRecord(

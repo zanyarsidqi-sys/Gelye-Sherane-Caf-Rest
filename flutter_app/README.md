@@ -36,22 +36,25 @@ permission keys, so staff must be explicitly granted access. Legacy cards remain
 under **More cards**; saved records are not removed. Summaries show only
 records actually saved for that card, not illustrative figures from references.
 
-The Tables & Orders section includes the 16 reference cards. Dining-table
-management uses a dedicated table schema with name/number, area, seat count,
-manually maintained status, and draggable floor-map position. Other table,
-order, and reservation cards use generic workspace records that can be created,
-edited, status-updated, and deleted; table status
-does not automatically follow live orders or reservations. Existing generic
-table records are not converted into dining tables because their table details
-cannot be inferred safely.
+The **Tables & Chairs** section has four horizontally selectable categories
+containing 29 cards. **Add Table** retains its dedicated saved-table workflow;
+**Chairs Management** retains its existing record workspace. Other cards open
+**Coming Soon — Awaiting Specification** until their Windows/iPhone designs
+and requirements are approved. Dining-table management uses a dedicated schema
+with name/number, area, seat count, manually maintained status, and floor-map
+position. Existing generic table records are not converted into dining tables
+because their table details cannot be inferred safely.
 
-Except for dining-table setup and layout, these management cards use the shared
-generic record workspace. They do not
-implement a payment processor, dedicated product catalog, inventory ledger,
-live order pipeline, reservation service, notification delivery system, or
-printer/device connection. Device records do not send print jobs, change printer
-settings, monitor hardware, update firmware, or open cash drawers. Security cards store generic
-records only; they do not manage real accounts, sessions, access policies, IP
+The Windows and iPhone design review for the remaining 28 cards is available
+in [`../design/section-02-remaining-cards-concept.html`](../design/section-02-remaining-cards-concept.html).
+
+Except for dining-table setup and layout, management cards use the shared
+generic record workspace. They do not implement a payment processor, dedicated
+product catalog, inventory ledger, live order pipeline, reservation service,
+notification delivery system, or printer/device connection. Device
+records do not send print jobs, change printer settings, monitor hardware,
+update firmware, or open cash drawers. Security cards store generic records
+only; they do not manage real accounts, sessions, access policies, IP
 restrictions, security alerts, passwords, or MFA settings. System health cards
 do not monitor live services or performance, and do not run backups, restore
 data, synchronize offline changes, diagnose infrastructure, or install updates.
@@ -67,8 +70,23 @@ task, payroll, leave and department records; they do not check staff in or out,
 process payroll, or replace the separate Staff Management account and permission
 workflow. Report cards store report requests and saved report records; they do
 not calculate live business analytics or create/export report files.
-Create/edit actions store records for the selected card and do not perform
-real-world payment, stock, order, reservation, or notification processing.
+
+## Table QR codes
+
+The Add Table workflow can generate a unique opaque QR identifier after a
+successful table save, display a table-specific QR, print it or save it as a
+PDF, and regenerate it only after confirmation. QR regeneration is
+permission-checked and recorded in a dedicated audit table. If QR lookup or
+printing fails, the already-saved table is not submitted again.
+
+The QR-only migration creates the token, audit, and public table-context
+validation functions. Guest menu, ordering, service requests, and bills are
+not implemented as a separate system. The scanned page identifies the
+validated table and explains that ordering is under development so it can later
+connect to the existing Section 03 Table Orders workflow. Do not treat the QR
+page as a deployed ordering or payment system. Migration
+`20261016050000_cafe_dining_table_qr.sql` was applied to production with owner
+authorization on 16 October 2026.
 
 ## Staff accounts and section permissions
 
@@ -142,7 +160,15 @@ writes; the Table Overview and map permissions provide read-only access. Apply
 both migrations before deploying the UI that uses the floor map. The
 `20261016030000_create_cafe_dining_table_rpc.sql` migration adds an
 MFA- and role-checked function for table creation; apply it before deploying
-the RPC-based Add Table client.
+the RPC-based Add Table client. The
+`20261016040000_list_cafe_dining_tables_rpc.sql` migration provides the
+matching MFA- and role-checked read function used by the floor map and list.
+The development-only
+`20261016050000_cafe_dining_table_qr.sql` migration creates table QR tokens,
+QR audit history, staff-only read/regeneration RPCs, and a public
+table-context validation RPC. Review and test it against an isolated Supabase
+project before applying it anywhere. It must follow the dining-table RPC
+migrations; it has not been applied to the selected live project.
 
 Do not run the staff-profile review candidate. After the migration succeeds,
 deploy the account-creation function to the selected project with the Supabase

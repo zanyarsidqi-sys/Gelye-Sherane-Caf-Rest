@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Card 01 — Add Table | Design approval</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #12253f;
+      --blue: #2463eb;
+      --blue-soft: #edf3ff;
+      --canvas: #f4f6fa;
+      --ink: #18283f;
+      --muted: #61718a;
+      --line: #e4eaf1;
+      --green: #16814a;
+      --amber: #a45a08;
+      --red: #b42318;
+      --font: "Aptos", "Inter", "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #e9edf4; font: 14px/1.45 var(--font); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid #9bb9ff; outline-offset: 2px;
+    }
+    .reviewbar {
+      position: sticky; top: 0; z-index: 5; display: flex; align-items: center;
+      justify-content: space-between; gap: 18px; padding: 12px 22px;
+      color: #eef3fb; background: #0d1e33; box-shadow: 0 4px 16px #0d1e3322;
+    }
+    .review-title { font-weight: 750; letter-spacing: .01em; }
+    .review-sub { color: #aebbd0; font-size: 11px; }
+    .review-meta { display: flex; align-items: center; gap: 10px; }
+    .design-badge {
+      padding: 5px 9px; border: 1px solid #71809a; border-radius: 999px;
+      color: #f2d79e; font-size: 10px; font-weight: 800; letter-spacing: .09em;
+    }
+    .stages { display: flex; flex-wrap: wrap; gap: 6px; }
+    .stage-button {
+      min-height: 34px; padding: 6px 10px; color: #e6edf7; background: #172a43;
+      border: 1px solid #3b4d64; border-radius: 9px; font-size: 11px; font-weight: 700;
+    }
+    .stage-button.active { background: #284675; border-color: #8daeff; }
+    .design-note {
+      margin: 16px auto 0; max-width: 1500px; padding: 0 18px;
+      color: var(--muted); font-size: 12px;
+    }
+    .preview-board {
+      width: min(1500px, 100%); margin: 16px auto 32px; padding: 0 18px;
+      display: grid; grid-template-columns: minmax(620px, 1fr) 390px;
+      align-items: start; gap: 18px;
+    }
+    .device-label {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 0 0 8px; color: #354860; font-size: 12px; font-weight: 800;
+    }
+    .device-label span:last-child { color: #7a8799; font-size: 10px; font-weight: 600; }
+    .desktop-window {
+      overflow: hidden; min-height: 720px; border: 1px solid #d5dce7;
+      border-radius: 14px; background: var(--canvas); box-shadow: 0 12px 34px #12253f17;
+    }
+    .windowbar {
+      height: 30px; display: flex; align-items: center; gap: 6px; padding: 0 11px;
+      color: #748198; background: #fff; border-bottom: 1px solid var(--line); font-size: 10px;
+    }
+    .window-dot { width: 7px; height: 7px; border-radius: 50%; background: #c7ced8; }
+    .desktop-app {
+      min-height: 690px; display: grid; grid-template-columns: 190px minmax(0, 1fr);
+    }
+    .sidebar { display: flex; flex-direction: column; color: #d6dfeb; background: var(--navy); }
+    .brand {
+      min-height: 66px; display: flex; align-items: center; gap: 10px; padding: 10px 13px;
+      border-bottom: 1px solid #ffffff17;
+    }
+    .brand-mark {
+      width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto;
+      border-radius: 50%; color: var(--navy); background: #e8c273; font-weight: 900;
+    }
+    .brand-name { color: white; font-size: 11px; font-weight: 800; line-height: 1.2; }
+    .brand-cap { margin-top: 3px; color: #aab8ca; font-size: 8px; letter-spacing: .12em; }
+    .nav-label { margin: 20px 12px 7px; color: #91a1b8; font-size: 8px; font-weight: 800; letter-spacing: .12em; }
+    .nav-item {
+      display: flex; align-items: center; gap: 9px; min-height: 36px; margin: 2px 8px;
+      padding: 7px 10px; color: #c5d0df; border-radius: 8px; font-size: 10px;
+    }
+    .nav-item.active { color: #fff; background: #263f62; font-weight: 750; }
+    .nav-icon { width: 18px; text-align: center; font-size: 14px; }
+    .nav-spacer { flex: 1; }
+    .profile {
+      margin: 9px; padding: 10px 8px; border-top: 1px solid #ffffff19;
+      color: #c5d0df; font-size: 9px;
+    }
+    .main { min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      height: 48px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 17px; background: #fff; border-bottom: 1px solid var(--line);
+      color: var(--muted); font-size: 10px;
+    }
+    .user-chip { color: #354860; font-weight: 700; }
+    .content { padding: 20px 22px; }
+    .crumb { color: var(--blue); font-size: 9px; font-weight: 800; letter-spacing: .08em; }
+    h1 { margin: 3px 0 4px; color: var(--navy); font-size: 23px; line-height: 1.2; }
+    .intro { margin: 0; color: var(--muted); font-size: 11px; }
+    .single-card {
+      width: min(320px, 100%); min-height: 146px; margin-top: 22px; padding: 18px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      border: 1px solid var(--line); border-radius: 15px; background: #fff;
+      box-shadow: 0 3px 14px #12253f08; cursor: pointer;
+    }
+    .single-card:hover { border-color: #a9c1f5; box-shadow: 0 9px 25px #12253f12; }
+    .single-card-head { display: flex; align-items: center; justify-content: space-between; }
+    .icon-box {
+      width: 43px; height: 43px; display: grid; place-items: center; border-radius: 12px;
+      color: var(--blue); background: var(--blue-soft); font-size: 23px;
+    }
+    .card-title { margin-top: 14px; color: var(--navy); font-size: 15px; font-weight: 800; }
+    .card-copy { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .open-link { margin-top: 11px; color: var(--blue); font-size: 10px; font-weight: 800; }
+    .workspace-heading {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      margin-bottom: 15px;
+    }
+    .back-link { padding: 0; border: 0; color: var(--blue); background: none; font-size: 10px; font-weight: 750; }
+    .secure-pill {
+      display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px;
+      border: 1px solid #cfe8d8; border-radius: 999px; color: var(--green);
+      background: #f1faf4; font-size: 9px; font-weight: 800; white-space: nowrap;
+    }
+    .columns { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(255px, .9fr); gap: 13px; }
+    .panel {
+      min-width: 0; padding: 15px; border: 1px solid var(--line); border-radius: 12px;
+      background: #fff; box-shadow: 0 3px 12px #12253f06;
+    }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+    h2 { margin: 0; color: var(--navy); font-size: 13px; }
+    .step { color: #7b889a; font-size: 9px; font-weight: 700; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .field label { display: block; margin: 0 0 4px; color: #506078; font-size: 9px; font-weight: 750; }
+    .field input, .field select {
+      width: 100%; min-height: 34px; padding: 7px 9px; color: var(--ink);
+      border: 1px solid #dce3ed; border-radius: 8px; background: #fff; font-size: 10px;
+    }
+    .field input::placeholder { color: #a2adbd; }
+    .field.full { grid-column: 1 / -1; }
+    .field-hint { margin-top: 3px; color: #8390a2; font-size: 8px; }
+    .segmented { display: flex; gap: 5px; flex-wrap: wrap; }
+    .choice {
+      min-height: 29px; padding: 5px 8px; border: 1px solid #dce3ed;
+      border-radius: 7px; color: #506078; background: #fff; font-size: 9px;
+    }
+    .choice.active { border-color: #9bb9ff; color: #1749b5; background: var(--blue-soft); font-weight: 750; }
+    .preview-panel { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .preview-caption { color: var(--muted); font-size: 9px; }
+    .table-stage {
+      position: relative; width: 212px; height: 168px; margin: 8px auto 3px;
+      border: 1px dashed #dbe3ee; border-radius: 10px; background:
+        radial-gradient(#dbe3ee 1px, transparent 1px) 0 0 / 13px 13px, #fbfcfe;
+    }
+    .table-shape {
+      position: absolute; left: 50%; top: 50%; width: 80px; height: 80px;
+      display: grid; place-items: center; transform: translate(-50%, -50%);
+      border: 2px solid #9ab4df; border-radius: 50%; color: #26476f;
+      background: #edf3ff; font-size: 10px; font-weight: 800; box-shadow: 0 4px 10px #12253f10;
+    }
+    .shape-square { border-radius: 10px; }
+    .shape-rectangle { width: 110px; height: 65px; border-radius: 11px; }
+    .chair {
+      position: absolute; width: 18px; height: 18px; display: grid; place-items: center;
+      border: 1px solid #cdd8e8; border-radius: 6px; color: #546982; background: #fff;
+      font-size: 8px; font-weight: 800;
+    }
+    .c1 { left: calc(50% - 9px); top: 8px; } .c2 { right: 29px; top: 38px; }
+    .c3 { right: 29px; bottom: 38px; } .c4 { left: calc(50% - 9px); bottom: 8px; }
+    .c5 { left: 29px; bottom: 38px; } .c6 { left: 29px; top: 38px; }
+    .arrangement-note { max-width: 235px; color: #7b889a; font-size: 8px; }
+    .savebar {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-top: 12px; padding-top: 11px; border-top: 1px solid #eef1f6;
+    }
+    .save-hint { max-width: 250px; color: #768499; font-size: 8px; }
+    .primary, .secondary, .danger {
+      min-height: 34px; padding: 7px 12px; border: 1px solid transparent;
+      border-radius: 8px; font-size: 9px; font-weight: 800;
+    }
+    .primary { color: #fff; background: var(--blue); }
+    .primary:hover { background: #174fc9; }
+    .secondary { color: #324760; border-color: #dce3ed; background: #fff; }
+    .danger { color: var(--red); border-color: #f1c8c4; background: #fff; }
+    .success-banner {
+      display: flex; align-items: flex-start; gap: 9px; margin: 0 0 12px; padding: 10px;
+      border: 1px solid #cfe8d8; border-radius: 9px; color: #286744; background: #f2fbf5;
+      font-size: 9px;
+    }
+    .saved-grid { display: grid; grid-template-columns: minmax(160px, .8fr) minmax(0, 1.2fr); gap: 12px; }
+    .qr-card { display: flex; flex-direction: column; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 10px; text-align: center; }
+    .qr-mock {
+      width: 132px; height: 132px; display: grid; grid-template-columns: repeat(21, 1fr);
+      padding: 7px; gap: 1px; border: 1px solid #e1e5eb; background: #fff;
+    }
+    .qr-cell { background: transparent; }
+    .qr-cell.dark { background: #132238; }
+    .qr-name { margin-top: 8px; color: var(--navy); font-size: 11px; font-weight: 850; }
+    .qr-brand { color: var(--muted); font-size: 8px; }
+    .qr-token { margin-top: 6px; color: #7c8798; font-family: ui-monospace, monospace; font-size: 7px; }
+    .mock-label { margin-top: 5px; padding: 3px 6px; border-radius: 999px; color: #6a5a29; background: #fff7dc; font-size: 7px; font-weight: 800; }
+    .detail-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 12px; }
+    .detail-cell { padding: 8px; border-radius: 8px; background: #f6f8fb; }
+    .detail-label { color: #7b889a; font-size: 8px; font-weight: 700; }
+    .detail-value { margin-top: 2px; color: var(--navy); font-size: 10px; font-weight: 800; }
+    .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .security-note {
+      margin-top: 10px; padding: 8px 9px; border-radius: 8px; color: #53647a;
+      background: #f4f7fc; font-size: 8px; line-height: 1.45;
+    }
+    .audit { margin-top: 11px; padding-top: 9px; border-top: 1px solid #eef1f6; }
+    .audit-title { color: var(--navy); font-size: 9px; font-weight: 800; }
+    .audit-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 5px; color: #64748b; font-size: 8px; }
+    .scan-flow { margin-top: 9px; padding: 9px; border: 1px solid #dbe7f8; border-radius: 8px; background: #f7faff; }
+    .scan-title { color: #214d94; font-size: 9px; font-weight: 800; }
+    .scan-copy { margin-top: 3px; color: #61718a; font-size: 8px; }
+    .stage-home, .stage-setup, .stage-ready, .stage-error, .stage-confirm { display: none; }
+    body[data-stage="home"] .stage-home, body[data-stage="setup"] .stage-setup,
+    body[data-stage="ready"] .stage-ready, body[data-stage="confirm"] .stage-ready { display: block; }
+    body[data-stage="error"] .stage-error { display: block; }
+    .modal-backdrop { display: none; position: absolute; inset: 0; z-index: 2; align-items: center; justify-content: center; padding: 16px; background: #0d1e3370; }
+    body[data-stage="confirm"] .modal-backdrop { display: flex; }
+    .desktop-app, .phone-screen { position: relative; }
+    .confirm-dialog { width: min(370px, 100%); padding: 17px; border-radius: 13px; background: #fff; box-shadow: 0 20px 60px #0d1e3350; }
+    .confirm-dialog h3 { margin: 0; color: var(--navy); font-size: 15px; }
+    .confirm-dialog p { color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .confirm-warning { padding: 9px; border-radius: 8px; color: #82520d; background: #fff8e7; font-size: 9px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 12px; }
+    .phone-frame {
+      position: relative; width: 390px; height: 780px; overflow: hidden;
+      padding: 9px; border: 2px solid #263244; border-radius: 36px;
+      background: #111927; box-shadow: 0 12px 34px #12253f17;
+    }
+    .phone-screen {
+      height: 100%; overflow: hidden; border-radius: 27px; background: var(--canvas);
+    }
+    .phone-island { position: absolute; z-index: 3; top: 10px; left: 50%; width: 96px; height: 22px; transform: translateX(-50%); border-radius: 20px; background: #111927; }
+    .phone-status { height: 31px; padding: 9px 17px 0; display: flex; justify-content: space-between; color: #26374d; background: #fff; font-size: 8px; font-weight: 800; }
+    .phone-topbar { height: 46px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; background: #fff; border-bottom: 1px solid var(--line); }
+    .phone-brand { display: flex; align-items: center; gap: 8px; color: var(--navy); font-size: 9px; font-weight: 800; }
+    .phone-mark { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; color: var(--navy); background: #e8c273; font-weight: 900; }
+    .phone-scroll { height: calc(100% - 31px - 46px - 50px); overflow: auto; padding: 15px 13px 16px; }
+    .phone-scroll h1 { font-size: 19px; }
+    .phone-scroll .columns { grid-template-columns: 1fr; }
+    .phone-scroll .panel { padding: 12px; }
+    .phone-scroll .table-stage { transform: scale(.88); transform-origin: top center; margin-bottom: -13px; }
+    .phone-scroll .saved-grid { grid-template-columns: 1fr; }
+    .phone-scroll .qr-card { padding: 10px; }
+    .phone-scroll .qr-mock { width: 118px; height: 118px; }
+    .phone-scroll .single-card { width: 100%; min-height: 135px; margin-top: 17px; }
+    .phone-bottom {
+      height: 50px; display: flex; align-items: center; justify-content: space-around;
+      border-top: 1px solid var(--line); color: #7c899b; background: #fff; font-size: 8px;
+    }
+    .phone-bottom .selected { color: var(--blue); font-weight: 800; }
+    .toast {
+      position: fixed; right: 22px; bottom: 20px; z-index: 10; max-width: 360px;
+      padding: 11px 14px; border-radius: 9px; color: #fff; background: #213954;
+      box-shadow: 0 8px 24px #12253f38; font-size: 11px; opacity: 0; pointer-events: none;
+      transform: translateY(8px); transition: .18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 1120px) {
+      .preview-board { grid-template-columns: 1fr; }
+      .desktop-window { min-height: 680px; }
+      .desktop-app { min-height: 650px; }
+      .phone-column { width: min(390px, 100%); margin: 0 auto; }
+      .phone-frame { width: min(390px, 100%); }
+    }
+    @media (max-width: 760px) {
+      .reviewbar { align-items: flex-start; flex-direction: column; padding: 11px 14px; }
+      .review-meta { width: 100%; align-items: flex-start; flex-direction: column; }
+      .preview-board { padding: 0 10px; gap: 16px; }
+      .desktop-window { min-height: 0; }
+      .desktop-app { min-height: 620px; grid-template-columns: 54px minmax(0, 1fr); }
+      .brand { justify-content: center; padding: 8px 4px; }
+      .brand > div:last-child, .nav-label, .nav-item span:last-child, .profile { display: none; }
+      .nav-item { justify-content: center; margin: 3px 5px; padding: 7px 0; }
+      .nav-icon { width: auto; }
+      .content { padding: 15px 12px; }
+      .columns { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .desktop-window .single-card { width: 100%; }
+      .phone-frame { height: 740px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body data-stage="setup">
+  <header class="reviewbar">
+    <div>
+      <div class="review-title">Card 01 — Add Table</div>
+      <div class="review-sub">Windows + iPhone responsive design approval</div>
+    </div>
+    <div class="review-meta">
+      <span class="design-badge">DESIGN PREVIEW · NOT CONNECTED</span>
+      <nav class="stages" aria-label="Preview screen">
+        <button class="stage-button" data-stage-button="home">Section card</button>
+        <button class="stage-button active" data-stage-button="setup">Add table</button>
+        <button class="stage-button" data-stage-button="ready">QR ready</button>
+        <button class="stage-button" data-stage-button="error">Retry-safe errors</button>
+        <button class="stage-button" data-stage-button="confirm">Regenerate QR</button>
+      </nav>
+    </div>
+  </header>
+  <p class="design-note">
+    Review the complete flow in both device frames. The buttons only switch this visual prototype;
+    no table, QR code, database record, print job, or production service is created or contacted.
+  </p>
+
+  <main class="preview-board">
+    <section class="desktop-column" aria-label="Windows desktop preview">
+      <div class="device-label"><span>Windows desktop · 1440 px layout</span><span>Persistent left navigation</span></div>
+      <div class="desktop-window">
+        <div class="windowbar"><i class="window-dot"></i><i class="window-dot"></i><i class="window-dot"></i><span style="margin-left:8px">Gelye Sherane Management System</span></div>
+        <div class="desktop-app">
+          <aside class="sidebar">
+            <div class="brand"><div class="brand-mark">G</div><div><div class="brand-name">Gelye Sherane</div><div class="brand-cap">CAFÉ &amp; RESTAURANT</div></div></div>
+            <div class="nav-scroll">
+              <div class="nav-label">Workspace</div>
+              <div class="nav-item"><span class="nav-icon">⌂</span><span>Dashboard</span></div>
+              <div class="nav-item active"><span class="nav-icon">▦</span><span>Tables &amp; Chairs</span></div>
+              <div class="nav-item"><span class="nav-icon">▣</span><span>Table Orders</span></div>
+              <div class="nav-item"><span class="nav-icon">◈</span><span>Payments</span></div>
+              <div class="nav-item"><span class="nav-icon">☷</span><span>Menu Management</span></div>
+              <div class="nav-item"><span class="nav-icon">♙</span><span>Customers</span></div>
+              <div class="nav-label">Administration</div>
+              <div class="nav-item"><span class="nav-icon">⚙</span><span>Settings</span></div>
+            </div>
+            <div class="nav-spacer"></div>
+            <div class="profile">● &nbsp; admin@gelyesherane.com</div>
+          </aside>
+          <section class="main">
+            <div class="topbar"><span>Operations &nbsp; / &nbsp; Tables &amp; Chairs</span><span class="user-chip">Admin &nbsp;⌄</span></div>
+            <div class="content">
+              <section class="stage-home">
+                <div class="crumb">SECTION 02</div>
+                <h1>Tables &amp; Chairs</h1>
+                <p class="intro">Dining table setup and guest QR access.</p>
+                <article class="single-card" data-go="setup" tabindex="0" role="button" aria-label="Open Add Table workspace">
+                  <div class="single-card-head"><div class="icon-box">＋</div><span style="color:#7890b3;font-size:17px">↗</span></div>
+                  <div><div class="card-title">Add Table</div><div class="card-copy">Create a table, arrange chairs and prepare its guest QR.</div><div class="open-link">Open workspace &nbsp;→</div></div>
+                </article>
+              </section>
+
+              <section class="stage-setup">
+                <div class="workspace-heading">
+                  <div><button class="back-link" data-go="home">← &nbsp; Tables &amp; Chairs</button><div class="crumb" style="margin-top:9px">CARD 01</div><h1>Add Table</h1><p class="intro">Set up the table before its unique guest QR is issued.</p></div>
+                  <span class="secure-pill">✓ &nbsp; Staff access protected</span>
+                </div>
+                <div class="columns">
+                  <article class="panel">
+                    <div class="panel-head"><h2>Table details</h2><span class="step">1 of 2 · Setup</span></div>
+                    <div class="form-grid">
+                      <div class="field"><label for="number">Table number</label><input id="number" value="12" readonly><div class="field-hint">Unique within the selected area</div></div>
+                      <div class="field"><label for="name">Display name</label><input id="name" value="Window Table" readonly></div>
+                      <div class="field"><label for="area">Area / section</label><select id="area"><option>Main Dining</option><option>Terrace</option></select></div>
+                      <div class="field"><label for="type">Table type</label><select id="type"><option>Standard dining</option><option>Booth</option><option>Outdoor</option><option>Accessible</option></select></div>
+                      <div class="field full"><label>Shape</label><div class="segmented"><button class="choice active" type="button">○ &nbsp; Round</button><button class="choice" type="button">□ &nbsp; Square</button><button class="choice" type="button">▭ &nbsp; Rectangle</button></div></div>
+                      <div class="field"><label for="capacity">Chair capacity</label><select id="capacity"><option>4 chairs</option><option>2 chairs</option><option>6 chairs</option><option>8 chairs</option></select></div>
+                      <div class="field"><label for="numbering">Table identifier</label><input id="numbering" value="TBL-00042" readonly><div class="field-hint">Assigned securely on save</div></div>
+                      <div class="field full"><label>Chair arrangement</label><div class="segmented"><button class="choice active" type="button">Evenly spaced</button><button class="choice" type="button">Custom layout</button></div></div>
+                    </div>
+                    <div class="savebar"><div class="save-hint">The table is saved once. QR generation is tied to that saved record, so a print retry will not add another table.</div><button class="primary" data-go="ready">Save table &amp; generate QR</button></div>
+                  </article>
+                  <article class="panel preview-panel">
+                    <div class="panel-head" style="width:100%"><h2>Table preview</h2><span class="step">Live layout preview</span></div>
+                    <div class="table-stage"><span class="chair c1">1</span><span class="chair c2">2</span><span class="chair c3">3</span><span class="chair c4">4</span><div class="table-shape">T12</div></div>
+                    <div class="arrangement-note">Round · Standard dining · 4 chairs<br>Area: Main Dining</div>
+                    <div class="security-note" style="width:100%;text-align:left"><b>After save</b><br>Server validates your access and uniqueness, stores the table once, then issues a unique QR identifier. If QR generation fails, the saved table remains available for retry.</div>
+                  </article>
+                </div>
+              </section>
+
+              <section class="stage-ready">
+                <div class="workspace-heading">
+                  <div><button class="back-link" data-go="setup">← &nbsp; Table details</button><div class="crumb" style="margin-top:9px">TABLE SAVED</div><h1>Table 12 · Window Table</h1><p class="intro">Main Dining &nbsp;·&nbsp; Standard dining &nbsp;·&nbsp; 4 chairs</p></div>
+                  <span class="secure-pill">✓ &nbsp; Saved securely</span>
+                </div>
+                <div class="success-banner"><span>✓</span><span><b>Table saved and QR issued.</b> Printing or downloading can be retried without creating a second table.</span></div>
+                <div class="saved-grid">
+                  <article class="qr-card">
+                    <div class="qr-mock" data-qr aria-label="Non-scannable QR appearance mockup"></div>
+                    <div class="qr-name">TABLE 12</div><div class="qr-brand">Gelye Sherane Café &amp; Restaurant</div>
+                    <div class="qr-token">QR ID · QR-7F2A-91D8</div>
+                    <span class="mock-label">VISUAL MOCKUP · NOT SCANNABLE</span>
+                  </article>
+                  <article class="panel">
+                    <div class="panel-head"><h2>Guest QR code</h2><span class="secure-pill">● Active</span></div>
+                    <div class="detail-list">
+                      <div class="detail-cell"><div class="detail-label">Table number</div><div class="detail-value">12 · Window Table</div></div>
+                      <div class="detail-cell"><div class="detail-label">Area</div><div class="detail-value">Main Dining</div></div>
+                      <div class="detail-cell"><div class="detail-label">Unique table ID</div><div class="detail-value">TBL-00042</div></div>
+                      <div class="detail-cell"><div class="detail-label">QR status</div><div class="detail-value">Active · v1</div></div>
+                    </div>
+                    <div class="actions"><button class="primary" data-toast="Print preview only — no printer is connected.">▣ &nbsp; Print QR</button><button class="secondary" data-toast="PDF download is not connected in this design preview.">↓ &nbsp; Download PDF</button><button class="danger" data-go="confirm">↻ &nbsp; Regenerate QR</button></div>
+                    <div class="scan-flow"><div class="scan-title">Guest scan experience</div><div class="scan-copy">Scan → Gelye Sherane menu → order linked to Table 12. The public link identifies only this table; staff controls remain protected.</div></div>
+                    <div class="security-note"><b>Protection:</b> opaque unique QR identifier, server-side table/area validation, authenticated staff controls, duplicate checks, and revocation of the prior QR on regeneration.</div>
+                    <div class="audit"><div class="audit-title">QR audit history</div><div class="audit-row"><span>Created · QR v1</span><span>Today, 10:42 · Admin</span></div><div class="audit-row"><span>Previous IDs are revoked after confirmed regeneration.</span><span>Audit logged</span></div></div>
+                  </article>
+                </div>
+              </section>
+
+              <section class="stage-error">
+                <div class="workspace-heading">
+                  <div><button class="back-link" data-go="setup">← &nbsp; Table details</button><div class="crumb" style="margin-top:9px">SAFE RETRY</div><h1>Table 12 · Window Table</h1><p class="intro">Table saved once · QR and print can retry independently.</p></div>
+                  <span class="secure-pill">✓ &nbsp; Table record safe</span>
+                </div>
+                <div class="success-banner"><span>✓</span><span><b>Table 12 is saved.</b> QR or print failures never resubmit table creation.</span></div>
+                <div class="columns">
+                  <article class="panel">
+                    <div class="panel-head"><h2>QR generation needs retry</h2><span style="color:var(--amber);font-size:9px;font-weight:800">Not issued yet</span></div>
+                    <p class="intro">A temporary QR service error occurred. The table ID remains saved, and no duplicate table was created.</p>
+                    <div class="security-note"><b>Safe action:</b> retry QR generation for saved table TBL-00042. The server checks authorization and QR uniqueness before storing it.</div>
+                    <button class="primary" style="margin-top:10px" data-go="ready">Retry QR generation</button>
+                  </article>
+                  <article class="panel">
+                    <div class="panel-head"><h2>Printing needs retry</h2><span style="color:var(--amber);font-size:9px;font-weight:800">QR remains active</span></div>
+                    <p class="intro">The printer did not respond. The saved table and active QR are unchanged.</p>
+                    <div class="security-note"><b>Safe action:</b> retry printing or download the QR PDF. Neither action creates a table or rotates its QR.</div>
+                    <div class="actions" style="margin-top:10px"><button class="primary" data-toast="Design preview: print retry requested; saved table and QR unchanged.">Retry print</button><button class="secondary" data-toast="Design preview: PDF retry requested; saved table and QR unchanged.">Retry PDF</button></div>
+                  </article>
+                </div>
+              </section>
+
+              <div class="modal-backdrop stage-confirm">
+                <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="desktop-confirm-title">
+                  <span class="crumb">SECURE ACTION</span><h3 id="desktop-confirm-title">Regenerate Table 12 QR?</h3>
+                  <p>A new unique QR identifier will be issued. The current QR will stop opening this table’s menu. Existing table orders and the table record will not be duplicated or removed.</p>
+                  <div class="confirm-warning">This action is restricted to authorized table managers and will be recorded in the audit history.</div>
+                  <div class="dialog-actions"><button class="secondary" data-go="ready">Cancel</button><button class="danger" data-go="ready" data-toast="Design preview: old QR revoked and regeneration audit entry recorded.">Confirm regeneration</button></div>
+                </section>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="phone-column" aria-label="iPhone preview">
+      <div class="device-label"><span>iPhone · 390 × 844 layout</span><span>Stacked form, touch targets</span></div>
+      <div class="phone-frame">
+        <div class="phone-island"></div>
+        <div class="phone-screen">
+          <div class="phone-status"><span>9:41</span><span>●●● &nbsp; Wi-Fi &nbsp; ▰</span></div>
+          <div class="phone-topbar"><span class="phone-brand"><span class="phone-mark">G</span> Gelye Sherane</span><span style="color:#506078;font-size:16px">☰</span></div>
+          <div class="phone-scroll">
+            <section class="stage-home">
+              <div class="crumb">SECTION 02</div><h1>Tables &amp; Chairs</h1><p class="intro">Dining table setup and guest QR access.</p>
+              <article class="single-card" data-go="setup" tabindex="0" role="button" aria-label="Open Add Table workspace">
+                <div class="single-card-head"><div class="icon-box">＋</div><span style="color:#7890b3;font-size:17px">↗</span></div>
+                <div><div class="card-title">Add Table</div><div class="card-copy">Create a table, arrange chairs and prepare its guest QR.</div><div class="open-link">Open workspace &nbsp;→</div></div>
+              </article>
+            </section>
+            <section class="stage-setup">
+              <div class="workspace-heading"><div><button class="back-link" data-go="home">← &nbsp; Tables &amp; Chairs</button><div class="crumb" style="margin-top:9px">CARD 01</div><h1>Add Table</h1><p class="intro">Set up the table before its unique guest QR is issued.</p></div></div>
+              <div class="columns">
+                <article class="panel">
+                  <div class="panel-head"><h2>Table details</h2><span class="step">Setup</span></div>
+                  <div class="form-grid">
+                    <div class="field"><label>Table number</label><input value="12" readonly></div><div class="field"><label>Display name</label><input value="Window Table" readonly></div>
+                    <div class="field"><label>Area / section</label><select><option>Main Dining</option></select></div><div class="field"><label>Table type</label><select><option>Standard</option></select></div>
+                    <div class="field full"><label>Shape</label><div class="segmented"><button class="choice active">○ Round</button><button class="choice">□ Square</button><button class="choice">▭ Rectangle</button></div></div>
+                    <div class="field"><label>Chair capacity</label><select><option>4 chairs</option></select></div><div class="field"><label>Arrangement</label><select><option>Evenly spaced</option></select></div>
+                  </div>
+                </article>
+                <article class="panel preview-panel"><div class="panel-head" style="width:100%"><h2>Table preview</h2><span class="step">Live</span></div><div class="table-stage"><span class="chair c1">1</span><span class="chair c2">2</span><span class="chair c3">3</span><span class="chair c4">4</span><div class="table-shape">T12</div></div><div class="arrangement-note">Round · 4 chairs<br>Main Dining</div></article>
+              </div>
+              <div class="security-note"><b>One table, one QR:</b> save is validated server-side. QR/print retries never submit a second table.</div>
+              <div style="display:flex;gap:7px;margin-top:11px"><button class="primary" style="flex:1" data-go="ready">Save table &amp; generate QR</button></div>
+            </section>
+            <section class="stage-ready">
+              <div class="workspace-heading"><div><button class="back-link" data-go="setup">← &nbsp; Table details</button><div class="crumb" style="margin-top:8px">TABLE SAVED</div><h1>Table 12</h1><p class="intro">Window Table · Main Dining</p></div></div>
+              <div class="success-banner"><span>✓</span><span><b>Table saved.</b> QR retries will not duplicate it.</span></div>
+              <div class="saved-grid">
+                <article class="qr-card"><div class="qr-mock" data-qr></div><div class="qr-name">TABLE 12</div><div class="qr-brand">Gelye Sherane Café &amp; Restaurant</div><div class="qr-token">QR-7F2A-91D8</div><span class="mock-label">VISUAL MOCKUP · NOT SCANNABLE</span></article>
+                <article class="panel"><div class="panel-head"><h2>Guest QR</h2><span class="secure-pill">Active</span></div><div class="detail-list"><div class="detail-cell"><div class="detail-label">Table ID</div><div class="detail-value">TBL-00042</div></div><div class="detail-cell"><div class="detail-label">Capacity</div><div class="detail-value">4 chairs</div></div></div><div class="actions"><button class="primary" data-toast="Print preview only — no printer is connected.">▣ Print QR</button><button class="secondary" data-toast="PDF download is not connected in this design preview.">↓ PDF</button><button class="danger" data-go="confirm">↻ Regenerate</button></div><div class="scan-flow"><div class="scan-title">Guest scan</div><div class="scan-copy">Opens the restaurant menu and ordering flow for Table 12 only.</div></div><div class="audit"><div class="audit-title">Audit history</div><div class="audit-row"><span>QR v1 created · Admin</span><span>10:42</span></div></div></article>
+              </div>
+              <div class="security-note"><b>Protected:</b> staff-only QR management, unique identifiers, duplicate checks, old QR revocation and audit log on confirmed regeneration.</div>
+            </section>
+            <section class="stage-error">
+              <div class="workspace-heading"><div><button class="back-link" data-go="setup">← Table details</button><div class="crumb" style="margin-top:8px">SAFE RETRY</div><h1>Table 12</h1><p class="intro">Table saved once · retry steps</p></div></div>
+              <div class="success-banner"><span>✓</span><span><b>Table is saved.</b> Retrying cannot add it twice.</span></div>
+              <article class="panel"><div class="panel-head"><h2>QR generation failed</h2><span style="color:var(--amber);font-size:8px;font-weight:800">No QR issued</span></div><p class="intro">Saved table TBL-00042 is ready for a safe QR retry.</p><button class="primary" style="margin-top:10px" data-go="ready">Retry QR</button></article>
+              <article class="panel" style="margin-top:9px"><div class="panel-head"><h2>Print failed</h2><span class="secure-pill">QR unchanged</span></div><p class="intro">Retry print/PDF without resaving the table.</p><div class="actions"><button class="primary" data-toast="Design preview: print retry requested; table unchanged.">Retry print</button><button class="secondary" data-toast="Design preview: PDF retry requested; table unchanged.">Retry PDF</button></div></article>
+            </section>
+            <div class="modal-backdrop">
+              <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="phone-confirm-title">
+                <span class="crumb">SECURE ACTION</span><h3 id="phone-confirm-title">Regenerate QR?</h3>
+                <p>The current QR will be revoked. The table and existing orders stay unchanged.</p>
+                <div class="confirm-warning">Authorized manager only · action added to audit history.</div>
+                <div class="dialog-actions"><button class="secondary" data-go="ready">Cancel</button><button class="danger" data-go="ready" data-toast="Design preview: regeneration audit entry recorded.">Confirm</button></div>
+              </section>
+            </div>
+          </div>
+          <div class="phone-bottom"><span>⌂ Home</span><span class="selected">▦ Tables</span><span>▣ Orders</span><span>☷ More</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    const body = document.body;
+    const toast = document.getElementById('toast');
+    let toastTimer;
+
+    function setStage(stage) {
+      body.dataset.stage = stage;
+      document.querySelectorAll('[data-stage-button]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.stageButton === stage);
+      });
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    document.querySelectorAll('[data-stage-button]').forEach((button) => {
+      button.addEventListener('click', () => setStage(button.dataset.stageButton));
+    });
+    document.querySelectorAll('[data-go]').forEach((button) => {
+      button.addEventListener('click', () => {
+        setStage(button.dataset.go);
+        if (button.dataset.toast) showToast(button.dataset.toast);
+      });
+      button.addEventListener('keydown', (event) => {
+        if ((event.key === 'Enter' || event.key === ' ') && button.matches('[role="button"]')) {
+          event.preventDefault();
+          setStage(button.dataset.go);
+        }
+      });
+    });
+    document.querySelectorAll('[data-toast]').forEach((button) => {
+      button.addEventListener('click', () => showToast(button.dataset.toast));
+    });
+
+    function isFinder(x, y, left, top) {
+      const dx = x - left;
+      const dy = y - top;
+      if (dx < 0 || dx > 6 || dy < 0 || dy > 6) return false;
+      return dx === 0 || dx === 6 || dy === 0 || dy === 6 ||
+        (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4);
+    }
+
+    document.querySelectorAll('[data-qr]').forEach((grid) => {
+      for (let y = 0; y < 21; y += 1) {
+        for (let x = 0; x < 21; x += 1) {
+          const cell = document.createElement('span');
+          const finder = isFinder(x, y, 0, 0) || isFinder(x, y, 14, 0) || isFinder(x, y, 0, 14);
+          const fill = ((x * 11 + y * 7 + x * y * 3) % 9) < 4;
+          cell.className = `qr-cell${finder || fill ? ' dark' : ''}`;
+          grid.append(cell);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

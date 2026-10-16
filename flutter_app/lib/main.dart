@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'cafe_guest_page.dart';
 import 'staff_dashboard_page.dart';
 
 const _navy = Color(0xFF09243A);
@@ -50,6 +51,7 @@ class CafeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final qrToken = Uri.base.queryParameters['table'];
     return MaterialApp(
       title: 'Gelye Sherane Management System',
       debugShowCheckedModeBanner: false,
@@ -65,7 +67,12 @@ class CafeApp extends StatelessWidget {
           displayColor: const Color(0xFF18283F),
         ),
       ),
-      home: const CafeLandingPage(),
+      home: qrToken == null
+          ? const CafeLandingPage()
+          : CafeGuestPage(
+              qrToken: qrToken,
+              supabaseConfigured: _hasValidSupabaseConfiguration,
+            ),
     );
   }
 }
