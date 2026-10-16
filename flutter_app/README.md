@@ -15,8 +15,11 @@ stored.
 After staff authentication, the management UI has 24 sections. Desktop/web uses
 a persistent section sidebar; mobile uses Home, Tables, Motel, Menu, Reserve,
 and More navigation. Payments and other sections are available from More.
-Dashboard and section subcards use the
-same responsive card component and grid breakpoints. Existing generic-record
+The management shell and workspace use a dark navy and gold executive theme,
+with color-accented dark cards and responsive grids across all sections.
+These visual changes preserve existing routes, permissions, and record behavior.
+Dashboard and section subcards use the same responsive card component and grid
+breakpoints. Existing generic-record
 cards use the shared Supabase workspace-record store for authorized, realtime
 records with create, edit, status-update, delete, and automatic database audit
 capture. This is a flexible record workspace, not a card processor or a

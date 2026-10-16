@@ -55,6 +55,34 @@ void main() {
     expect(find.text('Staff Management'), findsWidgets);
     expect(find.text('A taste to look forward to'), findsNothing);
     expect(find.text('Book a table'), findsNothing);
+
+    for (var index = 0; index < 24; index++) {
+      expect(
+        find.byKey(ValueKey('management-section-$index')),
+        findsOneWidget,
+        reason: 'Management section $index should remain available.',
+      );
+    }
+    final workspacePanel = tester.widget<Container>(
+      find.byKey(const ValueKey('executive-workspace-panel')),
+    );
+    expect(
+      (workspacePanel.decoration! as BoxDecoration).color,
+      const Color(0xFF101E31),
+    );
+    final dashboardNavigation = tester.widget<ListTile>(
+      find.byKey(const ValueKey('management-section-0')),
+    );
+    expect(dashboardNavigation.selected, isTrue);
+    expect(dashboardNavigation.selectedTileColor, const Color(0xFFD6AA57));
+
+    await tester.tap(find.byKey(const ValueKey('management-section-1')));
+    await tester.pumpAndSettle();
+    final addTableCard = find.byKey(
+      const ValueKey('tables-category-card-Add Table'),
+    );
+    expect(addTableCard, findsOneWidget);
+    expect(tester.widget<Card>(addTableCard).color, isNot(Colors.white));
   });
 
   testWidgets('menu link scrolls to the menu section', (tester) async {
@@ -532,8 +560,11 @@ void main() {
     expect(cashCard, findsOneWidget);
     expect(tester.getSize(revenueCard).height, tester.getSize(cashCard).height);
     expect(tester.getSize(revenueCard).width, lessThan(200));
-    expect(tester.widget<Card>(revenueCard).color, Colors.white);
-    expect(tester.widget<Card>(cashCard).color, Colors.white);
+    final revenueColor = tester.widget<Card>(revenueCard).color;
+    final cashColor = tester.widget<Card>(cashCard).color;
+    expect(revenueColor, isNot(Colors.white));
+    expect(cashColor, isNot(Colors.white));
+    expect(revenueColor, isNot(cashColor));
     expect(tester.getSize(revenueCard).height, 118);
     expect(find.text('Today at a Glance'), findsWidgets);
     expect(find.text('Payments & Finance'), findsWidgets);

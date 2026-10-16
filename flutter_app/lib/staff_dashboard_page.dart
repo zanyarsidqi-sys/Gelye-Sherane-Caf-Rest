@@ -11,10 +11,27 @@ import 'cafe_workspace_repository.dart';
 import 'cafe_dining_table_repository.dart';
 
 const _navy = Color(0xFF12253F);
-const _deepNavy = Color(0xFF12253F);
+const _deepNavy = Color(0xFF0B1728);
 const _gold = Color(0xFFD6AA57);
 const _ink = Color(0xFF18283F);
 const _muted = Color(0xFF61718A);
+const _executiveSurface = Color(0xFF14243A);
+const _executiveBorder = Color(0xFF30435A);
+const _executiveText = Color(0xFFF6F2E9);
+const _executiveMuted = Color(0xFFB7C2D1);
+const _executiveWorkspacePanel = Color(0xFF101E31);
+
+const _executiveCardPalettes = <({Color background, Color accent})>[
+  (background: Color(0xFF162A43), accent: Color(0xFF60A5FA)),
+  (background: Color(0xFF251C38), accent: Color(0xFFC084FC)),
+  (background: Color(0xFF173329), accent: Color(0xFF34D399)),
+  (background: Color(0xFF382819), accent: Color(0xFFFB923C)),
+  (background: Color(0xFF39212A), accent: Color(0xFFF87171)),
+  (background: Color(0xFF14343A), accent: Color(0xFF2DD4BF)),
+];
+
+({Color background, Color accent}) _executiveCardPalette(int index) =>
+    _executiveCardPalettes[index % _executiveCardPalettes.length];
 
 const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const _supabasePublishableKey = String.fromEnvironment(
@@ -3503,7 +3520,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: _ink,
+                  color: _executiveText,
                 ),
               ),
             ),
@@ -3724,7 +3741,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                                 ? 'Create permission profile'
                                 : 'Edit permission profile',
                             style: const TextStyle(
-                              color: _ink,
+                              color: _executiveText,
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),
@@ -4202,7 +4219,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           CheckboxListTile(
             dense: true,
             visualDensity: VisualDensity.compact,
-            activeColor: const Color(0xFF2463EB),
+            activeColor: const Color(0xFF9A6A1D),
             controlAffinity: ListTileControlAffinity.leading,
             title: const Text('All section cards'),
             value: allSelected,
@@ -4462,125 +4479,188 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.sizeOf(context).width >= 760;
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF5F7FB),
-      drawer: Drawer(child: _navigationPanel()),
-      bottomNavigationBar: isWide ? null : _mobileNavigationBar(),
-      appBar: isWide
-          ? null
-          : AppBar(
-              backgroundColor: Colors.white,
-              foregroundColor: _ink,
-              surfaceTintColor: Colors.white,
-              elevation: 0,
-              shape: const Border(bottom: BorderSide(color: Color(0xFFE4EAF1))),
-              title: MediaQuery.sizeOf(context).width < 600
-                  ? const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Gelye Sherane',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          'Café & Restaurant · Management',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFFD8E2F0),
-                          ),
-                        ),
-                      ],
-                    )
-                  : const Text('Gelye Sherane · Management System'),
-              actions: [
-                IconButton(
-                  tooltip: 'Refresh live records',
-                  onPressed: _isLoadingRecords
-                      ? null
-                      : () => unawaited(_loadWorkspaceRecords()),
-                  icon: _isLoadingRecords
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.refresh),
+    final baseTheme = Theme.of(context);
+    final executiveTheme = baseTheme.copyWith(
+      colorScheme: baseTheme.colorScheme.copyWith(
+        primary: _gold,
+        onPrimary: _deepNavy,
+        secondary: _gold,
+        onSecondary: _deepNavy,
+        secondaryContainer: _gold,
+        onSecondaryContainer: _deepNavy,
+      ),
+      chipTheme: baseTheme.chipTheme.copyWith(
+        backgroundColor: const Color(0xFFEDE8DC),
+        selectedColor: _gold,
+        checkmarkColor: _deepNavy,
+        labelStyle: const TextStyle(color: _navy, fontWeight: FontWeight.w600),
+        secondaryLabelStyle: const TextStyle(
+          color: _deepNavy,
+          fontWeight: FontWeight.w700,
+        ),
+        side: BorderSide(color: _gold.withValues(alpha: 0.42)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      navigationBarTheme: baseTheme.navigationBarTheme.copyWith(
+        backgroundColor: _deepNavy,
+        indicatorColor: _gold,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? _deepNavy
+                : _executiveMuted,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            color: states.contains(WidgetState.selected)
+                ? _deepNavy
+                : _executiveMuted,
+            fontSize: 11,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: _gold,
+          foregroundColor: _deepNavy,
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _navy,
+          side: BorderSide(color: _gold.withValues(alpha: 0.55)),
+        ),
+      ),
+    );
+    return Theme(
+      data: executiveTheme,
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: _deepNavy,
+        drawer: Drawer(child: _navigationPanel()),
+        bottomNavigationBar: isWide ? null : _mobileNavigationBar(),
+        appBar: isWide
+            ? null
+            : AppBar(
+                backgroundColor: _deepNavy,
+                foregroundColor: Colors.white,
+                surfaceTintColor: _deepNavy,
+                elevation: 0,
+                shape: const Border(
+                  bottom: BorderSide(color: Color(0xFFD6AA57), width: 1),
                 ),
-                if (_hasSectionAccess(11))
+                title: MediaQuery.sizeOf(context).width < 600
+                    ? const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Gelye Sherane',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            'Café & Restaurant · Management',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFFD8E2F0),
+                            ),
+                          ),
+                        ],
+                      )
+                    : const Text('Gelye Sherane · Management System'),
+                actions: [
                   IconButton(
-                    tooltip: 'Notifications',
-                    onPressed: () => setState(() {
-                      _selectedIndex = 11;
-                      _selectedSubcard = null;
-                    }),
-                    icon: const Icon(Icons.notifications_none_outlined),
+                    tooltip: 'Refresh live records',
+                    onPressed: _isLoadingRecords
+                        ? null
+                        : () => unawaited(_loadWorkspaceRecords()),
+                    icon: _isLoadingRecords
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.refresh),
                   ),
-                if (widget.role == 'admin')
-                  IconButton(
-                    tooltip: 'Employee workspace',
-                    onPressed: () => setState(() {
-                      _selectedIndex = 7;
-                      _selectedSubcard = null;
-                    }),
-                    icon: const Icon(Icons.groups_outlined),
-                  ),
-                if (MediaQuery.sizeOf(context).width >= 600)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Center(
-                      child: Text(
-                        '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
-                        style: const TextStyle(fontSize: 13),
+                  if (_hasSectionAccess(11))
+                    IconButton(
+                      tooltip: 'Notifications',
+                      onPressed: () => setState(() {
+                        _selectedIndex = 11;
+                        _selectedSubcard = null;
+                      }),
+                      icon: const Icon(Icons.notifications_none_outlined),
+                    ),
+                  if (widget.role == 'admin')
+                    IconButton(
+                      tooltip: 'Employee workspace',
+                      onPressed: () => setState(() {
+                        _selectedIndex = 7;
+                        _selectedSubcard = null;
+                      }),
+                      icon: const Icon(Icons.groups_outlined),
+                    ),
+                  if (MediaQuery.sizeOf(context).width >= 600)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Center(
+                        child: Text(
+                          '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
                       ),
                     ),
+                  IconButton(
+                    tooltip: 'Sign out',
+                    onPressed: _isSigningOut ? null : _signOut,
+                    icon: _isSigningOut
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.logout),
                   ),
-                IconButton(
-                  tooltip: 'Sign out',
-                  onPressed: _isSigningOut ? null : _signOut,
-                  icon: _isSigningOut
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.logout),
-                ),
-                const SizedBox(width: 8),
-              ],
-            ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final showSidebar = constraints.maxWidth >= 760;
-          final sectionContent = _sectionContent(_selectedIndex);
-          if (showSidebar) {
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(width: 248, child: _navigationPanel()),
-                Expanded(
-                  child: Column(
-                    children: [
-                      _desktopTopbar(),
-                      Expanded(child: _contentArea(sectionContent)),
-                    ],
+                  const SizedBox(width: 8),
+                ],
+              ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final showSidebar = constraints.maxWidth >= 760;
+            final sectionContent = _sectionContent(_selectedIndex);
+            if (showSidebar) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(width: 248, child: _navigationPanel()),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        _desktopTopbar(),
+                        Expanded(child: _contentArea(sectionContent)),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          }
-          return _contentArea(sectionContent);
-        },
+                ],
+              );
+            }
+            return _contentArea(sectionContent);
+          },
+        ),
       ),
     );
   }
@@ -4590,17 +4670,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFE4EAF1))),
+        color: _deepNavy,
+        border: Border(bottom: BorderSide(color: _gold, width: 1)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) => Row(
           children: [
             if (constraints.maxWidth >= 600) ...[
-              const Text('Workspace', style: TextStyle(color: _muted)),
+              const Text('Workspace', style: TextStyle(color: _executiveMuted)),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(Icons.chevron_right, color: Color(0xFF9AA6B5)),
+                child: Icon(Icons.chevron_right, color: _gold),
               ),
             ],
             Expanded(
@@ -4609,7 +4689,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: _ink,
+                  color: _executiveText,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -4632,7 +4712,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     const SizedBox(width: 6),
                     Text(
                       _workspaceError == null ? 'Live data' : 'Unavailable',
-                      style: const TextStyle(color: _muted, fontSize: 11),
+                      style: const TextStyle(
+                        color: _executiveMuted,
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
@@ -4667,7 +4750,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
-                  style: const TextStyle(color: _muted, fontSize: 11),
+                  style: const TextStyle(color: _executiveMuted, fontSize: 11),
                 ),
               ),
             IconButton(
@@ -4692,8 +4775,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       top: false,
       child: NavigationBar(
         selectedIndex: selectedPrimary < 0 ? moreDestination : selectedPrimary,
-        backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFFE7F0FF),
+        backgroundColor: _deepNavy,
+        indicatorColor: _gold,
         destinations: [
           for (final sectionIndex in visiblePrimary)
             NavigationDestination(
@@ -4850,17 +4933,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         minLeadingWidth: 18,
         horizontalTitleGap: 10,
         selected: selected,
-        selectedTileColor: const Color(0xFF2463EB),
+        selectedTileColor: _gold,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         leading: Icon(
           section.icon,
           size: 19,
-          color: selected ? Colors.white : const Color(0xFFC5D0DF),
+          color: selected ? _deepNavy : const Color(0xFFC5D0DF),
         ),
         title: Text(
           section.title,
           style: TextStyle(
-            color: selected ? Colors.white : const Color(0xFFC5D0DF),
+            color: selected ? _deepNavy : const Color(0xFFC5D0DF),
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           ),
@@ -4885,15 +4968,26 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1540),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_signOutError != null) ...[
-                  _AuthErrorMessage(_signOutError!),
-                  const SizedBox(height: 16),
+            child: Container(
+              key: const ValueKey('executive-workspace-panel'),
+              padding: EdgeInsets.all(
+                MediaQuery.sizeOf(context).width < 600 ? 14 : 24,
+              ),
+              decoration: BoxDecoration(
+                color: _executiveWorkspacePanel,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: _gold.withValues(alpha: 0.38)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_signOutError != null) ...[
+                    _AuthErrorMessage(_signOutError!),
+                    const SizedBox(height: 16),
+                  ],
+                  content,
                 ],
-                content,
-              ],
+              ),
             ),
           ),
         ),
@@ -4973,7 +5067,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           const SizedBox(height: 20),
           Text(
             'Signed in as ${widget.email}',
-            style: const TextStyle(color: _muted, fontSize: 13),
+            style: const TextStyle(color: _executiveMuted, fontSize: 13),
           ),
         ],
       ],
@@ -5001,12 +5095,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: const Color(0xFFEEF3FB),
+            color: _deepNavy,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(
             subcard == null ? section.icon : _metricIcon(subcard, section.icon),
-            color: const Color(0xFF4166A3),
+            color: _gold,
           ),
         ),
         const SizedBox(width: 12),
@@ -5021,7 +5115,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: Color(0xFF2463EB),
+                  color: _gold,
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                 ),
@@ -5033,7 +5127,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         ? 'Payments & Finance'
                         : section.title),
                 style: TextStyle(
-                  color: _navy,
+                  color: _executiveText,
                   fontSize: MediaQuery.sizeOf(context).width < 600 ? 23 : 28,
                   fontWeight: FontWeight.w800,
                 ),
@@ -5470,6 +5564,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       return _visibleSubcards(sectionIndex).isEmpty
           ? const Text(
               'Add Table access has not been assigned to this account.',
+              style: TextStyle(color: _executiveMuted),
             )
           : _tablesChairsWorkspace();
     }
@@ -5477,6 +5572,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (visibleSubcards.isEmpty) {
       return const Text(
         'No cards in this section are assigned to this account.',
+        style: TextStyle(color: _executiveMuted),
       );
     }
     if (sectionIndex == 2) {
@@ -5517,10 +5613,21 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             const SizedBox(height: 12),
             Card(
               margin: EdgeInsets.zero,
+              color: _executiveSurface,
               clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: const BorderSide(color: _executiveBorder),
+              ),
               child: ExpansionTile(
                 key: PageStorageKey<String>('section-more-cards-$sectionIndex'),
-                title: Text('More cards (${additionalCards.length})'),
+                title: Text(
+                  'More cards (${additionalCards.length})',
+                  style: const TextStyle(
+                    color: _executiveText,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                 children: [
                   _managementCardGrid(
@@ -5682,6 +5789,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _inventoryCategoryCard(String title) {
     final theme = Theme.of(context);
+    final palette = _executiveCardPalette(6);
     final purpose = _inventoryCardPurposes[title]!;
     final hasExistingWorkspace = _inventoryWorkspaceTitle(title) != null;
     return Semantics(
@@ -5692,11 +5800,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       child: Card(
         key: ValueKey('inventory-category-card-$title'),
         margin: EdgeInsets.zero,
+        color: palette.background,
         clipBehavior: Clip.antiAlias,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          side: BorderSide(color: palette.accent.withValues(alpha: 0.35)),
         ),
         child: InkWell(
           onTap: () => setState(() {
@@ -5713,15 +5822,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   children: [
                     Icon(
                       _metricIcon(title, Icons.inventory_2_outlined),
-                      color: theme.colorScheme.primary,
+                      color: palette.accent,
                       size: 22,
                     ),
                     const Spacer(),
-                    Icon(
-                      Icons.arrow_outward,
-                      size: 17,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.arrow_outward, size: 17, color: palette.accent),
                   ],
                 ),
                 const SizedBox(height: 9),
@@ -5731,7 +5836,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface,
+                    color: _executiveText,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -5740,7 +5845,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: _executiveMuted,
                     height: 1.35,
                   ),
                 ),
@@ -5751,7 +5856,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
+                    color: palette.accent.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -5761,7 +5866,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: palette.accent,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -5949,6 +6054,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _motelOrdersCategoryCard(String title) {
     final theme = Theme.of(context);
+    final palette = _executiveCardPalette(5);
     final purpose = _motelOrderPurposes[title]!;
     return Semantics(
       button: true,
@@ -5956,11 +6062,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       child: Card(
         key: ValueKey('motel-orders-category-card-$title'),
         margin: EdgeInsets.zero,
+        color: palette.background,
         clipBehavior: Clip.antiAlias,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          side: BorderSide(color: palette.accent.withValues(alpha: 0.35)),
         ),
         child: InkWell(
           onTap: () => setState(() {
@@ -5975,15 +6082,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   children: [
                     Icon(
                       _metricIcon(title, Icons.hotel_outlined),
-                      color: theme.colorScheme.primary,
+                      color: palette.accent,
                       size: 22,
                     ),
                     const Spacer(),
-                    Icon(
-                      Icons.arrow_outward,
-                      size: 17,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.arrow_outward, size: 17, color: palette.accent),
                   ],
                 ),
                 const SizedBox(height: 9),
@@ -5993,7 +6096,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface,
+                    color: _executiveText,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -6002,14 +6105,27 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: _executiveMuted,
                     height: 1.35,
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Chip(
-                  label: Text('Design only · integration unverified'),
-                  visualDensity: VisualDensity.compact,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: palette.accent.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Design only · integration unverified',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: palette.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -6298,6 +6414,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _kitchenCategoryCard(String title) {
     final theme = Theme.of(context);
+    final palette = _executiveCardPalette(4);
     final purpose = _kitchenCardPurposes[title]!;
     final hasExistingWorkspace = _subcards[4].contains(title);
     return Semantics(
@@ -6308,11 +6425,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       child: Card(
         key: ValueKey('kitchen-category-card-$title'),
         margin: EdgeInsets.zero,
+        color: palette.background,
         clipBehavior: Clip.antiAlias,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          side: BorderSide(color: palette.accent.withValues(alpha: 0.35)),
         ),
         child: InkWell(
           onTap: () => setState(() {
@@ -6329,15 +6447,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   children: [
                     Icon(
                       _metricIcon(title, Icons.soup_kitchen_outlined),
-                      color: theme.colorScheme.primary,
+                      color: palette.accent,
                       size: 22,
                     ),
                     const Spacer(),
-                    Icon(
-                      Icons.arrow_outward,
-                      size: 17,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.arrow_outward, size: 17, color: palette.accent),
                   ],
                 ),
                 const SizedBox(height: 9),
@@ -6347,7 +6461,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface,
+                    color: _executiveText,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -6356,7 +6470,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: _executiveMuted,
                     height: 1.35,
                   ),
                 ),
@@ -6367,7 +6481,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
+                    color: palette.accent.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -6377,7 +6491,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: palette.accent,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -6476,6 +6590,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _menuCategoryCard(String title) {
     final theme = Theme.of(context);
+    final palette = _executiveCardPalette(3);
     final purpose = _menuCardPurposes[title]!;
     final isExistingWorkspace = _subcards[3].contains(title);
     return Semantics(
@@ -6486,11 +6601,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       child: Card(
         key: ValueKey('menu-category-card-$title'),
         margin: EdgeInsets.zero,
+        color: palette.background,
         clipBehavior: Clip.antiAlias,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          side: BorderSide(color: palette.accent.withValues(alpha: 0.35)),
         ),
         child: InkWell(
           onTap: () => setState(() {
@@ -6507,15 +6623,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   children: [
                     Icon(
                       _metricIcon(title, Icons.restaurant_menu_outlined),
-                      color: theme.colorScheme.primary,
+                      color: palette.accent,
                       size: 22,
                     ),
                     const Spacer(),
-                    Icon(
-                      Icons.arrow_outward,
-                      size: 17,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.arrow_outward, size: 17, color: palette.accent),
                   ],
                 ),
                 const SizedBox(height: 9),
@@ -6525,7 +6637,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurface,
+                    color: _executiveText,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -6534,7 +6646,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: _executiveMuted,
                     height: 1.35,
                   ),
                 ),
@@ -6545,7 +6657,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
+                    color: palette.accent.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -6555,7 +6667,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: palette.accent,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -6705,17 +6817,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               itemBuilder: (context, index) {
                 final title = category.cards[index];
                 final isAvailable = title == 'Add Table';
+                final palette = _executiveCardPalette(index);
                 return Card(
                   key: ValueKey('tables-category-card-$title'),
                   margin: EdgeInsets.zero,
+                  color: palette.background,
                   clipBehavior: Clip.antiAlias,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                     side: BorderSide(
-                      color: isAvailable
-                          ? const Color(0xFFD8E2F0)
-                          : const Color(0xFFE5EAF1),
+                      color: palette.accent.withValues(alpha: 0.35),
                     ),
                   ),
                   child: InkWell(
@@ -6737,23 +6849,21 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             children: [
                               Icon(
                                 _metricIcon(title, _sections[1].icon),
-                                color: isAvailable
-                                    ? const Color(0xFF2463EB)
-                                    : _muted,
+                                color: palette.accent,
                                 size: 23,
                               ),
                               const Spacer(),
                               if (isAvailable)
-                                const Icon(
+                                Icon(
                                   Icons.arrow_outward,
                                   size: 18,
-                                  color: Color(0xFF7890B3),
+                                  color: palette.accent,
                                 )
                               else
-                                const Icon(
+                                Icon(
                                   Icons.schedule_outlined,
                                   size: 18,
-                                  color: Color(0xFF8A95A4),
+                                  color: palette.accent,
                                 ),
                             ],
                           ),
@@ -6763,7 +6873,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: _navy,
+                              color: _executiveText,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
@@ -6776,7 +6886,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: _muted,
+                              color: _executiveMuted,
                               fontSize: 11,
                               height: 1.3,
                             ),
@@ -6872,15 +6982,16 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           spacing: 12,
           runSpacing: 12,
           children: [
-            for (final title in titles)
+            for (var index = 0; index < titles.length; index++)
               SizedBox(
                 width: cardWidth,
                 child: _managementCard(
                   sectionIndex,
-                  title,
-                  revenue: title == revenueCard ? revenue : null,
+                  titles[index],
+                  cardIndex: index,
+                  revenue: titles[index] == revenueCard ? revenue : null,
                   revenueUnavailable:
-                      title == revenueCard && revenueUnavailable,
+                      titles[index] == revenueCard && revenueUnavailable,
                 ),
               ),
           ],
@@ -6903,6 +7014,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         widget.permissionsLoadError == null
             ? 'No dashboard cards are assigned to this account.'
             : 'Dashboard cards are unavailable until permissions can be loaded.',
+        style: const TextStyle(color: _executiveMuted),
       );
     }
     return Column(
@@ -6916,7 +7028,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 const Text(
                   'Operational overview',
                   style: TextStyle(
-                    color: Color(0xFF2463EB),
+                    color: _gold,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
@@ -6926,7 +7038,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 const Text(
                   'Dashboard',
                   style: TextStyle(
-                    color: _navy,
+                    color: _executiveText,
                     fontSize: 30,
                     fontWeight: FontWeight.w800,
                   ),
@@ -6934,7 +7046,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 const SizedBox(height: 4),
                 const Text(
                   'A clear view of today’s service, team and priorities.',
-                  style: TextStyle(color: _muted, fontSize: 13),
+                  style: TextStyle(color: _executiveMuted, fontSize: 13),
                 ),
               ],
             );
@@ -7071,7 +7183,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         const SizedBox(height: 20),
         const Text(
           'Quick Links',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: _executiveText,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -7094,6 +7210,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 }),
                 icon: Icon(link.icon),
                 label: Text(link.label),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _executiveText,
+                  side: BorderSide(color: _gold.withValues(alpha: 0.55)),
+                ),
               ),
           ],
         ),
@@ -7281,11 +7401,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       key: _dashboardCategoryKeys[index],
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _executiveSurface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _executiveBorder),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1209243A),
+            color: Color(0x30000000),
             blurRadius: 8,
             offset: Offset(0, 2),
           ),
@@ -7298,15 +7419,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           initiallyExpanded: true,
           tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
-          backgroundColor: Colors.white,
-          collapsedBackgroundColor: Colors.white,
+          backgroundColor: _executiveSurface,
+          collapsedBackgroundColor: _executiveSurface,
           title: Row(
             children: [
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: group.tint,
+                  color: group.iconColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(group.icon, color: group.iconColor, size: 20),
@@ -7318,7 +7439,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: _ink,
+                    color: _executiveText,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -7327,7 +7448,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               Text(
                 'See all (${visibleCards.length})',
                 style: TextStyle(
-                  color: group.iconColor,
+                  color: _gold,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -7339,6 +7460,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               sectionIndex: 0,
               titles: visibleCards,
               height: 118,
+              paletteOffset: index,
             ),
           ],
         ),
@@ -7547,7 +7669,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         const Text(
           'Payment activity',
           style: TextStyle(
-            color: _navy,
+            color: _executiveText,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -7555,7 +7677,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         const SizedBox(height: 3),
         const Text(
           'Saved workspace records only · not reconciled to a payment provider.',
-          style: TextStyle(color: _muted, fontSize: 11),
+          style: TextStyle(color: _executiveMuted, fontSize: 11),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -7846,6 +7968,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     required int sectionIndex,
     required List<String> titles,
     required double height,
+    int paletteOffset = 0,
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -7868,7 +7991,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 child: _compactMetricCard(
                   sectionIndex: sectionIndex,
                   title: titles[index],
-                  index: index,
+                  index: index + paletteOffset,
                 ),
               ),
           ],
@@ -7882,7 +8005,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     required String title,
     required int index,
   }) {
-    const palette = (background: Colors.white, accent: Color(0xFF2463EB));
+    final palette = _executiveCardPalette(sectionIndex + index);
     final section = _sections[sectionIndex];
     final designOnly =
         sectionIndex == 0 && !_subcards[sectionIndex].contains(title);
@@ -7931,7 +8054,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: Color(0xFFE4EAF1)),
+        side: BorderSide(color: palette.accent.withValues(alpha: 0.35)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -7956,7 +8079,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEEF3FB),
+                      color: palette.accent.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(9),
                     ),
                     child: Icon(
@@ -7975,7 +8098,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: _ink,
+                  color: _executiveText,
                   fontSize: 11,
                   height: 1.1,
                   fontWeight: FontWeight.w700,
@@ -7987,7 +8110,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: unavailable ? _muted : palette.accent,
+                  color: unavailable ? _executiveMuted : palette.accent,
                   fontSize: sectionIndex == 0 ? 14 : 15,
                   fontWeight: FontWeight.w800,
                 ),
@@ -7996,7 +8119,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 supporting,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: _muted, fontSize: 9),
+                style: const TextStyle(color: _executiveMuted, fontSize: 9),
               ),
             ],
           ),
@@ -8435,11 +8558,16 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     required IconData icon,
     required Color color,
   }) {
+    final palette = _executiveCardPalette(1);
     return SizedBox(
       width: width,
       child: Card(
         margin: EdgeInsets.zero,
-        color: Colors.white,
+        color: palette.background,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: palette.accent.withValues(alpha: 0.35)),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -8450,7 +8578,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: const TextStyle(color: _muted)),
+                    Text(label, style: const TextStyle(color: _executiveMuted)),
                     const SizedBox(height: 2),
                     Text(
                       value,
@@ -8687,38 +8815,44 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     required String value,
     required Color tint,
     required Color accent,
-  }) => Container(
-    width: 150,
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: tint,
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: accent.withValues(alpha: 0.12)),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: accent, size: 20),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: accent,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
+  }) {
+    final palette = _executiveCardPalette(2);
+    return Container(
+      width: 150,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          tint.withValues(alpha: 0.12),
+          palette.background,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: accent.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: accent, size: 20),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: accent,
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          label,
-          maxLines: 2,
-          style: const TextStyle(color: _muted, fontSize: 11),
-        ),
-      ],
-    ),
-  );
+          const SizedBox(height: 3),
+          Text(
+            label,
+            maxLines: 2,
+            style: const TextStyle(color: _executiveMuted, fontSize: 11),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _financeRecordTile(
     CafeWorkspaceRecord record, {
@@ -8844,6 +8978,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   Widget _managementCard(
     int sectionIndex,
     String title, {
+    required int cardIndex,
     double? revenue,
     bool revenueUnavailable = false,
   }) {
@@ -8851,7 +8986,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isRevenueCard = sectionIndex == 0 && title == _subcards.first.first;
     final subcardKey = _permissionSlug(title);
     final records = _recordsFor(section.key, subcardKey);
-    const palette = (background: Colors.white, accent: Color(0xFF2463EB));
+    final palette = _executiveCardPalette(sectionIndex + cardIndex);
     final recordCountLabel = _isLoadingRecords
         ? 'Connecting...'
         : _workspaceError != null
@@ -8880,7 +9015,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFE4EAF1)),
+          side: BorderSide(color: palette.accent.withValues(alpha: 0.35)),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -8891,8 +9026,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               bottom: 15,
               child: Container(
                 width: 3,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2463EB),
+                decoration: BoxDecoration(
+                  color: palette.accent,
                   borderRadius: BorderRadiusDirectional.horizontal(
                     end: Radius.circular(5),
                   ),
@@ -8930,7 +9065,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           width: 29,
                           height: 29,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEEF3FB),
+                            color: palette.accent.withValues(alpha: 0.14),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
@@ -8942,7 +9077,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         const Spacer(),
                         Icon(
                           Icons.arrow_outward,
-                          color: const Color(0xFF7890B3),
+                          color: palette.accent,
                           size: 16,
                         ),
                       ],
@@ -8953,7 +9088,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       maxLines: sectionIndex == 1 ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Color(0xFF65738A),
+                        color: _executiveText,
                         fontSize: 11,
                         height: 1.2,
                         fontWeight: FontWeight.w600,
@@ -8966,8 +9101,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: revenueUnavailable && isRevenueCard
-                            ? _muted
-                            : _navy,
+                            ? _executiveMuted
+                            : palette.accent,
                         fontSize: 18,
                         height: 1,
                         fontWeight: FontWeight.w700,
@@ -8979,7 +9114,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Color(0xFF8491A4),
+                        color: _executiveMuted,
                         fontSize: 9,
                         height: 1.2,
                       ),
