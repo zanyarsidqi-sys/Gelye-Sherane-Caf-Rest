@@ -62,15 +62,16 @@ class CafeDiningTableRepository {
     _validate(name: name, area: area, seats: seats, x: x, y: y);
     _requireSignedIn();
     final row = await _client
-        .from('cafe_dining_tables')
-        .insert({
-          'name': name.trim(),
-          'area': area.trim(),
-          'seats': seats,
-          'position_x': x,
-          'position_y': y,
-        })
-        .select(_tableColumns)
+        .rpc(
+          'create_cafe_dining_table',
+          params: {
+            'table_name': name.trim(),
+            'table_area': area.trim(),
+            'table_seats': seats,
+            'table_position_x': x,
+            'table_position_y': y,
+          },
+        )
         .single();
     return CafeDiningTable.fromJson(row);
   }

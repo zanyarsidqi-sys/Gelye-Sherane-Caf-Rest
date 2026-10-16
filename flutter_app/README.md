@@ -139,7 +139,10 @@ Realtime publication. Apply
 it to have the database set table actor IDs and use the same MFA-protected
 permission check for inserts. The Add / Edit Tables permission controls table
 writes; the Table Overview and map permissions provide read-only access. Apply
-both migrations before deploying the UI that uses the floor map.
+both migrations before deploying the UI that uses the floor map. The
+`20261016030000_create_cafe_dining_table_rpc.sql` migration adds an
+MFA- and role-checked function for table creation; apply it before deploying
+the RPC-based Add Table client.
 
 Do not run the staff-profile review candidate. After the migration succeeds,
 deploy the account-creation function to the selected project with the Supabase
