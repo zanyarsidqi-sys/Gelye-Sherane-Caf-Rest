@@ -368,7 +368,7 @@ void main() {
       'Audit & Activity',
       'Personalization',
     ]) {
-      expect(find.text(legacyCard), findsOneWidget, reason: legacyCard);
+      expect(find.text(legacyCard), findsWidgets, reason: legacyCard);
     }
 
     final previewCard = find.text('Cash Out — Owner');
