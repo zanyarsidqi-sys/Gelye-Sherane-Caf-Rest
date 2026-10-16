@@ -783,7 +783,12 @@ void main() {
         'Meal Packages',
         'Motel Orders Settings',
       ],
-      ['New Online Order', 'Online Orders', 'Delivery Schedule', 'Delivery Areas'],
+      [
+        'New Online Order',
+        'Online Orders',
+        'Delivery Schedule',
+        'Delivery Areas',
+      ],
       [
         'New Walk-In Order',
         'Active Walk-In Orders',
@@ -816,9 +821,7 @@ void main() {
       motelCardTotal += motelCategories[index].length;
     }
     expect(motelCardTotal, 20);
-    final walkInTab = find.byKey(
-      const ValueKey('motel-orders-category-tab-3'),
-    );
+    final walkInTab = find.byKey(const ValueKey('motel-orders-category-tab-3'));
     await tester.ensureVisible(walkInTab);
     await tester.tap(walkInTab);
     await tester.pumpAndSettle();
@@ -970,39 +973,128 @@ void main() {
     );
 
     await openMoreSection('Inventory Management');
-    for (final title in [
-      'Inventory Overview',
-      'All Inventory Items',
-      'Stock In',
-      'Stock Out',
-      'Transfer Stock',
-      'Stock Adjustments',
-      'Inventory Count',
-      'Low Stock Items',
-      'Expiry & Waste',
-      'Inventory Value',
-      'Search & Barcode',
-      'Inventory Reports',
-      'Suppliers Management',
-      'Inventory Settings',
-      'Sync & Backup',
-    ]) {
-      expect(find.text(title), findsWidgets, reason: title);
+    const inventoryCategories = [
+      [
+        'Inventory Overview',
+        'All Inventory Items',
+        'Items Needed',
+        'Low Stock Items',
+        'Expiry & Waste',
+        'Inventory Alerts & Notifications',
+        'Inventory Quick Actions',
+      ],
+      [
+        'Add Inventory Item',
+        'Edit & Manage Items',
+        'Item Categories & Units',
+        'Stock In',
+        'Stock Out',
+        'Stock Adjustments',
+        'Batch & Lot Tracking',
+        'Expiry Date Tracking',
+        'Stock Count & Reconciliation',
+        'Barcode & SKU Management',
+      ],
+      [
+        'Stores & Branches',
+        'Storage Locations & Bins',
+        'Transfer Stock',
+        'Transfer Requests & Approvals',
+        'Goods Dispatch & Receiving',
+        'Kitchen & Minibar Stock Locations',
+      ],
+      [
+        'Suppliers Management',
+        'Purchase Requests',
+        'Purchase Orders',
+        'Goods Receiving & Inspection',
+        'Supplier Returns',
+        'Purchase Invoice Matching',
+      ],
+      [
+        'Ingredient Stock & Recipes',
+        'Kitchen Consumption',
+        'Minibar Drinks Inventory',
+        'Nargile Materials Inventory',
+        'Automatic Consumption Rules',
+        'Waste & Spoilage',
+        'Stock Availability for Menu',
+      ],
+      [
+        'Inventory Value',
+        'Inventory Valuation Methods',
+        'Inventory Reports',
+        'Inventory Usage Report',
+        'Cost & Margin Integration',
+        'Stock Audit History',
+        'Inventory Permissions & Approvals',
+        'Inventory Settings',
+        'Import & Export',
+        'Backup & Reconciliation Monitoring',
+      ],
+    ];
+    expect(find.byType(ChoiceChip), findsNWidgets(6));
+    var inventoryCardTotal = 0;
+    for (var index = 0; index < inventoryCategories.length; index++) {
+      final tab = find.byKey(ValueKey('inventory-category-tab-$index'));
+      await tester.ensureVisible(tab);
+      await tester.tap(tab);
+      await tester.pumpAndSettle();
+      final categoryGrid = find.byKey(
+        ValueKey('inventory-category-cards-$index'),
+      );
+      expect(
+        find.descendant(of: categoryGrid, matching: find.byType(Card)),
+        findsNWidgets(inventoryCategories[index].length),
+      );
+      for (final title in inventoryCategories[index]) {
+        expect(
+          find.byKey(ValueKey('inventory-category-card-$title')),
+          findsOneWidget,
+          reason: title,
+        );
+      }
+      inventoryCardTotal += inventoryCategories[index].length;
     }
-    await tester.ensureVisible(find.textContaining('More cards ('));
-    await tester.tap(find.textContaining('More cards ('));
+    expect(inventoryCardTotal, 46);
+
+    final itemsTab = find.byKey(const ValueKey('inventory-category-tab-1'));
+    await tester.ensureVisible(itemsTab);
+    await tester.tap(itemsTab);
     await tester.pumpAndSettle();
-    for (final title in [
-      'Add / Edit Inventory Item',
-      'Inventory Categories',
-      'Purchase Orders',
-      'Inventory Usage Report',
-      'Stock Alerts',
-      'Inventory History',
-      'Inventory Quick Actions',
-    ]) {
-      expect(find.text(title), findsWidgets, reason: title);
-    }
+    await tester.tap(
+      find.byKey(
+        const ValueKey('inventory-category-card-Batch & Lot Tracking'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Design only'), findsOneWidget);
+    expect(
+      find.textContaining('does not change stock quantities'),
+      findsOneWidget,
+    );
+    expect(find.text('Add record'), findsNothing);
+    await tester.tap(find.text('Back to Inventory Management'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(itemsTab);
+    await tester.tap(itemsTab);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(
+        const ValueKey('inventory-category-card-Item Categories & Units'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Inventory Categories records'), findsOneWidget);
+    expect(
+      find.textContaining(
+        'not connected to stock balances or an inventory ledger',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Back to Inventory Management'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('More cards ('), findsNothing);
 
     await openMoreSection('Staff Management');
     for (final title in [
@@ -1560,9 +1652,7 @@ void main() {
     await tester.tap(find.text('Back to Kitchen Management'));
     await tester.pumpAndSettle();
     expect(
-      find.byKey(
-        const PageStorageKey<String>('kitchen-preserved-workspaces'),
-      ),
+      find.byKey(const PageStorageKey<String>('kitchen-preserved-workspaces')),
       findsNothing,
     );
     expect(

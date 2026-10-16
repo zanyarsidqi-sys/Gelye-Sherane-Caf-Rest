@@ -369,6 +369,187 @@ const _motelOrderPurposes = <String, String>{
   'Payment Options': 'Review saved payment option records.',
 };
 
+const _inventoryManagementCategories = [
+  (
+    title: 'Overview & Monitoring',
+    icon: Icons.monitor_heart_outlined,
+    cards: [
+      'Inventory Overview',
+      'All Inventory Items',
+      'Items Needed',
+      'Low Stock Items',
+      'Expiry & Waste',
+      'Inventory Alerts & Notifications',
+      'Inventory Quick Actions',
+    ],
+  ),
+  (
+    title: 'Items & Stock',
+    icon: Icons.inventory_2_outlined,
+    cards: [
+      'Add Inventory Item',
+      'Edit & Manage Items',
+      'Item Categories & Units',
+      'Stock In',
+      'Stock Out',
+      'Stock Adjustments',
+      'Batch & Lot Tracking',
+      'Expiry Date Tracking',
+      'Stock Count & Reconciliation',
+      'Barcode & SKU Management',
+    ],
+  ),
+  (
+    title: 'Locations & Transfers',
+    icon: Icons.warehouse_outlined,
+    cards: [
+      'Stores & Branches',
+      'Storage Locations & Bins',
+      'Transfer Stock',
+      'Transfer Requests & Approvals',
+      'Goods Dispatch & Receiving',
+      'Kitchen & Minibar Stock Locations',
+    ],
+  ),
+  (
+    title: 'Purchasing & Suppliers',
+    icon: Icons.local_shipping_outlined,
+    cards: [
+      'Suppliers Management',
+      'Purchase Requests',
+      'Purchase Orders',
+      'Goods Receiving & Inspection',
+      'Supplier Returns',
+      'Purchase Invoice Matching',
+    ],
+  ),
+  (
+    title: 'Kitchen & Minibar Integration',
+    icon: Icons.soup_kitchen_outlined,
+    cards: [
+      'Ingredient Stock & Recipes',
+      'Kitchen Consumption',
+      'Minibar Drinks Inventory',
+      'Nargile Materials Inventory',
+      'Automatic Consumption Rules',
+      'Waste & Spoilage',
+      'Stock Availability for Menu',
+    ],
+  ),
+  (
+    title: 'Value, Reports & Administration',
+    icon: Icons.assessment_outlined,
+    cards: [
+      'Inventory Value',
+      'Inventory Valuation Methods',
+      'Inventory Reports',
+      'Inventory Usage Report',
+      'Cost & Margin Integration',
+      'Stock Audit History',
+      'Inventory Permissions & Approvals',
+      'Inventory Settings',
+      'Import & Export',
+      'Backup & Reconciliation Monitoring',
+    ],
+  ),
+];
+
+const _inventoryCardPurposes = <String, String>{
+  'Inventory Overview': 'Design preview for stock and reorder monitoring.',
+  'All Inventory Items': 'Design preview for searchable item records.',
+  'Items Needed': 'Review items that may need replenishment.',
+  'Low Stock Items': 'Review items below configured reorder levels.',
+  'Expiry & Waste': 'Review batch expiry and waste records.',
+  'Inventory Alerts & Notifications':
+      'Design preview for inventory alerts and notification rules.',
+  'Inventory Quick Actions': 'Open existing quick-action record workspace.',
+  'Add Inventory Item': 'Design preview for adding a catalog item.',
+  'Edit & Manage Items': 'Design preview for managing inventory items.',
+  'Item Categories & Units':
+      'Review item category and measurement-unit records.',
+  'Stock In': 'Design preview for receiving stock into an inventory location.',
+  'Stock Out': 'Design preview for authorized stock removal.',
+  'Stock Adjustments': 'Design preview for reviewed stock adjustments.',
+  'Batch & Lot Tracking': 'Design preview for batch and lot traceability.',
+  'Expiry Date Tracking': 'Review existing expiry and waste records.',
+  'Stock Count & Reconciliation':
+      'Review existing inventory count records.',
+  'Barcode & SKU Management': 'Review existing search and barcode records.',
+  'Stores & Branches': 'Design preview for inventory stores and branches.',
+  'Storage Locations & Bins':
+      'Design preview for storage locations and bins.',
+  'Transfer Stock': 'Design preview for inter-location stock transfers.',
+  'Transfer Requests & Approvals':
+      'Design preview for controlled transfer approvals.',
+  'Goods Dispatch & Receiving':
+      'Design preview for dispatch and goods receiving.',
+  'Kitchen & Minibar Stock Locations':
+      'Design preview for kitchen and minibar stock locations.',
+  'Suppliers Management': 'Review existing supplier record workspace.',
+  'Purchase Requests': 'Design preview for purchase requests.',
+  'Purchase Orders': 'Review existing purchase-order record workspace.',
+  'Goods Receiving & Inspection':
+      'Design preview for supplier delivery inspections.',
+  'Supplier Returns': 'Design preview for supplier return records.',
+  'Purchase Invoice Matching':
+      'Design preview for matching purchase documents.',
+  'Ingredient Stock & Recipes':
+      'Design preview for ingredient and recipe stock links.',
+  'Kitchen Consumption':
+      'Design preview for approved kitchen stock consumption.',
+  'Minibar Drinks Inventory':
+      'Design preview for minibar beverage inventory.',
+  'Nargile Materials Inventory':
+      'Design preview for Nargile material inventory.',
+  'Automatic Consumption Rules':
+      'Design preview for recipe-based stock consumption rules.',
+  'Waste & Spoilage': 'Design preview for authorized waste records.',
+  'Stock Availability for Menu':
+      'Design preview for menu stock availability integration.',
+  'Inventory Value': 'Review existing inventory value record workspace.',
+  'Inventory Valuation Methods':
+      'Design preview for approved valuation methods.',
+  'Inventory Reports': 'Review existing inventory report records.',
+  'Inventory Usage Report': 'Review existing inventory usage report records.',
+  'Cost & Margin Integration':
+      'Design preview for cost and margin integration.',
+  'Stock Audit History': 'Review existing inventory history records.',
+  'Inventory Permissions & Approvals':
+      'Design preview for inventory access and approval rules.',
+  'Inventory Settings': 'Review existing inventory setting records.',
+  'Import & Export': 'Design preview for authorized inventory data exchange.',
+  'Backup & Reconciliation Monitoring':
+      'Review existing sync and backup records.',
+};
+
+const _inventoryCardRouteTitles = <String, String>{
+  'Inventory Overview': 'Inventory Overview',
+  'All Inventory Items': 'All Inventory Items',
+  'Low Stock Items': 'Low Stock Items',
+  'Expiry & Waste': 'Expiry & Waste',
+  'Inventory Alerts & Notifications': 'Stock Alerts',
+  'Inventory Quick Actions': 'Inventory Quick Actions',
+  'Add Inventory Item': 'Add / Edit Inventory Item',
+  'Edit & Manage Items': 'Add / Edit Inventory Item',
+  'Item Categories & Units': 'Inventory Categories',
+  'Stock In': 'Stock In',
+  'Stock Out': 'Stock Out',
+  'Stock Adjustments': 'Stock Adjustments',
+  'Expiry Date Tracking': 'Expiry & Waste',
+  'Waste & Spoilage': 'Expiry & Waste',
+  'Stock Count & Reconciliation': 'Inventory Count',
+  'Barcode & SKU Management': 'Search & Barcode',
+  'Transfer Stock': 'Transfer Stock',
+  'Suppliers Management': 'Suppliers Management',
+  'Purchase Orders': 'Purchase Orders',
+  'Inventory Value': 'Inventory Value',
+  'Inventory Reports': 'Inventory Reports',
+  'Inventory Usage Report': 'Inventory Usage Report',
+  'Stock Audit History': 'Inventory History',
+  'Inventory Settings': 'Inventory Settings',
+  'Backup & Reconciliation Monitoring': 'Sync & Backup',
+};
+
 const _menuCardPurposes = <String, String>{
   'Menu Overview': 'Summary of product counts, active/inactive items, unpublished changes, category distribution and actionable exceptions.',
   'Add New Product': 'Create a product with identity, category, language, image, availability, prices, variants and station assignment.',
@@ -2014,10 +2195,29 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             for (final category in _motelOrdersCategories) ...category.cards,
             ..._subcards[sectionIndex],
           }.toList(growable: false)
+        : sectionIndex == 6
+        ? <String>{
+            for (final category in _inventoryManagementCategories)
+              ...category.cards,
+            ..._subcards[sectionIndex],
+          }.toList(growable: false)
         : _subcards[sectionIndex];
     if (widget.role == 'admin' ||
         widget.grantedPermissions.contains('$sectionKey:*')) {
       return sectionSubcards;
+    }
+    if (sectionIndex == 6) {
+      bool hasCardPermission(String title) =>
+          widget.grantedPermissions.contains(
+            '$sectionKey:${_permissionSlug(title)}',
+          );
+      return sectionSubcards
+          .where((title) {
+            final legacyTitle = _inventoryCardRouteTitles[title];
+            return hasCardPermission(title) ||
+                (legacyTitle != null && hasCardPermission(legacyTitle));
+          })
+          .toList(growable: false);
     }
     return sectionSubcards
         .where(
@@ -2038,6 +2238,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   int _selectedKitchenCategory = 0;
   String _kitchenCardSearch = '';
   int _selectedMotelOrdersCategory = 0;
+  int _selectedInventoryCategory = 0;
+  String _inventoryCardSearch = '';
   bool _isSigningOut = false;
   String? _signOutError;
   CafeWorkspaceRepository? _workspaceRepository;
@@ -4745,6 +4947,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _kitchenLegacyCardDetail(section, subcard)
         else if (index == 5 && subcard != null)
           _motelOrderDesignDetail(subcard)
+        else if (index == 6 &&
+            subcard != null &&
+            _inventoryWorkspaceTitle(subcard) == null)
+          _inventoryCardDesignDetail(subcard)
+        else if (index == 6 && subcard != null)
+          _inventoryExistingWorkspaceDetail(
+            section,
+            _inventoryWorkspaceTitle(subcard)!,
+          )
         else if (subcard == null)
           _sectionSubcardGrid(index)
         else
@@ -4766,7 +4977,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   ) {
     final description = subcard == null
         ? section.description
-        : _motelOrderPurposes[subcard] ??
+        : _inventoryCardPurposes[subcard] ??
+              _motelOrderPurposes[subcard] ??
               _menuCardPurposes[subcard] ??
               _kitchenCardPurposes[subcard] ??
               _sectionCardDescriptions[subcard] ??
@@ -5268,6 +5480,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 5) {
       return _motelOrdersWorkspace(visibleSubcards);
     }
+    if (sectionIndex == 6) {
+      return _inventoryManagementWorkspace(visibleSubcards);
+    }
+    if (sectionIndex == 6) {
+      return _inventoryManagementWorkspace(visibleSubcards);
+    }
     final featuredCards = _featuredSectionCards[sectionIndex];
     if (featuredCards != null) {
       final primaryCards = visibleSubcards
@@ -5316,6 +5534,327 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       sectionIndex: sectionIndex,
       titles: visibleSubcards,
       minimumColumns: sectionIndex == 1 ? 3 : null,
+    );
+  }
+
+  String? _inventoryWorkspaceTitle(String cardTitle) {
+    final mappedTitle = _inventoryCardRouteTitles[cardTitle];
+    if (mappedTitle != null) return mappedTitle;
+    return _subcards[6].contains(cardTitle) ? cardTitle : null;
+  }
+
+  Widget _inventoryManagementWorkspace(List<String> visibleSubcards) {
+    final category = _inventoryManagementCategories[_selectedInventoryCategory];
+    final query = _inventoryCardSearch.trim().toLowerCase();
+    final categoryCards = category.cards
+        .where((title) {
+          if (visibleSubcards.contains(title)) return true;
+          final legacyTitle = _inventoryCardRouteTitles[title];
+          return legacyTitle != null && visibleSubcards.contains(legacyTitle);
+        })
+        .where((title) {
+          if (query.isEmpty) return true;
+          return title.toLowerCase().contains(query) ||
+              (_inventoryCardPurposes[title] ?? '')
+                  .toLowerCase()
+                  .contains(query);
+        })
+        .toList(growable: false);
+    final categoryCounts = [
+      for (final inventoryCategory in _inventoryManagementCategories)
+        inventoryCategory.cards.where((title) {
+          if (visibleSubcards.contains(title)) return true;
+          final legacyTitle = _inventoryCardRouteTitles[title];
+          return legacyTitle != null && visibleSubcards.contains(legacyTitle);
+        }).length,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (
+                var index = 0;
+                index < _inventoryManagementCategories.length;
+                index++
+              ) ...[
+                if (index > 0) const SizedBox(width: 8),
+                ChoiceChip(
+                  key: ValueKey('inventory-category-tab-$index'),
+                  avatar: Icon(
+                    _inventoryManagementCategories[index].icon,
+                    size: 17,
+                  ),
+                  label: Text(
+                    '${_inventoryManagementCategories[index].title} '
+                    '(${categoryCounts[index]})',
+                  ),
+                  selected: _selectedInventoryCategory == index,
+                  onSelected: (_) => setState(() {
+                    _selectedInventoryCategory = index;
+                    _inventoryCardSearch = '';
+                  }),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          key: const ValueKey('inventory-card-search'),
+          onChanged: (value) => setState(() => _inventoryCardSearch = value),
+          decoration: InputDecoration(
+            hintText: 'Search ${category.title.toLowerCase()} cards...',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: query.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear inventory card search',
+                    onPressed: () => setState(() => _inventoryCardSearch = ''),
+                    icon: const Icon(Icons.close),
+                  ),
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            isDense: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE1E7EF)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (categoryCards.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              query.isEmpty
+                  ? 'No cards in this category are assigned to this account.'
+                  : 'No inventory cards match "$_inventoryCardSearch".',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: _muted),
+            ),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 1120
+                  ? 4
+                  : constraints.maxWidth >= 760
+                  ? 3
+                  : constraints.maxWidth >= 500
+                  ? 2
+                  : 1;
+              final width =
+                  (constraints.maxWidth - (columns - 1) * 12) / columns;
+              return Wrap(
+                key: ValueKey(
+                  'inventory-category-cards-$_selectedInventoryCategory',
+                ),
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final title in categoryCards)
+                    SizedBox(
+                      width: width,
+                      child: _inventoryCategoryCard(title),
+                    ),
+                ],
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _inventoryCategoryCard(String title) {
+    final theme = Theme.of(context);
+    final purpose = _inventoryCardPurposes[title]!;
+    final hasExistingWorkspace = _inventoryWorkspaceTitle(title) != null;
+    return Semantics(
+      button: true,
+      label:
+          '$title. $purpose. '
+          '${hasExistingWorkspace ? 'Existing generic record workspace' : 'Design only'}',
+      child: Card(
+        key: ValueKey('inventory-category-card-$title'),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        child: InkWell(
+          onTap: () => setState(() {
+            _workspaceSearch = '';
+            _workspaceStatusFilter = 'All';
+            _selectedSubcard = title;
+          }),
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _metricIcon(title, Icons.inventory_2_outlined),
+                      color: theme.colorScheme.primary,
+                      size: 22,
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_outward,
+                      size: 17,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  purpose,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    hasExistingWorkspace
+                        ? 'Existing generic records · no stock ledger'
+                        : 'Design only · ledger integration unverified',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _inventoryCardDesignDetail(String title) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  _metricIcon(title, Icons.inventory_2_outlined),
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Chip(
+                  label: Text('Design only'),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _inventoryCardPurposes[title]!,
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.45),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Coming Soon — Awaiting a verified inventory ledger and '
+                'approved integrations. This preview does not change stock '
+                'quantities, receive purchases, update menu availability, '
+                'calculate inventory value, or perform backup or export '
+                'operations. No inventory database schema has been added.',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _inventoryExistingWorkspaceDetail(
+    ({String key, IconData icon, String title, String description}) section,
+    String workspaceTitle,
+  ) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Card(
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'This card preserves the existing generic records for '
+                    '"$workspaceTitle". They are not connected to stock '
+                    'balances or an inventory ledger.',
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _subcardDetail(section, workspaceTitle),
+      ],
     );
   }
 

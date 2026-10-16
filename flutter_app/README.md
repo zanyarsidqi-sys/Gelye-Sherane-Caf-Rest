@@ -16,12 +16,12 @@ After staff authentication, the management UI has 24 sections. Desktop/web uses
 a persistent section sidebar; mobile uses Home, Tables, Motel, Menu, Reserve,
 and More navigation. Payments and other sections are available from More.
 Dashboard and section subcards use the
-same responsive card component and grid breakpoints. Every section/card uses
-the shared Supabase workspace-record store for authorized, realtime records
-with create, edit, status-update, delete, and automatic database audit capture. This
-is a flexible record workspace, not a card processor or a substitute for
-importing existing cafe transactions; only data actually entered or imported
-is shown.
+same responsive card component and grid breakpoints. Existing generic-record
+cards use the shared Supabase workspace-record store for authorized, realtime
+records with create, edit, status-update, delete, and automatic database audit
+capture. This is a flexible record workspace, not a card processor or a
+substitute for importing existing cafe transactions; only data actually
+entered or imported is shown.
 
 Sections 03–24 surface the reference-design card groups for Payments, Menu,
 Kitchen, Motel & Online Orders, Inventory, Staff, Customers, Reservations,
@@ -70,10 +70,23 @@ design-only previews: no motel/online/walk-in order processing, room booking,
 delivery dispatch, payment settlement, or invoice integration is verified or
 connected. Existing saved records and database data were not changed.
 
+Inventory Management now has six responsive categories with all 44 cards from
+the supplied design specification. Two existing generic-record cards,
+**Inventory Usage Report** and **Inventory Quick Actions**, remain accessible
+in their relevant categories. Existing generic cards are routed to their
+original record keys so saved records and card permissions remain intact; the
+previous “More cards” panel is no longer shown. New cards are marked design
+only. The repository does not contain a verified inventory ledger or item,
+location, batch, or stock-movement schema, so this release does not post stock
+changes, receive purchases, calculate inventory value, or connect inventory
+to Kitchen, Minibar, Menu, Purchasing, or Finance. No database schema or
+production records were changed.
+
 Except for dining-table setup and layout and the Motel & Online Orders
-design-only previews, management cards use the shared generic record workspace.
-They do not implement a payment processor, dedicated
-product catalog, inventory ledger, live order pipeline, reservation service,
+design-only previews and the new Inventory Management design cards,
+management cards use the shared generic record workspace. They do not
+implement a payment processor, dedicated product catalog, inventory ledger,
+live order pipeline, reservation service,
 notification delivery system, or printer/device connection. Device
 records do not send print jobs, change printer settings, monitor hardware,
 update firmware, or open cash drawers. Security cards store generic records
