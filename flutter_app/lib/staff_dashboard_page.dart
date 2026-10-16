@@ -5,11 +5,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'cafe_workspace_repository.dart';
 
-const _navy = Color(0xFF09243A);
-const _deepNavy = Color(0xFF061A2B);
+const _navy = Color(0xFF12253F);
+const _deepNavy = Color(0xFF12253F);
 const _gold = Color(0xFFD6AA57);
-const _ink = Color(0xFF182B3A);
-const _muted = Color(0xFF677582);
+const _ink = Color(0xFF18283F);
+const _muted = Color(0xFF61718A);
 
 const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const _supabasePublishableKey = String.fromEnvironment(
@@ -810,6 +810,13 @@ class StaffDashboardPage extends StatefulWidget {
 }
 
 class _StaffDashboardPageState extends State<StaffDashboardPage> {
+  static const _navigationGroups = [
+    (title: 'Operations', indices: [0, 1, 3, 4, 5, 6]),
+    (title: 'Finance', indices: [2, 14, 23]),
+    (title: 'People & Service', indices: [7, 8, 9, 12, 13, 18, 19, 20, 21, 22]),
+    (title: 'Administration', indices: [10, 11, 15, 16, 17]),
+  ];
+
   static const _sections = [
     (
       key: 'dashboard',
@@ -3375,65 +3382,29 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, 12, 8),
-              child: Text(
-                'MANAGEMENT SECTIONS',
-                style: TextStyle(
-                  color: Color(0xFFD5B77C),
-                  fontSize: 10,
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _visibleSectionIndices.length,
-                itemBuilder: (context, visibleIndex) {
-                  final index = _visibleSectionIndices[visibleIndex];
-                  final section = _sections[index];
-                  final selected = index == _selectedIndex;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 2,
-                    ),
-                    child: ListTile(
-                      key: ValueKey('management-section-$index'),
-                      selected: selected,
-                      selectedTileColor: const Color(0xFF2563EB),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      leading: Icon(
-                        section.icon,
-                        color: selected
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.68),
-                      ),
-                      title: Text(
-                        section.title,
-                        style: TextStyle(
-                          color: Colors.white.withValues(
-                            alpha: selected ? 1 : 0.84,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
+                children: [
+                  for (final group in _navigationGroups)
+                    if (group.indices.any(_hasSectionAccess)) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(23, 9, 12, 5),
+                        child: Text(
+                          group.title.toUpperCase(),
+                          style: const TextStyle(
+                            color: Color(0xFF91A1B8),
+                            fontSize: 9,
+                            letterSpacing: 1.3,
+                            fontWeight: FontWeight.w700,
                           ),
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
                         ),
                       ),
-                      onTap: () {
-                        setState(() {
-                          _selectedIndex = index;
-                          _selectedSubcard = null;
-                        });
-                        _scaffoldKey.currentState?.closeDrawer();
-                      },
-                    ),
-                  );
-                },
+                      for (final index in group.indices)
+                        if (_hasSectionAccess(index))
+                          _navigationSectionItem(index),
+                    ],
+                ],
               ),
             ),
             Divider(height: 1, color: Colors.white.withValues(alpha: 0.12)),
@@ -3449,6 +3420,42 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _navigationSectionItem(int index) {
+    final section = _sections[index];
+    final selected = index == _selectedIndex;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      child: ListTile(
+        key: ValueKey('management-section-$index'),
+        minLeadingWidth: 18,
+        horizontalTitleGap: 10,
+        selected: selected,
+        selectedTileColor: const Color(0xFF2463EB),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        leading: Icon(
+          section.icon,
+          size: 19,
+          color: selected ? Colors.white : const Color(0xFFC5D0DF),
+        ),
+        title: Text(
+          section.title,
+          style: TextStyle(
+            color: selected ? Colors.white : const Color(0xFFC5D0DF),
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+        onTap: () {
+          setState(() {
+            _selectedIndex = index;
+            _selectedSubcard = null;
+          });
+          _scaffoldKey.currentState?.closeDrawer();
+        },
       ),
     );
   }
@@ -5905,8 +5912,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               : 'Tracked records only · excludes unrecorded sales'
         : _sectionCardDescriptions[title] ?? 'Live Supabase records';
     return SizedBox(
-      height: 176,
+      height: 154,
       child: Card(
+        key: ValueKey('management-card-${section.key}-$subcardKey'),
         margin: EdgeInsets.zero,
         color: palette.background,
         elevation: 0,
@@ -5915,85 +5923,100 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           side: const BorderSide(color: Color(0xFFE4EAF1)),
         ),
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => setState(() {
-            _tableSearch = '';
-            _tableStatusFilter = 'All';
-            _workspaceSearch = '';
-            _workspaceStatusFilter = 'All';
-            _selectedSubcard = title;
-          }),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        child: Stack(
+          children: [
+            PositionedDirectional(
+              start: 0,
+              top: 15,
+              bottom: 15,
+              child: Container(
+                width: 3,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF2463EB),
+                  borderRadius: BorderRadiusDirectional.horizontal(
+                    end: Radius.circular(5),
+                  ),
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () => setState(() {
+                _tableSearch = '';
+                _tableStatusFilter = 'All';
+                _workspaceSearch = '';
+                _workspaceStatusFilter = 'All';
+                _selectedSubcard = title;
+              }),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 13, 13, 11),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEEF3FB),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        _metricIcon(title, section.icon),
-                        color: palette.accent,
-                        size: 19,
+                    Row(
+                      children: [
+                        Container(
+                          width: 29,
+                          height: 29,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEEF3FB),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            _metricIcon(title, section.icon),
+                            color: palette.accent,
+                            size: 17,
+                          ),
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.arrow_outward,
+                          color: const Color(0xFF7890B3),
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      title,
+                      maxLines: sectionIndex == 1 ? 1 : 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF65738A),
+                        fontSize: 11,
+                        height: 1.2,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Icon(
-                          Icons.chevron_right,
-                          color: palette.accent,
-                          size: 20,
-                        ),
+                    const SizedBox(height: 5),
+                    Text(
+                      primaryText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: revenueUnavailable && isRevenueCard
+                            ? _muted
+                            : _navy,
+                        fontSize: 18,
+                        height: 1,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      secondaryText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF8491A4),
+                        fontSize: 9,
+                        height: 1.2,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  title,
-                  maxLines: sectionIndex == 1 ? 2 : 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: _ink,
-                    fontSize: sectionIndex == 1 ? 12 : 14,
-                    height: 1.2,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  secondaryText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: _muted,
-                    fontSize: 11,
-                    height: 1.2,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  primaryText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: revenueUnavailable && isRevenueCard
-                        ? _muted
-                        : palette.accent,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
