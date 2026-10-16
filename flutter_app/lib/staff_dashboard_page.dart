@@ -2261,6 +2261,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   bool _diningTablePanelOnMobile = false;
   bool _diningTablePanelShowMap = false;
   int _diningTableEditorTab = 0;
+  String _diningTablePanelPricingMode = 'normal';
   String? _diningTablePanelError;
   int _selectedMenuCategory = 0;
   String _menuCardSearch = '';
@@ -2963,6 +2964,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       _diningTablePanelNameController.clear();
       _diningTablePanelAreaController.text = 'Main';
       _diningTablePanelSeatsController.text = '4';
+      _diningTablePanelPricingMode = 'normal';
       _diningTablePanelError = null;
       _diningTableEditorTab = 0;
       _diningTablePanelOnMobile = true;
@@ -2977,6 +2979,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       _diningTablePanelNameController.text = table.name;
       _diningTablePanelAreaController.text = table.area;
       _diningTablePanelSeatsController.text = '${table.seats}';
+      _diningTablePanelPricingMode = table.pricingMode;
       _diningTablePanelError = null;
       _diningTableEditorTab = 0;
       _diningTablePanelOnMobile = true;
@@ -2986,7 +2989,23 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Future<void> _saveDiningTablePanel({required bool addAnother}) async {
     final form = _diningTablePanelFormKey.currentState;
-    if (form == null || !form.validate()) return;
+    if (form != null) {
+      if (!form.validate()) return;
+    } else {
+      final seats = int.tryParse(_diningTablePanelSeatsController.text.trim());
+      if (_diningTablePanelNameController.text.trim().isEmpty ||
+          _diningTablePanelAreaController.text.trim().isEmpty ||
+          seats == null ||
+          seats < 1 ||
+          seats > 100) {
+        setState(() {
+          _diningTablePanelError =
+              'Complete the table name, area, and seat capacity in Basic Info '
+              'before saving.';
+        });
+        return;
+      }
+    }
     final repository = _diningTableRepository;
     if (repository == null) {
       setState(() {
@@ -3009,6 +3028,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           seats: int.parse(_diningTablePanelSeatsController.text.trim()),
           x: position.$1,
           y: position.$2,
+          pricingMode: _diningTablePanelPricingMode,
         );
       } else {
         final id = _selectedDiningTablePanelId;
@@ -3020,6 +3040,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           name: _diningTablePanelNameController.text,
           area: _diningTablePanelAreaController.text,
           seats: int.parse(_diningTablePanelSeatsController.text.trim()),
+          pricingMode: _diningTablePanelPricingMode,
         );
         final refreshed = await repository.fetchTables();
         saved = refreshed.singleWhere((item) => item.id == id);
@@ -3046,12 +3067,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _diningTablePanelNameController.clear();
           _diningTablePanelAreaController.text = saved.area;
           _diningTablePanelSeatsController.text = '4';
+          _diningTablePanelPricingMode = 'normal';
         } else {
           _selectedDiningTablePanelId = saved.id;
           _diningTablePanelIsNew = false;
           _diningTablePanelNameController.text = saved.name;
           _diningTablePanelAreaController.text = saved.area;
           _diningTablePanelSeatsController.text = '${saved.seats}';
+          _diningTablePanelPricingMode = saved.pricingMode;
         }
       });
       ScaffoldMessenger.of(context)
@@ -3177,6 +3200,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             seats: seats,
                             x: position.$1,
                             y: position.$2,
+                            pricingMode: table?.pricingMode ?? 'normal',
                           );
                         } else {
                           await repository.updateTable(
@@ -3184,6 +3208,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             name: nameController.text,
                             area: areaController.text,
                             seats: seats,
+                            pricingMode: table.pricingMode,
                           );
                         }
                         if (dialogContext.mounted) {
@@ -6434,7 +6459,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               _AuthErrorMessage(_diningTablePanelError!),
             ],
             const SizedBox(height: 14),
-            if (_canManageDiningTables && hasSelected)
+            if (_canManageDiningTables &&
+                hasSelected &&
+                (_diningTableEditorTab == 0 || _diningTableEditorTab == 4))
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -6469,6 +6496,61 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   }
 
   Widget _diningTableEditorTabContent(CafeDiningTable? table) {
+    if (_diningTableEditorTab == 4) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF101E31),
+          border: Border.all(color: _executiveBorder),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Default mode for this table',
+              style: TextStyle(
+                color: _executiveText,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              key: const ValueKey('dining-table-pricing-mode'),
+              initialValue: _diningTablePanelPricingMode,
+              decoration: const InputDecoration(
+                labelText: 'Pricing mode',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                for (final mode in CafeDiningTableRepository.pricingModes)
+                  DropdownMenuItem(
+                    value: mode,
+                    child: const Text('Normal Mode'),
+                  ),
+              ],
+              onChanged: _canManageDiningTables
+                  ? (mode) {
+                      if (mode != null) {
+                        setState(() {
+                          _diningTablePanelPricingMode = mode;
+                          _diningTablePanelError = null;
+                        });
+                      }
+                    }
+                  : null,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Normal Mode is the default for all existing and new tables. '
+              'It does not add a table charge or change menu prices.',
+              style: TextStyle(color: _executiveMuted, height: 1.4),
+            ),
+          ],
+        ),
+      );
+    }
     final description = switch (_diningTableEditorTab) {
       1 =>
         'Chair inventory, chair layouts, shapes, and extra-chair policy '
@@ -6483,9 +6565,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         table == null
             ? 'Save a table before displaying its QR code.'
             : 'Table QR tokens are managed by the secured QR workflow.',
-      4 =>
-        'Default table pricing cannot be saved yet. The verified dining-table '
-            'schema does not include a pricing-mode field.',
       _ =>
         'Floor, online booking, archive, and operational settings are not '
             'available in the current verified schema.',
@@ -7854,6 +7933,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         _diningTablePanelNameController.clear();
                         _diningTablePanelAreaController.text = 'Main';
                         _diningTablePanelSeatsController.text = '4';
+                        _diningTablePanelPricingMode = 'normal';
                       }
                       _selectedSubcard = title;
                     }),

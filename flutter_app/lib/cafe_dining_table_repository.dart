@@ -7,6 +7,7 @@ class CafeDiningTable {
     required this.area,
     required this.seats,
     required this.status,
+    required this.pricingMode,
     required this.x,
     required this.y,
   });
@@ -18,6 +19,7 @@ class CafeDiningTable {
       area: json['area'] as String,
       seats: json['seats'] as int,
       status: json['status'] as String,
+      pricingMode: json['pricing_mode'] as String,
       x: (json['position_x'] as num).toDouble(),
       y: (json['position_y'] as num).toDouble(),
     );
@@ -28,6 +30,7 @@ class CafeDiningTable {
   final String area;
   final int seats;
   final String status;
+  final String pricingMode;
   final double x;
   final double y;
 }
@@ -36,6 +39,7 @@ class CafeDiningTableRepository {
   const CafeDiningTableRepository(this._client);
 
   static const statuses = {'available', 'occupied', 'reserved', 'cleaning'};
+  static const pricingModes = {'normal'};
 
   final SupabaseClient _client;
 
@@ -52,8 +56,10 @@ class CafeDiningTableRepository {
     required int seats,
     required double x,
     required double y,
+    String pricingMode = 'normal',
   }) async {
     _validate(name: name, area: area, seats: seats, x: x, y: y);
+    _validatePricingMode(pricingMode);
     _requireSignedIn();
     final row = await _client
         .rpc(
@@ -64,6 +70,7 @@ class CafeDiningTableRepository {
             'table_seats': seats,
             'table_position_x': x,
             'table_position_y': y,
+            'table_pricing_mode': pricingMode,
           },
         )
         .single();
@@ -75,8 +82,10 @@ class CafeDiningTableRepository {
     required String name,
     required String area,
     required int seats,
+    required String pricingMode,
   }) async {
     _validate(name: name, area: area, seats: seats, x: 0.5, y: 0.5);
+    _validatePricingMode(pricingMode);
     final userId = _requireSignedIn();
     await _client
         .from('cafe_dining_tables')
@@ -84,6 +93,7 @@ class CafeDiningTableRepository {
           'name': name.trim(),
           'area': area.trim(),
           'seats': seats,
+          'pricing_mode': pricingMode,
           'updated_by': userId,
         })
         .eq('id', id)
@@ -201,6 +211,12 @@ class CafeDiningTableRepository {
     }
     if (!x.isFinite || x < 0 || x > 1 || !y.isFinite || y < 0 || y > 1) {
       throw const FormatException('Table position is outside the floor map.');
+    }
+  }
+
+  static void _validatePricingMode(String pricingMode) {
+    if (!pricingModes.contains(pricingMode)) {
+      throw const FormatException('Choose a supported table pricing mode.');
     }
   }
 }

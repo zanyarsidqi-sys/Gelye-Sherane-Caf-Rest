@@ -50,6 +50,36 @@ void main() {
     }
   });
 
+  test('tables expose the persisted normal pricing mode', () {
+    final table = CafeDiningTable.fromJson({
+      'id': 'table-id',
+      'name': 'Table 1',
+      'area': 'Main',
+      'seats': 4,
+      'status': 'available',
+      'pricing_mode': 'normal',
+      'position_x': 0.5,
+      'position_y': 0.5,
+    });
+
+    expect(table.pricingMode, 'normal');
+    expect(CafeDiningTableRepository.pricingModes, {'normal'});
+  });
+
+  test('table creation rejects unsupported pricing modes', () async {
+    await expectLater(
+      repository.createTable(
+        name: 'Table 1',
+        area: 'Main',
+        seats: 4,
+        x: 0.5,
+        y: 0.5,
+        pricingMode: 'unsupported',
+      ),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
   test('table mutations require a signed-in user', () async {
     await expectLater(
       repository.createTable(
