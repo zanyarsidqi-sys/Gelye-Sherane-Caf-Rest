@@ -82,6 +82,130 @@ const _tablesChairsCategories = [
   ),
 ];
 
+const _kitchenManagementCategories = [
+  (
+    title: 'Kitchen Overview',
+    icon: Icons.dashboard_outlined,
+    cards: [
+      'Kitchen Overview',
+      'Kitchen Reports',
+      'Kitchen Performance & Timing',
+    ],
+  ),
+  (
+    title: 'Live Kitchen Board',
+    icon: Icons.view_kanban_outlined,
+    cards: [
+      'Table Orders',
+      'Motel Orders',
+      'Online Orders',
+      'Status of All Orders',
+      'Live Kitchen Orders',
+      'Kitchen Orders',
+      'Kitchen Display',
+      'Kitchen Priority & Delays',
+    ],
+  ),
+  (
+    title: 'Orders & Preparation',
+    icon: Icons.soup_kitchen_outlined,
+    cards: [
+      'Order Details',
+      'Kitchen Preparation',
+      'Ready for Delivery',
+      'Order Modification & Cancellation',
+      'Kitchen Quality Control',
+    ],
+  ),
+  (
+    title: 'Kitchen Operations',
+    icon: Icons.settings_outlined,
+    cards: [
+      'Kitchen Stations Management',
+      'Kitchen Printing Management',
+      'Kitchen Handover',
+      'Kitchen Waste & Spoilage',
+    ],
+  ),
+  (
+    title: 'Menu & Staff',
+    icon: Icons.restaurant_menu_outlined,
+    cards: [
+      'Menu Availability',
+      'Kitchen Staff',
+      'Kitchen Inventory & Ingredients',
+    ],
+  ),
+  (
+    title: 'Minibar Management',
+    icon: Icons.local_cafe_outlined,
+    cards: [
+      'Minibar Overview',
+      'Nargile Products & Flavors',
+      'Café Drinks & Beverages',
+      'Product Assignment to Stations',
+      'Nargile Preparation & Orders',
+      'Drinks Preparation & Orders',
+      'Minibar Inventory & Ingredients',
+      'Equipment & Maintenance',
+      'Minibar Staff & Assignments',
+      'Minibar Sales & Reports',
+      'Minibar Stations Management',
+      'Minibar Printing Management',
+    ],
+  ),
+  (
+    title: 'Administration',
+    icon: Icons.admin_panel_settings_outlined,
+    cards: ['Kitchen Settings'],
+  ),
+];
+
+const _kitchenCardPurposes = <String, String>{
+  'Kitchen Overview': 'View kitchen workload, order status and exceptions.',
+  'Kitchen Reports': 'Review authorized historical kitchen performance.',
+  'Kitchen Performance & Timing':
+      'Measure defined preparation and handover intervals.',
+  'Table Orders': 'Kitchen view of food items from table orders.',
+  'Motel Orders': 'Kitchen view of eligible motel food orders.',
+  'Online Orders': 'Kitchen view of eligible online food orders.',
+  'Status of All Orders':
+      'Search kitchen orders by source, station and status.',
+  'Live Kitchen Orders': 'Monitor the active kitchen queue.',
+  'Kitchen Orders': 'Review kitchen order history and ticket details.',
+  'Kitchen Display': 'Touch-friendly display for kitchen order work.',
+  'Kitchen Priority & Delays': 'Review priority, delay and escalation records.',
+  'Order Details': 'Review order items, notes and revision history.',
+  'Kitchen Preparation': 'Track kitchen preparation and item readiness.',
+  'Ready for Delivery': 'Review completed items awaiting handover.',
+  'Order Modification & Cancellation':
+      'Review authorized order changes and cancellations.',
+  'Kitchen Quality Control': 'Record kitchen quality checks and rework.',
+  'Kitchen Stations Management': 'Manage kitchen preparation stations.',
+  'Kitchen Printing Management':
+      'Configure and monitor kitchen ticket routing.',
+  'Kitchen Handover': 'Record ready-item pickup and handover.',
+  'Kitchen Waste & Spoilage': 'Record waste and spoilage for review.',
+  'Menu Availability': 'Review kitchen item availability.',
+  'Kitchen Staff': 'Review kitchen staff and station assignments.',
+  'Kitchen Inventory & Ingredients': 'Review kitchen ingredient availability.',
+  'Minibar Overview': 'View minibar workload for drinks and Nargile.',
+  'Nargile Products & Flavors': 'Manage minibar Nargile product options.',
+  'Café Drinks & Beverages': 'Manage café beverage options.',
+  'Product Assignment to Stations': 'Assign eligible products to stations.',
+  'Nargile Preparation & Orders': 'Track Nargile preparation and handover.',
+  'Drinks Preparation & Orders': 'Track beverage preparation and handover.',
+  'Minibar Inventory & Ingredients':
+      'Review minibar ingredients and inventory links.',
+  'Equipment & Maintenance': 'Track minibar equipment and maintenance.',
+  'Minibar Staff & Assignments': 'Review minibar staff and assignments.',
+  'Minibar Sales & Reports': 'Review authorized minibar sales reports.',
+  'Minibar Stations Management': 'Manage minibar preparation stations.',
+  'Minibar Printing Management':
+      'Configure and monitor minibar ticket routing.',
+  'Kitchen Settings': 'Review kitchen workflow configuration.',
+};
+
 const _featuredSectionCards = {
   1: ['Add Table'],
   2: [
@@ -1648,11 +1772,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 1) {
       return _canViewDiningTables ? const ['Add Table'] : const [];
     }
+    final sectionSubcards = sectionIndex == 4
+        ? <String>{
+            for (final category in _kitchenManagementCategories)
+              ...category.cards,
+            ..._subcards[sectionIndex],
+          }.toList(growable: false)
+        : _subcards[sectionIndex];
     if (widget.role == 'admin' ||
         widget.grantedPermissions.contains('$sectionKey:*')) {
-      return _subcards[sectionIndex];
+      return sectionSubcards;
     }
-    return _subcards[sectionIndex]
+    return sectionSubcards
         .where(
           (subcard) => widget.grantedPermissions.contains(
             '$sectionKey:${_permissionSlug(subcard)}',
@@ -1666,6 +1797,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   int _selectedIndex = 0;
   String? _selectedSubcard;
   int _selectedTablesCategory = 0;
+  int _selectedKitchenCategory = 0;
+  String _kitchenCardSearch = '';
   bool _isSigningOut = false;
   String? _signOutError;
   CafeWorkspaceRepository? _workspaceRepository;
@@ -4359,6 +4492,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _financeDetail(section, subcard)
         else if (index == 1 && subcard != null)
           _tablesChairsCardDetail(section, subcard)
+        else if (index == 4 &&
+            subcard != null &&
+            !_subcards[4].contains(subcard))
+          _kitchenCardDesignDetail(subcard)
+        else if (index == 4 && subcard != null)
+          _kitchenLegacyCardDetail(section, subcard)
         else if (subcard == null)
           _sectionSubcardGrid(index)
         else
@@ -4380,7 +4519,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   ) {
     final description = subcard == null
         ? section.description
-        : _sectionCardDescriptions[subcard] ??
+        : _kitchenCardPurposes[subcard] ??
+              _sectionCardDescriptions[subcard] ??
               'Live workspace records for $subcard.';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -4870,6 +5010,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 2) {
       return _paymentManagementOverview(visibleSubcards);
     }
+    if (sectionIndex == 4) {
+      return _kitchenManagementWorkspace(visibleSubcards);
+    }
     final featuredCards = _featuredSectionCards[sectionIndex];
     if (featuredCards != null) {
       final primaryCards = visibleSubcards
@@ -4918,6 +5061,322 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       sectionIndex: sectionIndex,
       titles: visibleSubcards,
       minimumColumns: sectionIndex == 1 ? 3 : null,
+    );
+  }
+
+  Widget _kitchenManagementWorkspace(List<String> visibleSubcards) {
+    final category = _kitchenManagementCategories[_selectedKitchenCategory];
+    final query = _kitchenCardSearch.trim().toLowerCase();
+    final categoryCards = category.cards
+        .where(visibleSubcards.contains)
+        .where((title) {
+          if (query.isEmpty) return true;
+          return title.toLowerCase().contains(query) ||
+              (_kitchenCardPurposes[title] ?? '').toLowerCase().contains(query);
+        })
+        .toList(growable: false);
+    final legacyCards = _subcards[4]
+        .where(visibleSubcards.contains)
+        .where((title) => !_kitchenCardPurposes.containsKey(title))
+        .toList(growable: false);
+    final categoryCounts = [
+      for (final kitchenCategory in _kitchenManagementCategories)
+        kitchenCategory.cards.where(visibleSubcards.contains).length,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (
+                var index = 0;
+                index < _kitchenManagementCategories.length;
+                index++
+              ) ...[
+                if (index > 0) const SizedBox(width: 8),
+                ChoiceChip(
+                  key: ValueKey('kitchen-category-tab-$index'),
+                  avatar: Icon(
+                    _kitchenManagementCategories[index].icon,
+                    size: 17,
+                  ),
+                  label: Text(
+                    '${_kitchenManagementCategories[index].title} '
+                    '(${categoryCounts[index]})',
+                  ),
+                  selected: _selectedKitchenCategory == index,
+                  onSelected: (_) => setState(() {
+                    _selectedKitchenCategory = index;
+                    _kitchenCardSearch = '';
+                  }),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          key: const ValueKey('kitchen-card-search'),
+          onChanged: (value) => setState(() => _kitchenCardSearch = value),
+          decoration: InputDecoration(
+            hintText: 'Search ${category.title.toLowerCase()} cards...',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: query.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear kitchen card search',
+                    onPressed: () => setState(() => _kitchenCardSearch = ''),
+                    icon: const Icon(Icons.close),
+                  ),
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            isDense: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE1E7EF)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (categoryCards.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              query.isEmpty
+                  ? 'No cards in this category are assigned to this account.'
+                  : 'No kitchen cards match "$_kitchenCardSearch".',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: _muted),
+            ),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 1120
+                  ? 4
+                  : constraints.maxWidth >= 760
+                  ? 3
+                  : constraints.maxWidth >= 500
+                  ? 2
+                  : 1;
+              final width =
+                  (constraints.maxWidth - (columns - 1) * 12) / columns;
+              return Wrap(
+                key: ValueKey(
+                  'kitchen-category-cards-$_selectedKitchenCategory',
+                ),
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final title in categoryCards)
+                    SizedBox(width: width, child: _kitchenCategoryCard(title)),
+                ],
+              );
+            },
+          ),
+        if (legacyCards.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: ExpansionTile(
+              key: const PageStorageKey<String>('kitchen-preserved-workspaces'),
+              title: Text(
+                'Previously available kitchen workspaces '
+                '(${legacyCards.length})',
+              ),
+              subtitle: const Text(
+                'Preserved routes and records; these are not live order data.',
+              ),
+              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              children: [
+                _managementCardGrid(sectionIndex: 4, titles: legacyCards),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _kitchenCategoryCard(String title) {
+    final theme = Theme.of(context);
+    final purpose = _kitchenCardPurposes[title]!;
+    final hasExistingWorkspace = _subcards[4].contains(title);
+    return Semantics(
+      button: true,
+      label:
+          '$title. $purpose. '
+          '${hasExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
+      child: Card(
+        key: ValueKey('kitchen-category-card-$title'),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        child: InkWell(
+          onTap: () => setState(() {
+            _workspaceSearch = '';
+            _workspaceStatusFilter = 'All';
+            _selectedSubcard = title;
+          }),
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _metricIcon(title, Icons.soup_kitchen_outlined),
+                      color: theme.colorScheme.primary,
+                      size: 22,
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_outward,
+                      size: 17,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  purpose,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    hasExistingWorkspace
+                        ? 'Existing generic workspace'
+                        : 'Design only · integration unverified',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _kitchenCardDesignDetail(String title) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  _metricIcon(title, Icons.soup_kitchen_outlined),
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Chip(
+                  label: Text('Design only'),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _kitchenCardPurposes[title]!,
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.45),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Kitchen order, station, printer, menu and inventory '
+                'integrations have not been verified. This card is a design '
+                'preview only: it does not load or change orders, create '
+                'tickets, print, or update stock.',
+                style: TextStyle(height: 1.45),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _kitchenLegacyCardDetail(
+    ({String key, IconData icon, String title, String description}) section,
+    String subcard,
+  ) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Text(
+            'This existing route and its saved records are preserved in the '
+            'generic workspace. They are not connected to a verified live '
+            'kitchen order, station, or printer system.',
+            style: TextStyle(height: 1.4),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _subcardDetail(section, subcard),
+      ],
     );
   }
 

@@ -820,34 +820,6 @@ void main() {
       expect(find.text(title), findsWidgets, reason: title);
     }
 
-    await openMoreSection('Kitchen Management');
-    for (final title in [
-      'Kitchen Overview',
-      'Live Kitchen Orders',
-      'Order Details',
-      'Kitchen Preparation',
-      'Ready for Delivery',
-      'Kitchen Display',
-      'Menu Availability',
-      'Kitchen Staff',
-      'Kitchen Reports',
-      'Kitchen Settings',
-      'Kitchen Orders',
-    ]) {
-      expect(find.text(title), findsOneWidget, reason: title);
-    }
-    await tester.ensureVisible(find.textContaining('More cards ('));
-    await tester.tap(find.textContaining('More cards ('));
-    await tester.pumpAndSettle();
-    for (final title in [
-      'Table Orders',
-      'Online Orders',
-      'Motel Orders',
-      'Takeaway & Delivery',
-    ]) {
-      expect(find.text(title), findsOneWidget, reason: title);
-    }
-
     await openMoreSection('Inventory Management');
     for (final title in [
       'Inventory Overview',
@@ -1316,6 +1288,143 @@ void main() {
     ]) {
       expect(find.text(title), findsWidgets, reason: title);
     }
+  });
+
+  testWidgets('Kitchen Management has seven staged categories', (tester) async {
+    tester.view.physicalSize = const Size(390, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('More').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Kitchen Management').last);
+    await tester.pumpAndSettle();
+
+    const kitchenCategories = [
+      ['Kitchen Overview', 'Kitchen Reports', 'Kitchen Performance & Timing'],
+      [
+        'Table Orders',
+        'Motel Orders',
+        'Online Orders',
+        'Status of All Orders',
+        'Live Kitchen Orders',
+        'Kitchen Orders',
+        'Kitchen Display',
+        'Kitchen Priority & Delays',
+      ],
+      [
+        'Order Details',
+        'Kitchen Preparation',
+        'Ready for Delivery',
+        'Order Modification & Cancellation',
+        'Kitchen Quality Control',
+      ],
+      [
+        'Kitchen Stations Management',
+        'Kitchen Printing Management',
+        'Kitchen Handover',
+        'Kitchen Waste & Spoilage',
+      ],
+      ['Menu Availability', 'Kitchen Staff', 'Kitchen Inventory & Ingredients'],
+      [
+        'Minibar Overview',
+        'Nargile Products & Flavors',
+        'Café Drinks & Beverages',
+        'Product Assignment to Stations',
+        'Nargile Preparation & Orders',
+        'Drinks Preparation & Orders',
+        'Minibar Inventory & Ingredients',
+        'Equipment & Maintenance',
+        'Minibar Staff & Assignments',
+        'Minibar Sales & Reports',
+        'Minibar Stations Management',
+        'Minibar Printing Management',
+      ],
+      ['Kitchen Settings'],
+    ];
+    expect(find.byType(ChoiceChip), findsNWidgets(7));
+
+    var cardTotal = 0;
+    for (var index = 0; index < kitchenCategories.length; index++) {
+      final tab = find.byKey(ValueKey('kitchen-category-tab-$index'));
+      await tester.ensureVisible(tab);
+      await tester.tap(tab);
+      await tester.pumpAndSettle();
+      final categoryGrid = find.byKey(
+        ValueKey('kitchen-category-cards-$index'),
+      );
+      expect(
+        find.descendant(of: categoryGrid, matching: find.byType(Card)),
+        findsNWidgets(kitchenCategories[index].length),
+      );
+      for (final title in kitchenCategories[index]) {
+        expect(
+          find.byKey(ValueKey('kitchen-category-card-$title')),
+          findsOneWidget,
+          reason: title,
+        );
+      }
+      cardTotal += kitchenCategories[index].length;
+    }
+    expect(cardTotal, 36);
+
+    final operationsTab = find.byKey(const ValueKey('kitchen-category-tab-3'));
+    await tester.ensureVisible(operationsTab);
+    await tester.tap(operationsTab);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(
+        const ValueKey('kitchen-category-card-Kitchen Stations Management'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Design only'), findsOneWidget);
+    expect(
+      find.textContaining('integrations have not been verified'),
+      findsOneWidget,
+    );
+    expect(find.text('Add record'), findsNothing);
+
+    await tester.tap(find.text('Back to Kitchen Management'));
+    await tester.pumpAndSettle();
+    final boardTab = find.byKey(const ValueKey('kitchen-category-tab-1'));
+    await tester.ensureVisible(boardTab);
+    await tester.tap(boardTab);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('kitchen-category-card-Kitchen Orders')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Kitchen Orders records'), findsOneWidget);
+    expect(
+      find.textContaining('generic workspace. They are not connected'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Back to Kitchen Management'));
+    await tester.pumpAndSettle();
+    final preservedWorkspaces = find.byKey(
+      const PageStorageKey<String>('kitchen-preserved-workspaces'),
+    );
+    await tester.ensureVisible(preservedWorkspaces);
+    expect(
+      find.text('Previously available kitchen workspaces (13)'),
+      findsOneWidget,
+    );
+    await tester.tap(preservedWorkspaces);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Customer Directory'));
+    await tester.tap(find.text('Customer Directory'));
+    await tester.pumpAndSettle();
+    expect(find.text('Customer Directory records'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('employee workspace explains the department-first setup', (

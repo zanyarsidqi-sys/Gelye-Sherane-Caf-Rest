@@ -48,6 +48,13 @@ because their table details cannot be inferred safely.
 The Windows and iPhone design review for the remaining 28 cards is available
 in [`../design/section-02-remaining-cards-concept.html`](../design/section-02-remaining-cards-concept.html).
 
+Kitchen Management now has a seven-category workspace with 36 specification
+cards. Its prior generic-record routes remain accessible; they are not live
+kitchen orders. Cards requiring order, station, printer, menu, or inventory
+integrations are explicitly marked design-only because those authoritative
+services have not been verified in this repository. The category interface is
+deployed; operational Kitchen integrations remain unavailable.
+
 Except for dining-table setup and layout, management cards use the shared
 generic record workspace. They do not implement a payment processor, dedicated
 product catalog, inventory ledger, live order pipeline, reservation service,
