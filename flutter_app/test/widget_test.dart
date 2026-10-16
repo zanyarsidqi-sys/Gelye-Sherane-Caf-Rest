@@ -980,17 +980,18 @@ void main() {
       find.byKey(const ValueKey('tables-category-card-Chairs Management')),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('chairs-safety-blocker')), findsOneWidget);
-    expect(find.text('Search Chairs Management records...'), findsNothing);
-    expect(find.text('Give extra chairs'), findsOneWidget);
     expect(
-      tester
-          .widget<OutlinedButton>(
-            find.widgetWithText(OutlinedButton, 'Give extra chairs'),
-          )
-          .onPressed,
-      isNull,
+      find.byKey(const ValueKey('chairs-management-guidance')),
+      findsOneWidget,
     );
+    expect(
+      find.textContaining(
+        'Chair management is unavailable because Supabase is not configured',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Search Chairs Management records...'), findsNothing);
+    expect(find.text('Give extra chairs'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Back to Tables & Chairs'));
     await tester.pumpAndSettle();

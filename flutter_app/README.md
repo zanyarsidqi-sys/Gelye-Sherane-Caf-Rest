@@ -64,20 +64,28 @@ validated in staging and applied to production on 16 October 2026 before the
 matching UI release.
 **Table Reservations** opens the dedicated reservation workflow, but is not
 available for staff use until its staging migration passes acceptance testing.
-**Chairs Management** shows verified base table capacity but keeps all
-chair-changing actions and movement history unavailable until an authoritative
-spare-chair source and active-guest/reservation counts exist. The connected
-production schema has no such source tables, so no movable stock or current
-chair total is assumed. Other proposed cards remain previews pending their
-authoritative schema and server workflows. Dining-table storage covers name,
-area, seat count, manually maintained status, normalized map position, and the
-`Normal Mode` pricing-mode default. Normal Mode is informational and does not
-add a charge or change menu prices. The pricing-mode migration applies this
-default to existing and new tables; it must be applied before deploying the
-matching client. Dining-table storage does not yet support multiple floors,
-table shapes, chair inventories, map versions, occupancy integration, or safe
-archive/reactivation. Existing generic table records are not converted into
-dining tables because their table details cannot be inferred safely.
+**Chairs Management** maintains a verified spare-chair pool and per-table
+current chair totals, with the existing table seat count preserved as the base
+capacity. An administrator records the physical spare count; authorized staff
+record the verified guest and confirmed-reservation seat minimum before taking
+chairs, and can give, take, or transfer chairs with a reason. Changes are
+atomic, retry-safe, and recorded in movement history. Chair operations require
+an AAL2 session and `chairs_management` permission; only administrators can
+reconcile the spare pool. The pool starts unconfigured, so no spare stock is
+assumed. The schema is in
+`supabase/migrations/20261017000000_cafe_table_chair_management.sql`; it was
+validated in staging and applied to production on 17 October 2026 before the
+matching client release. Other proposed cards remain previews pending their
+authoritative schema and server workflows.
+Dining-table storage covers name, area, seat count, manually maintained status,
+normalized map position, and the `Normal Mode` pricing-mode default. Normal
+Mode is informational and does not add a charge or change menu prices. The
+pricing-mode migration applies this default to existing and new tables; it
+must be applied before deploying the matching client. Dining-table storage
+does not yet support multiple floors, table shapes, map versions, occupancy
+integration, or safe archive/reactivation. Existing generic table records are
+not converted into dining tables because their table details cannot be
+inferred safely.
 The Table Reservations workflow and its Dashboard confirmed-bookings card now
 use a dedicated reservation repository and the staging-only migration
 `supabase/migrations/20261016170000_cafe_table_reservations.sql`. It supports

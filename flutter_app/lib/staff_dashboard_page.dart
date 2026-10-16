@@ -11,6 +11,7 @@ import 'cafe_request_id.dart';
 import 'cafe_workspace_repository.dart';
 import 'cafe_dining_table_repository.dart';
 import 'cafe_table_reservation_repository.dart';
+import 'cafe_table_chair_repository.dart';
 
 const _navy = Color(0xFF12253F);
 const _deepNavy = Color(0xFF0B1728);
@@ -976,7 +977,8 @@ const _sectionCardDescriptions = {
   'Add / Edit Tables': 'Create and update table records',
   'Table Map': 'View and manage table map records',
   'Table Orders': 'Orders for occupied tables',
-  'Chairs Management': 'Add, remove and arrange chairs',
+  'Chairs Management':
+      'Track spare chairs, protect guest seating, and move chairs safely',
   'Table QR Codes': 'Generate and manage table QR records',
   'Customer QR Ordering': 'Customer ordering records via QR',
   'Table Reservations': 'Bookings and table arrivals',
@@ -2286,14 +2288,19 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   RealtimeChannel? _diningTableChannel;
   CafeTableReservationRepository? _tableReservationRepository;
   RealtimeChannel? _tableReservationChannel;
+  CafeTableChairRepository? _chairRepository;
   List<CafeDiningTable> _diningTables = const [];
   List<CafeTableReservation> _tableReservations = const [];
+  CafeChairManagementSnapshot? _chairManagement;
   bool _isLoadingDiningTables = true;
   bool _isFetchingDiningTables = false;
   bool _isLoadingTableReservations = true;
   bool _isFetchingTableReservations = false;
+  bool _isLoadingChairManagement = true;
+  bool _isFetchingChairManagement = false;
   String? _diningTableError;
   String? _tableReservationsError;
+  String? _chairManagementError;
   final _diningTableMapKey = GlobalKey();
   final _diningTableMapTransformationController = TransformationController();
   final Map<String, CafeDiningTable> _diningTableMapSnapshot = {};
@@ -2363,6 +2370,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         _isLoadingRecords = false;
         _isLoadingDiningTables = false;
         _isLoadingTableReservations = false;
+        _isLoadingChairManagement = false;
         _workspaceError =
             'Supabase is not configured with a valid project URL and key.';
         _diningTableError =
@@ -2370,6 +2378,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             'configured for this app.';
         _tableReservationsError =
             'Table reservations are unavailable because Supabase is not '
+            'configured for this app.';
+        _chairManagementError =
+            'Chair management is unavailable because Supabase is not '
             'configured for this app.';
       });
       return;
@@ -2386,6 +2397,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       _diningTableRepository = diningTableRepository;
       _diningTableChannel = diningTableRepository.subscribe(() {
         unawaited(_loadDiningTables());
+        if (_canManageChairs) unawaited(_loadChairManagement());
       });
       if (_canViewTableReservations) {
         final reservationRepository = CafeTableReservationRepository(
@@ -2398,8 +2410,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       } else {
         _isLoadingTableReservations = false;
       }
+      if (_canManageChairs) {
+        _chairRepository = CafeTableChairRepository(Supabase.instance.client);
+      } else {
+        _isLoadingChairManagement = false;
+      }
       await _loadWorkspaceRecords();
       await _loadDiningTables();
+      if (_canManageChairs) await _loadChairManagement();
       if (_canViewTableReservations) await _loadTableReservations();
     } on Exception catch (exception) {
       if (!mounted) return;
@@ -2420,6 +2438,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         _diningTableError = null;
       });
     }
+
     try {
       final tables = await repository.fetchTables();
       if (!mounted) return;
@@ -2440,6 +2459,37 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     } finally {
       _isFetchingDiningTables = false;
       if (mounted) setState(() => _isLoadingDiningTables = false);
+    }
+  }
+
+  Future<void> _loadChairManagement() async {
+    final repository = _chairRepository;
+    if (repository == null || _isFetchingChairManagement) return;
+    _isFetchingChairManagement = true;
+    if (mounted) {
+      setState(() {
+        _isLoadingChairManagement = true;
+        _chairManagementError = null;
+      });
+    }
+    try {
+      final snapshot = await repository.fetchManagement();
+      if (!mounted) return;
+      setState(() {
+        _chairManagement = snapshot;
+        _chairManagementError = null;
+      });
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _chairManagementError =
+            'Could not load chair data: ${_diningTableFailure(exception)}';
+      });
+    } finally {
+      _isFetchingChairManagement = false;
+      if (mounted) {
+        setState(() => _isLoadingChairManagement = false);
+      }
     }
   }
 
@@ -2701,6 +2751,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   bool get _canViewTableReservations => _canManageTableReservations;
 
+  bool get _canManageChairs =>
+      widget.role == 'admin' ||
+      widget.grantedPermissions.contains('tables_orders:*') ||
+      widget.grantedPermissions.contains('tables_orders:chairs_management');
+
   bool _canAccessTablesCard(String title) {
     if (widget.role == 'admin' ||
         widget.grantedPermissions.contains('tables_orders:*')) {
@@ -2711,6 +2766,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Edit & Manage Tables' ||
       'Table Map' => _canViewDiningTables,
       'QR Code Management' => _canManageDiningTables,
+      'Chairs Management' => _canManageChairs,
       'Table Reservations' => _canViewTableReservations,
       'Table Availability' => widget.grantedPermissions.contains(
         'tables_orders:table_availability',
@@ -3446,7 +3502,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     nameController.dispose();
     areaController.dispose();
     seatsController.dispose();
-    if (saved == true && table != null) await _loadDiningTables();
+    if (saved == true) {
+      await _loadDiningTables();
+      if (_canManageChairs) await _loadChairManagement();
+    }
     if (saved == true && createdDiningTable != null) {
       await _showDiningTableQr(createdDiningTable!);
     }
@@ -3732,6 +3791,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     try {
       await repository.deleteTable(table.id);
       await _loadDiningTables();
+      if (_canManageChairs) await _loadChairManagement();
     } on Exception catch (exception) {
       if (!mounted) return;
       setState(() => _diningTableError = _diningTableFailure(exception));
@@ -6249,6 +6309,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   }) {
     final color = _diningTableStatusColor(table.status);
     final reservations = _reservationsForTable(table);
+    final chairState = _chairStateFor(table);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -6292,7 +6353,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ),
               const SizedBox(height: 3),
               Text(
-                '${table.seats} seats · ${table.area}',
+                chairState == null
+                    ? '${table.seats} base seats · ${table.area}'
+                    : '${chairState.currentChairs} chairs '
+                          '(${chairState.baseChairs} base) · ${table.area}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: _muted, fontSize: 9),
@@ -6332,12 +6396,21 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
+  CafeChairTableState? _chairStateFor(CafeDiningTable table) {
+    for (final chairState
+        in _chairManagement?.tables ?? const <CafeChairTableState>[]) {
+      if (chairState.tableId == table.id) return chairState;
+    }
+    return null;
+  }
+
   Widget _diningTableListItem(
     CafeDiningTable table, {
     required bool allowTableEditing,
   }) {
     final reservations = _reservationsForTable(table);
     final isMapCard = _selectedSubcard == 'Table Map';
+    final chairState = _chairStateFor(table);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -6351,7 +6424,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         ),
         title: Text(table.name),
         subtitle: Text(
-          '${table.area} · ${table.seats} seats'
+          '${table.area} · '
+          '${chairState == null ? '${table.seats} base seats' : '${chairState.currentChairs} chairs (${chairState.baseChairs} base)'}'
           '${reservations.isEmpty ? '' : ' · ${reservations.length} reservation${reservations.length == 1 ? '' : 's'}'}',
         ),
         trailing: Wrap(
@@ -10571,6 +10645,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   }
 
   Widget _chairsManagementWorkspace() {
+    final snapshot = _chairManagement;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -10585,7 +10660,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Chair operations',
+                'Chair management',
                 style: TextStyle(
                   color: _executiveText,
                   fontSize: 18,
@@ -10594,111 +10669,736 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ),
               const SizedBox(height: 6),
               const Text(
-                'Chair changes are locked until the spare-chair source and '
-                'authoritative occupied/reserved guest counts are connected. '
-                'The current database has no chair-pool, active-visit/order, '
-                'or production reservation records.',
-                key: ValueKey('chairs-safety-blocker'),
+                'Current chairs equal the original table capacity plus audited '
+                'movements. Record the actual spare pool and the verified '
+                'guest/reservation minimum before moving chairs.',
+                key: ValueKey('chairs-management-guidance'),
                 style: TextStyle(color: _executiveMuted, height: 1.4),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Give extra chairs'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.remove),
-                    label: const Text('Take chairs'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.swap_horiz),
-                    label: const Text('Transfer chairs'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.history),
-                    label: const Text('Movement history'),
-                  ),
-                ],
               ),
             ],
           ),
         ),
         const SizedBox(height: 12),
-        Card(
-          color: _executiveSurface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: _executiveBorder),
+        if (_chairManagementError != null)
+          Row(
+            children: [
+              Expanded(child: _AuthErrorMessage(_chairManagementError!)),
+              IconButton(
+                tooltip: 'Retry chair data',
+                onPressed: _isLoadingChairManagement
+                    ? null
+                    : () => unawaited(_loadChairManagement()),
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Verified base table capacity',
-                  style: TextStyle(
-                    color: _executiveText,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'These are original saved seat capacities only. Current '
-                  'chair totals and adjustments are not available yet.',
-                  style: TextStyle(color: _executiveMuted, height: 1.4),
-                ),
-                if (_isLoadingDiningTables)
-                  const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (_diningTableError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: _AuthErrorMessage(_diningTableError!),
-                  )
-                else if (_diningTables.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: Text(
-                      'No saved tables are available for this account.',
-                      style: TextStyle(color: _executiveMuted),
-                    ),
-                  )
-                else
-                  for (final table in _diningTables)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        table.name,
-                        style: const TextStyle(color: _executiveText),
-                      ),
-                      subtitle: Text(
-                        '${table.area} · ${_diningTableStatusLabel(table.status)}',
-                        style: const TextStyle(color: _executiveMuted),
-                      ),
-                      trailing: Text(
-                        '${table.seats} base seats',
-                        style: const TextStyle(
+        if (_isLoadingChairManagement)
+          const Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (snapshot != null) ...[
+          Card(
+            color: _executiveSurface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: _executiveBorder),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Verified spare-chair pool',
+                        style: TextStyle(
                           color: _executiveText,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
+                      const SizedBox(height: 4),
+                      Text(
+                        snapshot.poolConfigured
+                            ? '${snapshot.availableChairs} chairs available'
+                            : 'Not reconciled with the physical stock yet',
+                        style: const TextStyle(color: _executiveMuted),
+                      ),
+                    ],
+                  ),
+                  if (widget.role == 'admin')
+                    OutlinedButton.icon(
+                      key: const ValueKey('reconcile-chair-pool'),
+                      onPressed: _isLoadingChairManagement
+                          ? null
+                          : _showChairPoolReconciliation,
+                      icon: const Icon(Icons.inventory_2_outlined),
+                      label: Text(
+                        snapshot.poolConfigured
+                            ? 'Reconcile actual count'
+                            : 'Record actual count',
+                      ),
                     ),
+                  OutlinedButton.icon(
+                    key: const ValueKey('refresh-chair-management'),
+                    onPressed: _isLoadingChairManagement
+                        ? null
+                        : () {
+                            unawaited(_loadChairManagement());
+                            unawaited(_loadDiningTables());
+                          },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Refresh'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Card(
+            color: _executiveSurface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: _executiveBorder),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    key: const ValueKey('give-extra-chairs'),
+                    onPressed:
+                        snapshot.poolConfigured && snapshot.availableChairs > 0
+                        ? () => _showChairMovementForm('give')
+                        : null,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Give extra chairs'),
+                  ),
+                  OutlinedButton.icon(
+                    key: const ValueKey('take-chairs'),
+                    onPressed: snapshot.poolConfigured
+                        ? () => _showChairMovementForm('take')
+                        : null,
+                    icon: const Icon(Icons.remove),
+                    label: const Text('Take chairs'),
+                  ),
+                  OutlinedButton.icon(
+                    key: const ValueKey('transfer-chairs'),
+                    onPressed: snapshot.poolConfigured
+                        ? () => _showChairMovementForm('transfer')
+                        : null,
+                    icon: const Icon(Icons.swap_horiz),
+                    label: const Text('Transfer chairs'),
+                  ),
+                  OutlinedButton.icon(
+                    key: const ValueKey('chair-movement-history'),
+                    onPressed: () => _showChairMovementHistory(snapshot),
+                    icon: const Icon(Icons.history),
+                    label: const Text('Movement history'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Card(
+            color: _executiveSurface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: _executiveBorder),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Table chair counts',
+                    style: TextStyle(
+                      color: _executiveText,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Before taking or transferring chairs, record the actual '
+                    'current-guest and confirmed-reservation seat minimum.',
+                    style: TextStyle(color: _executiveMuted, height: 1.4),
+                  ),
+                  if (snapshot.tables.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 12),
+                      child: Text(
+                        'No saved tables are available for this account.',
+                        style: TextStyle(color: _executiveMuted),
+                      ),
+                    )
+                  else
+                    for (final table in snapshot.tables)
+                      ListTile(
+                        key: ValueKey('chair-table-${table.tableId}'),
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          table.name,
+                          style: const TextStyle(color: _executiveText),
+                        ),
+                        subtitle: Text(
+                          '${table.area} · ${_diningTableStatusLabel(table.status)}'
+                          ' · ${table.protectedSeats == null ? 'guest minimum not verified' : '${table.protectedSeats} protected seats'}',
+                          style: const TextStyle(color: _executiveMuted),
+                        ),
+                        trailing: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 4,
+                          children: [
+                            Text(
+                              '${table.currentChairs} / ${table.baseChairs} base',
+                              style: const TextStyle(
+                                color: _executiveText,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Update ${table.name} guest minimum',
+                              onPressed: () => _showProtectedSeatsForm(table),
+                              icon: const Icon(Icons.people_alt_outlined),
+                            ),
+                          ],
+                        ),
+                      ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _showChairPoolReconciliation() async {
+    final repository = _chairRepository;
+    final snapshot = _chairManagement;
+    if (repository == null || widget.role != 'admin') return;
+    final countController = TextEditingController(
+      text: snapshot?.poolConfigured == true
+          ? '${snapshot!.availableChairs}'
+          : '',
+    );
+    final reasonController = TextEditingController();
+    final requestId = newCafeRequestId();
+    var isSaving = false;
+    var error = '';
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Record actual spare-chair count'),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Count the physical spare chairs now. This sets the verified '
+                  'pool balance and is recorded in movement history.',
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: countController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Spare chairs physically available',
+                  ),
+                  validator: (value) {
+                    final count = int.tryParse(value ?? '');
+                    return count == null || count < 0 || count > 10000
+                        ? 'Enter a count from 0 to 10,000.'
+                        : null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: reasonController,
+                  maxLength: 300,
+                  decoration: const InputDecoration(
+                    labelText: 'Reconciliation reason',
+                  ),
+                ),
+                if (error.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _AuthErrorMessage(error),
+                ],
               ],
             ),
           ),
+          actions: [
+            TextButton(
+              onPressed: isSaving
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      final count = int.tryParse(countController.text.trim());
+                      if (count == null ||
+                          count < 0 ||
+                          count > 10000 ||
+                          reasonController.text.trim().isEmpty ||
+                          reasonController.text.trim().runes.length > 300) {
+                        setDialogState(
+                          () => error = 'Enter a valid count and a reconciliation reason.',
+                        );
+                        return;
+                      }
+                      setDialogState(() {
+                        isSaving = true;
+                        error = '';
+                      });
+                      try {
+                        await repository.reconcileSparePool(
+                          requestId: requestId,
+                          availableChairs: count,
+                          reason: reasonController.text,
+                        );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop(true);
+                        }
+                      } on Exception catch (exception) {
+                        if (!dialogContext.mounted) return;
+                        setDialogState(() {
+                          error = 'Chair count was not saved: $exception';
+                          isSaving = false;
+                        });
+                      }
+                    },
+              child: isSaving
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save verified count'),
+            ),
+          ],
         ),
-      ],
+      ),
+    );
+    countController.dispose();
+    reasonController.dispose();
+    if (saved == true) await _loadChairManagement();
+  }
+
+  Future<void> _showProtectedSeatsForm(CafeChairTableState table) async {
+    final repository = _chairRepository;
+    if (repository == null) return;
+    final countController = TextEditingController(
+      text: table.protectedSeats?.toString() ?? '',
+    );
+    final reasonController = TextEditingController();
+    final requestId = newCafeRequestId();
+    var isSaving = false;
+    var error = '';
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('${table.name} protected seat minimum'),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Enter the verified number of current guests plus confirmed '
+                  'reservation seats that must remain available.',
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: countController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Guests and reserved seats to protect',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: reasonController,
+                  maxLength: 300,
+                  decoration: const InputDecoration(
+                    labelText: 'Why is this count being recorded?',
+                  ),
+                ),
+                if (error.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _AuthErrorMessage(error),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSaving
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      final count = int.tryParse(countController.text.trim());
+                      if (count == null ||
+                          count < 0 ||
+                          count > 100 ||
+                          reasonController.text.trim().isEmpty ||
+                          reasonController.text.trim().runes.length > 300) {
+                        setDialogState(
+                          () => error = 'Enter a verified count from 0 to 100 and a reason.',
+                        );
+                        return;
+                      }
+                      setDialogState(() {
+                        isSaving = true;
+                        error = '';
+                      });
+                      try {
+                        await repository.setProtectedSeats(
+                          requestId: requestId,
+                          tableId: table.tableId,
+                          protectedSeats: count,
+                          reason: reasonController.text,
+                        );
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop(true);
+                        }
+                      } on Exception catch (exception) {
+                        if (!dialogContext.mounted) return;
+                        setDialogState(() {
+                          error =
+                              'Protected seat count was not saved: '
+                              '$exception';
+                          isSaving = false;
+                        });
+                      }
+                    },
+              child: isSaving
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save verified minimum'),
+            ),
+          ],
+        ),
+      ),
+    );
+    countController.dispose();
+    reasonController.dispose();
+    if (saved == true) await _loadChairManagement();
+  }
+
+  Future<void> _showChairMovementForm(String operation) async {
+    final repository = _chairRepository;
+    final snapshot = _chairManagement;
+    if (repository == null || snapshot == null) return;
+    final tables = snapshot.tables
+        .where((table) => table.status != 'cleaning')
+        .toList(growable: false);
+    if (tables.isEmpty) return;
+    if (operation == 'transfer' && tables.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A transfer needs two active dining tables.'),
+        ),
+      );
+      return;
+    }
+    final sourceController = TextEditingController(
+      text: operation == 'give' ? '' : tables.first.tableId,
+    );
+    final destinationController = TextEditingController(
+      text: operation == 'take'
+          ? ''
+          : tables
+                .firstWhere(
+                  (table) =>
+                      operation != 'transfer' ||
+                      table.tableId != tables.first.tableId,
+                  orElse: () => tables.first,
+                )
+                .tableId,
+    );
+    final quantityController = TextEditingController(text: '1');
+    final reasonController = TextEditingController();
+    final requestId = newCafeRequestId();
+    var isSaving = false;
+    var error = '';
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final sourceId = sourceController.text.isEmpty
+              ? null
+              : sourceController.text;
+          final destinationId = destinationController.text.isEmpty
+              ? null
+              : destinationController.text;
+          final quantity = int.tryParse(quantityController.text.trim());
+          final selectedSource = tables.where(
+            (table) => table.tableId == sourceId,
+          );
+          final selectedDestination = tables.where(
+            (table) => table.tableId == destinationId,
+          );
+          final operationPreview = [
+            if (operation != 'give' && selectedSource.isNotEmpty)
+              '${selectedSource.first.name}: '
+                  '${selectedSource.first.currentChairs} → '
+                  '${(selectedSource.first.currentChairs - (quantity ?? 0)).clamp(0, 10000)}',
+            if (operation != 'take' && selectedDestination.isNotEmpty)
+              '${selectedDestination.first.name}: '
+                  '${selectedDestination.first.currentChairs} → '
+                  '${selectedDestination.first.currentChairs + (quantity ?? 0)}',
+          ].join(' · ');
+          return AlertDialog(
+            title: Text(switch (operation) {
+              'give' => 'Give extra chairs',
+              'take' => 'Take chairs from a table',
+              _ => 'Transfer chairs between tables',
+            }),
+            content: SizedBox(
+              width: 480,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (operation != 'give')
+                      DropdownButtonFormField<String>(
+                        initialValue: sourceId,
+                        decoration: const InputDecoration(
+                          labelText: 'Source table',
+                        ),
+                        items: [
+                          for (final table in tables)
+                            DropdownMenuItem(
+                              value: table.tableId,
+                              child: Text(
+                                '${table.name} · ${table.currentChairs} chairs',
+                              ),
+                            ),
+                        ],
+                        onChanged: isSaving
+                            ? null
+                            : (value) => setDialogState(() {
+                                sourceController.text = value ?? '';
+                                if (operation == 'transfer' &&
+                                    destinationController.text == value) {
+                                  destinationController.text = tables
+                                      .firstWhere(
+                                        (table) => table.tableId != value,
+                                      )
+                                      .tableId;
+                                }
+                              }),
+                      ),
+                    if (operation != 'take') ...[
+                      if (operation != 'give') const SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        initialValue: destinationId,
+                        decoration: const InputDecoration(
+                          labelText: 'Destination table',
+                        ),
+                        items: [
+                          for (final table in tables)
+                            if (operation != 'transfer' ||
+                                table.tableId != sourceId)
+                              DropdownMenuItem(
+                                value: table.tableId,
+                                child: Text(
+                                  '${table.name} · ${table.currentChairs} chairs',
+                                ),
+                              ),
+                        ],
+                        onChanged: isSaving
+                            ? null
+                            : (value) => setDialogState(
+                                () => destinationController.text = value ?? '',
+                              ),
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: quantityController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Number of chairs',
+                      ),
+                      onChanged: (_) => setDialogState(() {}),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: reasonController,
+                      maxLength: 300,
+                      decoration: const InputDecoration(labelText: 'Reason'),
+                    ),
+                    if (operationPreview.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text('Before → after: $operationPreview'),
+                    ],
+                    if (error.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _AuthErrorMessage(error),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isSaving
+                    ? null
+                    : () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final parsedQuantity = int.tryParse(
+                          quantityController.text.trim(),
+                        );
+                        if (parsedQuantity == null ||
+                            parsedQuantity < 1 ||
+                            parsedQuantity > 100 ||
+                            reasonController.text.trim().isEmpty ||
+                            reasonController.text.trim().runes.length > 300 ||
+                            (operation != 'give' && sourceId == null) ||
+                            (operation != 'take' && destinationId == null) ||
+                            (operation == 'transfer' &&
+                                sourceId == destinationId)) {
+                          setDialogState(
+                            () => error =
+                                'Choose different tables where required, '
+                                'a quantity from 1 to 100, and a reason.',
+                          );
+                          return;
+                        }
+                        setDialogState(() {
+                          isSaving = true;
+                          error = '';
+                        });
+                        try {
+                          await repository.moveChairs(
+                            requestId: requestId,
+                            operation: operation,
+                            sourceTableId: sourceId,
+                            destinationTableId: destinationId,
+                            quantity: parsedQuantity,
+                            reason: reasonController.text,
+                          );
+                          if (dialogContext.mounted) {
+                            Navigator.of(dialogContext).pop(true);
+                          }
+                        } on Exception catch (exception) {
+                          if (!dialogContext.mounted) return;
+                          setDialogState(() {
+                            error =
+                                'Chair movement was not confirmed: '
+                                '$exception';
+                            isSaving = false;
+                          });
+                        }
+                      },
+                child: isSaving
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Confirm movement'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    sourceController.dispose();
+    destinationController.dispose();
+    quantityController.dispose();
+    reasonController.dispose();
+    if (saved == true) {
+      await _loadChairManagement();
+      await _loadDiningTables();
+    }
+  }
+
+  Future<void> _showChairMovementHistory(
+    CafeChairManagementSnapshot snapshot,
+  ) async {
+    String tableName(String? id) {
+      if (id == null) return 'Spare pool';
+      for (final table in snapshot.tables) {
+        if (table.tableId == id) return table.name;
+      }
+      return 'Deleted table ($id)';
+    }
+
+    String stateSummary(Map<String, dynamic> state) => state.entries
+        .map((entry) => '${entry.key.replaceAll('_', ' ')}: ${entry.value}')
+        .join(' · ');
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Chair movement history'),
+        content: SizedBox(
+          width: 620,
+          height: 480,
+          child: snapshot.movements.isEmpty
+              ? const Center(child: Text('No chair movements recorded yet.'))
+              : ListView.separated(
+                  itemCount: snapshot.movements.length,
+                  separatorBuilder: (_, _) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final movement = snapshot.movements[index];
+                    final action = movement.action.replaceAll('_', ' ');
+                    final quantity = movement.quantity == null
+                        ? ''
+                        : ' · ${movement.quantity} chairs';
+                    return ListTile(
+                      isThreeLine: true,
+                      title: Text(
+                        '${action[0].toUpperCase()}${action.substring(1)}'
+                        '$quantity',
+                      ),
+                      subtitle: Text(
+                        '${tableName(movement.sourceTableId)} → '
+                        '${tableName(movement.destinationTableId)}\n'
+                        '${movement.reason}\n'
+                        '${stateSummary(movement.beforeState)} → '
+                        '${stateSummary(movement.afterState)}',
+                      ),
+                      trailing: Text(
+                        'Staff ${movement.actorId.substring(0, 8)}\n'
+                        '${movement.createdAt.toLocal()}',
+                        textAlign: TextAlign.end,
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 
