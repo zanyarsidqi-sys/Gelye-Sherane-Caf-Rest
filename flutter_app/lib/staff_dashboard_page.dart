@@ -2492,11 +2492,20 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             .toString()
             .split('.')
             .last;
+        final serverMessage = exception.message.trim();
+        if (assurance != 'aal2' ||
+            serverMessage.contains('Authenticator verification')) {
+          return 'This session needs authenticator verification (AAL2) '
+              'before it can access dining tables. Sign in again, complete '
+              'the authenticator prompt, then retry. If a table was already '
+              'saved, do not add it again.';
+        }
         final details = exception.details;
         final hint = exception.hint;
-        return 'Supabase denied access to dining tables (42501). '
-            'Signed-in dashboard role: ${widget.role}; current MFA level: '
-            '$assurance. Admins still require AAL2. ${exception.message}'
+        return 'Supabase denied this AAL2 dining-table request (42501). '
+            'Dashboard role: ${widget.role}. The database reports: '
+            '$serverMessage. Verify that the production staff profile and '
+            'table permission match this account; do not add the table again.'
             '${details == null ? '' : ' Details: $details'}'
             '${hint == null ? '' : ' Hint: $hint'}';
       }
@@ -2504,6 +2513,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           '${exception.message}';
     }
     return 'Dining-table request failed: $exception';
+  }
+
+  Future<void> _reauthenticateDiningTableSession() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => StaffSignInDialog(
+        supabaseConfigured: _hasValidSupabaseConfiguration,
+        supabaseConfigurationProvided:
+            _supabaseUrl.isNotEmpty && _supabasePublishableKey.isNotEmpty,
+      ),
+    );
   }
 
   bool get _canManageDiningTables =>
@@ -3267,12 +3287,26 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       token = await repository.fetchQrToken(table.id);
     } on Exception catch (exception) {
       if (!mounted) return;
+      final requiresMfa =
+          exception is PostgrestException &&
+          exception.code == '42501' &&
+          Supabase.instance.client.auth.mfa
+                  .getAuthenticatorAssuranceLevel()
+                  .currentLevel !=
+              AuthenticatorAssuranceLevels.aal2;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${table.name} was saved, but its QR could not be loaded. '
+            '${table.name} is still saved, but its QR could not be loaded. '
             'Do not add the table again. ${_diningTableFailure(exception)}',
           ),
+          action: requiresMfa
+              ? SnackBarAction(
+                  label: 'Verify session',
+                  onPressed: () =>
+                      unawaited(_reauthenticateDiningTableSession()),
+                )
+              : null,
         ),
       );
       return;

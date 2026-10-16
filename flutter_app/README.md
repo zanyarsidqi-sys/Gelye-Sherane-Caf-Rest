@@ -261,10 +261,13 @@ live permissions, workspace-record, and staff-management migrations are
 applied in project `lpxuuzfgiggsyhdbsucv`. If the
 account lacks an administrator role, review the existing staff profile rather
 than granting access through the client. For a `42501` row-level-security
-denial, verify the session has AAL2, the account's profile role and section/card
-grant, and that the table/schema named in the server error matches the deployed
-app. Keep RLS enabled; correct the specific production policy only after
-confirming the live schema and policy definitions.
+denial, the table workspace distinguishes a session that needs AAL2
+reauthentication from a request rejected despite AAL2. Reverify the session and
+retry the QR lookup if prompted. If AAL2 is already active, verify the account's
+profile role, section/card grant, and that the table/schema named in the server
+error matches the deployed app. A QR lookup failure does not undo a saved
+table; do not create it again. Keep RLS enabled and correct a production policy
+only after confirming the live schema and policy definitions.
 
 For local development, pass `SUPABASE_URL`, `SUPABASE_EXPECTED_PROJECT_REF`,
 and `SUPABASE_PUBLISHABLE_KEY` with `--dart-define` to `flutter run` or
