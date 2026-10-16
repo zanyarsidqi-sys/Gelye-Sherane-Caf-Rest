@@ -85,6 +85,80 @@ void main() {
     expect(tester.widget<Card>(addTableCard).color, isNot(Colors.white));
   });
 
+  testWidgets('Table Reservations dashboard card opens the live workflow', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final reservationsCard = find.textContaining('Table Reservations').first;
+    expect(reservationsCard, findsOneWidget);
+    await tester.ensureVisible(reservationsCard);
+    await tester.tap(reservationsCard);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('create-table-reservation')),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        'New reservations are checked and saved by Supabase.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('reservation permission opens the staff reservation workflow', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1440, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StaffDashboardPage(
+          email: 'staff@example.com',
+          role: 'staff',
+          grantedPermissions: const {'tables_orders:table_reservations'},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('management-section-1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('Reservations & Availability'));
+    await tester.pumpAndSettle();
+
+    final reservationsCard = find.byKey(
+      const ValueKey('tables-category-card-Table Reservations'),
+    );
+    expect(reservationsCard, findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('tables-category-card-Add Table')),
+      findsNothing,
+    );
+    await tester.tap(reservationsCard);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('create-table-reservation')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('menu link scrolls to the menu section', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: CafeLandingPage()));
     await tester.pumpAndSettle();
@@ -459,6 +533,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Add Table'), findsOneWidget);
     expect(find.text('Table Overview'), findsNothing);
+    expect(find.text('Table Reservations'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('tables-category-0')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('tables-category-card-QR Code Management')),
+      findsNothing,
+    );
 
     await tester.tap(find.text('Inventory Management'));
     await tester.pumpAndSettle();
@@ -896,8 +977,39 @@ void main() {
       find.byKey(const ValueKey('tables-category-card-Table Map')),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Coming Soon — Awaiting Specification'), findsOneWidget);
-    expect(find.textContaining('not operational yet'), findsOneWidget);
+    expect(find.text('Coming Soon — Awaiting Specification'), findsNothing);
+    expect(
+      find.textContaining(
+        'Dining-table access is unavailable because Supabase is not configured',
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Back to Tables & Chairs'));
+    await tester.pumpAndSettle();
+    await selectCategory(0);
+    await tester.tap(
+      find.byKey(const ValueKey('tables-category-card-QR Code Management')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('QR Code Management'), findsOneWidget);
+    expect(find.text('Coming Soon — Awaiting Specification'), findsNothing);
+    expect(find.byKey(const ValueKey('dining-table-search')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('dining-table-status-filter')),
+      findsOneWidget,
+    );
+    expect(find.text('Reset filters'), findsOneWidget);
+    expect(find.text('Refresh'), findsOneWidget);
+    await tester.tap(find.text('Back to Tables & Chairs'));
+    await tester.pumpAndSettle();
+    await selectCategory(0);
+    await tester.tap(
+      find.byKey(const ValueKey('tables-category-card-Edit & Manage Tables')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Edit & Manage Tables'), findsOneWidget);
+    expect(find.text('Coming Soon — Awaiting Specification'), findsNothing);
+    expect(find.byKey(const ValueKey('dining-table-search')), findsOneWidget);
     await tester.tap(find.text('Back to Tables & Chairs'));
     await tester.pumpAndSettle();
     await tester.tap(

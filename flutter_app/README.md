@@ -47,13 +47,28 @@ not removed when a card is hidden. Summaries show only records actually saved
 for that card, not illustrative figures from references.
 
 The **Tables & Chairs** section has four horizontally selectable categories
-containing 29 cards. **Add Table** retains its dedicated saved-table workflow;
-**Chairs Management** retains its existing record workspace. Other cards open
-**Coming Soon — Awaiting Specification** until their Windows/iPhone designs
-and requirements are approved. Dining-table management uses a dedicated schema
-with name/number, area, seat count, manually maintained status, and floor-map
-position. Existing generic table records are not converted into dining tables
-because their table details cannot be inferred safely.
+containing 29 cards, with category cards filtered by staff permissions.
+**Add Table** and **Edit & Manage Tables** use the dedicated saved-table
+workflow; **Table Map** uses the saved single-floor map; and **QR Code
+Management** opens the saved-table QR workflow for authorized managers.
+**Table Reservations** opens the dedicated reservation workflow, but is not
+available for staff use until its staging migration passes acceptance testing.
+**Chairs Management** still uses its existing generic-record workspace; the
+other proposed cards remain previews pending their authoritative schema and
+server workflows. Dining-table storage currently covers name, area, seat count,
+manually maintained status, and normalized map position only. It does not yet
+support multiple floors, table shapes, chair inventories, map versions,
+occupancy integration, or safe archive/reactivation. Existing generic table
+records are not converted into dining tables because their table details
+cannot be inferred safely.
+The Table Reservations workflow and its Dashboard confirmed-bookings card now
+use a dedicated reservation repository and the staging-only migration
+`supabase/migrations/20261016170000_cafe_table_reservations.sql`. It supports
+permission-checked booking, overlap prevention, retry-safe creation,
+cancellation, and a privacy-reduced audit trail. The migration has not been
+applied or acceptance-tested against staging; reservations are not available
+for staff use until that release gate passes. Other table cards remain design
+previews.
 
 The Windows and iPhone design review for the remaining 28 cards is available
 in [`../design/section-02-remaining-cards-concept.html`](../design/section-02-remaining-cards-concept.html).
@@ -92,11 +107,12 @@ changes, receive purchases, calculate inventory value, or connect inventory
 to Kitchen, Minibar, Menu, Purchasing, or Finance. No database schema or
 production records were changed.
 
-Except for dining-table setup and layout and the Motel & Online Orders
-design-only previews and the new Inventory Management design cards,
-management cards use the shared generic record workspace. They do not
-implement a payment processor, dedicated product catalog, inventory ledger,
-live order pipeline, reservation service,
+Except for dining-table setup/layout and the unverified Table Reservations
+workflow, the Motel & Online Orders design-only previews, and the new
+Inventory Management design cards, management cards use the shared generic
+record workspace. They do not implement a payment processor, dedicated
+product catalog, inventory ledger, live order pipeline, or verified
+reservation service,
 notification delivery system, or printer/device connection. Device
 records do not send print jobs, change printer settings, monitor hardware,
 update firmware, or open cash drawers. Security cards store generic records
