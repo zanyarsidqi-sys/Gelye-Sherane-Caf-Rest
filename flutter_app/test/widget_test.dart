@@ -437,8 +437,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Open Live Tables'));
       await tester.pumpAndSettle();
-      expect(find.text('Search Live Tables records...'), findsOneWidget);
-      expect(find.text('Tracked records'), findsOneWidget);
+      expect(
+        find.textContaining('Drag table tiles to arrange the floor.'),
+        findsOneWidget,
+      );
+      expect(find.text('Add table'), findsOneWidget);
       expect(find.text('Table service board'), findsNothing);
       await tester.ensureVisible(find.text('Back to Tables & Orders'));
       await tester.pumpAndSettle();
@@ -488,11 +491,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Live Tables'));
       await tester.pumpAndSettle();
-      expect(find.text('Tracked records'), findsOneWidget);
-      expect(find.text('Open records'), findsOneWidget);
+      expect(
+        find.textContaining('Drag table tiles to arrange the floor.'),
+        findsOneWidget,
+      );
       expect(find.textContaining('Supabase is not configured'), findsWidgets);
-      expect(find.text('Search Live Tables records...'), findsOneWidget);
-      expect(find.text('Add record'), findsOneWidget);
+      expect(find.text('Add table'), findsOneWidget);
 
       await tester.tap(find.text('More').last);
       await tester.pumpAndSettle();
@@ -591,6 +595,141 @@ void main() {
       expect(tester.takeException(), isNull, reason: title);
 
       final back = find.text('Back to Payment Management');
+      await tester.ensureVisible(back);
+      await tester.tap(back);
+      await tester.pumpAndSettle();
+    }
+
+    for (final title in featuredCards) {
+      await openAndVerify(title);
+    }
+    for (final title in additionalCards) {
+      await openAndVerify(title);
+    }
+  });
+
+  testWidgets('every table card opens its scoped table detail', (tester) async {
+    tester.view.physicalSize = const Size(1440, 2600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StaffDashboardPage(email: 'admin@example.com', role: 'admin'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('management-section-1')));
+    await tester.pumpAndSettle();
+
+    for (final view in const ['Floor map', 'Table list', 'Reservations']) {
+      await tester.tap(find.widgetWithText(ChoiceChip, view));
+      await tester.pumpAndSettle();
+      expect(find.text('$view records'), findsOneWidget);
+    }
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Floor map'));
+    await tester.pumpAndSettle();
+
+    const featuredCards = [
+      'Live Tables',
+      'Add / Edit Tables',
+      'Table Map',
+      'Table Orders',
+      'Chairs Management',
+      'Table QR Codes',
+      'Customer QR Ordering',
+      'Table Reservations',
+      'Join / Transfer Tables',
+      'Table Payments',
+      'Pricing Modes',
+      'Table Service Requests',
+      'Table Checkout & Cleaning',
+      'Table History',
+      'Table Settings',
+      'Table Availability',
+    ];
+    const additionalCards = [
+      'Current Customers',
+      'Active Tables',
+      "Today's Customers",
+      "Today's Tables",
+      'Table Status',
+      'Waiting List',
+      'Table Cleaning',
+      'Table Requests',
+      'Table Performance',
+      'Table Overview',
+      'Visual Table Map',
+      'Add/Edit Tables & Chairs',
+      'QR Generate/Print/Revoke',
+      'Customer QR Screen',
+      'Join/Transfer',
+      'Split Bills',
+      'Pay for Others',
+      'Cleaning',
+      'Extra Chairs',
+      'Reservations',
+    ];
+    String permissionSlug(String label) => label
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+
+    Future<void> openAndVerify(String title) async {
+      final card = find.byKey(
+        ValueKey('management-card-tables_orders-${permissionSlug(title)}'),
+      );
+      if (card.evaluate().isEmpty) {
+        final moreCards = find.text('More cards (20)');
+        await tester.ensureVisible(moreCards);
+        await tester.tap(moreCards);
+        await tester.pumpAndSettle();
+      }
+      final visibleCard = find.byKey(
+        ValueKey('management-card-tables_orders-${permissionSlug(title)}'),
+      );
+      await tester.ensureVisible(visibleCard);
+      await tester.tap(visibleCard);
+      await tester.pumpAndSettle();
+
+      const diningTableCards = {
+        'Live Tables',
+        'Add / Edit Tables',
+        'Table Map',
+        'Table Availability',
+        'Active Tables',
+        'Table Status',
+        'Table Overview',
+        'Visual Table Map',
+        'Add/Edit Tables & Chairs',
+      };
+      if (diningTableCards.contains(title)) {
+        expect(
+          find.textContaining('Drag table tiles to arrange'),
+          findsOneWidget,
+        );
+        expect(find.byKey(const ValueKey('add-dining-table')), findsOneWidget);
+        expect(tester.takeException(), isNull, reason: title);
+
+        final back = find.text('Back to Tables & Orders');
+        await tester.ensureVisible(back);
+        await tester.tap(back);
+        await tester.pumpAndSettle();
+        return;
+      }
+
+      expect(
+        find.text('Search $title records...'),
+        findsOneWidget,
+        reason: title,
+      );
+      expect(find.text('Tracked records'), findsOneWidget, reason: title);
+      expect(find.text('Open records'), findsOneWidget, reason: title);
+      expect(find.text('Add record'), findsOneWidget, reason: title);
+      expect(tester.takeException(), isNull, reason: title);
+
+      final back = find.text('Back to Tables & Orders');
       await tester.ensureVisible(back);
       await tester.tap(back);
       await tester.pumpAndSettle();

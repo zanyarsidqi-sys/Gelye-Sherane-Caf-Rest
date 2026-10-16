@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'cafe_workspace_repository.dart';
+import 'cafe_dining_table_repository.dart';
 
 const _navy = Color(0xFF12253F);
 const _deepNavy = Color(0xFF12253F);
@@ -1625,6 +1626,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   String? _signOutError;
   CafeWorkspaceRepository? _workspaceRepository;
   RealtimeChannel? _workspaceChannel;
+  CafeDiningTableRepository? _diningTableRepository;
+  RealtimeChannel? _diningTableChannel;
+  List<CafeDiningTable> _diningTables = const [];
+  bool _isLoadingDiningTables = true;
+  bool _isFetchingDiningTables = false;
+  String? _diningTableError;
+  final _diningTableMapKey = GlobalKey();
   List<CafeWorkspaceRecord> _workspaceRecords = const [];
   bool _isLoadingRecords = true;
   bool _isFetchingRecords = false;
@@ -1640,6 +1648,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   String _financeSearch = '';
   String _tableStatusFilter = 'All';
   String _tableSearch = '';
+  String _tableWorkspaceView = 'Floor map';
+  String _selectedDiningTableArea = 'All areas';
   String _workspaceStatusFilter = 'All';
   String _workspaceSearch = '';
 
@@ -1659,6 +1669,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (channel != null && repository != null) {
       unawaited(repository.removeChannel(channel));
     }
+    final diningTableChannel = _diningTableChannel;
+    final diningTableRepository = _diningTableRepository;
+    if (diningTableChannel != null && diningTableRepository != null) {
+      unawaited(diningTableRepository.removeChannel(diningTableChannel));
+    }
     super.dispose();
   }
 
@@ -1667,8 +1682,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       if (!mounted) return;
       setState(() {
         _isLoadingRecords = false;
+        _isLoadingDiningTables = false;
         _workspaceError =
             'Supabase is not configured with a valid project URL and key.';
+        _diningTableError =
+            'Dining-table access is unavailable because Supabase is not '
+            'configured for this app.';
       });
       return;
     }
@@ -1678,7 +1697,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       _workspaceChannel = repository.subscribe(() {
         unawaited(_loadWorkspaceRecords());
       });
+      final diningTableRepository = CafeDiningTableRepository(
+        Supabase.instance.client,
+      );
+      _diningTableRepository = diningTableRepository;
+      _diningTableChannel = diningTableRepository.subscribe(() {
+        unawaited(_loadDiningTables());
+      });
       await _loadWorkspaceRecords();
+      await _loadDiningTables();
     } on Exception catch (exception) {
       if (!mounted) return;
       setState(() {
@@ -1687,6 +1714,78 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       });
     }
   }
+
+  Future<void> _loadDiningTables() async {
+    final repository = _diningTableRepository;
+    if (repository == null || _isFetchingDiningTables) return;
+    _isFetchingDiningTables = true;
+    if (mounted) {
+      setState(() {
+        _isLoadingDiningTables = true;
+        _diningTableError = null;
+      });
+    }
+    try {
+      final tables = await repository.fetchTables();
+      if (!mounted) return;
+      setState(() {
+        _diningTables = tables;
+        _diningTableError = null;
+      });
+    } on PostgrestException catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _diningTableError = _diningTableFailure(exception);
+      });
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _diningTableError = 'Dining tables could not be loaded: $exception';
+      });
+    } finally {
+      _isFetchingDiningTables = false;
+      if (mounted) setState(() => _isLoadingDiningTables = false);
+    }
+  }
+
+  String _diningTableFailure(Exception exception) {
+    if (exception is PostgrestException) {
+      if (exception.code == '42P01' || exception.code == 'PGRST205') {
+        return 'Dining-table storage is not installed in Supabase. Apply the '
+            'cafe_dining_tables migration before using the floor map.';
+      }
+      if (exception.code == '23505') {
+        return 'A table with that name already exists in this area.';
+      }
+      if (exception.code == '42501') {
+        return 'Supabase denied access to dining tables. Verify this account '
+            'has completed authenticator verification (AAL2) and has the '
+            '`Add / Edit Tables` permission for Tables & Orders.';
+      }
+      return 'Dining-table request failed (${exception.code ?? 'unknown'}): '
+          '${exception.message}';
+    }
+    return 'Dining-table request failed: $exception';
+  }
+
+  bool get _canManageDiningTables =>
+      widget.role == 'admin' ||
+      widget.grantedPermissions.contains('tables_orders:*') ||
+      widget.grantedPermissions.contains('tables_orders:add_edit_tables');
+
+  bool get _canViewDiningTables =>
+      widget.role == 'admin' ||
+      widget.grantedPermissions.contains('tables_orders:*') ||
+      const {
+        'tables_orders:add_edit_tables',
+        'tables_orders:live_tables',
+        'tables_orders:table_overview',
+        'tables_orders:table_map',
+        'tables_orders:visual_table_map',
+        'tables_orders:table_availability',
+        'tables_orders:active_tables',
+        'tables_orders:table_status',
+      }.any(widget.grantedPermissions.contains);
 
   Future<void> _loadWorkspaceRecords() async {
     final repository = _workspaceRepository;
@@ -1988,6 +2087,231 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     }
     return 'Record was not saved. Check the connection and account access, '
         'then retry. $exception';
+  }
+
+  (double, double) _nextDiningTablePosition() {
+    for (var index = 0; index < 30; index++) {
+      final x = 0.1 + (index % 6) * 0.16;
+      final y = 0.12 + (index ~/ 6) * 0.19;
+      final isOccupied = _diningTables.any(
+        (table) => (table.x - x).abs() < 0.13 && (table.y - y).abs() < 0.13,
+      );
+      if (!isOccupied) return (x, y);
+    }
+    return (0.5, 0.5);
+  }
+
+  Future<void> _showDiningTableForm({CafeDiningTable? table}) async {
+    final repository = _diningTableRepository;
+    if (repository == null) {
+      setState(() {
+        _diningTableError = 'The live Supabase service is not available.';
+      });
+      return;
+    }
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(text: table?.name ?? '');
+    final areaController = TextEditingController(text: table?.area ?? 'Main');
+    final seatsController = TextEditingController(text: '${table?.seats ?? 4}');
+    var error = '';
+    var isSaving = false;
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(table == null ? 'Add dining table' : 'Edit dining table'),
+          content: SizedBox(
+            width: 420,
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    autofocus: true,
+                    maxLength: 80,
+                    decoration: const InputDecoration(
+                      labelText: 'Table name or number',
+                      hintText: 'For example, Table 1',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Enter a table name or number'
+                        : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: areaController,
+                    maxLength: 80,
+                    decoration: const InputDecoration(
+                      labelText: 'Area',
+                      hintText: 'For example, Main Hall or Patio',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Enter an area'
+                        : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: seatsController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Seats',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      final seats = int.tryParse(value?.trim() ?? '');
+                      return seats == null || seats < 1 || seats > 100
+                          ? 'Enter a seat count between 1 and 100'
+                          : null;
+                    },
+                  ),
+                  if (error.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    _AuthErrorMessage(error),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSaving
+                  ? null
+                  : () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setDialogState(() {
+                        isSaving = true;
+                        error = '';
+                      });
+                      try {
+                        final seats = int.parse(seatsController.text.trim());
+                        if (table == null) {
+                          final position = _nextDiningTablePosition();
+                          await repository.createTable(
+                            name: nameController.text,
+                            area: areaController.text,
+                            seats: seats,
+                            x: position.$1,
+                            y: position.$2,
+                          );
+                        } else {
+                          await repository.updateTable(
+                            id: table.id,
+                            name: nameController.text,
+                            area: areaController.text,
+                            seats: seats,
+                          );
+                        }
+                        if (dialogContext.mounted) {
+                          Navigator.of(dialogContext).pop(true);
+                        }
+                      } on Exception catch (exception) {
+                        if (!dialogContext.mounted) return;
+                        setDialogState(() {
+                          error = _diningTableFailure(exception);
+                          isSaving = false;
+                        });
+                      }
+                    },
+              child: isSaving
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(table == null ? 'Add table' : 'Save changes'),
+            ),
+          ],
+        ),
+      ),
+    );
+    nameController.dispose();
+    areaController.dispose();
+    seatsController.dispose();
+    if (saved == true) await _loadDiningTables();
+  }
+
+  Future<void> _confirmDeleteDiningTable(CafeDiningTable table) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete dining table?'),
+        content: Text(
+          'Delete ${table.name} from ${table.area}? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete != true) return;
+    final repository = _diningTableRepository;
+    if (repository == null) return;
+    try {
+      await repository.deleteTable(table.id);
+      await _loadDiningTables();
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() => _diningTableError = _diningTableFailure(exception));
+    }
+  }
+
+  Future<void> _updateDiningTableStatus(
+    CafeDiningTable table,
+    String status,
+  ) async {
+    final repository = _diningTableRepository;
+    if (repository == null) return;
+    try {
+      await repository.updateStatus(id: table.id, status: status);
+      await _loadDiningTables();
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() => _diningTableError = _diningTableFailure(exception));
+    }
+  }
+
+  Future<void> _moveDiningTable(
+    CafeDiningTable table,
+    DraggableDetails details,
+  ) async {
+    final repository = _diningTableRepository;
+    final renderObject = _diningTableMapKey.currentContext?.findRenderObject();
+    if (repository == null || renderObject is! RenderBox) return;
+    final mapSize = renderObject.size;
+    final center = renderObject.globalToLocal(
+      details.offset + const Offset(64, 42),
+    );
+    if (center.dx < 0 ||
+        center.dx > mapSize.width ||
+        center.dy < 0 ||
+        center.dy > mapSize.height) {
+      return;
+    }
+    final x = (center.dx / mapSize.width).clamp(0.04, 0.96).toDouble();
+    final y = (center.dy / mapSize.height).clamp(0.06, 0.94).toDouble();
+    try {
+      await repository.updatePosition(id: table.id, x: x, y: y);
+      await _loadDiningTables();
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() => _diningTableError = _diningTableFailure(exception));
+    }
   }
 
   Future<void> _updateRecordStatus(
@@ -3685,82 +4009,59 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     int sectionIndex,
   ) {
     final visibleCards = _visibleSubcards(sectionIndex);
+    final visibleKeys = visibleCards.map(_permissionSlug).toSet();
     final records = _workspaceRecords
-        .where((record) => record.sectionKey == section.key)
+        .where(
+          (record) =>
+              record.sectionKey == section.key &&
+              visibleKeys.contains(record.subcardKey),
+        )
         .toList(growable: false);
-    final openCount = records.where((record) => record.status == 'open').length;
-    final progressCount = records
-        .where((record) => record.status == 'in_progress')
+    final viewCards = switch (_tableWorkspaceView) {
+      'Floor map' =>
+        visibleCards
+            .where(
+              (title) => const {
+                'table_map',
+                'visual_table_map',
+                'live_tables',
+                'table_overview',
+                'table_availability',
+                'table_status',
+              }.contains(_permissionSlug(title)),
+            )
+            .toList(growable: false),
+      'Table list' =>
+        visibleCards
+            .where(
+              (title) =>
+                  title.toLowerCase().contains('table') &&
+                  !title.toLowerCase().contains('reservation'),
+            )
+            .toList(growable: false),
+      'Reservations' =>
+        visibleCards
+            .where(
+              (title) =>
+                  title.toLowerCase().contains('reservation') ||
+                  title == 'Waiting List',
+            )
+            .toList(growable: false),
+      _ => visibleCards,
+    };
+    final viewKeys = viewCards.map(_permissionSlug).toSet();
+    final viewRecords = records
+        .where((record) => viewKeys.contains(record.subcardKey))
+        .toList(growable: false);
+    final availableCount = _diningTables
+        .where((table) => table.status == 'available')
         .length;
-    final completedCount = records
-        .where((record) => record.status == 'completed')
+    final occupiedCount = _diningTables
+        .where((table) => table.status == 'occupied')
         .length;
-
-    Widget lane(String status, String title, Color color) {
-      final laneRecords = records
-          .where((record) => record.status == status)
-          .take(3)
-          .toList(growable: false);
-      return Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFAFBFD),
-          border: Border.all(color: const Color(0xFFE4EAF1)),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      color: _ink,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                Text(
-                  '${records.where((record) => record.status == status).length}',
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(height: 14),
-            if (_isLoadingRecords)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                child: Center(
-                  child: SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-              )
-            else if (_workspaceError != null)
-              const Text(
-                'Records unavailable',
-                style: TextStyle(color: _muted, fontSize: 10),
-              )
-            else if (laneRecords.isEmpty)
-              Text(
-                'No ${title.toLowerCase()} records',
-                style: const TextStyle(color: _muted, fontSize: 10),
-              )
-            else
-              for (final record in laneRecords)
-                _sectionWorkflowRecord(record, sectionIndex, visibleCards),
-          ],
-        ),
-      );
-    }
+    final reservedCount = _diningTables
+        .where((table) => table.status == 'reserved')
+        .length;
 
     final workflowStage = Card(
       margin: EdgeInsets.zero,
@@ -3804,48 +4105,81 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _workflowCount('Open', openCount, const Color(0xFFB9670C)),
                 _workflowCount(
-                  'In progress',
-                  progressCount,
+                  'Available',
+                  availableCount,
+                  const Color(0xFF16814A),
+                ),
+                _workflowCount(
+                  'Occupied',
+                  occupiedCount,
                   const Color(0xFF2463EB),
                 ),
                 _workflowCount(
-                  'Completed',
-                  completedCount,
-                  const Color(0xFF16814A),
+                  'Reserved',
+                  reservedCount,
+                  const Color(0xFFB9670C),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final lanes = [
-                  lane('open', 'Open', const Color(0xFFB9670C)),
-                  lane('in_progress', 'In progress', const Color(0xFF2463EB)),
-                  lane('completed', 'Completed', const Color(0xFF16814A)),
-                ];
-                if (constraints.maxWidth < 460) {
-                  return Column(
-                    children: [
-                      for (var index = 0; index < lanes.length; index++) ...[
-                        if (index > 0) const SizedBox(height: 8),
-                        lanes[index],
-                      ],
-                    ],
-                  );
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (var index = 0; index < lanes.length; index++) ...[
-                      if (index > 0) const SizedBox(width: 8),
-                      Expanded(child: lanes[index]),
-                    ],
-                  ],
-                );
-              },
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final view in const [
+                    'Floor map',
+                    'Table list',
+                    'Reservations',
+                  ])
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 6),
+                      child: ChoiceChip(
+                        label: Text(view),
+                        selected: _tableWorkspaceView == view,
+                        onSelected: (_) =>
+                            setState(() => _tableWorkspaceView = view),
+                      ),
+                    ),
+                ],
+              ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              '$_tableWorkspaceView records',
+              style: const TextStyle(
+                color: _ink,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const Divider(height: 16),
+            if (_tableWorkspaceView != 'Reservations' && !_canViewDiningTables)
+              const Text(
+                'Table layout access has not been assigned to this account.',
+                style: TextStyle(color: _muted, fontSize: 11),
+              )
+            else if (_tableWorkspaceView != 'Reservations')
+              _diningTableWorkspace()
+            else if (viewCards.isEmpty)
+              const Text(
+                'No cards for this view are assigned to this account.',
+                style: TextStyle(color: _muted, fontSize: 11),
+              )
+            else if (_workspaceError != null)
+              _AuthErrorMessage('Table data unavailable: $_workspaceError')
+            else if (_isLoadingRecords)
+              const Center(child: CircularProgressIndicator())
+            else if (viewRecords.isEmpty)
+              Text(
+                _tableWorkspaceView == 'Floor map'
+                    ? 'No saved floor-layout records. Table positions are not fabricated.'
+                    : 'No saved ${_tableWorkspaceView.toLowerCase()} records for this date.',
+                style: const TextStyle(color: _muted, fontSize: 11),
+              )
+            else
+              for (final record in viewRecords)
+                _sectionWorkflowRecord(record, sectionIndex, visibleCards),
           ],
         ),
       ),
@@ -3935,6 +4269,340 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       },
     );
   }
+
+  Widget _diningTableWorkspace({bool forceList = false}) {
+    final areas = _diningTables.map((table) => table.area).toSet().toList()
+      ..sort();
+    final selectedArea = areas.contains(_selectedDiningTableArea)
+        ? _selectedDiningTableArea
+        : 'All areas';
+    final tables = _diningTables
+        .where(
+          (table) =>
+              selectedArea == 'All areas' || table.area == selectedArea,
+        )
+        .toList(growable: false);
+    final showingMap = !forceList && _tableWorkspaceView == 'Floor map';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            DropdownButton<String>(
+              value: selectedArea,
+              items: [
+                const DropdownMenuItem(
+                  value: 'All areas',
+                  child: Text('All areas'),
+                ),
+                for (final area in areas)
+                  DropdownMenuItem(value: area, child: Text(area)),
+              ],
+              onChanged: (area) {
+                if (area != null) {
+                  setState(() => _selectedDiningTableArea = area);
+                }
+              },
+            ),
+            OutlinedButton.icon(
+              onPressed: _isLoadingDiningTables
+                  ? null
+                  : () => unawaited(_loadDiningTables()),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Refresh'),
+            ),
+            if (_canManageDiningTables)
+              FilledButton.icon(
+                key: const ValueKey('add-dining-table'),
+                onPressed:
+                    _isLoadingDiningTables ||
+                        _diningTableError != null ||
+                        _diningTableRepository == null
+                    ? null
+                    : () => _showDiningTableForm(),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add table'),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'Drag table tiles to arrange the floor. Table status is maintained '
+          'manually and is not linked to live orders.',
+          style: TextStyle(color: _muted, fontSize: 11, height: 1.4),
+        ),
+        if (_diningTableError != null) ...[
+          const SizedBox(height: 10),
+          _AuthErrorMessage(_diningTableError!),
+          if (_diningTableRepository == null)
+            const SizedBox.shrink()
+          else
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                onPressed: _isLoadingDiningTables
+                    ? null
+                    : () => unawaited(_loadDiningTables()),
+                child: const Text('Retry loading tables'),
+              ),
+            ),
+        ] else if (_isLoadingDiningTables) ...[
+          const SizedBox(height: 16),
+          const Center(child: CircularProgressIndicator()),
+        ] else if (_diningTables.isEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: const Color(0xFFE4EAF1)),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Column(
+              children: [
+                Icon(
+                  Icons.table_restaurant_outlined,
+                  color: Color(0xFF7890B3),
+                  size: 28,
+                ),
+                SizedBox(height: 7),
+                Text(
+                  'No dining tables yet',
+                  style: TextStyle(color: _ink, fontWeight: FontWeight.w700),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Add a table to start building the floor layout.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: _muted, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+        ] else if (tables.isEmpty) ...[
+          const SizedBox(height: 12),
+          const Text(
+            'There are no tables in this area yet.',
+            style: TextStyle(color: _muted, fontSize: 11),
+          ),
+        ] else if (showingMap) ...[
+          const SizedBox(height: 10),
+          _diningTableFloorMap(tables),
+        ] else ...[
+          const SizedBox(height: 8),
+          for (final table in tables) _diningTableListItem(table),
+        ],
+      ],
+    );
+  }
+
+  Widget _diningTableFloorMap(List<CafeDiningTable> tables) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final mapWidth = constraints.maxWidth < 640
+            ? 640.0
+            : constraints.maxWidth;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            key: _diningTableMapKey,
+            width: mapWidth,
+            height: 470,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FBFE),
+              border: Border.all(color: const Color(0xFFD9E1EB)),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                const PositionedDirectional(
+                  start: 12,
+                  top: 10,
+                  child: Text(
+                    'FLOOR PLAN',
+                    style: TextStyle(
+                      color: Color(0xFF8491A4),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                for (final table in tables)
+                  Align(
+                    alignment: Alignment(table.x * 2 - 1, table.y * 2 - 1),
+                    child: _canManageDiningTables
+                        ? LongPressDraggable<CafeDiningTable>(
+                            data: table,
+                            dragAnchorStrategy: pointerDragAnchorStrategy,
+                            feedback: Material(
+                              color: Colors.transparent,
+                              child: _diningTableTile(table, isDragging: true),
+                            ),
+                            childWhenDragging: Opacity(
+                              opacity: 0.28,
+                              child: _diningTableTile(table),
+                            ),
+                            onDragEnd: (details) =>
+                                _moveDiningTable(table, details),
+                            child: _diningTableTile(table),
+                          )
+                        : _diningTableTile(table),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _diningTableTile(CafeDiningTable table, {bool isDragging = false}) {
+    final color = _diningTableStatusColor(table.status);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _canManageDiningTables
+            ? () => _showDiningTableForm(table: table)
+            : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 128,
+          height: 86,
+          padding: const EdgeInsets.all(9),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(
+              color: color.withValues(alpha: 0.55),
+              width: isDragging ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x140E2844),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                table.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: _ink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                '${table.seats} seats · ${table.area}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: _muted, fontSize: 9),
+              ),
+              const SizedBox(height: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  _diningTableStatusLabel(table.status),
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _diningTableListItem(CafeDiningTable table) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: _diningTableStatusColor(table.status)
+              .withValues(alpha: 0.12),
+          child: Icon(
+            Icons.table_restaurant_outlined,
+            color: _diningTableStatusColor(table.status),
+          ),
+        ),
+        title: Text(table.name),
+        subtitle: Text('${table.area} · ${table.seats} seats'),
+        trailing: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 2,
+          children: [
+            DropdownButton<String>(
+              value: table.status,
+              underline: const SizedBox.shrink(),
+              items: [
+                for (final status in CafeDiningTableRepository.statuses)
+                  DropdownMenuItem(
+                    value: status,
+                    child: Text(_diningTableStatusLabel(status)),
+                  ),
+              ],
+              onChanged: _canManageDiningTables
+                  ? (status) {
+                      if (status != null) {
+                        unawaited(_updateDiningTableStatus(table, status));
+                      }
+                    }
+                  : null,
+            ),
+            if (_canManageDiningTables) ...[
+              IconButton(
+                tooltip: 'Edit ${table.name}',
+                onPressed: () => _showDiningTableForm(table: table),
+                icon: const Icon(Icons.edit_outlined),
+              ),
+              IconButton(
+                tooltip: 'Delete ${table.name}',
+                onPressed: () => _confirmDeleteDiningTable(table),
+                icon: const Icon(Icons.delete_outline),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _diningTableStatusColor(String status) => switch (status) {
+    'available' => const Color(0xFF16814A),
+    'occupied' => const Color(0xFF2463EB),
+    'reserved' => const Color(0xFFB9670C),
+    'cleaning' => const Color(0xFF6B7280),
+    _ => _muted,
+  };
+
+  String _diningTableStatusLabel(String status) => switch (status) {
+    'available' => 'Available',
+    'occupied' => 'Occupied',
+    'reserved' => 'Reserved',
+    'cleaning' => 'Cleaning',
+    _ => status,
+  };
 
   Widget _workflowCount(String label, int count, Color accent) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -5282,6 +5950,27 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     ({String key, IconData icon, String title, String description}) section,
     String subcard,
   ) {
+    if (const {
+      'Live Tables',
+      'Add / Edit Tables',
+      'Table Map',
+      'Table Availability',
+      'Active Tables',
+      'Table Status',
+      'Table Overview',
+      'Visual Table Map',
+      'Add/Edit Tables & Chairs',
+    }.contains(subcard)) {
+      return _diningTableWorkspace(
+        forceList: const {
+          'Add / Edit Tables',
+          'Table Availability',
+          'Active Tables',
+          'Table Status',
+          'Add/Edit Tables & Chairs',
+        }.contains(subcard),
+      );
+    }
     final subcardKey = _permissionSlug(subcard);
     final records = _recordsFor(section.key, subcardKey);
     final canManage =
@@ -5945,6 +6634,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 _tableStatusFilter = 'All';
                 _workspaceSearch = '';
                 _workspaceStatusFilter = 'All';
+                if (sectionIndex == 1) {
+                  _tableWorkspaceView =
+                      const {
+                        'Table Map',
+                        'Visual Table Map',
+                        'Table Overview',
+                        'Live Tables',
+                      }.contains(title)
+                      ? 'Floor map'
+                      : 'Table list';
+                  _selectedDiningTableArea = 'All areas';
+                }
                 _selectedSubcard = title;
               }),
               child: Padding(

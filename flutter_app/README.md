@@ -36,13 +36,16 @@ permission keys, so staff must be explicitly granted access. Legacy cards remain
 under **More cards**; saved records are not removed. Summaries show only
 records actually saved for that card, not illustrative figures from references.
 
-The Tables & Orders section includes the 16 reference cards, with searchable,
-status-filtered saved records and create/update/delete actions on each card.
-These records are not a dedicated table, order, customer, or payment schema;
-do not treat their counts or amounts as live seating, order processing, or
-payment reconciliation.
+The Tables & Orders section includes the 16 reference cards. Dining-table
+management uses a dedicated table schema with name/number, area, seat count,
+manually maintained status, and draggable floor-map position. Other table,
+order, and reservation cards still use generic workspace records; table status
+does not automatically follow live orders or reservations. Existing generic
+table records are not converted into dining tables because their table details
+cannot be inferred safely.
 
-These management cards use the shared generic record workspace. They do not
+Except for dining-table setup and layout, these management cards use the shared
+generic record workspace. They do not
 implement a payment processor, dedicated product catalog, inventory ledger,
 live order pipeline, reservation service, notification delivery system, or
 printer/device connection. Device records do not send print jobs, change printer
@@ -126,6 +129,13 @@ after the base migrations:
 ```text
 supabase/migrations/20261016000000_expand_management_section_permissions.sql
 ```
+
+After the base workspace migrations and permission expansion, apply
+`supabase/migrations/20261016010000_cafe_dining_tables.sql` to create the
+dedicated dining-table store, row-level security policies, audit capture, and
+Realtime publication. The Add / Edit Tables permission controls table writes;
+the Table Overview and map permissions provide read-only access. Apply this
+migration before deploying the UI that uses the floor map.
 
 Do not run the staff-profile review candidate. After the migration succeeds,
 deploy the account-creation function to the selected project with the Supabase
