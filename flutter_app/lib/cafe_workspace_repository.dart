@@ -93,16 +93,8 @@ class CafeWorkspaceRepository {
   }) async {
     final normalizedSectionKey = _validatedKey(sectionKey, 'section');
     final normalizedSubcardKey = _validatedKey(subcardKey, 'subcard');
-    final normalizedTitle = title.trim();
-    final titleLength = normalizedTitle.runes.length;
-    if (titleLength == 0 || titleLength > 160) {
-      throw const FormatException(
-        'Record title must contain between 1 and 160 characters.',
-      );
-    }
-    if (amount != null && (!amount.isFinite || amount.abs() >= 1000000000000)) {
-      throw const FormatException('Amount is outside the supported range.');
-    }
+    final normalizedTitle = _validatedTitle(title);
+    _validateAmount(amount);
 
     final userId = _client.auth.currentUser?.id;
     if (userId == null) {
@@ -118,6 +110,29 @@ class CafeWorkspaceRepository {
       'created_by': userId,
       'updated_by': userId,
     });
+  }
+
+  Future<void> updateRecord({
+    required String recordId,
+    required String title,
+    required String details,
+    required double? amount,
+  }) async {
+    final normalizedTitle = _validatedTitle(title);
+    _validateAmount(amount);
+    final userId = _requireSignedIn();
+
+    await _client
+        .from('cafe_workspace_records')
+        .update({
+          'title': normalizedTitle,
+          'details': details,
+          'amount': amount,
+          'updated_by': userId,
+        })
+        .eq('id', recordId)
+        .select('id')
+        .single();
   }
 
   Future<void> updateStatus({
@@ -173,9 +188,28 @@ class CafeWorkspaceRepository {
     return normalized;
   }
 
-  void _requireSignedIn() {
-    if (_client.auth.currentUser == null) {
+  String _requireSignedIn() {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) {
       throw const AuthException('Sign in again to change workspace records.');
+    }
+    return userId;
+  }
+
+  static String _validatedTitle(String title) {
+    final normalizedTitle = title.trim();
+    final titleLength = normalizedTitle.runes.length;
+    if (titleLength == 0 || titleLength > 160) {
+      throw const FormatException(
+        'Record title must contain between 1 and 160 characters.',
+      );
+    }
+    return normalizedTitle;
+  }
+
+  static void _validateAmount(double? amount) {
+    if (amount != null && (!amount.isFinite || amount.abs() >= 1000000000000)) {
+      throw const FormatException('Amount is outside the supported range.');
     }
   }
 }

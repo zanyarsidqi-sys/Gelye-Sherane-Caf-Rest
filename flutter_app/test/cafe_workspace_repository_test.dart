@@ -56,6 +56,27 @@ void main() {
     );
   });
 
+  test('update rejects invalid titles and amounts before making a request', () {
+    expect(
+      () => repository.updateRecord(
+        recordId: 'record-id',
+        title: '   ',
+        details: '',
+        amount: null,
+      ),
+      throwsA(isA<FormatException>()),
+    );
+    expect(
+      () => repository.updateRecord(
+        recordId: 'record-id',
+        title: 'Dinner booking',
+        details: '',
+        amount: double.infinity,
+      ),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
   test('status updates reject unsupported values', () {
     expect(
       () => repository.updateStatus(recordId: 'record-id', status: 'paid'),
@@ -66,6 +87,15 @@ void main() {
   test('status updates and deletes require a signed-in user', () async {
     await expectLater(
       repository.updateStatus(recordId: 'record-id', status: 'completed'),
+      throwsA(isA<AuthException>()),
+    );
+    await expectLater(
+      repository.updateRecord(
+        recordId: 'record-id',
+        title: 'Dinner booking',
+        details: 'Updated details',
+        amount: 1000,
+      ),
       throwsA(isA<AuthException>()),
     );
     await expectLater(

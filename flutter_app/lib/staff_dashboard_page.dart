@@ -1758,9 +1758,19 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         return 'A table with that name already exists in this area.';
       }
       if (exception.code == '42501') {
-        return 'Supabase denied access to dining tables. Verify this account '
-            'has completed authenticator verification (AAL2) and has the '
-            '`Add / Edit Tables` permission for Tables & Orders.';
+        final assurance = Supabase.instance.client.auth.mfa
+            .getAuthenticatorAssuranceLevel()
+            .currentLevel
+            .toString()
+            .split('.')
+            .last;
+        final details = exception.details;
+        final hint = exception.hint;
+        return 'Supabase denied access to dining tables (42501). '
+            'Signed-in dashboard role: ${widget.role}; current MFA level: '
+            '$assurance. Admins still require AAL2. ${exception.message}'
+            '${details == null ? '' : ' Details: $details'}'
+            '${hint == null ? '' : ' Hint: $hint'}';
       }
       return 'Dining-table request failed (${exception.code ?? 'unknown'}): '
           '${exception.message}';
@@ -1939,8 +1949,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Future<void> _createWorkspaceRecord(
     ({String key, IconData icon, String title, String description}) section,
-    String subcard,
-  ) async {
+    String subcard, {
+    CafeWorkspaceRecord? record,
+  }) async {
     final repository = _workspaceRepository;
     if (repository == null) {
       setState(() {
@@ -1950,9 +1961,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     }
 
     final formKey = GlobalKey<FormState>();
-    final titleController = TextEditingController();
-    final detailsController = TextEditingController();
-    final amountController = TextEditingController();
+    final titleController = TextEditingController(text: record?.title ?? '');
+    final detailsController = TextEditingController(
+      text: record?.details ?? '',
+    );
+    final amountController = TextEditingController(
+      text: record?.amount?.toString() ?? '',
+    );
     var error = '';
     var submitting = false;
 
@@ -1960,7 +1975,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text('Add $subcard record'),
+          title: Text(record == null ? 'Add $subcard record' : 'Edit record'),
           content: SizedBox(
             width: 460,
             child: Form(
@@ -2031,15 +2046,27 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         error = '';
                       });
                       try {
-                        await repository.createRecord(
-                          sectionKey: section.key,
-                          subcardKey: _permissionSlug(subcard),
-                          title: titleController.text.trim(),
-                          details: detailsController.text.trim(),
-                          amount: amountController.text.trim().isEmpty
-                              ? null
-                              : double.parse(amountController.text.trim()),
-                        );
+                        final title = titleController.text.trim();
+                        final details = detailsController.text.trim();
+                        final amount = amountController.text.trim().isEmpty
+                            ? null
+                            : double.parse(amountController.text.trim());
+                        if (record == null) {
+                          await repository.createRecord(
+                            sectionKey: section.key,
+                            subcardKey: _permissionSlug(subcard),
+                            title: title,
+                            details: details,
+                            amount: amount,
+                          );
+                        } else {
+                          await repository.updateRecord(
+                            recordId: record.id,
+                            title: title,
+                            details: details,
+                            amount: amount,
+                          );
+                        }
                         if (dialogContext.mounted) {
                           Navigator.of(dialogContext).pop(true);
                         }
@@ -2058,7 +2085,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Save record'),
+                  : Text(record == null ? 'Save record' : 'Save changes'),
             ),
           ],
         ),
@@ -6152,7 +6179,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           )
         else
           for (final record in filteredRecords)
-            _workspaceRecordTile(record, canManage: canManage),
+            _workspaceRecordTile(
+              record,
+              canManage: canManage,
+              canEdit: canManage,
+            ),
       ],
     );
   }
@@ -6887,6 +6918,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   Widget _workspaceRecordTile(
     CafeWorkspaceRecord record, {
     required bool canManage,
+    bool canEdit = false,
   }) {
     return Card(
       key: ValueKey('workspace-record-${record.id}'),
@@ -6908,6 +6940,23 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   Text(
                     '${record.amount!.toStringAsFixed(2)} ${record.currency}',
                     style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                if (canEdit)
+                  IconButton(
+                    tooltip: 'Edit ${record.title}',
+                    onPressed: () {
+                      final section = _sections.firstWhere(
+                        (section) => section.key == record.sectionKey,
+                      );
+                      unawaited(
+                        _createWorkspaceRecord(
+                          section,
+                          record.subcardKey.replaceAll('_', ' '),
+                          record: record,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.edit_outlined),
                   ),
                 if (canManage)
                   IconButton(

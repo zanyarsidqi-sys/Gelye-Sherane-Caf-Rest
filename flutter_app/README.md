@@ -18,7 +18,7 @@ and More navigation. Payments and other sections are available from More.
 Dashboard and section subcards use the
 same responsive card component and grid breakpoints. Every section/card uses
 the shared Supabase workspace-record store for authorized, realtime records
-with create, status-update, delete, and automatic database audit capture. This
+with create, edit, status-update, delete, and automatic database audit capture. This
 is a flexible record workspace, not a card processor or a substitute for
 importing existing cafe transactions; only data actually entered or imported
 is shown.
@@ -39,7 +39,8 @@ records actually saved for that card, not illustrative figures from references.
 The Tables & Orders section includes the 16 reference cards. Dining-table
 management uses a dedicated table schema with name/number, area, seat count,
 manually maintained status, and draggable floor-map position. Other table,
-order, and reservation cards still use generic workspace records; table status
+order, and reservation cards use generic workspace records that can be created,
+edited, status-updated, and deleted; table status
 does not automatically follow live orders or reservations. Existing generic
 table records are not converted into dining tables because their table details
 cannot be inferred safely.
