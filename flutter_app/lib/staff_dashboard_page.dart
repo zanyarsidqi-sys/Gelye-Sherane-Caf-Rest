@@ -2140,6 +2140,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final nameController = TextEditingController(text: table?.name ?? '');
     final areaController = TextEditingController(text: table?.area ?? 'Main');
     final seatsController = TextEditingController(text: '${table?.seats ?? 4}');
+    final messenger = ScaffoldMessenger.of(context);
     var error = '';
     var isSaving = false;
     final saved = await showDialog<bool>(
@@ -2221,9 +2222,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       });
                       try {
                         final seats = int.parse(seatsController.text.trim());
+                        CafeDiningTable? createdTable;
                         if (table == null) {
                           final position = _nextDiningTablePosition();
-                          await repository.createTable(
+                          createdTable = await repository.createTable(
                             name: nameController.text,
                             area: areaController.text,
                             seats: seats,
@@ -2240,6 +2242,31 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         }
                         if (dialogContext.mounted) {
                           Navigator.of(dialogContext).pop(true);
+                        }
+                        if (table == null && createdTable != null && mounted) {
+                          setState(() {
+                            _diningTables = [..._diningTables, createdTable!]
+                              ..sort((left, right) {
+                                final areaOrder = left.area.compareTo(
+                                  right.area,
+                                );
+                                return areaOrder != 0
+                                    ? areaOrder
+                                    : left.name.compareTo(right.name);
+                              });
+                            _selectedDiningTableArea = 'All areas';
+                            _diningTableError = null;
+                            _isLoadingDiningTables = false;
+                          });
+                          messenger
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '${createdTable.name} added to the floor plan.',
+                                ),
+                              ),
+                            );
                         }
                       } on Exception catch (exception) {
                         if (!dialogContext.mounted) return;
@@ -2263,7 +2290,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     nameController.dispose();
     areaController.dispose();
     seatsController.dispose();
-    if (saved == true) await _loadDiningTables();
+    if (saved == true && table != null) await _loadDiningTables();
   }
 
   Future<void> _confirmDeleteDiningTable(CafeDiningTable table) async {
