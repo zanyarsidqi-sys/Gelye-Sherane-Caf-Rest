@@ -897,19 +897,23 @@ void main() {
 
     expect(find.text('Tables & Chairs'), findsWidgets);
     expect(find.byType(ChoiceChip), findsNWidgets(4));
-    const categoryCardCounts = [8, 9, 6, 6];
-    expect(categoryCardCounts.reduce((sum, count) => sum + count), 29);
+    const categoryCardCounts = [5, 9, 6, 6];
+    expect(categoryCardCounts.reduce((sum, count) => sum + count), 26);
     for (final title in [
       'Add Table',
       'Edit & Manage Tables',
       'Table Map',
       'QR Code Management',
       'Chairs Management',
+    ]) {
+      expect(find.text(title), findsOneWidget, reason: title);
+    }
+    for (final removedTitle in [
       'Bulk Table Creation',
       'Areas & Sections',
       'Table Floor Plans',
     ]) {
-      expect(find.text(title), findsOneWidget, reason: title);
+      expect(find.text(removedTitle), findsNothing, reason: removedTitle);
     }
     expect(find.text('Table service board'), findsNothing);
     expect(find.text('Available'), findsNothing);

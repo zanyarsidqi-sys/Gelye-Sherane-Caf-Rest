@@ -57,9 +57,6 @@ const _tablesChairsCategories = [
       'Table Map',
       'QR Code Management',
       'Chairs Management',
-      'Bulk Table Creation',
-      'Areas & Sections',
-      'Table Floor Plans',
     ],
   ),
   (
@@ -6487,8 +6484,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ? 'Save a table before displaying its QR code.'
             : 'Table QR tokens are managed by the secured QR workflow.',
       4 =>
-        'Table pricing modes are not part of the verified dining-table '
-            'schema. Existing order pricing remains unchanged.',
+        'Default table pricing cannot be saved yet. The verified dining-table '
+            'schema does not include a pricing-mode field.',
       _ =>
         'Floor, online booking, archive, and operational settings are not '
             'available in the current verified schema.',
@@ -7839,8 +7836,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         _tableSearch = '';
                         _tableWorkspaceView = 'Table list';
                       }
-                      if (title == 'Table Map' ||
-                          title == 'Table Floor Plans') {
+                      if (title == 'Table Map') {
                         _tableWorkspaceView = 'Floor map';
                       }
                       if (title == 'Add Table' ||
@@ -7850,9 +7846,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         _selectedDiningTablePanelId = null;
                         _diningTablePanelIsNew = title == 'Add Table';
                         _diningTablePanelOnMobile = title == 'Add Table';
-                        _diningTablePanelShowMap =
-                            title == 'Table Map' ||
-                            title == 'Table Floor Plans';
+                        _diningTablePanelShowMap = title == 'Table Map';
                         _diningTablePanelError = null;
                         _diningTableEditorTab = title == 'QR Code Management'
                             ? 3
@@ -7931,21 +7925,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   ) {
     if (subcard == 'Table Reservations') {
       return _tableReservationsWorkspace();
-    }
-    if (subcard == 'Table Floor Plans') {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Showing the current single-floor layout. Multiple floors, '
-            'published plan versions, background images, and rollback are '
-            'not yet supported.',
-            style: TextStyle(color: _muted, height: 1.4),
-          ),
-          const SizedBox(height: 12),
-          _tableManagementDetail(section, 'Table Map'),
-        ],
-      );
     }
     if (subcard == 'Add Table' ||
         subcard == 'Edit & Manage Tables' ||

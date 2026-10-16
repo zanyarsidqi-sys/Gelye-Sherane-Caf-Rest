@@ -47,7 +47,7 @@ not removed when a card is hidden. Summaries show only records actually saved
 for that card, not illustrative figures from references.
 
 The **Tables & Chairs** section has four horizontally selectable categories
-containing 29 cards, with category cards filtered by staff permissions.
+containing 26 cards, with category cards filtered by staff permissions.
 **Add Table** and **Edit & Manage Tables** use the dedicated saved-table
 workflow; **Table Map** uses the saved single-floor map; and **QR Code
 Management** opens the saved-table QR workflow for authorized managers.
