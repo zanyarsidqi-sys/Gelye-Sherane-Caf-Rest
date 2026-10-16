@@ -768,25 +768,82 @@ void main() {
 
     await tester.tap(find.text('Motel').last);
     await tester.pumpAndSettle();
-    for (final title in [
-      'Motel & Online Orders Overview',
-      'Select Room',
-      'New Motel Order',
-      'New Online Order',
-      'Room Orders',
-      'Motel Orders',
-      'Online Orders',
-      'Order Tracking',
-      'Order History',
-      'Meal Packages',
-      'Delivery Schedule',
-      'Invoices & Receipts',
-      'Delivery Areas',
-      'Payment Options',
-      'Motel Orders Settings',
-    ]) {
-      expect(find.text(title), findsWidgets, reason: title);
+    const motelCategories = [
+      [
+        'Motel & Online Orders Overview',
+        'Order Tracking',
+        'Order History',
+        'Order Details',
+      ],
+      [
+        'Select Room',
+        'New Motel Order',
+        'Room Orders',
+        'Motel Orders',
+        'Meal Packages',
+        'Motel Orders Settings',
+      ],
+      ['New Online Order', 'Online Orders', 'Delivery Schedule', 'Delivery Areas'],
+      [
+        'New Walk-In Order',
+        'Active Walk-In Orders',
+        'Ready for Pickup',
+        'Walk-In Order History',
+      ],
+      ['Invoices & Receipts', 'Payment Options'],
+    ];
+    expect(find.byType(ChoiceChip), findsNWidgets(5));
+    var motelCardTotal = 0;
+    for (var index = 0; index < motelCategories.length; index++) {
+      final tab = find.byKey(ValueKey('motel-orders-category-tab-$index'));
+      await tester.ensureVisible(tab);
+      await tester.tap(tab);
+      await tester.pumpAndSettle();
+      final categoryGrid = find.byKey(
+        ValueKey('motel-orders-category-cards-$index'),
+      );
+      expect(
+        find.descendant(of: categoryGrid, matching: find.byType(Card)),
+        findsNWidgets(motelCategories[index].length),
+      );
+      for (final title in motelCategories[index]) {
+        expect(
+          find.byKey(ValueKey('motel-orders-category-card-$title')),
+          findsOneWidget,
+          reason: title,
+        );
+      }
+      motelCardTotal += motelCategories[index].length;
     }
+    expect(motelCardTotal, 20);
+    final walkInTab = find.byKey(
+      const ValueKey('motel-orders-category-tab-3'),
+    );
+    await tester.ensureVisible(walkInTab);
+    await tester.tap(walkInTab);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(
+        const ValueKey('motel-orders-category-card-New Walk-In Order'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Coming Soon — Awaiting verified integrations'),
+      findsOneWidget,
+    );
+    expect(find.text('Design only'), findsOneWidget);
+    expect(
+      find.textContaining('does not create or process orders'),
+      findsOneWidget,
+    );
+    expect(find.text('Add record'), findsNothing);
+    await tester.tap(find.text('Back to Motel & Online Orders'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Previously available motel workspaces'),
+      findsNothing,
+    );
 
     await tester.tap(find.text('Menu').last);
     await tester.pumpAndSettle();
@@ -903,21 +960,14 @@ void main() {
     expect(find.text('Search Menu Overview...'), findsOneWidget);
     await tester.tap(find.text('Back to Menu Management'));
     await tester.pumpAndSettle();
-
-    final preservedWorkspaces = find.byKey(
-      const PageStorageKey<String>('menu-preserved-workspaces'),
+    expect(
+      find.byKey(const PageStorageKey<String>('menu-preserved-workspaces')),
+      findsNothing,
     );
-    await tester.ensureVisible(preservedWorkspaces);
-    await tester.tap(preservedWorkspaces);
-    await tester.pumpAndSettle();
-    final modifiersCard = find.byKey(
-      const ValueKey('management-card-kitchen_management-modifiers'),
+    expect(
+      find.textContaining('Previously available menu workspaces'),
+      findsNothing,
     );
-    await tester.ensureVisible(modifiersCard);
-    await tester.tap(modifiersCard);
-    await tester.pumpAndSettle();
-    expect(find.text('Modifiers records'), findsOneWidget);
-    expect(find.text('Search Modifiers...'), findsOneWidget);
 
     await openMoreSection('Inventory Management');
     for (final title in [
@@ -1509,20 +1559,17 @@ void main() {
 
     await tester.tap(find.text('Back to Kitchen Management'));
     await tester.pumpAndSettle();
-    final preservedWorkspaces = find.byKey(
-      const PageStorageKey<String>('kitchen-preserved-workspaces'),
-    );
-    await tester.ensureVisible(preservedWorkspaces);
     expect(
-      find.text('Previously available kitchen workspaces (13)'),
-      findsOneWidget,
+      find.byKey(
+        const PageStorageKey<String>('kitchen-preserved-workspaces'),
+      ),
+      findsNothing,
     );
-    await tester.tap(preservedWorkspaces);
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Customer Directory'));
-    await tester.tap(find.text('Customer Directory'));
-    await tester.pumpAndSettle();
-    expect(find.text('Customer Directory records'), findsOneWidget);
+    expect(
+      find.textContaining('Previously available kitchen workspaces'),
+      findsNothing,
+    );
+    expect(find.text('Customer Directory'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

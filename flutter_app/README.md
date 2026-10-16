@@ -32,9 +32,9 @@ Existing permission keys are retained when a section is renamed or reordered.
 The new Motel & Online Orders, Inventory, Customer, Reservations, Devices &
 Printing, Security & Audit, System Health & Updates, Shisha, Delivery, Marketing,
 Customer Feedback, Staff & Operations, and Reports Management sections have separate
-permission keys, so staff must be explicitly granted access. Legacy cards remain available
-under **More cards**; saved records are not removed. Summaries show only
-records actually saved for that card, not illustrative figures from references.
+permission keys, so staff must be explicitly granted access. Saved records are
+not removed when a card is hidden. Summaries show only records actually saved
+for that card, not illustrative figures from references.
 
 The **Tables & Chairs** section has four horizontally selectable categories
 containing 29 cards. **Add Table** retains its dedicated saved-table workflow;
@@ -48,23 +48,31 @@ because their table details cannot be inferred safely.
 The Windows and iPhone design review for the remaining 28 cards is available
 in [`../design/section-02-remaining-cards-concept.html`](../design/section-02-remaining-cards-concept.html).
 
-Menu Management now has a six-category, 49-card workspace. Previously
-available generic-record routes remain accessible in a collapsed section and
-retain their existing permission keys. Cards requiring product catalog,
+Menu Management now has a six-category, 49-card workspace. Its former
+“Previously available menu workspaces” panel is hidden; existing records and
+permission keys are retained. Cards requiring product catalog,
 pricing, inventory, ordering, or publishing integrations are clearly marked
 as design-only until their authoritative sources are verified. The Menu
 workspace interface is deployed; those operational integrations remain
 unavailable, and no production database schema was changed.
 
 Kitchen Management now has a seven-category workspace with 36 specification
-cards. Its prior generic-record routes remain accessible; they are not live
-kitchen orders. Cards requiring order, station, printer, menu, or inventory
+cards. Its former “Previously available kitchen workspaces” panel is hidden;
+existing records and permission keys are retained. These are not live kitchen
+orders. Cards requiring order, station, printer, menu, or inventory
 integrations are explicitly marked design-only because those authoritative
 services have not been verified in this repository. The category interface is
 deployed; operational Kitchen integrations remain unavailable.
 
-Except for dining-table setup and layout, management cards use the shared
-generic record workspace. They do not implement a payment processor, dedicated
+Motel & Online Orders has five responsive categories with 20 cards, including
+Walk-In Orders. Its former previous-workspaces panel is omitted. The cards are
+design-only previews: no motel/online/walk-in order processing, room booking,
+delivery dispatch, payment settlement, or invoice integration is verified or
+connected. Existing saved records and database data were not changed.
+
+Except for dining-table setup and layout and the Motel & Online Orders
+design-only previews, management cards use the shared generic record workspace.
+They do not implement a payment processor, dedicated
 product catalog, inventory ledger, live order pipeline, reservation service,
 notification delivery system, or printer/device connection. Device
 records do not send print jobs, change printer settings, monitor hardware,

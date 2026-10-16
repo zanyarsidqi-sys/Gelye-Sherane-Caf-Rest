@@ -294,6 +294,81 @@ const _kitchenCardPurposes = <String, String>{
   'Kitchen Settings': 'Review kitchen workflow configuration.',
 };
 
+const _motelOrdersCategories = [
+  (
+    title: 'Overview',
+    icon: Icons.dashboard_outlined,
+    cards: [
+      'Motel & Online Orders Overview',
+      'Order Tracking',
+      'Order History',
+      'Order Details',
+    ],
+  ),
+  (
+    title: 'Motel Orders',
+    icon: Icons.hotel_outlined,
+    cards: [
+      'Select Room',
+      'New Motel Order',
+      'Room Orders',
+      'Motel Orders',
+      'Meal Packages',
+      'Motel Orders Settings',
+    ],
+  ),
+  (
+    title: 'Online Orders',
+    icon: Icons.language_outlined,
+    cards: [
+      'New Online Order',
+      'Online Orders',
+      'Delivery Schedule',
+      'Delivery Areas',
+    ],
+  ),
+  (
+    title: 'Walk-In Orders',
+    icon: Icons.shopping_bag_outlined,
+    cards: [
+      'New Walk-In Order',
+      'Active Walk-In Orders',
+      'Ready for Pickup',
+      'Walk-In Order History',
+    ],
+  ),
+  (
+    title: 'Payments & Administration',
+    icon: Icons.receipt_long_outlined,
+    cards: ['Invoices & Receipts', 'Payment Options'],
+  ),
+];
+
+const _motelOrderPurposes = <String, String>{
+  'Motel & Online Orders Overview':
+      'Review saved motel, online and walk-in order records.',
+  'Order Tracking': 'Search existing order records and their saved statuses.',
+  'Order History': 'Review saved order history records.',
+  'Order Details': 'Review saved order detail records.',
+  'Select Room': 'Review room availability records.',
+  'New Motel Order': 'Create a motel order record.',
+  'Room Orders': 'Review order records associated with rooms.',
+  'Motel Orders': 'Review motel-origin order records.',
+  'Meal Packages': 'Review motel meal package records.',
+  'Motel Orders Settings': 'Review motel order setting records.',
+  'New Online Order': 'Create an online order record.',
+  'Online Orders': 'Review online-origin order records.',
+  'Delivery Schedule': 'Review delivery schedule records.',
+  'Delivery Areas': 'Review delivery area records.',
+  'New Walk-In Order':
+      'Design preview for counter orders without a table or room.',
+  'Active Walk-In Orders': 'Design preview for active counter orders.',
+  'Ready for Pickup': 'Design preview for prepared counter orders.',
+  'Walk-In Order History': 'Design preview for completed counter orders.',
+  'Invoices & Receipts': 'Review saved invoice and receipt records.',
+  'Payment Options': 'Review saved payment option records.',
+};
+
 const _menuCardPurposes = <String, String>{
   'Menu Overview': 'Summary of product counts, active/inactive items, unpublished changes, category distribution and actionable exceptions.',
   'Add New Product': 'Create a product with identity, category, language, image, availability, prices, variants and station assignment.',
@@ -1934,6 +2009,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ...category.cards,
             ..._subcards[sectionIndex],
           }.toList(growable: false)
+        : sectionIndex == 5
+        ? <String>{
+            for (final category in _motelOrdersCategories) ...category.cards,
+            ..._subcards[sectionIndex],
+          }.toList(growable: false)
         : _subcards[sectionIndex];
     if (widget.role == 'admin' ||
         widget.grantedPermissions.contains('$sectionKey:*')) {
@@ -1957,6 +2037,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   String _menuCardSearch = '';
   int _selectedKitchenCategory = 0;
   String _kitchenCardSearch = '';
+  int _selectedMotelOrdersCategory = 0;
   bool _isSigningOut = false;
   String? _signOutError;
   CafeWorkspaceRepository? _workspaceRepository;
@@ -4662,6 +4743,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _kitchenCardDesignDetail(subcard)
         else if (index == 4 && subcard != null)
           _kitchenLegacyCardDetail(section, subcard)
+        else if (index == 5 && subcard != null)
+          _motelOrderDesignDetail(subcard)
         else if (subcard == null)
           _sectionSubcardGrid(index)
         else
@@ -4683,7 +4766,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   ) {
     final description = subcard == null
         ? section.description
-        : _menuCardPurposes[subcard] ??
+        : _motelOrderPurposes[subcard] ??
+              _menuCardPurposes[subcard] ??
               _kitchenCardPurposes[subcard] ??
               _sectionCardDescriptions[subcard] ??
               'Live workspace records for $subcard.';
@@ -5181,6 +5265,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 4) {
       return _kitchenManagementWorkspace(visibleSubcards);
     }
+    if (sectionIndex == 5) {
+      return _motelOrdersWorkspace(visibleSubcards);
+    }
     final featuredCards = _featuredSectionCards[sectionIndex];
     if (featuredCards != null) {
       final primaryCards = visibleSubcards
@@ -5232,6 +5319,215 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
+  Widget _motelOrdersWorkspace(List<String> visibleSubcards) {
+    final category = _motelOrdersCategories[_selectedMotelOrdersCategory];
+    final categoryCards = category.cards
+        .where(visibleSubcards.contains)
+        .toList(growable: false);
+    final categoryCounts = [
+      for (final motelCategory in _motelOrdersCategories)
+        motelCategory.cards.where(visibleSubcards.contains).length,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (
+                var index = 0;
+                index < _motelOrdersCategories.length;
+                index++
+              ) ...[
+                if (index > 0) const SizedBox(width: 8),
+                ChoiceChip(
+                  key: ValueKey('motel-orders-category-tab-$index'),
+                  avatar: Icon(_motelOrdersCategories[index].icon, size: 17),
+                  label: Text(
+                    '${_motelOrdersCategories[index].title} '
+                    '(${categoryCounts[index]})',
+                  ),
+                  selected: _selectedMotelOrdersCategory == index,
+                  onSelected: (_) => setState(() {
+                    _selectedMotelOrdersCategory = index;
+                  }),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (categoryCards.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              'No cards in this category are assigned to this account.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: _muted),
+            ),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 1120
+                  ? 4
+                  : constraints.maxWidth >= 760
+                  ? 3
+                  : constraints.maxWidth >= 500
+                  ? 2
+                  : 1;
+              final width =
+                  (constraints.maxWidth - (columns - 1) * 12) / columns;
+              return Wrap(
+                key: ValueKey(
+                  'motel-orders-category-cards-$_selectedMotelOrdersCategory',
+                ),
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final title in categoryCards)
+                    SizedBox(
+                      width: width,
+                      child: _motelOrdersCategoryCard(title),
+                    ),
+                ],
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _motelOrdersCategoryCard(String title) {
+    final theme = Theme.of(context);
+    final purpose = _motelOrderPurposes[title]!;
+    return Semantics(
+      button: true,
+      label: '$title. $purpose. Design only; no live order processing.',
+      child: Card(
+        key: ValueKey('motel-orders-category-card-$title'),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        child: InkWell(
+          onTap: () => setState(() {
+            _selectedSubcard = title;
+          }),
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _metricIcon(title, Icons.hotel_outlined),
+                      color: theme.colorScheme.primary,
+                      size: 22,
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_outward,
+                      size: 17,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  purpose,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Chip(
+                  label: Text('Design only · integration unverified'),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _motelOrderDesignDetail(String title) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  _metricIcon(title, Icons.hotel_outlined),
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Chip(
+                  label: Text('Design only'),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _motelOrderPurposes[title]!,
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.45),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Coming Soon — Awaiting verified integrations. This preview '
+                'does not create or process orders, charge payments, reserve '
+                'rooms, or dispatch deliveries. Existing saved records remain '
+                'unchanged.',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _menuManagementWorkspace(List<String> visibleSubcards) {
     final category = _menuManagementCategories[_selectedMenuCategory];
     final query = _menuCardSearch.trim().toLowerCase();
@@ -5242,10 +5538,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           return title.toLowerCase().contains(query) ||
               (_menuCardPurposes[title] ?? '').toLowerCase().contains(query);
         })
-        .toList(growable: false);
-    final legacyCards = _subcards[3]
-        .where(visibleSubcards.contains)
-        .where((title) => !_menuCardPurposes.containsKey(title))
         .toList(growable: false);
     final categoryCounts = [
       for (final menuCategory in _menuManagementCategories)
@@ -5340,27 +5632,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               );
             },
           ),
-        if (legacyCards.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Card(
-            margin: EdgeInsets.zero,
-            clipBehavior: Clip.antiAlias,
-            child: ExpansionTile(
-              key: const PageStorageKey<String>('menu-preserved-workspaces'),
-              title: Text(
-                'Previously available menu workspaces '
-                '(${legacyCards.length})',
-              ),
-              subtitle: const Text(
-                'Preserved routes and records; not verified product features.',
-              ),
-              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              children: [
-                _managementCardGrid(sectionIndex: 3, titles: legacyCards),
-              ],
-            ),
-          ),
-        ],
       ],
     );
   }
@@ -5375,10 +5646,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           return title.toLowerCase().contains(query) ||
               (_kitchenCardPurposes[title] ?? '').toLowerCase().contains(query);
         })
-        .toList(growable: false);
-    final legacyCards = _subcards[4]
-        .where(visibleSubcards.contains)
-        .where((title) => !_kitchenCardPurposes.containsKey(title))
         .toList(growable: false);
     final categoryCounts = [
       for (final kitchenCategory in _kitchenManagementCategories)
@@ -5478,27 +5745,6 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               );
             },
           ),
-        if (legacyCards.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Card(
-            margin: EdgeInsets.zero,
-            clipBehavior: Clip.antiAlias,
-            child: ExpansionTile(
-              key: const PageStorageKey<String>('kitchen-preserved-workspaces'),
-              title: Text(
-                'Previously available kitchen workspaces '
-                '(${legacyCards.length})',
-              ),
-              subtitle: const Text(
-                'Preserved routes and records; these are not live order data.',
-              ),
-              childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              children: [
-                _managementCardGrid(sectionIndex: 4, titles: legacyCards),
-              ],
-            ),
-          ),
-        ],
       ],
     );
   }
