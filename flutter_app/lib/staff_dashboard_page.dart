@@ -2254,6 +2254,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   int _selectedIndex = 0;
   String? _selectedSubcard;
   int _selectedTablesCategory = 0;
+  final _diningTablePanelFormKey = GlobalKey<FormState>();
+  final _diningTablePanelNameController = TextEditingController();
+  final _diningTablePanelAreaController = TextEditingController();
+  final _diningTablePanelSeatsController = TextEditingController();
+  String? _selectedDiningTablePanelId;
+  bool _diningTablePanelIsNew = true;
+  bool _isSavingDiningTablePanel = false;
+  bool _diningTablePanelOnMobile = false;
+  bool _diningTablePanelShowMap = false;
+  int _diningTableEditorTab = 0;
+  String? _diningTablePanelError;
   int _selectedMenuCategory = 0;
   String _menuCardSearch = '';
   int _selectedKitchenCategory = 0;
@@ -2333,6 +2344,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (reservationChannel != null && reservationRepository != null) {
       unawaited(reservationRepository.removeChannel(reservationChannel));
     }
+    _diningTablePanelNameController.dispose();
+    _diningTablePanelAreaController.dispose();
+    _diningTablePanelSeatsController.dispose();
     super.dispose();
   }
 
@@ -2923,6 +2937,124 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       if (!isOccupied) return (x, y);
     }
     return (0.5, 0.5);
+  }
+
+  void _startDiningTablePanelDraft() {
+    setState(() {
+      _selectedDiningTablePanelId = null;
+      _diningTablePanelIsNew = true;
+      _diningTablePanelNameController.clear();
+      _diningTablePanelAreaController.text = 'Main';
+      _diningTablePanelSeatsController.text = '4';
+      _diningTablePanelError = null;
+      _diningTableEditorTab = 0;
+      _diningTablePanelOnMobile = true;
+      _diningTablePanelShowMap = false;
+    });
+  }
+
+  void _selectDiningTableInPanel(CafeDiningTable table) {
+    setState(() {
+      _selectedDiningTablePanelId = table.id;
+      _diningTablePanelIsNew = false;
+      _diningTablePanelNameController.text = table.name;
+      _diningTablePanelAreaController.text = table.area;
+      _diningTablePanelSeatsController.text = '${table.seats}';
+      _diningTablePanelError = null;
+      _diningTableEditorTab = 0;
+      _diningTablePanelOnMobile = true;
+      _diningTablePanelShowMap = false;
+    });
+  }
+
+  Future<void> _saveDiningTablePanel({required bool addAnother}) async {
+    final form = _diningTablePanelFormKey.currentState;
+    if (form == null || !form.validate()) return;
+    final repository = _diningTableRepository;
+    if (repository == null) {
+      setState(() {
+        _diningTablePanelError =
+            'Table storage is unavailable. Check the connection and retry.';
+      });
+      return;
+    }
+    setState(() {
+      _isSavingDiningTablePanel = true;
+      _diningTablePanelError = null;
+    });
+    try {
+      CafeDiningTable saved;
+      if (_diningTablePanelIsNew) {
+        final position = _nextDiningTablePosition();
+        saved = await repository.createTable(
+          name: _diningTablePanelNameController.text,
+          area: _diningTablePanelAreaController.text,
+          seats: int.parse(_diningTablePanelSeatsController.text.trim()),
+          x: position.$1,
+          y: position.$2,
+        );
+      } else {
+        final id = _selectedDiningTablePanelId;
+        if (id == null) {
+          throw StateError('Select a saved table before saving changes.');
+        }
+        await repository.updateTable(
+          id: id,
+          name: _diningTablePanelNameController.text,
+          area: _diningTablePanelAreaController.text,
+          seats: int.parse(_diningTablePanelSeatsController.text.trim()),
+        );
+        final refreshed = await repository.fetchTables();
+        saved = refreshed.singleWhere((item) => item.id == id);
+      }
+      if (!mounted) return;
+      setState(() {
+        _diningTables =
+            [
+              for (final item in _diningTables)
+                if (item.id != saved.id) item,
+              saved,
+            ]..sort((left, right) {
+              final areaOrder = left.area.compareTo(right.area);
+              return areaOrder != 0
+                  ? areaOrder
+                  : left.name.compareTo(right.name);
+            });
+        _selectedDiningTableArea = 'All areas';
+        _isSavingDiningTablePanel = false;
+        _diningTablePanelError = null;
+        if (_diningTablePanelIsNew && addAnother) {
+          _selectedDiningTablePanelId = null;
+          _diningTablePanelIsNew = true;
+          _diningTablePanelNameController.clear();
+          _diningTablePanelAreaController.text = saved.area;
+          _diningTablePanelSeatsController.text = '4';
+        } else {
+          _selectedDiningTablePanelId = saved.id;
+          _diningTablePanelIsNew = false;
+          _diningTablePanelNameController.text = saved.name;
+          _diningTablePanelAreaController.text = saved.area;
+          _diningTablePanelSeatsController.text = '${saved.seats}';
+        }
+      });
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              _diningTablePanelIsNew
+                  ? '${saved.name} saved. Add the next table.'
+                  : '${saved.name} saved.',
+            ),
+          ),
+        );
+    } on Exception catch (exception) {
+      if (!mounted) return;
+      setState(() {
+        _isSavingDiningTablePanel = false;
+        _diningTablePanelError = _diningTableFailure(exception);
+      });
+    }
   }
 
   Future<void> _showDiningTableForm({CafeDiningTable? table}) async {
@@ -5798,6 +5930,574 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     _ => status,
   };
 
+  Widget _diningTableCombinedWorkspace() {
+    final query = _tableSearch.trim().toLowerCase();
+    final areas = _diningTables.map((table) => table.area).toSet().toList()
+      ..sort();
+    final selectedArea = areas.contains(_selectedDiningTableArea)
+        ? _selectedDiningTableArea
+        : 'All areas';
+    final filteredTables = _diningTables
+        .where(
+          (table) =>
+              (selectedArea == 'All areas' || table.area == selectedArea) &&
+              (_tableStatusFilter == 'All' ||
+                  table.status == _tableStatusFilter.toLowerCase()) &&
+              (query.isEmpty ||
+                  table.name.toLowerCase().contains(query) ||
+                  table.area.toLowerCase().contains(query) ||
+                  _diningTableStatusLabel(table.status)
+                      .toLowerCase()
+                      .contains(query)),
+        )
+        .toList(growable: false);
+    final selectedTable = _diningTables.where(
+      (table) => table.id == _selectedDiningTablePanelId,
+    );
+    final desktop = MediaQuery.sizeOf(context).width >= 980;
+    final showEditor = desktop || _diningTablePanelOnMobile;
+    final listPane = _diningTableSavedListPane(
+      filteredTables,
+      areas,
+      selectedArea,
+    );
+    final editorPane = _diningTableEditorPane(
+      selectedTable.isEmpty ? null : selectedTable.first,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: _executiveSurface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: _executiveBorder),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.table_restaurant_outlined, color: _gold),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Table workspace',
+                      style: TextStyle(
+                        color: _executiveText,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Saved tables and table details',
+                      style: TextStyle(color: _executiveMuted, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              if (!desktop && _diningTablePanelOnMobile)
+                TextButton.icon(
+                  onPressed: () =>
+                      setState(() => _diningTablePanelOnMobile = false),
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('List'),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (desktop)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 5, child: listPane),
+              const SizedBox(width: 14),
+              Expanded(flex: 6, child: editorPane),
+            ],
+          )
+        else if (showEditor)
+          editorPane
+        else
+          listPane,
+      ],
+    );
+  }
+
+  Widget _diningTableSavedListPane(
+    List<CafeDiningTable> tables,
+    List<String> areas,
+    String selectedArea,
+  ) {
+    final counts = {
+      'All': _diningTables.length,
+      for (final status in CafeDiningTableRepository.statuses)
+        status: _diningTables.where((table) => table.status == status).length,
+    };
+    return Card(
+      key: const ValueKey('saved-tables-panel'),
+      margin: EdgeInsets.zero,
+      color: _executiveSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: _executiveBorder),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Saved tables',
+                    style: TextStyle(
+                      color: _executiveText,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Refresh saved tables',
+                  onPressed: _isLoadingDiningTables
+                      ? null
+                      : () => unawaited(_loadDiningTables()),
+                  icon: const Icon(Icons.refresh, color: _executiveMuted),
+                ),
+                if (_canManageDiningTables)
+                  FilledButton.icon(
+                    key: const ValueKey('add-dining-table'),
+                    onPressed: _diningTableError != null
+                        ? null
+                        : _startDiningTablePanelDraft,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add table'),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final entry in counts.entries)
+                  _tableSummaryCard(
+                    width: 106,
+                    label: entry.key == 'All'
+                        ? 'Total'
+                        : _diningTableStatusLabel(entry.key),
+                    value: _isLoadingDiningTables ? '…' : '${entry.value}',
+                    icon: Icons.table_restaurant_outlined,
+                    color: entry.key == 'All'
+                        ? _gold
+                        : _diningTableStatusColor(entry.key),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              key: const ValueKey('dining-table-search'),
+              decoration: const InputDecoration(
+                hintText: 'Search table or area',
+                prefixIcon: Icon(Icons.search),
+                isDense: true,
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) => setState(() {
+                _tableSearch = value;
+                _diningTableListPage = 0;
+              }),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                DropdownButton<String>(
+                  value: selectedArea,
+                  items: [
+                    const DropdownMenuItem(
+                      value: 'All areas',
+                      child: Text('All areas'),
+                    ),
+                    for (final area in areas)
+                      DropdownMenuItem(value: area, child: Text(area)),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedDiningTableArea = value);
+                    }
+                  },
+                ),
+                DropdownButton<String>(
+                  key: const ValueKey('dining-table-status-filter'),
+                  value: _tableStatusFilter,
+                  items: [
+                    const DropdownMenuItem(
+                      value: 'All',
+                      child: Text('All statuses'),
+                    ),
+                    for (final status in CafeDiningTableRepository.statuses)
+                      DropdownMenuItem(
+                        value: status[0].toUpperCase() + status.substring(1),
+                        child: Text(_diningTableStatusLabel(status)),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _tableStatusFilter = value);
+                    }
+                  },
+                ),
+                TextButton(
+                  onPressed: () => setState(() {
+                    _tableSearch = '';
+                    _tableStatusFilter = 'All';
+                    _selectedDiningTableArea = 'All areas';
+                    _diningTableListPage = 0;
+                  }),
+                  child: const Text('Reset'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => setState(
+                    () => _diningTablePanelShowMap = !_diningTablePanelShowMap,
+                  ),
+                  icon: Icon(
+                    _diningTablePanelShowMap
+                        ? Icons.list_alt_outlined
+                        : Icons.map_outlined,
+                  ),
+                  label: Text(_diningTablePanelShowMap ? 'List' : 'Map'),
+                ),
+              ],
+            ),
+            if (_diningTableError != null) ...[
+              const SizedBox(height: 8),
+              _AuthErrorMessage(_diningTableError!),
+            ],
+            if (_isLoadingDiningTables)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_diningTables.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(18),
+                child: Text(
+                  'No saved tables yet.',
+                  key: ValueKey('saved-tables-empty'),
+                  style: TextStyle(color: _executiveMuted),
+                ),
+              )
+            else if (tables.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(18),
+                child: Text(
+                  'No tables match these filters.',
+                  key: ValueKey('saved-tables-no-results'),
+                  style: TextStyle(color: _executiveMuted),
+                ),
+              )
+            else if (_diningTablePanelShowMap)
+              _diningTableFloorMap(
+                tables,
+                allowTableEditing: _canManageDiningTables,
+              )
+            else
+              for (final table in tables.take(8))
+                Card(
+                  key: ValueKey('saved-table-row-${table.id}'),
+                  margin: const EdgeInsets.only(top: 6),
+                  color: _selectedDiningTablePanelId == table.id
+                      ? const Color(0xFF203754)
+                      : const Color(0xFF182B43),
+                  child: ListTile(
+                    onTap: () => _selectDiningTableInPanel(table),
+                    title: Text(
+                      table.name,
+                      style: const TextStyle(
+                        color: _executiveText,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${table.area} · ${table.seats} seats',
+                      style: const TextStyle(color: _executiveMuted),
+                    ),
+                    trailing: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          _diningTableStatusLabel(table.status),
+                          style: TextStyle(
+                            color: _diningTableStatusColor(table.status),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (_canManageDiningTables)
+                          IconButton(
+                            tooltip: 'Show ${table.name} QR',
+                            onPressed: () => _showDiningTableQr(table),
+                            icon: const Icon(
+                              Icons.qr_code_2_outlined,
+                              color: _executiveMuted,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+            if (tables.length > 8 && !_diningTablePanelShowMap)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Showing 8 of ${tables.length} saved tables. Use search '
+                  'and filters to narrow the list.',
+                  style: const TextStyle(color: _executiveMuted, fontSize: 12),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _diningTableEditorPane(CafeDiningTable? selectedTable) {
+    final tabs = [
+      'Basic Info',
+      'Chairs & Capacity',
+      'Location & Map',
+      'QR Code',
+      'Pricing & Modes',
+      'Settings',
+    ];
+    final hasSelected = _diningTablePanelIsNew || selectedTable != null;
+    return Card(
+      key: const ValueKey('dining-table-editor-panel'),
+      margin: EdgeInsets.zero,
+      color: _executiveSurface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: _executiveBorder),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              _diningTablePanelIsNew
+                  ? 'New table'
+                  : selectedTable?.name ?? 'Select a table to edit',
+              style: const TextStyle(
+                color: _executiveText,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var index = 0; index < tabs.length; index++) ...[
+                    if (index > 0) const SizedBox(width: 6),
+                    ChoiceChip(
+                      key: ValueKey('dining-table-editor-tab-$index'),
+                      label: Text(tabs[index]),
+                      selected: _diningTableEditorTab == index,
+                      onSelected: (_) =>
+                          setState(() => _diningTableEditorTab = index),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            if (!hasSelected)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 36),
+                child: Text(
+                  'Select a saved table or choose Add table. '
+                  'The current database supports name, area, seats, '
+                  'manual status, and map position only.',
+                  style: TextStyle(color: _executiveMuted, height: 1.5),
+                ),
+              )
+            else if (_diningTableEditorTab == 0)
+              Form(
+                key: _diningTablePanelFormKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      key: const ValueKey('table-panel-name'),
+                      controller: _diningTablePanelNameController,
+                      maxLength: 80,
+                      decoration: const InputDecoration(
+                        labelText: 'Table name or number',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                          ? 'Enter a table name or number'
+                          : null,
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      key: const ValueKey('table-panel-area'),
+                      controller: _diningTablePanelAreaController,
+                      maxLength: 80,
+                      decoration: const InputDecoration(
+                        labelText: 'Area',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                          ? 'Enter an area'
+                          : null,
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      key: const ValueKey('table-panel-capacity'),
+                      controller: _diningTablePanelSeatsController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Seat capacity',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        final seats = int.tryParse(value?.trim() ?? '');
+                        return seats == null || seats < 1 || seats > 100
+                            ? 'Enter a seat capacity from 1 to 100'
+                            : null;
+                      },
+                    ),
+                    if (selectedTable != null) ...[
+                      const SizedBox(height: 8),
+                      InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Current table status',
+                          border: OutlineInputBorder(),
+                        ),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            _diningTableStatusLabel(selectedTable.status),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              )
+            else
+              _diningTableEditorTabContent(selectedTable),
+            if (_diningTablePanelError != null) ...[
+              const SizedBox(height: 10),
+              _AuthErrorMessage(_diningTablePanelError!),
+            ],
+            const SizedBox(height: 14),
+            if (_canManageDiningTables && hasSelected)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton(
+                    key: const ValueKey('save-dining-table-panel'),
+                    onPressed: _isSavingDiningTablePanel
+                        ? null
+                        : () => _saveDiningTablePanel(addAnother: false),
+                    child: Text(
+                      _isSavingDiningTablePanel
+                          ? 'Saving…'
+                          : _diningTablePanelIsNew
+                          ? 'Save table'
+                          : 'Save changes',
+                    ),
+                  ),
+                  if (_diningTablePanelIsNew)
+                    OutlinedButton(
+                      key: const ValueKey('save-add-another-table'),
+                      onPressed: _isSavingDiningTablePanel
+                          ? null
+                          : () => _saveDiningTablePanel(addAnother: true),
+                      child: const Text('Save & add another'),
+                    ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _diningTableEditorTabContent(CafeDiningTable? table) {
+    final description = switch (_diningTableEditorTab) {
+      1 =>
+        'Chair inventory, chair layouts, shapes, and extra-chair policy '
+            'are not stored by the current dining-table schema.',
+      2 =>
+        table == null
+            ? 'Save a table to view its current map position.'
+            : 'Saved normalized map position: '
+                  '${table.x.toStringAsFixed(3)}, ${table.y.toStringAsFixed(3)}. '
+                  'Use the map view to move the table.',
+      3 =>
+        table == null
+            ? 'Save a table before displaying its QR code.'
+            : 'Table QR tokens are managed by the secured QR workflow.',
+      4 =>
+        'Table pricing modes are not part of the verified dining-table '
+            'schema. Existing order pricing remains unchanged.',
+      _ =>
+        'Floor, online booking, archive, and operational settings are not '
+            'available in the current verified schema.',
+    };
+    return Container(
+      constraints: const BoxConstraints(minHeight: 175),
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF101E31),
+        border: Border.all(color: _executiveBorder),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(description, style: const TextStyle(color: _executiveMuted)),
+          if (_diningTableEditorTab == 2) ...[
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed: () => setState(() {
+                _diningTablePanelShowMap = true;
+                if (MediaQuery.sizeOf(context).width < 980) {
+                  _diningTablePanelOnMobile = false;
+                }
+              }),
+              icon: const Icon(Icons.map_outlined),
+              label: const Text('Show table map'),
+            ),
+          ],
+          if (_diningTableEditorTab == 3 && table != null) ...[
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed: () => _showDiningTableQr(table),
+              icon: const Icon(Icons.qr_code_2_outlined),
+              label: const Text('Preview / print table QR'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _sectionSubcardGrid(int sectionIndex) {
     if (sectionIndex == 0) return _dashboardLayout();
     if (sectionIndex == 1) {
@@ -7108,6 +7808,24 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       if (title == 'Table Map' ||
                           title == 'Table Floor Plans') {
                         _tableWorkspaceView = 'Floor map';
+                      }
+                      if (title == 'Add Table' ||
+                          title == 'Edit & Manage Tables' ||
+                          title == 'Table Map' ||
+                          title == 'QR Code Management') {
+                        _selectedDiningTablePanelId = null;
+                        _diningTablePanelIsNew = title == 'Add Table';
+                        _diningTablePanelOnMobile = title == 'Add Table';
+                        _diningTablePanelShowMap =
+                            title == 'Table Map' ||
+                            title == 'Table Floor Plans';
+                        _diningTablePanelError = null;
+                        _diningTableEditorTab = title == 'QR Code Management'
+                            ? 3
+                            : 0;
+                        _diningTablePanelNameController.clear();
+                        _diningTablePanelAreaController.text = 'Main';
+                        _diningTablePanelSeatsController.text = '4';
                       }
                       _selectedSubcard = title;
                     }),
@@ -9270,6 +9988,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   ) {
     if (subcard == 'Table Reservations') {
       return _tableReservationsWorkspace();
+    }
+    if (const {
+      'Add Table',
+      'Edit & Manage Tables',
+      'Table Map',
+      'QR Code Management',
+    }.contains(subcard)) {
+      return _diningTableCombinedWorkspace();
     }
     if (const {
       'Add Table',

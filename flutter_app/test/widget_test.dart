@@ -739,11 +739,18 @@ void main() {
       expect(tester.getSize(addTableCard).width, greaterThan(200));
       await tester.tap(addTableCard);
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('add-dining-table')), findsOneWidget);
-      expect(find.textContaining('Manage saved tables'), findsOneWidget);
-      expect(find.text('Add table'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('dining-table-editor-panel')),
+        findsOneWidget,
+      );
+      expect(find.text('New table'), findsOneWidget);
+      expect(find.text('Back to Tables & Chairs'), findsOneWidget);
       expect(find.text('Floor map'), findsNothing);
       expect(find.text('Table workflows'), findsNothing);
+      await tester.tap(find.text('List'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('add-dining-table')), findsOneWidget);
+      expect(find.text('Saved tables'), findsOneWidget);
       await tester.ensureVisible(find.text('Back to Tables & Chairs'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Back to Tables & Chairs'));
@@ -998,8 +1005,12 @@ void main() {
       find.byKey(const ValueKey('dining-table-status-filter')),
       findsOneWidget,
     );
-    expect(find.text('Reset filters'), findsOneWidget);
-    expect(find.text('Refresh'), findsOneWidget);
+    expect(find.text('Reset'), findsOneWidget);
+    expect(find.byTooltip('Refresh saved tables'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('dining-table-editor-tab-3')),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Back to Tables & Chairs'));
     await tester.pumpAndSettle();
     await selectCategory(0);
@@ -1010,14 +1021,23 @@ void main() {
     expect(find.text('Edit & Manage Tables'), findsOneWidget);
     expect(find.text('Coming Soon — Awaiting Specification'), findsNothing);
     expect(find.byKey(const ValueKey('dining-table-search')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('dining-table-editor-panel')),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Back to Tables & Chairs'));
     await tester.pumpAndSettle();
     await tester.tap(
       find.byKey(const ValueKey('tables-category-card-Add Table')),
     );
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('saved-tables-panel')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('dining-table-editor-panel')),
+      findsOneWidget,
+    );
     expect(find.byKey(const ValueKey('add-dining-table')), findsOneWidget);
-    expect(find.text('Add table'), findsOneWidget);
+    expect(find.text('New table'), findsOneWidget);
     expect(find.text('Floor map'), findsNothing);
     expect(find.text('Table workflows'), findsNothing);
     expect(tester.takeException(), isNull);
