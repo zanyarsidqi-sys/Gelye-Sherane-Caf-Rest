@@ -19,7 +19,7 @@ abstract class FavoritesStorage {
 }
 
 class LocalFavoritesStorage implements FavoritesStorage {
-  final _preferences = SharedPreferencesAsync();
+  late final _preferences = SharedPreferencesAsync();
   String _key(String account) =>
       'cafe.favorite_cards.v1.${Uri.encodeComponent(account)}';
   @override
@@ -38,8 +38,12 @@ class FavoritesPage extends StatefulWidget {
     required this.onOpen,
     this.storage,
     this.cardBuilder,
+    this.title = 'Favorites',
+    this.manageInitially = false,
   });
   final String account;
+  final String title;
+  final bool manageInitially;
   final List<FavoriteCardEntry> cards;
   final ValueChanged<FavoriteCardEntry> onOpen;
   final FavoritesStorage? storage;
@@ -49,69 +53,149 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPageState extends State<FavoritesPage> {
-  late final _storage = widget.storage ?? LocalFavoritesStorage();
-  Set<String> _ids = {};
-  bool _loading = true, _saving = false, _adding = false;
+  late FavoritesStorage _storage;
+  List<String> _ids = [];
+  bool _loading = true, _saving = false, _adding = false, _arranging = false;
+  int _generation = 0;
   String _query = '';
   String? _error;
   final _search = TextEditingController();
+  bool get _blocked => _loading || _saving || _error != null;
+
   @override
   void initState() {
     super.initState();
+    _storage = widget.storage ?? LocalFavoritesStorage();
+    _adding = widget.manageInitially;
     _load();
   }
 
   @override
-  void dispose() {
-    _search.dispose();
-    super.dispose();
-  }
-
-  Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final ids = await _storage.read(widget.account);
-      if (mounted) setState(() => _ids = ids.toSet());
-    } catch (_) {
-      if (mounted) {
-        setState(
-          () => _error = 'Could not load favorites on this device. Retry to avoid replacing your saved list.',
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _toggle(FavoriteCardEntry card) async {
-    if (_saving || _loading || _error != null) return;
-    setState(() => _saving = true);
-    try {
-      // Reload before changing one entry so another tab's recent stars survive.
-      final updated = (await _storage.read(widget.account)).toSet();
-      if (!updated.add(card.id)) updated.remove(card.id);
-      await _storage.write(widget.account, updated.toList()..sort());
-      if (mounted) setState(() => _ids = updated);
-    } catch (_) {
-      if (mounted) {
-        setState(
-          () => _error =
-              'Could not confirm the change. Retry to reload your favorites.',
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _saving = false);
+  void didUpdateWidget(covariant FavoritesPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.account != widget.account || oldWidget.storage != widget.storage) {
+      _storage = widget.storage ?? LocalFavoritesStorage();
+      _ids = [];
+      _saving = false;
+      _adding = widget.manageInitially;
+      _arranging = false;
+      _query = '';
+      _search.clear();
+      _load();
     }
   }
 
   @override
+  void dispose() {
+    _generation++;
+    _search.dispose();
+    super.dispose();
+  }
+
+  bool _current(int generation) => mounted && generation == _generation;
+  bool _permitted(String id) => widget.cards.any((card) => card.id == id);
+
+  Future<void> _load() async {
+    final generation = ++_generation;
+    final account = widget.account;
+    final storage = _storage;
+    setState(() { _loading = true; _error = null; _ids = []; });
+    try {
+      final ids = await storage.read(account);
+      if (_current(generation)) setState(() => _ids = ids.toSet().toList());
+    } catch (_) {
+      if (_current(generation)) { setState(() => _error =
+        'Could not load favorites on this device. Retry to avoid replacing your saved list.'); }
+    } finally {
+      if (_current(generation)) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _change(List<String> Function(List<String>) change) async {
+    if (_blocked) return;
+    final generation = _generation;
+    final account = widget.account;
+    final storage = _storage;
+    setState(() => _saving = true);
+    try {
+      // Merge against a fresh read. Device storage is not an atomic multi-tab store.
+      final latest = (await storage.read(account)).toSet().toList();
+      if (!_current(generation)) return;
+      final updated = change(latest);
+      await storage.write(account, updated);
+      if (_current(generation)) setState(() => _ids = updated);
+    } catch (_) {
+      if (_current(generation)) { setState(() => _error =
+        'Could not confirm the change. Retry to reload your favorites.'); }
+    } finally {
+      if (_current(generation)) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _toggle(FavoriteCardEntry card) async {
+    if (!_permitted(card.id)) return;
+    // Explicit desired state makes a stale view safe to retry after reload.
+    final selected = _ids.contains(card.id);
+    await _change((latest) {
+      if (!_permitted(card.id)) return latest;
+      if (selected) { latest.remove(card.id); }
+      else if (!latest.contains(card.id)) { latest.add(card.id); }
+      return latest;
+    });
+  }
+
+  Future<void> _move(String id, int direction) async {
+    await _change((latest) {
+      if (!_permitted(id)) return latest;
+      final visible = latest.where(_permitted).toList();
+      final from = visible.indexOf(id);
+      final to = from + direction;
+      if (from < 0 || to < 0 || to >= visible.length) return latest;
+      final a = latest.indexOf(id), b = latest.indexOf(visible[to]);
+      latest[a] = visible[to]; latest[b] = id;
+      return latest;
+    });
+  }
+
+  Future<void> _reset() async {
+    if (_blocked) return;
+    final generation = _generation;
+    final confirmed = await showDialog<bool>(context: context, builder: (context) =>
+      AlertDialog(
+        title: const CafeText('Reset favorites?'),
+        content: const CafeText('Remove all saved favorites for this account on this device, including cards currently hidden by permissions? Your access permissions will not change.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const CafeText('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const CafeText('Reset favorites')),
+        ],
+      ));
+    if (confirmed == true && _current(generation)) await _change((_) => []);
+  }
+
+  Widget _arrangeList(List<FavoriteCardEntry> cards) => Column(children: [
+    const CafeText('Use the arrows to arrange your Favorites. This does not reorder the main Dashboard categories.',
+      style: TextStyle(color: Color(0xFFB7C2D1))),
+    for (var i = 0; i < cards.length; i++)
+      Card(key: ValueKey('arrange-${cards[i].id}'), color: const Color(0xFF162A43),
+        child: Padding(padding: const EdgeInsets.all(12), child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text(cards[i].title, style: const TextStyle(color: Color(0xFFF6F2E9))),
+            Text(cards[i].section, style: const TextStyle(color: Color(0xFFB7C2D1))),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              IconButton(key: ValueKey('move-up-${cards[i].id}'), tooltip: 'Move ${cards[i].title} earlier',
+                onPressed: _blocked || i == 0 ? null : () => _move(cards[i].id, -1),
+                icon: const Icon(Icons.arrow_upward, color: Color(0xFFD6AA57))),
+              IconButton(key: ValueKey('move-down-${cards[i].id}'), tooltip: 'Move ${cards[i].title} later',
+                onPressed: _blocked || i == cards.length - 1 ? null : () => _move(cards[i].id, 1),
+                icon: const Icon(Icons.arrow_downward, color: Color(0xFFD6AA57))),
+            ]),
+          ]))),
+  ]);
+
+  @override
   Widget build(BuildContext context) {
-    final visibleFavorites = widget.cards
-        .where((card) => _ids.contains(card.id))
-        .toList();
+    final byId = {for (final card in widget.cards) card.id: card};
+    final visibleFavorites = [for (final id in _ids) if (byId.containsKey(id)) byId[id]!];
     final cards = (_adding ? widget.cards : visibleFavorites)
         .where(
           (card) => '${card.title} ${card.section}'.toLowerCase().contains(
@@ -122,9 +206,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const CafeText(
-          'Favorites',
-          style: TextStyle(
+        CafeText(
+          widget.title,
+          style: const TextStyle(
             color: Color(0xFFF6F2E9),
             fontSize: 28,
             fontWeight: FontWeight.bold,
@@ -146,12 +230,24 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   ? null
                   : () => setState(() {
                       _adding = !_adding;
+                      _arranging = false;
                       _query = '';
                       _search.clear();
                     }),
               icon: Icon(_adding ? Icons.done : Icons.add),
               label: Text(_adding ? 'Done adding cards' : 'Add cards'),
             ),
+            OutlinedButton.icon(
+              key: const ValueKey('favorites-arrange'),
+              onPressed: _blocked || visibleFavorites.isEmpty ? null : () => setState(() {
+                _arranging = !_arranging; _adding = false; _query = ''; _search.clear();
+              }),
+              icon: const Icon(Icons.swap_vert),
+              label: CafeText(_arranging ? 'Done arranging' : 'Arrange favorites'),
+            ),
+            TextButton(onPressed: _blocked ? null : _load, child: const CafeText('Refresh favorites')),
+            TextButton(key: const ValueKey('favorites-reset'),
+              onPressed: _blocked || _ids.isEmpty ? null : _reset, child: const CafeText('Reset favorites')),
             CafeText(
               '${visibleFavorites.length} favorite cards',
               style: const TextStyle(color: Color(0xFFB7C2D1)),
@@ -171,7 +267,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             ),
           ),
         ] else ...[
-          TextField(
+          if (!_arranging) TextField(
             key: const ValueKey('favorites-search'),
             controller: _search,
             style: const TextStyle(color: Color(0xFFF6F2E9)),
@@ -195,6 +291,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 style: const TextStyle(color: Color(0xFFB7C2D1)),
               ),
             )
+          else if (_arranging)
+            _arrangeList(visibleFavorites)
           else if (!_adding && widget.cardBuilder != null)
             LayoutBuilder(builder: (context, constraints) {
               final columns = constraints.maxWidth >= 1000 ? 4 : constraints.maxWidth >= 720 ? 3 : constraints.maxWidth >= 480 ? 2 : 1;

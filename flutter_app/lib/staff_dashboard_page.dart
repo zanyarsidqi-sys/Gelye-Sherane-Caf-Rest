@@ -1,3 +1,14 @@
+import 'cafe_minibar_board.dart';
+import 'cafe_inventory_workspace.dart';
+import 'cafe_people_workspace.dart';
+import 'cafe_staff_tasks.dart';
+import 'cafe_report_library.dart';
+import 'cafe_table_maintenance.dart';
+import 'cafe_dashboard_employees.dart';
+import 'cafe_service_speed.dart';
+import 'cafe_reservation_filters.dart';
+import 'cafe_dashboard_fulfilment.dart';
+import 'cafe_waiting_list.dart';
 import 'cafe_customer_number.dart';
 import 'cafe_finance_surface.dart';
 import 'cafe_dashboard_menu.dart';
@@ -2363,6 +2374,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   int _diningTableListPageSize = 10;
   String _reservationStatusFilter = 'All';
   String _reservationSearch = '';
+  String _reservationTimeFilter = 'All dates';
   String _tableWorkspaceView = 'Floor map';
   String _selectedDiningTableArea = 'All areas';
   String _workspaceStatusFilter = 'All';
@@ -5858,7 +5870,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     };
   }
 
-  Widget _favoritesContent() {
+  Widget _favoritesContent({String title = 'Favorites', bool manage = false}) {
     final cards = <FavoriteCardEntry>[
       if (widget.permissionsLoadError == null)
         for (final index in _visibleSectionIndices)
@@ -5866,7 +5878,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             FavoriteCardEntry(id: '${_sections[index].key}:$title', section: _sections[index].title, title: title),
     ];
     return FavoritesPage(
-      key: ValueKey('favorites-${widget.email.toLowerCase()}'),
+      key: ValueKey('favorites-${widget.email.toLowerCase()}-$title'),
+      title: title,
+      manageInitially: manage,
       account: '$_supabaseExpectedProjectRef:${widget.email.toLowerCase()}',
       cards: cards,
       storage: widget.favoritesStorage,
@@ -6046,6 +6060,88 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && minibarBoardCards.containsKey(card)) {
+      return CafeMinibarBoard(key: ValueKey('dashboard-minibar-$card'), title: card, rpc: rpc);
+    }
+    if (index == 0 && const {'Dashboard Personalization', 'Personalization'}.contains(card)) {
+      return _favoritesContent(title: card, manage: true);
+    }
+    if (index == 0 && cafeInventoryCards.containsKey(card)) {
+      return CafeInventoryWorkspace(key: ValueKey('dashboard-inventory-$card'), title: card, rpc: rpc);
+    }
+    if (index == 0 && const {'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance'}.contains(card)) {
+      final kind = const {'Customer Feedback', 'Feedback'}.contains(card) ? 'feedback' : 'attendance';
+      return CafePeopleWorkspace(key: ValueKey('dashboard-people-$kind'), kind: kind, rpc: rpc);
+    }
+    if (index == 0 && card == 'Reports') {
+      return CafeReportLibrary(allowed: _visibleSubcards(0).toSet(), rpc: rpc);
+    }
+    if (index == 0 && const {'Tasks', 'Pending Staff Tasks'}.contains(card)) {
+      return CafeStaffTasks(key: ValueKey('dashboard-tasks-$card'), rpc: rpc,
+        pendingOnly: card == 'Pending Staff Tasks', kinds: {
+          if (allowed(1, 'Table Maintenance')) 'maintenance',
+          if (allowed(1, 'Extra Chairs Requests')) 'chairs',
+          if (allowed(1, 'Reservation Waiting List')) 'waiting',
+          if (allowed(1, 'Join & Split Tables')) 'group',
+        });
+    }
+    if ((index == 0 && const {'Maintenance', 'Maintenance Requests'}.contains(card)) ||
+        (index == 1 && card == 'Table Maintenance')) {
+      if (!allowed(1, 'Table Maintenance')) {
+        return const CafeText('Table Maintenance access has not been assigned.');
+      }
+      return CafeTableMaintenance(key: const ValueKey('table-maintenance-workflow'), rpc: rpc);
+    }
+    if (index == 0 && const {'Employees', 'Employee Assignments'}.contains(card)) {
+      if (!allowed(1, 'Waiter Table Assignment') && !allowed(1, 'Table Assignment')) {
+        return const CafeText('Table assignment access has not been assigned.');
+      }
+      if (card == 'Employees') return CafeDashboardEmployees(rpc: rpc);
+      return CafeTableOverview(key: const ValueKey('dashboard-employee-assignments'),
+        rpc: rpc, title: 'Employee Assignments', executiveStyle: true, initialStatus: 'Occupied',
+        onQr: (id) async { await _loadDiningTables(); final table = _diningTables.where((t) => t.id == id).firstOrNull; if (table != null && mounted) await _showDiningTableQr(table); });
+    }
+    if (index == 0 && card == 'Station Printers') {
+      if (!const ['Kitchen Stations Management','Kitchen Printing Management','Minibar Printing Management']
+          .any((title) => allowed(4, title))) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Kitchen or Minibar printing access has not been assigned.')));
+      }
+      return CafeFinanceSurface(builder: (context) => CafeStationWorkspace(
+        key: const ValueKey('dashboard-station-printers'), rpc: rpc, devicePreferenceKey: widget.email));
+    }
+    if (index == 0 && card == 'Service Speed') {
+      if (!allowed(0, 'Kitchen Orders')) {
+        return const CafeText('Kitchen Orders access has not been assigned.');
+      }
+      return CafeOperationalReport(key: const ValueKey('dashboard-service-speed'),
+        section: 'dashboard', card: 'kitchen_orders', title: card,
+        rpc: rpc == null ? null : (name, params) async =>
+          cafeServiceSpeedReport(Map<String, dynamic>.from(await rpc(name, params))));
+    }
+    if (index == 0 && card == 'Takeaway & Delivery') {
+      return CafeDashboardFulfilment(online: allowed(5, 'Online Orders'),
+        walkIn: allowed(5, 'Active Walk-In Orders'), rpc: rpc);
+    }
+    if ((index == 0 && card == 'Waiting List') || (index == 1 && card == 'Reservation Waiting List')) {
+      if (!allowed(1, 'Reservation Waiting List')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Reservation Waiting List access has not been assigned.')));
+      }
+      return CafeWaitingList(key: const ValueKey('waiting-list-workflow'), rpc: rpc);
+    }
+    if (index == 0 && card == 'Table Map') {
+      if (!allowed(1, 'Table Map')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Table Map access has not been assigned.')));
+      }
+      return CafeFinanceSurface(builder: (context) => Column(
+        key: const ValueKey('dashboard-table-map'),
+        crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const CafeText('Saved table layout and current recorded status. Edit layouts in Tables & Reservations.'),
+          _diningTableWorkspace(allowTableEditing: false),
+        ]));
+    }
     if (index == 0 && card == 'Table History') {
       if (!allowed(0, 'Guests Today')) {
         return const Card(child: Padding(padding: EdgeInsets.all(20),
@@ -9656,7 +9752,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History'}.contains(title);
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance', 'Dashboard Personalization', 'Personalization', 'Minibar Live Board', 'Nargile Orders'}.contains(title) || (sectionIndex == 0 && cafeInventoryCards.containsKey(title));
     final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
@@ -10051,7 +10147,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               reservation.customerName.toLowerCase().contains(query) ||
               reservation.contact.toLowerCase().contains(query) ||
               tableName.toLowerCase().contains(query);
-          return matchesStatus && matchesQuery;
+          return matchesStatus && matchesQuery &&
+              cafeReservationInPeriod(reservation, _reservationTimeFilter, DateTime.now());
         })
         .toList(growable: false);
     final confirmedCount = _tableReservations
@@ -10173,6 +10270,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
         ),
         const SizedBox(height: 10),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final period in const ['All dates', 'Today', 'Upcoming', 'Past'])
+            ChoiceChip(label: CafeText(period), selected: _reservationTimeFilter == period,
+              onSelected: (_) => setState(() => _reservationTimeFilter = period)),
+        ]),
+        const CafeText('Reservation date filters use Baghdad time. Confirmed bookings above counts all loaded dates.'),
+        CafeText('${filteredReservations.length} matching reservations'),
         if (_tableReservationsError != null)
           _AuthErrorMessage(_tableReservationsError!)
         else if (_diningTableError != null)

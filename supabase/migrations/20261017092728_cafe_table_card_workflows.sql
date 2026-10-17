@@ -167,12 +167,14 @@ CREATE FUNCTION public.perform_cafe_table_task_command(p_request_id uuid,p_kind 
 REVOKE ALL ON FUNCTION cafe_private.table_task_card(text),cafe_private.table_task_workspace(text),cafe_private.table_task_command(uuid,text,text,uuid,integer,jsonb),public.get_cafe_table_task_workspace(text),public.perform_cafe_table_task_command(uuid,text,text,uuid,integer,jsonb) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION cafe_private.table_task_card(text),cafe_private.table_task_workspace(text),cafe_private.table_task_command(uuid,text,text,uuid,integer,jsonb),public.get_cafe_table_task_workspace(text),public.perform_cafe_table_task_command(uuid,text,text,uuid,integer,jsonb) TO authenticated;
 -- Allow the displayed assignment and alerts card names to use the existing services.
-DO $patch$ DECLARE f text; BEGIN
- SELECT pg_get_functiondef('cafe_private.table_access(text)'::regprocedure) INTO f;
- f:=replace(f,"public.has_workspace_access('tables_orders',p_card)","(public.has_workspace_access('tables_orders',p_card) OR (p_card='waiter_table_assignment' AND public.has_workspace_access('tables_orders','table_assignment')) OR (p_card='table_service_requests' AND public.has_workspace_access('tables_orders','table_alerts_notifications')))");
+DO $patch$ DECLARE f text; original text; BEGIN
+ SELECT pg_get_functiondef('cafe_private.table_access(text)'::regprocedure) INTO original;
+ f:=replace(original,$needle$public.has_workspace_access('tables_orders',p_card)$needle$,$replacement$(public.has_workspace_access('tables_orders',p_card) OR (p_card='waiter_table_assignment' AND public.has_workspace_access('tables_orders','table_assignment')) OR (p_card='table_service_requests' AND public.has_workspace_access('tables_orders','table_alerts_notifications')))$replacement$);
+ IF f=original THEN RAISE EXCEPTION 'table_access patch target missing; review deployed function before migration'; END IF;
  EXECUTE f;
- SELECT pg_get_functiondef('cafe_private.table_overview()'::regprocedure) INTO f;
- f:=replace(f,"'seats',t.seats,'status',t.status", "'seats',t.seats,'maintenance_blocked',EXISTS(SELECT 1 FROM public.cafe_table_tasks task WHERE task.table_id=t.id AND task.kind='maintenance' AND task.status NOT IN ('resolved','cancelled')),'group_label',(SELECT task.title FROM public.cafe_table_tasks task WHERE task.kind='group' AND task.status='open' AND (task.table_id=t.id OR task.other_table_id=t.id) LIMIT 1),'status',t.status");
+ SELECT pg_get_functiondef('cafe_private.table_overview()'::regprocedure) INTO original;
+ f:=replace(original,$needle$'seats',t.seats,'status',t.status$needle$, $replacement$'seats',t.seats,'maintenance_blocked',EXISTS(SELECT 1 FROM public.cafe_table_tasks task WHERE task.table_id=t.id AND task.kind='maintenance' AND task.status NOT IN ('resolved','cancelled')),'group_label',(SELECT task.title FROM public.cafe_table_tasks task WHERE task.kind='group' AND task.status='open' AND (task.table_id=t.id OR task.other_table_id=t.id) LIMIT 1),'status',t.status$replacement$);
+ IF f=original THEN RAISE EXCEPTION 'table_overview patch target missing; review deployed function before migration'; END IF;
  EXECUTE f;
 END $patch$;
 CREATE UNIQUE INDEX cafe_waiting_active_offer_idx ON public.cafe_table_tasks(table_id) WHERE kind='waiting' AND status IN ('offered','accepted','arrived');

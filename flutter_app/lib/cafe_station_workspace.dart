@@ -28,7 +28,7 @@ class _CafeStationWorkspaceState extends State<CafeStationWorkspace> {
   void dispose(){_timer?.cancel();super.dispose();}
   Future<void> _load() async {
     if(_busy)return;
-    setState((){_busy=true;_error=null;});
+    setState((){_busy=true;_error=null;_tickets=[];_manage=false;_unrouted=0;});
     try {
       if(widget.rpc==null)throw StateError('Connection unavailable');
       final data=await widget.rpc!('get_cafe_print_stations',{});
@@ -40,7 +40,7 @@ class _CafeStationWorkspaceState extends State<CafeStationWorkspace> {
       final selected=stations.any((s)=>s['id']==saved)?saved:(stations.isEmpty?null:stations.first['id'] as String);
       final queue=selected==null?{'tickets':[],'unrouted_products':0}:await widget.rpc!('get_cafe_station_queue',{'p_station_id':selected});
       if(mounted)setState((){_stations=stations;_station=selected;_manage=data['can_manage']==true;_tickets=(queue['tickets'] as List).map((e)=>Map<String,dynamic>.from(e)).toList();_unrouted=(queue['unrouted_products'] as num).toInt();});
-    } catch(_){if(mounted)setState(()=>_error='Could not load stations. Check connection and station permissions.');}
+    } catch(_){if(mounted)setState((){_stations=[];_station=null;_tickets=[];_manage=false;_error='Could not load stations. Check connection and station permissions.';});}
     finally {if(mounted)setState(()=>_busy=false);}
   }
   Future<void> _select(String id) async {
@@ -94,13 +94,13 @@ class _CafeStationWorkspaceState extends State<CafeStationWorkspace> {
   Widget build(BuildContext context)=>Card(child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     CafeText('Print stations',style:Theme.of(context).textTheme.titleLarge),
     const CafeText('Select the station used by this device. Print tickets, then confirm receipt after checking the paper. Refreshes every 20 seconds.'),
-    Wrap(spacing:8,children:[if(_manage)TextButton.icon(onPressed:_busy?null:()=>_edit(),icon:const Icon(Icons.add),label:const CafeText('Add station')),TextButton.icon(onPressed:_busy?null:_load,icon:const Icon(Icons.refresh),label:const CafeText('Refresh')),TextButton.icon(onPressed:_busy||_station==null?null:()=>_print({'station':_stations.firstWhere((s)=>s['id']==_station)['name'],'destination':'PRINTER TEST','order_id':'TEST — not an order','created_at':DateTime.now().toUtc().toIso8601String(),'notes':'Printer test only','items':[]}),icon:const Icon(Icons.print_outlined),label:const CafeText('Test printer'))]),
+    Wrap(spacing:8,children:[if(_manage)TextButton.icon(onPressed:_busy?null:()=>_edit(),icon:const Icon(Icons.add),label:const CafeText('Add station')),TextButton.icon(onPressed:_busy?null:_load,icon:const Icon(Icons.refresh),label:const CafeText('Refresh')),TextButton.icon(onPressed:_busy||_error!=null||_station==null?null:()=>_print({'station':_stations.firstWhere((s)=>s['id']==_station)['name'],'destination':'PRINTER TEST','order_id':'TEST — not an order','created_at':DateTime.now().toUtc().toIso8601String(),'notes':'Printer test only','items':[]}),icon:const Icon(Icons.print_outlined),label:const CafeText('Test printer'))]),
     if(_busy)const LinearProgressIndicator(),
     if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
     if(_unrouted>0)CafeText('$_unrouted available products have no print station. Edit those products to choose destinations.'),
     Wrap(spacing:8,children:[for(final s in _stations)ChoiceChip(label:CafeText('${s['name']}${s['active']==true?'':' (disabled)'}'),selected:_station==s['id'],onSelected:_busy?null:(_)=>_select(s['id']))]),
     if(_manage && _station!=null)TextButton(onPressed:_busy?null:()=>_edit(_stations.firstWhere((s)=>s['id']==_station)),child:const CafeText('Edit selected station')),
     if(_tickets.isEmpty && !_busy && _error==null)const Padding(padding:EdgeInsets.all(20),child:CafeText('No pending tickets for this station.')),
-    for(final ticket in _tickets)Card(child:Padding(padding:const EdgeInsets.all(14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[SelectableText(_ticketText(ticket)),Wrap(spacing:8,children:[FilledButton.icon(onPressed:_busy?null:()=>_print(ticket),icon:const Icon(Icons.print),label:const CafeText('Print ticket')),OutlinedButton(onPressed:_busy?null:()=>_confirm(ticket),child:const CafeText('Confirm printed'))])]))),
+    for(final ticket in _tickets)Card(child:Padding(padding:const EdgeInsets.all(14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[SelectableText(_ticketText(ticket)),Wrap(spacing:8,children:[FilledButton.icon(onPressed:_busy||_error!=null?null:()=>_print(ticket),icon:const Icon(Icons.print),label:const CafeText('Print ticket')),OutlinedButton(onPressed:_busy||_error!=null?null:()=>_confirm(ticket),child:const CafeText('Confirm printed'))])]))),
   ])));
 }
