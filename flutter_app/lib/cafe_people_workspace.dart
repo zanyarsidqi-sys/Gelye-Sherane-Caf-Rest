@@ -43,7 +43,7 @@ Map<String,dynamic> cafePeopleData(dynamic raw,String kind){
  }
  final active=raw['active'];
  if(active!=null && (active is! Map || active['id'] is! String || active['version'] is! int ||
-   DateTime.tryParse('${active['clocked_in_at']}')==null))throw const FormatException('Invalid current attendance');
+   DateTime.tryParse('${active['clocked_in_at']}')==null)){throw const FormatException('Invalid current attendance');}
  return Map<String,dynamic>.from(raw);
 }
 
@@ -232,8 +232,8 @@ class _FeedbackEditorState extends State<_FeedbackEditor>{
   ])))),
   actions:[
    TextButton(onPressed:()=>Navigator.pop(context),child:const CafeText('Cancel')),
-   FilledButton(onPressed:(){if(_form.currentState!.validate())Navigator.pop(context,{'title':_title.text.trim(),
-    'details':_details.text.trim(),'customer_name':_name.text.trim(),'category':_category,'rating':_rating});},
+   FilledButton(onPressed:(){if(_form.currentState!.validate()){Navigator.pop(context,{'title':_title.text.trim(),
+    'details':_details.text.trim(),'customer_name':_name.text.trim(),'category':_category,'rating':_rating});}},
     child:const CafeText('Save feedback')),
   ]);
 }
@@ -255,7 +255,7 @@ class _PeopleConfirmationState extends State<_PeopleConfirmation>{
   ])))),
   actions:[
    TextButton(onPressed:()=>Navigator.pop(context),child:const CafeText('Cancel')),
-   FilledButton(onPressed:(){if(_form.currentState!.validate())Navigator.pop(context,
-     widget.needNote?{'resolution':_note.text.trim()}:<String,dynamic>{});},child:const CafeText('Confirm')),
+   FilledButton(onPressed:(){if(_form.currentState!.validate()){Navigator.pop(context,
+     widget.needNote?{'resolution':_note.text.trim()}:<String,dynamic>{});}},child:const CafeText('Confirm')),
   ]);
 }
