@@ -23,6 +23,20 @@ CafeTableReservation booking(String start,String end)=>CafeTableReservation(
 Widget host(Widget child)=>MaterialApp(home:Scaffold(body:SingleChildScrollView(child:child)));
 
 void main() {
+  testWidgets('permission changes remove the previously selected fulfilment source',(tester) async {
+    final sources=<String>[];
+    Future<dynamic> rpc(String name,Map<String,dynamic> params)async {
+      sources.add(params['p_source'] as String); return [];
+    }
+    await tester.pumpWidget(host(CafeDashboardFulfilment(online:true,walkIn:true,rpc:rpc)));
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(host(CafeDashboardFulfilment(online:false,walkIn:true,rpc:rpc)));
+    await tester.pumpAndSettle();
+    expect(sources,['online','walk_in']);
+    expect(find.widgetWithText(ChoiceChip,'Online orders'),findsNothing);
+    expect(tester.widget<CafeOperationsWorkspace>(find.byType(CafeOperationsWorkspace)).source,'walk_in');
+  });
+
   test('timing excludes cancelled and missing values without substituting zeros',(){
     final result=cafeServiceSpeedReport(timing([
       timed('1','ready',10),timed('2','served',20),timed('3','ready',30),
