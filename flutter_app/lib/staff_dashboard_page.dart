@@ -1,3 +1,6 @@
+import 'cafe_service_speed.dart';
+import 'cafe_reservation_filters.dart';
+import 'cafe_dashboard_fulfilment.dart';
 import 'cafe_waiting_list.dart';
 import 'cafe_customer_number.dart';
 import 'cafe_finance_surface.dart';
@@ -2364,6 +2367,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   int _diningTableListPageSize = 10;
   String _reservationStatusFilter = 'All';
   String _reservationSearch = '';
+  String _reservationTimeFilter = 'All dates';
   String _tableWorkspaceView = 'Floor map';
   String _selectedDiningTableArea = 'All areas';
   String _workspaceStatusFilter = 'All';
@@ -6047,6 +6051,28 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && card == 'Station Printers') {
+      if (!const ['Kitchen Stations Management','Kitchen Printing Management','Minibar Printing Management']
+          .any((title) => allowed(4, title))) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Kitchen or Minibar printing access has not been assigned.')));
+      }
+      return CafeFinanceSurface(builder: (context) => CafeStationWorkspace(
+        key: const ValueKey('dashboard-station-printers'), rpc: rpc, devicePreferenceKey: widget.email));
+    }
+    if (index == 0 && card == 'Service Speed') {
+      if (!allowed(0, 'Kitchen Orders')) {
+        return const CafeText('Kitchen Orders access has not been assigned.');
+      }
+      return CafeOperationalReport(key: const ValueKey('dashboard-service-speed'),
+        section: 'dashboard', card: 'kitchen_orders', title: card,
+        rpc: rpc == null ? null : (name, params) async =>
+          cafeServiceSpeedReport(Map<String, dynamic>.from(await rpc(name, params))));
+    }
+    if (index == 0 && card == 'Takeaway & Delivery') {
+      return CafeDashboardFulfilment(online: allowed(5, 'Online Orders'),
+        walkIn: allowed(5, 'Active Walk-In Orders'), rpc: rpc);
+    }
     if ((index == 0 && card == 'Waiting List') || (index == 1 && card == 'Reservation Waiting List')) {
       if (!allowed(1, 'Reservation Waiting List')) {
         return const Card(child: Padding(padding: EdgeInsets.all(20),
@@ -9676,7 +9702,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map'}.contains(title);
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery'}.contains(title);
     final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
@@ -10071,7 +10097,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               reservation.customerName.toLowerCase().contains(query) ||
               reservation.contact.toLowerCase().contains(query) ||
               tableName.toLowerCase().contains(query);
-          return matchesStatus && matchesQuery;
+          return matchesStatus && matchesQuery &&
+              cafeReservationInPeriod(reservation, _reservationTimeFilter, DateTime.now());
         })
         .toList(growable: false);
     final confirmedCount = _tableReservations
@@ -10193,6 +10220,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
         ),
         const SizedBox(height: 10),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final period in const ['All dates', 'Today', 'Upcoming', 'Past'])
+            ChoiceChip(label: CafeText(period), selected: _reservationTimeFilter == period,
+              onSelected: (_) => setState(() => _reservationTimeFilter = period)),
+        ]),
+        const CafeText('Reservation date filters use Baghdad time. Confirmed bookings above counts all loaded dates.'),
+        CafeText('${filteredReservations.length} matching reservations'),
         if (_tableReservationsError != null)
           _AuthErrorMessage(_tableReservationsError!)
         else if (_diningTableError != null)
