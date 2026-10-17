@@ -152,4 +152,25 @@ void main() {
     expect(find.byKey(const ValueKey('dashboard-card-live_tables')), findsNothing);
     expect(find.byType(CafeDashboardTables), findsNothing);
   });
+
+  testWidgets('Dashboard search finds permitted Favorites-group cards directly', (tester) async {
+    tester.view.physicalSize = const Size(1440, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const MaterialApp(home: StaffDashboardPage(
+      email: 'review@example.com', role: 'staff',
+      grantedPermissions: {'dashboard:tables_occupied'},
+    )));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('dashboard-search')), 'Tables Occupied');
+    await tester.pumpAndSettle();
+    final card = find.byKey(const ValueKey('dashboard-card-tables_occupied'));
+    expect(card, findsOneWidget);
+    await tester.ensureVisible(card);
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    expect(find.byType(CafeDashboardTables), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
