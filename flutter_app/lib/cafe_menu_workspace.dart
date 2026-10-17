@@ -10,6 +10,7 @@ class CafeMenuItem {
     required this.priceIqd,
     this.tourismPriceIqd,
     this.ownerPriceIqd,
+    this.imagePath,
     this.stationIds = const [],
     this.stationNames = const [],
     required this.available,
@@ -22,11 +23,13 @@ class CafeMenuItem {
     priceIqd: (row['price_iqd'] as num).toInt(),
     tourismPriceIqd: (row['tourism_price_iqd'] as num?)?.toInt(),
     ownerPriceIqd: (row['owner_price_iqd'] as num?)?.toInt(),
+    imagePath: row['image_path'] as String?,
     stationIds: List<String>.from(row['station_ids'] ?? []),
     stationNames: List<String>.from(row['station_names'] ?? []),
     available: row['available'] as bool,
   );
   final String id, name, category, description;
+  final String? imagePath;
   final int priceIqd;
   final int? tourismPriceIqd, ownerPriceIqd;
   final List<String> stationIds, stationNames;
@@ -35,6 +38,7 @@ class CafeMenuItem {
 
 abstract class CafeMenuStore {
   Future<List<CafeMenuItem>> load();
+  Future<List<String>> categories();
   Future<List<Map<String,dynamic>>> stations();
   Future<void> save({
     String? id,
@@ -63,6 +67,12 @@ class SupabaseCafeMenuStore implements CafeMenuStore {
   }
 
   @override
+  Future<List<String>> categories() async {
+    final rows=await client.rpc('manage_cafe_menu_assets',params:{'p_action':'categories'}) as List;
+    return rows.map((row)=>(row as Map)['name'] as String).toList();
+  }
+
+  @override
   Future<List<Map<String,dynamic>>> stations() async {
     final result = await client.rpc('get_cafe_print_stations') as Map;
     return (result['stations'] as List).map((e)=>Map<String,dynamic>.from(e)).toList();
@@ -86,9 +96,9 @@ class SupabaseCafeMenuStore implements CafeMenuStore {
         category.trim().length > 60 ||
         description.length > 500 ||
         priceIqd < 1 ||
-        priceIqd > 999999999 || tourismPriceIqd < 1 || tourismPriceIqd > 999999999 || ownerPriceIqd < 1 || ownerPriceIqd > 999999999) {
+        priceIqd > 999999999 || tourismPriceIqd < 1 || tourismPriceIqd > 999999999 || ownerPriceIqd < 0 || ownerPriceIqd > 999999999) {
       throw const FormatException(
-        'Enter a name, category and whole IQD price from 1 to 999999999.',
+        'Enter a name and category. Normal/Tourism prices must be positive; Owner price may be zero.',
       );
     }
     if (client.auth.currentUser == null) {
@@ -237,6 +247,7 @@ class _CafeMenuWorkspaceState extends State<CafeMenuWorkspace> {
                 ),
               for (final item in matches)
                 ListTile(
+                  leading: item.imagePath == null ? null : Image.network(Supabase.instance.client.storage.from('cafe-product-images').getPublicUrl(item.imagePath!),width:54,height:54,fit:BoxFit.cover,errorBuilder:(_,e,s)=>const Icon(Icons.broken_image_outlined)),
                   title: Text(item.name),
 
                   subtitle: Text(
@@ -268,6 +279,7 @@ class _MenuEditor extends StatefulWidget {
 
 class _MenuEditorState extends State<_MenuEditor> {
   List<Map<String,dynamic>> _stations = [];
+  List<String> _categories = [];
   late final Set<String> _stationIds = {...?widget.item?.stationIds};
   bool _loadingStations = true;
   String? _stationError;
@@ -277,8 +289,9 @@ class _MenuEditorState extends State<_MenuEditor> {
     setState(() { _loadingStations=true; _stationError=null; });
     try {
       final rows=await widget.store.stations();
-      if(mounted)setState(()=>_stations=rows);
-    } catch (_) { if(mounted)setState(()=>_stationError='Could not load print stations. Retry before saving.'); }
+      final categories=await widget.store.categories();
+      if(mounted)setState((){_stations=rows;_categories=categories;});
+    } catch (_) { if(mounted)setState(()=>_stationError='Could not load categories and print stations. Retry before saving.'); }
     finally { if(mounted)setState(()=>_loadingStations=false); }
   }
   final _form = GlobalKey<FormState>();
@@ -361,14 +374,13 @@ class _MenuEditorState extends State<_MenuEditor> {
                       ? 'Enter a product name.'
                       : null,
                 ),
-                TextFormField(
-                  controller: _category,
-                  enabled: !_saving,
-                  maxLength: 60,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  validator: (v) => v == null || v.trim().isEmpty
-                      ? 'Enter a category.'
-                      : null,
+                DropdownButtonFormField<String>(
+                  initialValue: _category.text.isEmpty ? null : _category.text,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText:'Category',helperText:'Add categories in Product Categories.'),
+                  items: {..._categories, if (_category.text.isNotEmpty) _category.text}.map((name)=>DropdownMenuItem(value:name,child:Text(name))).toList(),
+                  onChanged: _saving || _loadingStations ? null : (value)=>setState(()=>_category.text=value??''),
+                  validator: (value)=>value==null||value.isEmpty?'Choose a category':null,
                 ),
                 TextFormField(
                   controller: _description,
@@ -414,8 +426,8 @@ class _MenuEditorState extends State<_MenuEditor> {
                   ),
                   validator: (v) {
                     final value = int.tryParse(v?.trim() ?? '');
-                    return value == null || value < 1 || value > 999999999
-                        ? 'Enter a whole IQD amount from 1 to 999999999.'
+                    return value == null || value < 0 || value > 999999999
+                        ? 'Enter a whole IQD amount from 0 to 999999999.'
                         : null;
                   },
                 ),

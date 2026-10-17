@@ -5,6 +5,8 @@ import 'package:gelye_sherane_cafe/cafe_orders_workspace.dart';
 
 class MenuStore implements CafeMenuStore {
   @override
+  Future<List<String>> categories() async => ['Drinks','Food'];
+  @override
   Future<List<Map<String,dynamic>>> stations() async => [{'id':'kitchen','name':'Kitchen','active':true},{'id':'minibar','name':'Minibar','active':true}];
   final rows = <CafeMenuItem>[];
   bool fail = false;
@@ -90,16 +92,16 @@ void main() {
         find.widgetWithText(TextFormField, 'Product name'),
         'Tea',
       );
-      await tester.enterText(
-        find.widgetWithText(TextFormField, 'Category'),
-        'Drinks',
-      );
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Drinks').last);
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.widgetWithText(TextFormField, 'Normal price IQD'),
         '-1',
       );
       await tester.enterText(find.widgetWithText(TextFormField, 'Tourism price IQD'), '3500');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Owner price IQD'), '1500');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Owner price IQD'), '0');
       await tester.tap(find.text('Save product'));
       await tester.pumpAndSettle();
       expect(store.rows, isEmpty);
@@ -112,12 +114,13 @@ void main() {
         '2500',
       );
       await tester.enterText(find.widgetWithText(TextFormField, 'Tourism price IQD'), '3500');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Owner price IQD'), '1500');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Owner price IQD'), '0');
       await tester.tap(find.text('Save product'));
       await tester.pumpAndSettle();
       expect(store.rows.single.priceIqd, 2500);
       expect(store.rows.single.tourismPriceIqd, 3500);
-      expect(store.rows.single.ownerPriceIqd, 1500);
+      expect(store.rows.single.ownerPriceIqd, 0);
+      expect(store.rows.single.category, 'Drinks');
       expect(store.rows.single.stationIds, containsAll(['kitchen','minibar']));
       expect(find.text('Tea'), findsOneWidget);
       expect(tester.takeException(), isNull);

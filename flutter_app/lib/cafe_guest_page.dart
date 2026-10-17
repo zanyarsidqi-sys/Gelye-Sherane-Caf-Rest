@@ -151,6 +151,7 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
           const SizedBox(height:8),
           Wrap(spacing:8,children:[for(final category in {'All',...menu.map((p)=>p['category'] as String)})ChoiceChip(label:Text(category),selected:_category==category,onSelected:(_)=>setState(()=>_category=category))]),
           for(final product in filtered)Card(child:Padding(padding:const EdgeInsets.all(12),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+            if(product['image_path'] != null) Image.network(Supabase.instance.client.storage.from('cafe-product-images').getPublicUrl(product['image_path'] as String),height:140,fit:BoxFit.cover,errorBuilder:(_,e,s)=>const SizedBox.shrink()),
             Text(product['name'] as String,style:const TextStyle(fontSize:18,fontWeight:FontWeight.bold)),
             if((product['description'] as String? ?? '').isNotEmpty)Text(product['description'] as String),
             Row(children:[Expanded(child:Text('${product['price_iqd']} IQD')),

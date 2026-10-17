@@ -1,0 +1,25 @@
+name: Verify card workflows
+on:
+  push:
+    branches: [codex/table-card-workflows]
+  pull_request:
+    paths: ['flutter_app/**']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: flutter_app
+      - run: flutter analyze
+        working-directory: flutter_app
+      - run: flutter test
+        working-directory: flutter_app
+      - run: flutter build web --release
+        working-directory: flutter_app
