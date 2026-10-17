@@ -157,9 +157,11 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
         name: '${widget.card}-${_date(_from)}.pdf', onLayout: (_) => document.save(),
       );
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: CafeText('Could not prepare the report for printing. Refresh and try again.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: CafeText('Could not prepare the report for printing. Refresh and try again.')),
+        );
+      }
     }
   }
 
