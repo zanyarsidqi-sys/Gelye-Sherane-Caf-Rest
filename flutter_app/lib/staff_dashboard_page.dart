@@ -1,3 +1,4 @@
+import 'cafe_dashboard_tables.dart';
 import 'cafe_language.dart';
 import 'cafe_menu_assets.dart';
 import 'dart:async';
@@ -6042,6 +6043,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && dashboardTableCards.contains(card)) {
+      return CafeDashboardTables(key: ValueKey('dashboard-tables-$card'), title: card, rpc: rpc);
+    }
     if ((index==3 && card=='Product Printing Routing') || (index==4 && const {'Kitchen Stations Management','Kitchen Printing Management','Minibar Printing Management'}.contains(card))) {
       return CafeStationWorkspace(key:ValueKey('stations-$card'),rpc:rpc,devicePreferenceKey:widget.email);
     }
@@ -8925,7 +8929,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         .toList(growable: false);
     final visibleGroupIndices = [
       for (var index = 0; index < _dashboardGroups.length; index++)
-        if (index == 0 ? (_dashboardSearch.trim().isEmpty || 'favorites'.contains(_dashboardSearch.trim().toLowerCase())) : cardsForGroup(index).isNotEmpty) index,
+        if (index == 0 ? (_dashboardSearch.trim().isEmpty || 'favorites'.contains(_dashboardSearch.trim().toLowerCase()) || cardsForGroup(0).isNotEmpty) : cardsForGroup(index).isNotEmpty) index,
     ];
     if (widget.permissionsLoadError != null) {
       return Text(
@@ -9040,7 +9044,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
           const SizedBox(height: 12),
           for (final index in [visibleGroupIndices.contains(_selectedDashboardCategory) ? _selectedDashboardCategory : visibleGroupIndices.first])
-            if (index == 0) _favoritesContent() else _dashboardGroup(index: index, group: _dashboardGroups[index], visibleCards: cardsForGroup(index)),
+            if (index == 0 && (_dashboardSearch.trim().isEmpty || cardsForGroup(0).isEmpty)) _favoritesContent() else _dashboardGroup(index: index, group: _dashboardGroups[index], visibleCards: cardsForGroup(index)),
         ],
         const SizedBox(height: 16),
         Container(
@@ -9587,7 +9591,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final section = _sections[sectionIndex];
     final reservationDashboardCard =
         sectionIndex == 0 && title == 'Table Reservations';
-    final operationalReport = operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
+    final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
+    final operationalReport = tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
         !_subcards[sectionIndex].contains(title) &&
@@ -9615,7 +9620,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isLoading = reservationDashboardCard
         ? _isLoadingTableReservations
         : _isLoadingRecords;
-    final primary = operationalReport ? 'Open report' : reservationDashboardCard
+    final primary = tableSnapshot ? 'Open tables' : operationalReport ? 'Open report' : reservationDashboardCard
         ? unavailable
               ? '—'
               : isLoading
@@ -9634,7 +9639,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ? workspaceAmountLabel(amountRecords.map((record) => (amount: record.amount, currency: record.currency)))
           : '${recordedAmount.toStringAsFixed(0)} $currency'
         : '${records.length}';
-    final supporting = operationalReport ? 'Connected operational data' : reservationDashboardCard
+    final supporting = tableSnapshot ? 'Current table snapshot' : operationalReport ? 'Connected operational data' : reservationDashboardCard
         ? !_canViewTableReservations
               ? 'Access not assigned'
               : unavailable
