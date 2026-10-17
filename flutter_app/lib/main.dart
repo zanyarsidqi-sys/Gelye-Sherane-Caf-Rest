@@ -1,3 +1,5 @@
+import 'cafe_language.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -43,6 +45,7 @@ Future<void> main() async {
       publishableKey: _supabasePublishableKey,
     );
   }
+  await cafeLanguage.load();
   runApp(const CafeApp());
 }
 
@@ -52,10 +55,18 @@ class CafeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final qrToken = Uri.base.queryParameters['table'];
-    return MaterialApp(
+    return ListenableBuilder(listenable:cafeLanguage,builder:(context,_) => CafeLanguageScope(controller:cafeLanguage,child:MaterialApp(
       title: 'Gelye Sherane Management System',
+      locale: Locale(cafeLanguage.language.code),
+      supportedLocales: const [Locale('en'),Locale('ar'),Locale('ku')],
+      localizationsDelegates: const [BadiniMaterialDelegate(), ...GlobalMaterialLocalizations.delegates],
       debugShowCheckedModeBanner: false,
-      builder: const bool.fromEnvironment('CAFE_STAGING') ? (context,child)=>Banner(message:'STAGING',location:BannerLocation.topEnd,child:child!) : null,
+      builder: (context,child) => Directionality(
+        textDirection:cafeLanguage.language.isRtl?TextDirection.rtl:TextDirection.ltr,
+        child:const bool.fromEnvironment('CAFE_STAGING')
+          ? Banner(message:'STAGING',location:BannerLocation.topEnd,child:child!)
+          : child!),
+
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFF5F7FB),
@@ -74,7 +85,7 @@ class CafeApp extends StatelessWidget {
               qrToken: qrToken,
               supabaseConfigured: _hasValidSupabaseConfiguration,
             ),
-    );
+    )));
   }
 }
 
@@ -109,7 +120,7 @@ class _CafeLandingPageState extends State<CafeLandingPage> {
           Navigator.of(dialogContext).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
+              content: CafeText(
                 'Thanks, $name. This preview does not send booking requests yet.',
               ),
             ),
@@ -195,6 +206,7 @@ class CafeHeader extends StatelessWidget {
                 children: [
                   const _BrandMark(),
                   const Spacer(),
+                  const CafeLanguageButton(),
                   if (isWide) ...[
                     _HeaderLink(label: 'Home', onPressed: () {}),
                     _HeaderLink(label: 'Menu', onPressed: onMenu),
@@ -203,7 +215,7 @@ class CafeHeader extends StatelessWidget {
                     TextButton.icon(
                       onPressed: onStaff,
                       icon: const Icon(Icons.lock_outline, size: 17),
-                      label: const Text('Staff portal'),
+                      label: const CafeText('Staff portal'),
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.white.withValues(alpha: 0.88),
                       ),
@@ -215,7 +227,7 @@ class CafeHeader extends StatelessWidget {
                         backgroundColor: _gold,
                         foregroundColor: _deepNavy,
                       ),
-                      child: const Text('Book a table'),
+                      child: const CafeText('Book a table'),
                     ),
                   ] else ...[
                     IconButton(
@@ -287,7 +299,7 @@ class CafeHeader extends StatelessWidget {
                     Navigator.pop(context);
                     onBook();
                   },
-                  child: const Text('Book a table'),
+                  child: const CafeText('Book a table'),
                 ),
               ),
             ],
@@ -329,7 +341,7 @@ class _BrandMark extends StatelessWidget {
             gradient: LinearGradient(colors: [Color(0xFFF0CB83), _gold]),
           ),
           alignment: Alignment.center,
-          child: const Text(
+          child: const CafeText(
             'G',
             style: TextStyle(
               color: _deepNavy,
@@ -343,7 +355,7 @@ class _BrandMark extends StatelessWidget {
         const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            CafeText(
               'Gelye Sherane',
               style: TextStyle(
                 color: Colors.white,
@@ -351,7 +363,7 @@ class _BrandMark extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            Text(
+            CafeText(
               'CAFÉ & RESTAURANT',
               style: TextStyle(
                 color: Color(0xFFD5B77C),
@@ -458,7 +470,7 @@ class _HeroSection extends StatelessWidget {
                         children: [
                           const _Eyebrow('WELCOME TO'),
                           const SizedBox(height: 17),
-                          Text(
+                          CafeText(
                             'Gelye Sherane\nCafé & Restaurant',
                             style: TextStyle(
                               color: Colors.white,
@@ -469,7 +481,7 @@ class _HeroSection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 18),
-                          Text(
+                          CafeText(
                             'Enjoy delicious food, a relaxing atmosphere, and '
                             'the natural beauty of Gelye Sherane with family '
                             'and friends.',
@@ -487,7 +499,7 @@ class _HeroSection extends StatelessWidget {
                               FilledButton.icon(
                                 onPressed: onBook,
                                 icon: const Icon(Icons.calendar_month_outlined),
-                                label: const Text('Book a table'),
+                                label: const CafeText('Book a table'),
                                 style: FilledButton.styleFrom(
                                   backgroundColor: _gold,
                                   foregroundColor: _deepNavy,
@@ -500,7 +512,7 @@ class _HeroSection extends StatelessWidget {
                               OutlinedButton.icon(
                                 onPressed: onMenu,
                                 icon: const Icon(Icons.restaurant_menu),
-                                label: const Text('Explore menu'),
+                                label: const CafeText('Explore menu'),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.white,
                                   side: BorderSide(
@@ -845,7 +857,7 @@ class _MenuSection extends StatelessWidget {
           },
         ),
         const SizedBox(height: 14),
-        const Text(
+        const CafeText(
           'Menu items and availability may vary. Please ask our team for today’s menu.',
           style: TextStyle(color: _muted, fontSize: 12),
         ),
@@ -885,7 +897,7 @@ class _VisitSection extends StatelessWidget {
                         children: [
                           const _Eyebrow('COME BY AND SAY HELLO'),
                           const SizedBox(height: 12),
-                          const Text(
+                          const CafeText(
                             'Make time for a good meal.',
                             style: TextStyle(
                               color: Colors.white,
@@ -894,7 +906,7 @@ class _VisitSection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 9),
-                          Text(
+                          CafeText(
                             'Ask our team about current opening hours, directions, '
                             'and availability.',
                             style: TextStyle(
@@ -910,7 +922,7 @@ class _VisitSection extends StatelessWidget {
                     FilledButton.icon(
                       onPressed: onBook,
                       icon: const Icon(Icons.calendar_month_outlined),
-                      label: const Text('Plan a visit'),
+                      label: const CafeText('Plan a visit'),
                       style: FilledButton.styleFrom(
                         backgroundColor: _gold,
                         foregroundColor: _deepNavy,
@@ -946,7 +958,7 @@ class _CafeFooter extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final copyright = Text(
+                final copyright = CafeText(
                   '© ${DateTime.now().year} Gelye Sherane Café & Restaurant\nv1.0.4.5',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.65),
@@ -1063,7 +1075,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Plan your visit'),
+      title: const CafeText('Plan your visit'),
       content: SizedBox(
         width: 420,
         child: SingleChildScrollView(
@@ -1074,7 +1086,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
               children: [
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: CafeText(
                     'Share your details and our team can help with your plans.',
                     style: TextStyle(color: _muted, height: 1.4),
                   ),
@@ -1084,7 +1096,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
                   controller: _nameController,
                   autofocus: true,
                   decoration: const InputDecoration(
-                    labelText: 'Your name',
+                    label: CafeText('Your name'),
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.person_outline),
                   ),
@@ -1097,7 +1109,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
-                    labelText: 'Phone number',
+                    label: CafeText('Phone number'),
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.phone_outlined),
                   ),
@@ -1112,7 +1124,7 @@ class _ReservationDialogState extends State<ReservationDialog> {
                       child: OutlinedButton.icon(
                         onPressed: _chooseDate,
                         icon: const Icon(Icons.calendar_today_outlined),
-                        label: Text(
+                        label: CafeText(
                           '${_date.day}/${_date.month}/${_date.year}',
                         ),
                       ),
@@ -1127,14 +1139,14 @@ class _ReservationDialogState extends State<ReservationDialog> {
                         8,
                         (index) => DropdownMenuItem(
                           value: index + 1,
-                          child: Text('${index + 1} guests'),
+                          child: CafeText('${index + 1} guests'),
                         ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                const CafeText(
                   'Preview only: requests are not sent or stored.',
                   style: TextStyle(color: _muted, fontSize: 12),
                 ),
@@ -1146,9 +1158,9 @@ class _ReservationDialogState extends State<ReservationDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: const CafeText('Cancel'),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Send request')),
+        FilledButton(onPressed: _submit, child: const CafeText('Send request')),
       ],
     );
   }
