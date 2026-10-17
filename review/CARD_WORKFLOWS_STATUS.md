@@ -1,53 +1,59 @@
 # Card workflows — incomplete development checkpoint
 
-User requested working placeholders across Tables, all 49 Menu cards, Kitchen,
-Motel/Online, and Payments, followed by live deployment. Keep Style 2.
-Additional explicit requirements: zero Owner price; category creation; product pictures.
+## Current source
+- Repository: zanyarsidqi-sys/Gelye-Sherane-Caf-Rest
+- Development branch: codex/table-card-workflows
+- Base main commit: 79012d0526f77b8b7c5527e2c83304da111a19bc
+- Feature checkpoint: b88934452481a0dc48dd90f871a6e85f8b6713dc
+- Test repair: 08555f02b3e08c1970de47b37a94f830fd4983d1
+- Keep Style 2. No section is verified 100% complete.
 
-## Actual changes
-- Local Owner-price input validation permits zero; Normal/Tourism remain positive.
-- Staging database permits Owner zero product prices and zero-total Owner orders.
-- Local category add/rename screen and product image upload/preview/remove screen.
-- Staging category/image schema and RPCs; actual image upload not end-to-end tested.
-- Staging table task schema/RPCs for maintenance, chairs, waiting and grouping.
-  Corresponding Flutter screens have NOT been created.
-- Existing source copied from main commit 79012d0526f77b8b7c5527e2c83304da111a19bc.
-- Local branch codex/table-card-workflows. Remote branch created at baseline only.
-- NO production database migration, merge, release or live deployment performed.
+## Source changes present
+- Owner price input permits zero; Normal/Tourism remain positive.
+- Category add/rename and product image upload/preview/remove screens.
+- Product editor category dropdown; menu image references.
+- SQL migrations for Owner zero, category/image operations and image access.
+- Table task migration for maintenance, chairs, waiting and grouping.
+  Corresponding complete Flutter workflows remain unfinished.
 
-## Verification
-Staging transaction/rollback test passed:
-- Owner zero accepted and zero-total order created.
-- Zero Normal price rejected; negative Owner price rejected.
-Separate category transaction test executed; see task conversation for its result.
-Flutter analyze/test/build have NOT run.
+## Verification as of 17 October 2026
+- Previous GitHub run 39022257170: analysis passed, 78 tests passed, one failed.
+- Failure: catalog_orders_test.dart tried entering text into Category after it
+  became a DropdownButtonFormField.
+- Repair selects Drinks from the dropdown and verifies its saved category.
+  The same save-flow test now verifies Owner price zero.
+- Repair run: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39023246234
+- See that run for current analysis/test/web-build results; do not infer success.
+- Prior checkpoint reported staging rollback tests for Owner zero and zero-total
+  orders. Those database tests have NOT been rerun in this continuation.
+- Product image uploads and narrowly permissioned staff access remain unverified
+  end to end.
+- No production migration, merge or deployment was performed in this continuation.
 
-## Blocking reviews
-Local Flutter setup was automatically rejected for attempting cloud metadata access.
-Do not rerun or bypass it.
-Attempt to upload source/migrations/CI workflow to GitHub via create_tree was rejected:
-explicit user authorization for destination
-zanyarsidqi-sys/Gelye-Sherane-Caf-Rest is required.
-No source tree/commit was successfully uploaded by that rejected call.
+## Remaining requested work
+1. Complete and test all-card/selected-card permissions plus date scope:
+   today; yesterday + today; yesterday + today + future; custom range; all history.
+   Use Asia/Baghdad boundaries and enforce on the server, including searches,
+   reports and exports. Hiding UI controls alone is insufficient.
+2. Implement cashier discount in Table Overview > Print Bill:
+   250–4,750 IQD fixed discount for authorized cashiers without separate manager
+   approval within that range. No increment size was specified.
+   Show existing/available discounts and require one explicit selection; no silent
+   stacking. Do not change pricing mode or paid historical items.
+   Validate eligible unpaid charges server-side. Preview gross, discount,
+   payments and balance. Printing must not post payment or free the table.
+   Audit cashier, time, bill/visit, amount and reason; retries must not duplicate.
+   This remains a requirement, NOT implemented or deployed.
+3. Complete requested operational workflows across Tables, all 49 Menu cards,
+   Kitchen, Motel/Online and Payments, beyond generic record forms.
+4. Verify image access and public menu rendering end to end.
+5. Verify financial, authorization and concurrency behavior; reconcile staging
+   migration state before applying anything further.
+6. Complete release checks and obtain applicable deployment authorization;
+   verify actual deployed version/footer after any future release.
 
-## Remaining
-- Full requested card workflows, not merely generic record forms.
-- Categories dropdown integration in product editor.
-- Image upload access tests for narrowly permissioned staff and public menu rendering.
-- Financial/authorization/concurrency tests for table changes.
-- Table migration local final alias/overview patch has not been applied to staging;
-  original base migration was applied.
-- Remote GitHub Actions verification, then production migration/release gates.
-- Update actual deployed footer/version only with verified release.
-- Do not describe this checkpoint or any entire section as 100% complete.
-
-## Added cashier requirement — 17 October 2026
-In Table Overview > Print Bill, authorized cashiers can view available discounts
-and directly apply a fixed 250–4,750 IQD discount without separate manager approval
-within that range. No increment size was specified. Do not silently stack this
-with another discount; show existing discounts and require one explicit selection.
-Do not change the table's pricing mode or historical paid items. Validate against
-eligible unpaid charges server-side; preview gross amount, discount, payments and
-remaining amount. Printing alone must not post payment or free the table.
-Record cashier, time, bill/visit, amount and reason; retry must not duplicate a
-discount. This is recorded as a requirement, NOT implemented or deployed.
+## Historical blockers
+The prior checkpoint recorded rejected local Flutter setup and GitHub upload
+attempts. Do not retry the rejected local metadata-access setup.
+The branch now contains the uploaded source and runs GitHub Actions; the old
+statement that the remote branch contains only the baseline is superseded.
