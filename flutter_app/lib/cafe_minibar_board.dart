@@ -70,7 +70,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
    final data=minibarBoardData(await rpc('get_cafe_minibar_board',{'p_card':_card,'p_history':_history,'p_query':_query}),_card);
    if(mounted&&revision==_revision) setState((){
     _data=data;
-    if(!cafeRows(data['stations']).any((s)=>s['id']==_station)) _station='All';
+    if(!cafeRows(data['stations']).any((s)=>s['id']==_station && (s['department']=='nargile'||_card=='minibar_live_board'&&s['department']=='drinks'))) _station='All';
    });
   }catch(_){if(mounted&&revision==_revision) setState(()=>_error='Could not load the board. Check connection, card permission and the station classification migration.');}
   finally{if(mounted&&revision==_revision) setState(()=>_loading=false);}
@@ -78,6 +78,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
  Future<void> _classify(Map<String,dynamic> station)async{
   if(_busy||_loading||_pending!=null||_data?['can_classify']!=true) return;
   final revision=_revision;
+  setState(()=>_busy=true);
   String selected=station['department'];
   final department=await showDialog<String>(context:context,builder:(context)=>StatefulBuilder(builder:(context,update)=>AlertDialog(
    title:Text('Classify ${station['name']}'),
@@ -90,6 +91,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
    actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const CafeText('Cancel')),
     FilledButton(onPressed:selected==station['department']?null:()=>Navigator.pop(context,selected),child:const CafeText('Confirm classification'))],
   )));
+  if(mounted) setState(()=>_busy=false);
   if(department==null||!mounted||revision!=_revision) return;
   _pending={'p_card':_card,'p_request_id':newCafeRequestId(),'p_station_id':station['id'],
    'p_version':station['department_version'],'p_department':department};
