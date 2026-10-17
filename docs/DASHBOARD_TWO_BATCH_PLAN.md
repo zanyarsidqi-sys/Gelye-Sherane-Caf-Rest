@@ -166,3 +166,22 @@ Remaining Batch 1 (5): Minibar Live Board, Nargile Orders, Notifications & Alert
 Remaining Batch 2 (16): Invoices, Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, System Health, Backup & Sync Status, Dashboard Personalization, Security, Backup, Offline Mode, Personalization.
 
 Verified code head: 6b2c24127e69b162c2c861706212b84c1a17fcbf. Run 39042117955 passed Flutter analysis, the full Flutter test suite, release web build and isolated PostgreSQL 17 task, people and inventory contract checks. Twelve new inventory unit/widget tests accompany the database checks. No authenticated staging/device acceptance is claimed. The following checkpoint change is documentation only.
+
+## Personalization checkpoint — 17 October 2026
+
+Two additional Dashboard routes, Dashboard Personalization and Personalization, now open the existing permission-scoped Favorites manager rather than generic records/design content. The same improvements apply to the Dashboard Favorites home area.
+
+Implemented: add/remove authorized cards across sections; preserve saved order; move favorites earlier/later using accessible arrow controls; refresh saved preferences; confirm or cancel a reset that explicitly includes currently hidden saved cards. New entries append instead of alphabetically sorting the list. Reordering preserves hidden saved entries. Stored IDs never grant access: only current authorized cards render, and navigation rechecks permissions.
+
+Asynchronous reads/writes capture their original account and storage instance. Changing account/storage clears prior content and invalidates late results. Failed refreshes clear stale cards and disable preference writes until reloaded. Changes read current storage before applying the requested operation, preserving previously saved entries and ordering; this is not an atomic cross-tab transaction.
+
+Scope: preferences remain on this browser/device using the existing account-scoped storage. These controls order Favorites only, not main Dashboard categories. Cross-device synchronization, custom card colors and broader Dashboard layout settings remain unfinished. Translation review remains pending. No database migration or production change was made for this checkpoint.
+
+Progress: 52 published improvements + 27 draft improvements = 79/98; 19 remain outside the improvement batches. Batch 1 remains 18/23; Batch 2 is 9/23. These are improved route counts, not completed domain workflows or release readiness.
+Remaining Batch 1 (5): Minibar Live Board, Nargile Orders, Notifications & Alerts, Customers, Events.
+Remaining Batch 2 (14): Invoices, Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, System Health, Backup & Sync Status, Security, Backup, Offline Mode.
+
+The combined release remains unpublished. Prior migration/staging/authenticated-device acceptance gates and financial, permission, language and offline gaps still apply.
+
+Verified code head: cd5e917acba8c1a38a94b14a3cf89742feb1aa83. Run 39043548262 passed Flutter analysis, the full Flutter test suite, release web build and isolated PostgreSQL contract checks. Eight new personalization tests cover saved ordering/reopening, reset confirmation, late account reads, permission removal, failed refresh, fresh-read merging, mobile RTL and both Dashboard routes. Full-suite testing caught and fixed unavailable device-storage initialization before completion. No authenticated staging/device acceptance is claimed. The following checkpoint commit changes documentation only.
+https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39043548262
