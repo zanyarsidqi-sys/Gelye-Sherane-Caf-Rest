@@ -1,3 +1,4 @@
+import 'cafe_system_health.dart';
 import 'cafe_card_order.dart';
 import 'cafe_customer_activity.dart';
 import 'cafe_dashboard_alerts.dart';
@@ -6065,6 +6066,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
     final tableAccess = _tableOverviewCards.any((title) => allowed(1, title)) || allowed(24, 'Table Overview');
+    if (index == 0 && card == 'System Health') {
+      return CafeSystemHealth(key: const ValueKey('dashboard-system-health'),
+        account: widget.email, tables: tableAccess,
+        inventory: allowed(0, 'Low Stock Alerts'), rpc: rpc);
+    }
     if (index == 0 && card == 'Customers') {
       if (!tableAccess) return const CafeText('Table Overview access has not been assigned.');
       return CafeCustomerActivity(key: const ValueKey('dashboard-customer-activity'), rpc: rpc);
