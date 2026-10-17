@@ -1,3 +1,4 @@
+import 'cafe_dashboard_employees.dart';
 import 'cafe_service_speed.dart';
 import 'cafe_reservation_filters.dart';
 import 'cafe_dashboard_fulfilment.dart';
@@ -6051,6 +6052,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && const {'Employees', 'Employee Assignments'}.contains(card)) {
+      if (!allowed(1, 'Waiter Table Assignment') && !allowed(1, 'Table Assignment')) {
+        return const CafeText('Table assignment access has not been assigned.');
+      }
+      if (card == 'Employees') return CafeDashboardEmployees(rpc: rpc);
+      return CafeTableOverview(key: const ValueKey('dashboard-employee-assignments'),
+        rpc: rpc, title: 'Employee Assignments', executiveStyle: true, initialStatus: 'Occupied',
+        onQr: (id) async { await _loadDiningTables(); final table = _diningTables.where((t) => t.id == id).firstOrNull; if (table != null && mounted) await _showDiningTableQr(table); });
+    }
     if (index == 0 && card == 'Station Printers') {
       if (!const ['Kitchen Stations Management','Kitchen Printing Management','Minibar Printing Management']
           .any((title) => allowed(4, title))) {
@@ -9702,7 +9712,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery'}.contains(title);
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments'}.contains(title);
     final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
