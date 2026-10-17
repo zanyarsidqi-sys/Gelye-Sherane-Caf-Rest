@@ -133,7 +133,6 @@ class BadiniMaterialLocalizations extends DefaultMaterialLocalizations {
   @override String get pasteButtonLabel => 'پێڤەکرن';
   @override String get modalBarrierDismissLabel => 'گرتن';
   @override String get datePickerHelpText => 'مێژوویێ هەلبژێرە';
-  @override String get timePickerHelpText => 'دەمی هەلبژێرە';
 }
 
 class BadiniMaterialDelegate extends LocalizationsDelegate<MaterialLocalizations> {
