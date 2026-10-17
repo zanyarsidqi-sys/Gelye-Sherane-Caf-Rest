@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'cafe_operations_workspace.dart';
 import 'cafe_request_id.dart';
@@ -48,26 +49,26 @@ class _CafeExpenseWorkspaceState extends State<CafeExpenseWorkspace>{
   final outstanding=all.fold<int>(0,(sum,e)=>sum+(e['amount_iqd'] as num).toInt()-(e['paid_iqd'] as num).toInt());
   return Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
    Text(widget.title,style:Theme.of(context).textTheme.headlineSmall),
-   const Text('Record a purchase now, attach its evidence, and record payment separately. Uploading a receipt never marks an expense paid.'),
-   if(_data!=null)Text('Total unpaid: $outstanding IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
-   Wrap(spacing:8,children:[OutlinedButton(onPressed:_busy||_loading?null:_load,child:const Text('Refresh')),if(_data?['can_create']==true)FilledButton(onPressed:_busy||_loading||_error!=null?null:()=>_edit(),child:const Text('Add unpaid expense'))]),
+   const CafeText('Record a purchase now, attach its evidence, and record payment separately. Uploading a receipt never marks an expense paid.'),
+   if(_data!=null)CafeText('Total unpaid: $outstanding IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
+   Wrap(spacing:8,children:[OutlinedButton(onPressed:_busy||_loading?null:_load,child:const CafeText('Refresh')),if(_data?['can_create']==true)FilledButton(onPressed:_busy||_loading||_error!=null?null:()=>_edit(),child:const CafeText('Add unpaid expense'))]),
    if(_loading)const LinearProgressIndicator(),
    if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
    if(_notice!=null)Text(_notice!),
    Wrap(spacing:8,children:[for(final f in ['Unpaid','Partially paid','Paid','All'])ChoiceChip(label:Text(f),selected:_filter==f,onSelected:(_)=>setState(()=>_filter=f))]),
-   TextField(decoration:const InputDecoration(labelText:'Search supplier, purchase or invoice'),onChanged:(v)=>setState(()=>_query=v)),
-   if(!_loading&&rows.isEmpty)const Padding(padding:EdgeInsets.all(20),child:Text('No matching expenses.')),
+   TextField(decoration:const InputDecoration(label: CafeText('Search supplier, purchase or invoice')),onChanged:(v)=>setState(()=>_query=v)),
+   if(!_loading&&rows.isEmpty)const Padding(padding:EdgeInsets.all(20),child:CafeText('No matching expenses.')),
    for(final e in rows)Card(child:Padding(padding:const EdgeInsets.all(14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-    Text('${e['supplier']} · ${e['amount_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:18)),
-    Text('${e['description']}'),Text('Invoice: ${e['invoice_reference']} · Purchased: ${e['purchased_on']} · Due: ${e['due_on']??'Not set'}'),
-    Text('${(e['paid_iqd'] as num)==0?'Unpaid':e['paid_iqd']==e['amount_iqd']?'Paid':'Partially paid'} · Paid ${e['paid_iqd']} · Remaining ${(e['amount_iqd'] as num)-(e['paid_iqd'] as num)} IQD'),
+    CafeText('${e['supplier']} · ${e['amount_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:18)),
+    CafeText('${e['description']}'),CafeText('Invoice: ${e['invoice_reference']} · Purchased: ${e['purchased_on']} · Due: ${e['due_on']??'Not set'}'),
+    CafeText('${(e['paid_iqd'] as num)==0?'Unpaid':e['paid_iqd']==e['amount_iqd']?'Paid':'Partially paid'} · Paid ${e['paid_iqd']} · Remaining ${(e['amount_iqd'] as num)-(e['paid_iqd'] as num)} IQD'),
     Wrap(spacing:8,children:[
-     if(_data?['can_create']==true)OutlinedButton.icon(onPressed:_busy?null:()=>_upload(e),icon:const Icon(Icons.upload_file),label:const Text('Upload evidence')),
-     if(_data?['can_pay']==true&&(e['paid_iqd'] as num)<(e['amount_iqd'] as num))FilledButton(onPressed:_busy||_loading||_error!=null?null:()=>_edit(e),child:const Text('Record expense payment')),
+     if(_data?['can_create']==true)OutlinedButton.icon(onPressed:_busy?null:()=>_upload(e),icon:const Icon(Icons.upload_file),label:const CafeText('Upload evidence')),
+     if(_data?['can_pay']==true&&(e['paid_iqd'] as num)<(e['amount_iqd'] as num))FilledButton(onPressed:_busy||_loading||_error!=null?null:()=>_edit(e),child:const CafeText('Record expense payment')),
     ]),
-    if(cafeRows(e['evidence']).isEmpty)const Text('No evidence uploaded yet.'),
-    for(final file in cafeRows(e['evidence']))TextButton.icon(onPressed:_busy?null:()=>_download(file),icon:const Icon(Icons.attach_file),label:Text('${file['file_name']}')),
-    for(final p in cafeRows(e['payments']))Text('Paid ${p['amount_iqd']} IQD · ${p['method']} · ${p['reference']} · ${DateTime.parse(p['created_at']).toUtc().add(const Duration(hours:3)).toString().substring(0,16)} Baghdad'),
+    if(cafeRows(e['evidence']).isEmpty)const CafeText('No evidence uploaded yet.'),
+    for(final file in cafeRows(e['evidence']))TextButton.icon(onPressed:_busy?null:()=>_download(file),icon:const Icon(Icons.attach_file),label:CafeText('${file['file_name']}')),
+    for(final p in cafeRows(e['payments']))CafeText('Paid ${p['amount_iqd']} IQD · ${p['method']} · ${p['reference']} · ${DateTime.parse(p['created_at']).toUtc().add(const Duration(hours:3)).toString().substring(0,16)} Baghdad'),
    ]))),
   ])));
  }
@@ -97,17 +98,17 @@ class _ExpenseFormState extends State<_ExpenseForm>{
  }
  @override Widget build(BuildContext context)=>PopScope(canPop:!_busy,child:AlertDialog(title:Text(_payment?'Record expense payment':'Add unpaid expense'),content:SizedBox(width:480,child:Form(key:_form,child:SingleChildScrollView(child:Column(mainAxisSize:MainAxisSize.min,children:[
   if(!_payment)...[
-   TextFormField(controller:_supplier,enabled:_request==null,maxLength:160,decoration:const InputDecoration(labelText:'Supplier'),validator:(v)=>(v?.trim().isEmpty??true)?'Enter supplier':null),
-   TextFormField(controller:_description,enabled:_request==null,maxLength:1000,maxLines:2,decoration:const InputDecoration(labelText:'What did we buy?'),validator:(v)=>(v?.trim().length??0)<3?'Describe the purchase':null),
+   TextFormField(controller:_supplier,enabled:_request==null,maxLength:160,decoration:const InputDecoration(label: CafeText('Supplier')),validator:(v)=>(v?.trim().isEmpty??true)?'Enter supplier':null),
+   TextFormField(controller:_description,enabled:_request==null,maxLength:1000,maxLines:2,decoration:const InputDecoration(label: CafeText('What did we buy?')),validator:(v)=>(v?.trim().length??0)<3?'Describe the purchase':null),
   ],
   TextFormField(controller:_amount,enabled:_request==null,keyboardType:TextInputType.number,decoration:InputDecoration(labelText:_payment?'Payment amount IQD':'Purchase amount IQD'),validator:(v){final n=int.tryParse(v??'');return n==null||n<1||n>999999999999||(_payment&&n>(widget.expense!['amount_iqd'] as num)-(widget.expense!['paid_iqd'] as num))?'Enter an amount within the unpaid balance':null;}),
-  if(_payment)DropdownButtonFormField<String>(initialValue:_method,items:['cash','manual_card'].map((m)=>DropdownMenuItem(value:m,child:Text(m))).toList(),onChanged:_request!=null?null:(v)=>setState(()=>_method=v!),decoration:const InputDecoration(labelText:'Method')),
+  if(_payment)DropdownButtonFormField<String>(initialValue:_method,items:['cash','manual_card'].map((m)=>DropdownMenuItem(value:m,child:Text(m))).toList(),onChanged:_request!=null?null:(v)=>setState(()=>_method=v!),decoration:const InputDecoration(label: CafeText('Method'))),
   TextFormField(controller:_reference,enabled:_request==null,maxLength:_payment?500:160,decoration:InputDecoration(labelText:_payment?'Payment reference':'Invoice reference (optional)'),validator:(v)=>_payment&&_method=='manual_card'&&(v?.trim().length??0)<3?'Enter card payment reference':null),
   if(!_payment)...[
-   TextFormField(controller:_purchased,enabled:_request==null,decoration:const InputDecoration(labelText:'Purchase date YYYY-MM-DD'),validator:(v)=>_date(v)),
-   TextFormField(controller:_due,enabled:_request==null,decoration:const InputDecoration(labelText:'Due date YYYY-MM-DD (optional)'),validator:(v)=>_date(v,optional:true)),
+   TextFormField(controller:_purchased,enabled:_request==null,decoration:const InputDecoration(label: CafeText('Purchase date YYYY-MM-DD')),validator:(v)=>_date(v)),
+   TextFormField(controller:_due,enabled:_request==null,decoration:const InputDecoration(label: CafeText('Due date YYYY-MM-DD (optional)')),validator:(v)=>_date(v,optional:true)),
   ],
   Text(_payment?'Only confirm money already paid to the supplier. This records the payment; it does not send money.':'This saves an unpaid purchase. Upload invoice or receipt evidence after saving.'),
   if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
- ])))),actions:[TextButton(onPressed:_busy?null:()=>Navigator.pop(context),child:const Text('Close')),FilledButton(onPressed:_busy?null:_save,child:Text(_request!=null?'Retry same request':_payment?'Confirm payment':'Save unpaid expense'))]));
+ ])))),actions:[TextButton(onPressed:_busy?null:()=>Navigator.pop(context),child:const CafeText('Close')),FilledButton(onPressed:_busy?null:_save,child:Text(_request!=null?'Retry same request':_payment?'Confirm payment':'Save unpaid expense'))]));
 }
