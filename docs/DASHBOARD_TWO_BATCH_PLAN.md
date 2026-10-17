@@ -141,3 +141,28 @@ Batch 1 still outstanding: Minibar Live Board, Low Stock, Nargile Orders, Notifi
 Batch 2 still outstanding: its original list except Reports (22 cards).
 
 Verification: code head 5cea99d3ae85b8fda034ede5a01d6edb8843d6b3 passed Flutter analysis, full Flutter tests, release web build and isolated PostgreSQL contracts in run 39040857816. Eleven new unit/widget tests cover review actions, malformed data, missing ratings, truncation, failed refresh, form validation, command retries, resolution notes, self-clock identity, record history, mobile RTL and all four Dashboard routes. Database tests cover MFA/card denial, actor-bound retries, invalid ratings, review versions/notes, attendance ownership, one open session, server-time-only input, audit entries, authenticated wrappers, direct/anonymous denial, Baghdad midnight clipping and the 500-row limit. No authenticated staging/device acceptance test is claimed.
+
+## Inventory and purchasing checkpoint — 17 October 2026
+
+Seven additional unique Dashboard routes have draft implementations:
+- Inventory Overview: administrator item setup, units and departments, reorder thresholds, one-time opening stock, recorded balances and movement history.
+- Low Stock: Kitchen & Minibar stock at or below its reorder threshold, excluding general supplies.
+- Low Stock Alerts: low stock across all departments.
+- Purchase Requests: single-item requests with supplier name, quantity, notes and status history.
+- Pending Approvals: administrator approval/rejection of requested quantities.
+- Supplier Deliveries: approved outstanding quantities, partial/full physical receipts, reference notes and receipt history. Administrators with approval access can cancel outstanding quantities without reversing stock already received.
+- Inventory Waste: quantity and mandatory reason, with server checks preventing negative stock and retained movement history.
+
+All seven routes preserve Style 2 and existing Dashboard visibility checks. Search runs on the server and remains populated after refresh. Explicit totals and 500-record limits disclose coverage. Failed reads clear stale records and disable writes. Forms validate decimal quantities, require movement reasons, and confirm actions. Ambiguous retries reuse the same request ID and expected version while the screen is mounted.
+
+New undeployed migration: supabase/migrations/20261017143246_cafe_inventory_purchasing.sql (Supabase CLI-generated filename). Dedicated stock, purchases and immutable movement tables have RLS enabled and direct client privileges revoked. Private commands enforce authenticated staff profile, AAL2, specific action permission, administrator-only setup/approval, row versions, actor-bound retry identity and atomic stock/movement/audit writes. Units cannot change after a movement or purchase request. Public wrappers use invoker security. Database testing found and corrected an ambiguous note variable and its table-constraint reference before this checkpoint.
+
+Scope limits: this is a recorded quantity ledger, not automatic recipe/order consumption or inventory valuation. Requests contain one item and a supplier name; supplier master records, multi-line purchase orders, prices, invoices, payments, returns/reversals, attachments and automatic purchasing are not implemented. Movement history is visible; full private audit-event browsing is not. Search exposes up to 500 matching rows without pagination. General permission-profile read-only/time-range enforcement, translation review and durable offline retries remain separate unfinished work.
+
+No production schema/data changes, merge or deployment occurred. The task, people and inventory migrations must be rehearsed with real staging prerequisites, advisors and authenticated admin/staff device checks before the combined release. Isolated PostgreSQL auth/permission fixtures and mocked Flutter RPCs do not replace this acceptance gate.
+
+Progress: 52 published improvements + 25 draft improvements = 77/98; 21 remain outside the improvement batches. These counts describe improved card routes, not complete domain workflows. Batch 1: 18/23; Batch 2: 7/23.
+Remaining Batch 1 (5): Minibar Live Board, Nargile Orders, Notifications & Alerts, Customers, Events.
+Remaining Batch 2 (16): Invoices, Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, System Health, Backup & Sync Status, Dashboard Personalization, Security, Backup, Offline Mode, Personalization.
+
+Verified code head: 6b2c24127e69b162c2c861706212b84c1a17fcbf. Run 39042117955 passed Flutter analysis, the full Flutter test suite, release web build and isolated PostgreSQL 17 task, people and inventory contract checks. Twelve new inventory unit/widget tests accompany the database checks. No authenticated staging/device acceptance is claimed. The following checkpoint change is documentation only.
