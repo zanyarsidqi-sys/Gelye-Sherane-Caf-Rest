@@ -58,13 +58,14 @@ class _CafePeopleWorkspaceState extends State<CafePeopleWorkspace>{
  String? _error,_commandError;
  bool _loading=true,_busy=false;
  String _status='All',_category='All',_query='';
+ final _search=TextEditingController();
  late DateTime _from,_to;
  int _request=0;
  bool get _feedback=>widget.kind=='feedback';
  @override void initState(){
   super.initState();_to=baghdadCalendarDate(DateTime.now());_from=_feedback?_to.subtract(const Duration(days:29)):_to;_load();
  }
- @override void dispose(){_request++;super.dispose();}
+ @override void dispose(){_request++;_search.dispose();super.dispose();}
  Future<void> _load()async{
   final request=++_request;
   setState((){_loading=true;_error=null;_data=null;});
@@ -172,7 +173,7 @@ class _CafePeopleWorkspaceState extends State<CafePeopleWorkspace>{
     if(_feedback)Text(ratings.isEmpty?'No ratings in the matching records.':
       'Average of ${ratings.length} recorded ratings: ${(ratings.reduce((a,b)=>a+b)/ratings.length).toStringAsFixed(1)} / 5'),
     if(!_feedback)Text('Matching recorded time within selected dates: ${seconds~/3600}h ${(seconds%3600)~/60}m. Open sessions measured at snapshot.'),
-    TextField(onChanged:(v)=>setState(()=>_query=v),decoration:InputDecoration(
+    TextField(controller:_search,onChanged:(v)=>setState(()=>_query=v),decoration:InputDecoration(
       labelText:_feedback?'Search feedback or customer':'Search employee',prefixIcon:const Icon(Icons.search))),
     Wrap(spacing:8,children:[
      for(final state in (_feedback?['All','open','in_review','resolved','dismissed']:['All','Open','Closed']))
