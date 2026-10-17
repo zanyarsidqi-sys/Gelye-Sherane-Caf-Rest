@@ -19,7 +19,7 @@ abstract class FavoritesStorage {
 }
 
 class LocalFavoritesStorage implements FavoritesStorage {
-  final _preferences = SharedPreferencesAsync();
+  late final _preferences = SharedPreferencesAsync();
   String _key(String account) =>
       'cafe.favorite_cards.v1.${Uri.encodeComponent(account)}';
   @override
