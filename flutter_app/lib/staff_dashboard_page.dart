@@ -8929,7 +8929,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         .toList(growable: false);
     final visibleGroupIndices = [
       for (var index = 0; index < _dashboardGroups.length; index++)
-        if (index == 0 ? (_dashboardSearch.trim().isEmpty || 'favorites'.contains(_dashboardSearch.trim().toLowerCase())) : cardsForGroup(index).isNotEmpty) index,
+        if (index == 0 ? (_dashboardSearch.trim().isEmpty || 'favorites'.contains(_dashboardSearch.trim().toLowerCase()) || cardsForGroup(0).isNotEmpty) : cardsForGroup(index).isNotEmpty) index,
     ];
     if (widget.permissionsLoadError != null) {
       return Text(
@@ -9044,7 +9044,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
           const SizedBox(height: 12),
           for (final index in [visibleGroupIndices.contains(_selectedDashboardCategory) ? _selectedDashboardCategory : visibleGroupIndices.first])
-            if (index == 0) _favoritesContent() else _dashboardGroup(index: index, group: _dashboardGroups[index], visibleCards: cardsForGroup(index)),
+            if (index == 0 && (_dashboardSearch.trim().isEmpty || cardsForGroup(0).isEmpty)) _favoritesContent() else _dashboardGroup(index: index, group: _dashboardGroups[index], visibleCards: cardsForGroup(index)),
         ],
         const SizedBox(height: 16),
         Container(
