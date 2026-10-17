@@ -259,3 +259,21 @@ https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/390484992
 Seven new widget tests cover manual/permission-scoped calls, independent failures and stale clearing, malformed/unconfigured responses, timeout/late completion, account/access changes, mobile RTL and actual Dashboard routing. First CI attempt found one test-helper lint; fixed before the final run.
 
 Combined improved-route coverage: 81 published + 4 draft = 85/98; 13 remain. This is not full functional completion or Phase 4 readiness. Remaining: Invoices, Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, Backup & Sync Status, Security, Backup, Offline Mode. Full settlement, server-enforced view/edit/date restrictions, backup/restore/offline infrastructure, translations and authenticated integration checks remain separate gates. Staff & Permissions work stays unpublished.
+
+
+## Invoice ledger continuation — 17 October 2026
+
+Next development batch adds ONE Dashboard card improvement: Invoices. Four entry points now use the existing protected receipt report: Dashboard Invoices and Payment Management Invoices, Invoices & Receipts, Invoices & Payments. Each sends its own section/card scope; the backend mapping and has_workspace_access check already exist. No schema changes or new payment commands.
+
+Added Kind and Method filters to the shared report UI, exact whole-IQD selected-row payment/refund/net totals in invoice reports and their PDF output, and an explicit receipt-versus-tax-invoice disclaimer. Original payments/refunds remain separate records. Negative, fractional, unsafe numeric, missing/unknown and duplicate-transaction input is rejected before rendering/export; integer string amounts sum with BigInt. Filtered totals are not cash balance or total revenue. Existing dates, search, sorting and export remain available.
+
+All operational reports now invalidate late reads when their source or passed account identity changes. Connected report routes pass the signed-in email as the account identity; identity does not grant server access.
+
+Validation passed: Flutter analysis, full Flutter test suite, release web build and existing isolated PostgreSQL contracts.
+Code head: 9ffaf9d7bf82b07e3c3a56bf50029329551449f7
+Run: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39048993839
+Seven new tests cover exact totals, invalid/duplicate receipts, method/search filtering, disabled export after bad data, account races, four permission scopes and the actual Dashboard invoice route. PDF generation is code-connected but no physical printer or authenticated device acceptance is claimed. Existing isolated PostgreSQL contracts do not test the receipt-report function. No new Supabase feature or migration is introduced.
+
+Combined coverage: 81 published + 5 draft = 86/98 improved card routes; 12 remain: Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, Backup & Sync Status, Security, Backup, Offline Mode.
+
+The Invoices card is a read-only receipt ledger, not invoice creation, invoice numbering, customer tax details, itemized fiscal invoices, resend-email or payment settlement. Discounts and general server-enforced date/view/edit restrictions remain pending. Production remains unchanged; Phase 4 readiness is not established.
