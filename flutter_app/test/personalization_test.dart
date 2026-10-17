@@ -92,7 +92,7 @@ void main(){
    await t.pumpWidget(MaterialApp(home:StaffDashboardPage(email:'staff@example.com',role:'staff',favoritesStorage:store,
     grantedPermissions:{'dashboard:${entry.value}','dashboard:today_revenue'})));
    await t.pumpAndSettle();
-   await t.enterText(find.byKey(const ValueKey('dashboard-card-search')),entry.key);await t.pumpAndSettle();
+   await t.enterText(find.byKey(const ValueKey('dashboard-search')),entry.key);await t.pumpAndSettle();
    final card=find.byKey(ValueKey('dashboard-card-${entry.value}'));await t.ensureVisible(card);await t.tap(card);await t.pumpAndSettle();
    expect(find.byType(FavoritesPage),findsOneWidget);
    expect(t.widget<FavoritesPage>(find.byType(FavoritesPage)).title,entry.key);
