@@ -947,7 +947,7 @@ class _CafeFooter extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final copyright = Text(
-                  '© ${DateTime.now().year} Gelye Sherane Café & Restaurant · v1.0.3.4',
+                  '© ${DateTime.now().year} Gelye Sherane Café & Restaurant\nv1.0.3.4',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.65),
                     fontSize: 11,
