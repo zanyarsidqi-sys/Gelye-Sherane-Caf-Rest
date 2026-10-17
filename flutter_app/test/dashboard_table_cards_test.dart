@@ -4,6 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gelye_sherane_cafe/cafe_dashboard_tables.dart';
 import 'package:gelye_sherane_cafe/cafe_operations_workspace.dart';
 import 'package:gelye_sherane_cafe/staff_dashboard_page.dart';
+import 'package:gelye_sherane_cafe/favorites_page.dart';
+
+class TableFavoritesStorage implements FavoritesStorage {
+  @override
+  Future<List<String>> read(String account) async => ['dashboard:Tables Occupied'];
+  @override
+  Future<void> write(String account, List<String> values) async {}
+}
 
 Map<String, dynamic> table(String id, String status, {String? visit, List<dynamic> requests = const []}) => {
   'id': id, 'name': 'Table $id', 'area': 'Garden', 'status': status,
@@ -112,14 +120,16 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     for (final title in dashboardTableCards) {
       await tester.pumpWidget(const SizedBox());
-      await tester.pumpWidget(const MaterialApp(home: StaffDashboardPage(
-        email: 'review@example.com', role: 'admin', grantedPermissions: {},
+      await tester.pumpWidget(MaterialApp(home: StaffDashboardPage(
+        email: 'review@example.com', role: 'admin', grantedPermissions: const {},
+        favoritesStorage: TableFavoritesStorage(),
       )));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const ValueKey('dashboard-search')), title);
       await tester.pumpAndSettle();
       final slug = title.toLowerCase().replaceAll(' ', '_');
       final entry = find.byKey(ValueKey('dashboard-card-$slug'));
+      expect(entry, findsOneWidget, reason: 'Entry card: $title');
       await tester.ensureVisible(entry);
       await tester.tap(entry);
       await tester.pumpAndSettle();
