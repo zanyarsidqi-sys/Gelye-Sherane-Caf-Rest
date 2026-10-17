@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gelye_sherane_cafe/cafe_table_maintenance.dart';
 import 'package:gelye_sherane_cafe/cafe_dashboard_employees.dart';
 import 'package:gelye_sherane_cafe/cafe_table_overview.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -137,10 +138,10 @@ void main() {
     tester.view.physicalSize=const Size(1440,1800);tester.view.devicePixelRatio=1;
     addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
     for(final admin in [true,false]) {
-      for(final title in ['Station Printers','Service Speed','Takeaway & Delivery','Employees','Employee Assignments']) {
+      for(final title in ['Station Printers','Service Speed','Takeaway & Delivery','Employees','Employee Assignments','Maintenance','Maintenance Requests']) {
         await tester.pumpWidget(const SizedBox());
         await tester.pumpWidget(MaterialApp(home:StaffDashboardPage(email:'test@example.com',role:admin?'admin':'staff',
-          grantedPermissions:const {'dashboard:station_printers','dashboard:service_speed','dashboard:takeaway_delivery','dashboard:employees','dashboard:employee_assignments'})));
+          grantedPermissions:const {'dashboard:station_printers','dashboard:service_speed','dashboard:takeaway_delivery','dashboard:employees','dashboard:employee_assignments','dashboard:maintenance','dashboard:maintenance_requests'})));
         await tester.pumpAndSettle();
         await tester.enterText(find.byKey(const ValueKey('dashboard-search')),title);await tester.pumpAndSettle();
         final entry=find.byKey(ValueKey('dashboard-card-${title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'),'_')}'));
@@ -148,7 +149,8 @@ void main() {
         final view= title=='Station Printers'?find.byType(CafeStationWorkspace):
           title=='Service Speed'?find.byType(CafeOperationalReport):
           title=='Employees'?find.byType(CafeDashboardEmployees):
-          title=='Employee Assignments'?find.byType(CafeTableOverview):find.byType(CafeOperationsWorkspace);
+          title=='Employee Assignments'?find.byType(CafeTableOverview):
+          title.startsWith('Maintenance')?find.byType(CafeTableMaintenance):find.byType(CafeOperationsWorkspace);
         expect(view,admin?findsOneWidget:findsNothing);
         expect(tester.takeException(),isNull);
       }
