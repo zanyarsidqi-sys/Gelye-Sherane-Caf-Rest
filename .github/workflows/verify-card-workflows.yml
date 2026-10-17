@@ -3,7 +3,7 @@ on:
   push:
     branches: [codex/table-card-workflows]
   pull_request:
-    paths: ['flutter_app/**', 'supabase/migrations/**', 'review/table-task-contract-test.sql', '.github/workflows/verify-card-workflows.yml']
+    paths: ['flutter_app/**', 'supabase/migrations/**', 'review/*contract-test.sql', '.github/workflows/verify-card-workflows.yml']
 permissions:
   contents: read
 jobs:
@@ -46,4 +46,4 @@ jobs:
       PGDATABASE: task_workflow_test
     steps:
       - uses: actions/checkout@v4
-      - run: psql -v ON_ERROR_STOP=1 -f review/table-task-contract-test.sql
+      - run: psql -v ON_ERROR_STOP=1 -f review/table-task-contract-test.sql -f review/people-workflow-contract-test.sql
