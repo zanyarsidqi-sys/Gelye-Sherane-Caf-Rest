@@ -20,13 +20,15 @@ request assignment/completion, QR changes, or new financial workflows implemente
 Operational actions remain in Table Overview. Existing approved executive style reused.
 
 staff_dashboard_page.dart changes are limited to one import, one guarded route,
-and read-only entry-card labels. Exact inverse substitution verified each edit
+read-only entry-card labels, and two search-render expressions. Dashboard search
+now finds permitted Favorites-group cards directly; an empty search still shows
+saved Favorites. Assigned-card permission filtering is unchanged. Exact inverse substitution verified each edit
 preserved all other content byte-for-byte. Favorites-based navigation is tested
 with a seeded saved Tables Occupied favorite.
 
-Seven tests cover scopes, phone RTL, unknown values, stale failures/retry,
+Eight tests cover scopes, phone RTL, unknown values, stale failures/retry,
 late responses, malformed data, all six actual entry-card routes, and unassigned-card
-visibility. Full CI analysis/tests/release build required before publication.
+visibility, plus direct search for an assigned Favorites-group card. Full CI analysis/tests/release build required before publication.
 
 Published prior review coverage: 38/96. If published, this batch increases improved
 card coverage to 44/96, leaving 52 outside the review batches. These are improved
