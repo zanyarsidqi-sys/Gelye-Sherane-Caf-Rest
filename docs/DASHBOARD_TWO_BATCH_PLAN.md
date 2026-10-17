@@ -185,3 +185,47 @@ The combined release remains unpublished. Prior migration/staging/authenticated-
 
 Verified code head: cd5e917acba8c1a38a94b14a3cf89742feb1aa83. Run 39043548262 passed Flutter analysis, the full Flutter test suite, release web build and isolated PostgreSQL contract checks. Eight new personalization tests cover saved ordering/reopening, reset confirmation, late account reads, permission removal, failed refresh, fresh-read merging, mobile RTL and both Dashboard routes. Full-suite testing caught and fixed unavailable device-storage initialization before completion. No authenticated staging/device acceptance is claimed. The following checkpoint commit changes documentation only.
 https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39043548262
+
+## Minibar boards checkpoint — 17 October 2026
+
+Two additional Dashboard routes now have dedicated draft boards:
+- Minibar Live Board shows routed drinks and nargile items only.
+- Nargile Orders shows routed nargile items only.
+
+Both use actual station tickets joined to their recorded order items and parent orders. Confirming paper receipt does not remove an item from these boards. Cancellation tickets do not duplicate an item. Active scope includes received/preparing/ready; recent history includes served/cancelled orders created within the last seven days. Each board provides server search, local status/station filters, oldest-first ordering, 20-second polling, Baghdad timestamps, explicit loaded/total coverage with a 500-row limit, cancellation warnings and stale-data removal after failed reads. Quantities count routed items: one item routed to multiple stations appears once at each station. The UI explicitly identifies status as whole-order status, not item preparation state.
+
+New undeployed migration: supabase/migrations/20261017151125_cafe_minibar_boards.sql. Adds explicit unclassified/kitchen/drinks/nargile station departments and department versions. Existing/new stations default to unclassified; no classification is guessed from names. Unclassified stations are excluded and disclosed. Administrators with the relevant board and station-management permission can confirm classification. Already classified stations with ticket history cannot change departments. Initial classification of an unclassified station applies to its existing tickets. Product routing, station creation and printer operations remain in their existing workflows.
+
+Classification commands enforce AAL2, staff profile, administrator/board/station permissions, expected version and actor-bound request identity, with private audit records and revoked direct access. Private implementations have fixed search paths; public wrappers use invoker security. The UI confirms changes, pauses polling during classification, preserves ambiguous retries while mounted and isolates late reads/command state across scope changes.
+
+Scope limits: boards are read-only order views; no item-level preparation transitions, coal service, pickup/delivery actions, per-item timing, durable offline commands or automatic printer operation are added. History is deliberately limited; it is not a complete historical archive. Station classification is protected configuration, not changes to existing product routing. Translation review remains pending.
+
+Progress: 52 published improvements + 29 draft improvements = 81/98; 17 remain outside the improvement batches. Batch 1: 20/23; Batch 2: 9/23. Counts describe improved routes, not full domain completion.
+Remaining Batch 1 (3): Notifications & Alerts, Customers, Events.
+Remaining Batch 2 (14): Invoices, Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, System Health, Backup & Sync Status, Security, Backup, Offline Mode.
+
+No production schema/data writes, merge or deployment. Rehearse this migration and the other pending migrations against real staging prerequisites, review advisors there, verify signed-in admin/staff behavior on devices and classify stations before release. CI uses isolated prerequisite/auth/permission fixtures; it does not establish production readiness.
+
+Verified code head 711cb264e1d45df37b194223fb35c68ff99b2037 passed Flutter analysis, full Flutter tests, release web build and isolated PostgreSQL contracts in run 39044409114. Nine new unit/widget tests cover board scope, history/search, coverage, stale clearing, classification confirmation/retries, used-department locks, late responses, mobile RTL and both Dashboard routes. Database checks cover names not inferring types, department scope, printed/cancelled tickets, history bounds, versions, retries, admin/card/MFA checks and direct/anonymous denial.
+
+## Publication authorized — 17 October 2026
+
+User explicitly requested publication now, followed by continued development. This supersedes the earlier hold-until-all-remaining instruction.
+
+Release candidate v1.0.11.13 / pubspec 1.0.11+13 includes 29 draft card-route improvements, bringing improvement coverage to 81/98 once deployment is verified. Seventeen remain on the list above; this does not mean all functionality in the other cards is complete.
+
+Staging project kwpphxxmavahoalmocyt already had task tables but lacked the current task function patches. Applied the reviewed patch block there, then installed feedback/attendance, inventory and Minibar migrations. Actual-schema RPC smoke checks ran with transaction-local authenticated/AAL2 claims: task/people/inventory/board reads, inventory request retry, opening/waste, attendance clock-in/out and MFA rejection. Test users and records were rolled back. These are database smoke checks, not a signed-in browser/device acceptance test.
+
+Installed all four reviewed migrations in production lpxuuzfgiggsyhdbsucv using the connected migration tool:
+- cafe_table_card_workflows
+- cafe_feedback_attendance
+- cafe_inventory_purchasing
+- cafe_minibar_boards
+
+Production catalog verification confirms required objects, maintenance patch, revoked anonymous inventory commands and revoked direct inventory writes. No production test business records were inserted. The two existing print stations remain unclassified; administrator classification is required before the new boards display their routed items.
+
+Security and performance advisors were reviewed on staging and security advisors after production migration. New RLS-without-policy notices reflect deliberately denied direct access through protected RPC tables. Existing authenticated SECURITY DEFINER API and password-protection advisories remain; no claim of a clean security audit or completed Phase 4 is made. Guidance:
+https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable
+https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+
+Deployment status must be confirmed from GitHub Pages and the public versioned assets after merge; the release is not live merely because migrations are installed.
