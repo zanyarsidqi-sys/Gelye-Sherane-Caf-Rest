@@ -1,0 +1,4 @@
+-- Repair supported section validation only. No permissions are assigned and no RLS policies or operational functions change.
+set lock_timeout = '5s';
+alter table public.staff_permissions drop constraint staff_permissions_section_key_check;
+alter table public.staff_permissions add constraint staff_permissions_section_key_check check (section_key in ('dashboard','tables_orders','payment_management','kitchen_management','customer_management','statistics_management','employee_management','maintenance_management','notifications_management','settings_management','operations_management','motel_online_orders','inventory_management','customer_directory_management','reservations_management','devices_printing_management','security_audit_management','system_health_updates_management','shisha_management','delivery_management','marketing_management','customer_feedback_management','staff_operations_management','reports_management','table_overview'));
