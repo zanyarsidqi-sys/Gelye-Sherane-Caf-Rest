@@ -4200,7 +4200,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             for (final index in moreSections)
               ListTile(
                 leading: Icon(_sections[index].icon, color: _navy),
-                title: Text(_sections[index].title),
+                title: CafeText(_sections[index].title),
                 onTap: () {
                   setState(() {
                     
@@ -5477,11 +5477,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               selectedIcon: Icon(
                 _primarySectionIcon(sectionIndex, selected: true),
               ),
-              label: _primarySectionLabel(sectionIndex),
+              label: cafeTranslate(context, _primarySectionLabel(sectionIndex)),
             ),
-          const NavigationDestination(
-            icon: Icon(Icons.more_horiz),
-            label: 'More',
+          NavigationDestination(
+            icon: const Icon(Icons.more_horiz),
+            label: cafeTranslate(context, 'More'),
           ),
         ],
         onDestinationSelected: (destination) {
