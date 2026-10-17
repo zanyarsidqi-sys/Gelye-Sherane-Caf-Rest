@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cafe_translations.dart';
@@ -17,7 +18,7 @@ abstract class CafeLanguageStore {
   Future<void> write(String code);
 }
 class DeviceCafeLanguageStore implements CafeLanguageStore {
-  final _preferences = SharedPreferencesAsync();
+  late final _preferences = SharedPreferencesAsync();
   @override
   Future<String?> read() => _preferences.getString('cafe.language.v1');
   @override
@@ -141,4 +142,24 @@ class BadiniMaterialDelegate extends LocalizationsDelegate<MaterialLocalizations
   @override Future<MaterialLocalizations> load(Locale locale) =>
     SynchronousFuture<MaterialLocalizations>(const BadiniMaterialLocalizations());
   @override bool shouldReload(BadiniMaterialDelegate old) => false;
+}
+
+class BadiniCupertinoLocalizations extends DefaultCupertinoLocalizations {
+  const BadiniCupertinoLocalizations();
+  @override String get cutButtonLabel => 'ژێکرن';
+  @override String get copyButtonLabel => 'کۆپیکرن';
+  @override String get pasteButtonLabel => 'پێڤەکرن';
+  @override String get selectAllButtonLabel => 'هەلبژارتنا هەمی';
+  @override String get clearButtonLabel => 'پاککرن';
+  @override String get searchTextFieldPlaceholderLabel => 'لێگەڕیان';
+  @override String get cancelButtonLabel => 'هەلوەشاندن';
+  @override String get backButtonLabel => 'ڤەگەڕیان';
+  @override String get modalBarrierDismissLabel => 'گرتن';
+}
+class BadiniCupertinoDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+  const BadiniCupertinoDelegate();
+  @override bool isSupported(Locale locale) => locale.languageCode=='ku';
+  @override Future<CupertinoLocalizations> load(Locale locale) =>
+    SynchronousFuture<CupertinoLocalizations>(const BadiniCupertinoLocalizations());
+  @override bool shouldReload(BadiniCupertinoDelegate old) => false;
 }
