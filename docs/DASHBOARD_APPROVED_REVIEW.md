@@ -262,3 +262,24 @@ Validation: five new widget tests plus existing report regression test; CI resul
 - docs/section_card_inventory.json
 - flutter_app/lib/staff_dashboard_page.dart
 - User-approved visual review in this conversation (17 October 2026).
+
+## Scope extension — 17 October 2026
+
+The approved Dashboard now has 98 cards. The original 96-card review above remains historical.
+
+97. **Customer Number** — Counts people in three separate groups: At tables now; Reserved · Not arrived; Left · Visit finished. Current visits include earlier arrivals and paid guests who remain seated. The selected Baghdad dates apply to reservation start dates and visit closure dates. Confirmed reservations with no arrival and an unexpired end time are expected; cancelled, arrived and expired bookings are excluded. Unknown party sizes are explicitly marked. Drill-down shows table, recorded guests and arrival/reservation/departure time. Counts represent guest visits, not unique people. Example 10 / 6 / 16 is test data only.
+
+98. **Table History** — Located in Tables & Reservations. One row per recorded visit, never one row per table. A table used three times shows three session identifiers, guest counts, start times, closure times and duration within the selected period. Sessions crossing midnight appear on each overlapped day. Date range, table/session search, sorting and PDF export reuse the guest-history report. Empty closure time means still open. Historical itemized orders, mode, waiter and financial settlement details are not yet included; do not infer them from the current table.
+
+## Consolidated release checkpoint
+
+- Production remains v1.0.10.11; no merge or deployment authorized in this batch.
+- 46 unique Dashboard cards have published improvements. This is not 46 fully completed workflows.
+- PR22 includes 6 additional card routes: Reservations, Guest Check-In, Customer Number, Customer Requests, Kitchen Live Board, Table History.
+- Reservations and Guest Check-In passed CI before scope expansion. The combined expanded head must pass again.
+- 52 of 98 cards now have published or draft improvements; 46 remain outside these batches.
+- Unfinished requirements within previously improved cards remain open, including financial settlement, Standing Cash semantics, credit workflows, report date inheritance and broader translations.
+- Customer Number uses existing authenticated Table Overview and Guests Today RPCs and a paginated, RLS-protected reservation read. No new SQL or production mutation.
+- Additional permissions are required: Customer Number plus underlying table snapshot access, Table Reservations and Guests Today. Table History plus Guests Today. Customer Requests plus Table Service Requests. Kitchen Live Board plus Live Kitchen Orders. No permissions are granted automatically.
+- Customer Requests reuses existing table actions and confirmation. Kitchen Live Board reuses the existing order workflow; dedicated station columns and Minibar routing remain pending.
+- Counts refresh manually and come from separate backend reads, not a single transaction snapshot. Full staging integration and native-language review remain release gates.
