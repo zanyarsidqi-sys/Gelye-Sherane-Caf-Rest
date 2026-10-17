@@ -1,4 +1,5 @@
 import 'cafe_language.dart';
+import 'cafe_finance_surface.dart';
 import 'package:flutter/material.dart';
 import 'cafe_operations_workspace.dart';
 import 'cafe_request_id.dart';
@@ -16,13 +17,24 @@ class CafeExpenseWorkspace extends StatefulWidget{
 class _CafeExpenseWorkspaceState extends State<CafeExpenseWorkspace>{
  Map<String,dynamic>? _data;bool _loading=true,_busy=false;String? _error,_notice;
  String _filter='Unpaid',_query='';
+ DateTime? _loadedAt;
+ int _loadRevision=0;
  Future<dynamic> _rpc(String name,Map<String,dynamic> params)async{if(widget.rpc==null)throw StateError('Connection unavailable');return widget.rpc!(name,params);}
- @override void initState(){super.initState();_load();}
+ String get _initialFilter => const {'Expenses','Expenses Management','Costs & Expenses','Expense Payments'}.contains(widget.title)?'All':'Unpaid';
+ @override void initState(){super.initState();_filter=_initialFilter;_load();}
+ @override void didUpdateWidget(CafeExpenseWorkspace oldWidget){
+  super.didUpdateWidget(oldWidget);
+  if(oldWidget.title!=widget.title){_filter=_initialFilter;_query='';_load();}
+ }
+ @override void dispose(){_loadRevision++;super.dispose();}
  Future<void> _load()async{
-  setState(()=>_loading=true);
-  try{final data=Map<String,dynamic>.from(await _rpc('get_cafe_expenses',{}));if(mounted)setState((){_data=data;_error=null;});}
-  catch(_){if(mounted)setState(()=>_error='Could not load expenses. Check connection and assigned permission.');}
-  finally{if(mounted)setState(()=>_loading=false);}
+  final revision=++_loadRevision;
+  setState((){_loading=true;_data=null;_loadedAt=null;_error=null;});
+  try{
+   final data=Map<String,dynamic>.from(await _rpc('get_cafe_expenses',{}));
+   if(mounted&&revision==_loadRevision)setState((){_data=data;_loadedAt=DateTime.now().toUtc();});
+  }catch(_){if(mounted&&revision==_loadRevision)setState(()=>_error='Could not load expenses. Check connection and assigned permission.');}
+  finally{if(mounted&&revision==_loadRevision)setState(()=>_loading=false);}
  }
  Future<void> _edit([Map<String,dynamic>? expense])async{
   final saved=await showDialog<bool>(context:context,barrierDismissible:false,builder:(_)=>_ExpenseForm(rpc:_rpc,expense:expense));
@@ -45,32 +57,39 @@ class _CafeExpenseWorkspaceState extends State<CafeExpenseWorkspace>{
  }
  @override Widget build(BuildContext context){
   final all=cafeRows(_data?['expenses']??[]);
-  final rows=all.where((e){final amount=(e['amount_iqd'] as num).toInt(),paid=(e['paid_iqd'] as num).toInt();return (_filter=='All'||(_filter=='Unpaid'&&paid<amount)||(_filter=='Partially paid'&&paid>0&&paid<amount)||(_filter=='Paid'&&paid==amount))&&'${e['supplier']} ${e['description']} ${e['invoice_reference']}'.toLowerCase().contains(_query.toLowerCase());}).toList();
+  final today=DateTime.now().toUtc().add(const Duration(hours:3)).toIso8601String().substring(0,10);
+  final rows=all.where((e){final amount=(e['amount_iqd'] as num).toInt(),paid=(e['paid_iqd'] as num).toInt();return (_filter=='All'||(_filter=='Unpaid'&&paid<amount)||(_filter=='Partially paid'&&paid>0&&paid<amount)||(_filter=='Paid'&&paid==amount)||(_filter=='Overdue'&&paid<amount&&e['due_on']!=null&&'${e['due_on']}'.compareTo(today)<0))&&'${e['supplier']} ${e['description']} ${e['invoice_reference']}'.toLowerCase().contains(_query.toLowerCase());}).toList();
   final outstanding=all.fold<int>(0,(sum,e)=>sum+(e['amount_iqd'] as num).toInt()-(e['paid_iqd'] as num).toInt());
-  return Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-   Text(widget.title,style:Theme.of(context).textTheme.headlineSmall),
+  final matchingOutstanding=rows.fold<int>(0,(sum,e)=>sum+(e['amount_iqd'] as num).toInt()-(e['paid_iqd'] as num).toInt());
+  return CafeFinanceSurface(builder:(context)=>Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+   CafeText(widget.title,style:Theme.of(context).textTheme.headlineSmall),
    const CafeText('Record a purchase now, attach its evidence, and record payment separately. Uploading a receipt never marks an expense paid.'),
-   if(_data!=null)CafeText('Total unpaid: $outstanding IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
+   if(_data!=null&&!_loading&&_error==null)CafeText('Total unpaid: $outstanding IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
    Wrap(spacing:8,children:[OutlinedButton(onPressed:_busy||_loading?null:_load,child:const CafeText('Refresh')),if(_data?['can_create']==true)FilledButton(onPressed:_busy||_loading||_error!=null?null:()=>_edit(),child:const CafeText('Add unpaid expense'))]),
    if(_loading)const LinearProgressIndicator(),
    if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
    if(_notice!=null)Text(_notice!),
-   Wrap(spacing:8,children:[for(final f in ['Unpaid','Partially paid','Paid','All'])ChoiceChip(label:Text(f),selected:_filter==f,onSelected:(_)=>setState(()=>_filter=f))]),
-   TextField(decoration:const InputDecoration(label: CafeText('Search supplier, purchase or invoice')),onChanged:(v)=>setState(()=>_query=v)),
-   if(!_loading&&rows.isEmpty)const Padding(padding:EdgeInsets.all(20),child:CafeText('No matching expenses.')),
+   if(_data!=null&&!_loading&&_error==null)...[
+   if(_loadedAt!=null)CafeText('Last updated: ${cafeFinanceTimestamp(_loadedAt)} · Baghdad'),
+   const CafeText('Totals cover loaded expenses. Search and filters only change the matching list.'),
+   CafeText('Matching unpaid: $matchingOutstanding IQD'),
+   Wrap(spacing:8,children:[for(final f in ['Unpaid','Partially paid','Paid','Overdue','All'])ChoiceChip(label:Text(f),selected:_filter==f,onSelected:(_)=>setState(()=>_filter=f))]),
+   TextField(key:ValueKey('expense-search-${widget.title}'),decoration:const InputDecoration(label: CafeText('Search supplier, purchase or invoice')),onChanged:(v)=>setState(()=>_query=v)),
+   if(rows.isEmpty)const Padding(padding:EdgeInsets.all(20),child:CafeText('No matching expenses.')),
    for(final e in rows)Card(child:Padding(padding:const EdgeInsets.all(14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     CafeText('${e['supplier']} · ${e['amount_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:18)),
     CafeText('${e['description']}'),CafeText('Invoice: ${e['invoice_reference']} · Purchased: ${e['purchased_on']} · Due: ${e['due_on']??'Not set'}'),
     CafeText('${(e['paid_iqd'] as num)==0?'Unpaid':e['paid_iqd']==e['amount_iqd']?'Paid':'Partially paid'} · Paid ${e['paid_iqd']} · Remaining ${(e['amount_iqd'] as num)-(e['paid_iqd'] as num)} IQD'),
     Wrap(spacing:8,children:[
-     if(_data?['can_create']==true)OutlinedButton.icon(onPressed:_busy?null:()=>_upload(e),icon:const Icon(Icons.upload_file),label:const CafeText('Upload evidence')),
+     if(_data?['can_create']==true)OutlinedButton.icon(onPressed:_busy||_loading||_error!=null?null:()=>_upload(e),icon:const Icon(Icons.upload_file),label:const CafeText('Upload evidence')),
      if(_data?['can_pay']==true&&(e['paid_iqd'] as num)<(e['amount_iqd'] as num))FilledButton(onPressed:_busy||_loading||_error!=null?null:()=>_edit(e),child:const CafeText('Record expense payment')),
     ]),
     if(cafeRows(e['evidence']).isEmpty)const CafeText('No evidence uploaded yet.'),
-    for(final file in cafeRows(e['evidence']))TextButton.icon(onPressed:_busy?null:()=>_download(file),icon:const Icon(Icons.attach_file),label:CafeText('${file['file_name']}')),
-    for(final p in cafeRows(e['payments']))CafeText('Paid ${p['amount_iqd']} IQD · ${p['method']} · ${p['reference']} · ${DateTime.parse(p['created_at']).toUtc().add(const Duration(hours:3)).toString().substring(0,16)} Baghdad'),
+    for(final file in cafeRows(e['evidence']))TextButton.icon(onPressed:_busy||_loading||_error!=null?null:()=>_download(file),icon:const Icon(Icons.attach_file),label:CafeText('${file['file_name']}')),
+    for(final p in cafeRows(e['payments']))CafeText('Paid ${p['amount_iqd']} IQD · ${p['method']} · ${p['reference']} · ${cafeFinanceTimestamp(p['created_at'])} Baghdad'),
    ]))),
-  ])));
+   ],
+  ]))));
  }
 }
 class _ExpenseForm extends StatefulWidget{
