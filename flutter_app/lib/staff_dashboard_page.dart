@@ -7563,7 +7563,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    _connectedOperations(4, title) != null ? 'Connected kitchen workflow' : hasExistingWorkspace
+                    hasExistingWorkspace
                         ? 'Existing generic records · no stock ledger'
                         : 'Design only · ledger integration unverified',
                     maxLines: 1,
@@ -8124,7 +8124,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       button: true,
       label:
           '$title. $purpose. '
-          '${_connectedOperations(4, title) != null ? 'Connected kitchen workflow' : hasExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
+          '${hasExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
       child: Card(
         key: ValueKey('kitchen-category-card-$title'),
         margin: EdgeInsets.zero,
@@ -8188,7 +8188,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    hasExistingWorkspace
+                    _connectedOperations(4, title) != null ? 'Connected kitchen workflow' : hasExistingWorkspace
                         ? 'Existing generic workspace'
                         : 'Design only · integration unverified',
                     maxLines: 1,
