@@ -132,7 +132,7 @@ class _CafeCardOrderState extends State<CafeCardOrder> {
   Future<void> _move(int oldIndex, int newIndex) async {
     if (_blocked) return;
     final order = orderedCafeCards(_saved, widget.titles);
-    if (newIndex > oldIndex) newIndex--;
+    
     if (oldIndex < 0 ||
         oldIndex >= order.length ||
         newIndex < 0 ||
@@ -213,7 +213,7 @@ class _CafeCardOrderState extends State<CafeCardOrder> {
             physics: const NeverScrollableScrollPhysics(),
             buildDefaultDragHandles: false,
             itemCount: order.length,
-            onReorder: _blocked ? (_, _) {} : _move,
+            onReorderItem: _blocked ? (_, _) {} : _move,
             itemBuilder: (context, index) => Card(
               key: ValueKey('order-card-${order[index]}'),
               color: const Color(0xFF162A43),
@@ -259,7 +259,7 @@ class _CafeCardOrderState extends State<CafeCardOrder> {
                       tooltip: 'Move ${order[index]} later',
                       onPressed: _blocked || index == order.length - 1
                           ? null
-                          : () => _move(index, index + 2),
+                          : () => _move(index, index + 1),
                       icon: const Icon(
                         Icons.arrow_downward,
                         color: Color(0xFFD6AA57),

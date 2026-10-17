@@ -94,7 +94,7 @@ void main() {
       final list = tester.widget<ReorderableListView>(
         find.byType(ReorderableListView),
       );
-      list.onReorder(0, 3);
+      list.onReorderItem!(0, 2);
       await tester.pumpAndSettle();
       expect(store.data['a:card-order:v1:one'], [
         'Two',
