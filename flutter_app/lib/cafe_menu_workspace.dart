@@ -86,9 +86,9 @@ class SupabaseCafeMenuStore implements CafeMenuStore {
         category.trim().length > 60 ||
         description.length > 500 ||
         priceIqd < 1 ||
-        priceIqd > 999999999 || tourismPriceIqd < 1 || tourismPriceIqd > 999999999 || ownerPriceIqd < 1 || ownerPriceIqd > 999999999) {
+        priceIqd > 999999999 || tourismPriceIqd < 1 || tourismPriceIqd > 999999999 || ownerPriceIqd < 0 || ownerPriceIqd > 999999999) {
       throw const FormatException(
-        'Enter a name, category and whole IQD price from 1 to 999999999.',
+        'Enter a name and category. Normal/Tourism prices must be positive; Owner price may be zero.',
       );
     }
     if (client.auth.currentUser == null) {
@@ -414,8 +414,8 @@ class _MenuEditorState extends State<_MenuEditor> {
                   ),
                   validator: (v) {
                     final value = int.tryParse(v?.trim() ?? '');
-                    return value == null || value < 1 || value > 999999999
-                        ? 'Enter a whole IQD amount from 1 to 999999999.'
+                    return value == null || value < 0 || value > 999999999
+                        ? 'Enter a whole IQD amount from 0 to 999999999.'
                         : null;
                   },
                 ),

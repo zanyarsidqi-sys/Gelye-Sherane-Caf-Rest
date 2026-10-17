@@ -1,3 +1,4 @@
+import 'cafe_menu_assets.dart';
 import 'dart:async';
 import 'workspace_reporting.dart';
 import 'favorites_page.dart';
@@ -6032,6 +6033,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         initialStatus: card == 'Table Availability' ? 'Available' : card == 'Table Cleaning' ? 'Cleaning' : 'All',
         requestsOnly: card == 'Table Service Requests',
         onQr: (id) async { await _loadDiningTables(); final table = _diningTables.where((t) => t.id == id).firstOrNull; if (table != null && mounted) await _showDiningTableQr(table); });
+    }
+    if (index == 3 && const {'Product Categories','Product Images & Descriptions'}.contains(card)) {
+      return CafeMenuAssets(key:ValueKey('menu-assets-'+card), images:card=='Product Images & Descriptions',
+        client:_hasValidSupabaseConfiguration?Supabase.instance.client:null);
     }
     if (index == 3 && const {'Add New Product','Edit & Manage Products','Menu Overview','Product Availability','Product Categories','Normal Pricing','Tourism Pricing','Owner Pricing'}.contains(card)) {
       return CafeMenuWorkspace(key: ValueKey('catalog-$card'),
