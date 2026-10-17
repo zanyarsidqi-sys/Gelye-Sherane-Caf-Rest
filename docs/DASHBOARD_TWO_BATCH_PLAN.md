@@ -229,3 +229,16 @@ https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticate
 https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 
 Deployment status must be confirmed from GitHub Pages and the public versioned assets after merge; the release is not live merely because migrations are installed.
+
+
+## Publication verified — 17 October 2026
+
+Release v1.0.11.13 is live. PR #23 was squash-merged as 34282e7d98380dc6ec11686c61ea8e7dac709fe0. GitHub Pages run 39045285933 completed successfully, including analysis/tests, release build and deployment.
+
+Public verification confirmed version.json build_number 13, index bootstrap query matching the merge commit, bootstrap referencing main.34282e7d98380dc6ec11686c61ea8e7dac709fe0.dart.js, and that downloaded JavaScript containing footer v1.0.11.13.
+
+Published improvement coverage is now 81/98 card routes; 17 remain as listed above. The 29 previously draft improvements are published. This measures improvements, not complete end-to-end workflows. Signed-in browser/device acceptance remains unverified. The two existing print stations still require administrator classification for Minibar/Nargile board scope.
+
+Live: https://cafe.gelyesheranecompany.com/
+Version: https://cafe.gelyesheranecompany.com/version.json
+Deployment: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39045285933
