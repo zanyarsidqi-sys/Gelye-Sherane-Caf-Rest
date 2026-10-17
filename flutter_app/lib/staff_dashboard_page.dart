@@ -1,3 +1,4 @@
+import 'cafe_staff_performance.dart';
 import 'cafe_system_health.dart';
 import 'cafe_card_order.dart';
 import 'cafe_customer_activity.dart';
@@ -6096,6 +6097,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (index == 0 && const {'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance'}.contains(card)) {
       final kind = const {'Customer Feedback', 'Feedback'}.contains(card) ? 'feedback' : 'attendance';
       return CafePeopleWorkspace(key: ValueKey('dashboard-people-$kind'), kind: kind, rpc: rpc);
+    }
+    if (index == 0 && card == 'Staff Performance') {
+      if (!allowed(0, 'Employee Attendance') && !allowed(0, 'Attendance')) {
+        return const CafeText('Attendance access has not been assigned.');
+      }
+      return CafeStaffPerformance(key: const ValueKey('dashboard-staff-performance'),
+        account: widget.email, rpc: rpc);
     }
     if (index == 0 && card == 'Reports') {
       return CafeReportLibrary(allowed: _visibleSubcards(0).toSet(), rpc: rpc);
