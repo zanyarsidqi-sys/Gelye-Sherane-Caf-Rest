@@ -204,8 +204,11 @@ class CafeHeader extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 1240),
               child: Row(
                 children: [
-                  const _BrandMark(),
-                  const Spacer(),
+                  if (isWide) ...[
+                    const _BrandMark(),
+                    const Spacer(),
+                  ] else
+                    const Expanded(child: FittedBox(fit: BoxFit.scaleDown, alignment: AlignmentDirectional.centerStart, child: _BrandMark())),
                   const CafeLanguageButton(),
                   if (isWide) ...[
                     _HeaderLink(label: 'Home', onPressed: () {}),
