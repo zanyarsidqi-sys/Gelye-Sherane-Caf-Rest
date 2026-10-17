@@ -18,7 +18,7 @@ CREATE TABLE public.cafe_inventory_purchases(
  quantity numeric(14,3) NOT NULL CHECK(quantity BETWEEN 0.001 AND 999999999.999),
  received numeric(14,3) NOT NULL DEFAULT 0 CHECK(received>=0 AND received<=quantity),
  status text NOT NULL DEFAULT 'requested' CHECK(status IN ('requested','approved','rejected','part_received','received','cancelled')),
- note text NOT NULL DEFAULT '' CHECK(length(note)<=1000),review_note text NOT NULL DEFAULT '' CHECK(length(review_note)<=1000),
+ note text NOT NULL DEFAULT '' CHECK(length(v_note)<=1000),review_note text NOT NULL DEFAULT '' CHECK(length(review_note)<=1000),
  version integer NOT NULL DEFAULT 1,created_by uuid NOT NULL REFERENCES auth.users,
  created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -131,7 +131,7 @@ END $$;
 CREATE FUNCTION cafe_private.inventory_command(p_request_id uuid,p_action text,p_id uuid,p_version integer,p_data jsonb) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$
 DECLARE needed text; admin boolean; sig jsonb; prior cafe_private.inventory_commands;
- item public.cafe_inventory_items; purchase public.cafe_inventory_purchases; q numeric; note text;
+ item public.cafe_inventory_items; purchase public.cafe_inventory_purchases; q numeric; v_note text;
  result jsonb; before_row jsonb; target uuid;
 BEGIN
  needed:=CASE p_action WHEN 'create_item' THEN 'inventory_overview' WHEN 'update_item' THEN 'inventory_overview'
@@ -170,8 +170,8 @@ BEGIN
     version=version+1,updated_at=clock_timestamp() WHERE id=item.id RETURNING * INTO item;
   ELSE
    q:=cafe_private.inventory_quantity(p_data->>'quantity');
-   note:=trim(coalesce(p_data->>'note',''));
-   IF length(note) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'Give a movement reason in 3-1000 characters' USING ERRCODE='22023'; END IF;
+   v_note:=trim(coalesce(p_data->>'note',''));
+   IF length(v_note) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'Give a movement reason in 3-1000 characters' USING ERRCODE='22023'; END IF;
    IF p_action='opening' THEN
     IF EXISTS(SELECT 1 FROM public.cafe_inventory_movements WHERE item_id=item.id) OR item.on_hand<>0 THEN
      RAISE EXCEPTION 'Opening stock is allowed only before the first movement' USING ERRCODE='22023'; END IF;
@@ -181,7 +181,7 @@ BEGIN
    UPDATE public.cafe_inventory_items SET on_hand=on_hand+q,version=version+1,updated_at=clock_timestamp()
     WHERE id=item.id RETURNING * INTO item;
    INSERT INTO public.cafe_inventory_movements(item_id,kind,quantity,balance_after,note,actor)
-    VALUES(item.id,p_action,q,item.on_hand,note,auth.uid());
+    VALUES(item.id,p_action,q,item.on_hand,v_note,auth.uid());
   END IF;
   result:=to_jsonb(item);
  ELSIF p_action='request' THEN
@@ -193,12 +193,12 @@ BEGIN
   SELECT * INTO purchase FROM public.cafe_inventory_purchases WHERE id=p_id FOR UPDATE;
   IF purchase.id IS NULL OR p_version IS NULL OR purchase.version<>p_version THEN RAISE EXCEPTION 'Purchase changed; refresh' USING ERRCODE='40001'; END IF;
   before_row:=to_jsonb(purchase);target:=purchase.id;
-  note:=trim(coalesce(p_data->>'note',''));
+  v_note:=trim(coalesce(p_data->>'note',''));
   IF p_action='receive' THEN
    IF purchase.status NOT IN ('approved','part_received') THEN RAISE EXCEPTION 'Only approved quantities can be received' USING ERRCODE='22023'; END IF;
    q:=cafe_private.inventory_quantity(p_data->>'quantity');
    IF q>purchase.quantity-purchase.received THEN RAISE EXCEPTION 'Delivery exceeds outstanding quantity' USING ERRCODE='22023'; END IF;
-   IF length(note) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'Record delivery evidence or reference in 3-1000 characters' USING ERRCODE='22023'; END IF;
+   IF length(v_note) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'Record delivery evidence or reference in 3-1000 characters' USING ERRCODE='22023'; END IF;
    SELECT * INTO item FROM public.cafe_inventory_items WHERE id=purchase.item_id FOR UPDATE;
    IF item.on_hand+q>999999999.999 THEN RAISE EXCEPTION 'Stock range exceeded' USING ERRCODE='22023'; END IF;
    UPDATE public.cafe_inventory_items SET on_hand=on_hand+q,version=version+1,updated_at=clock_timestamp()
@@ -207,13 +207,13 @@ BEGIN
     status=CASE WHEN received+q=quantity THEN 'received' ELSE 'part_received' END,
     version=version+1,updated_at=clock_timestamp() WHERE id=purchase.id RETURNING * INTO purchase;
    INSERT INTO public.cafe_inventory_movements(item_id,purchase_id,kind,quantity,balance_after,note,actor)
-    VALUES(item.id,purchase.id,'receipt',q,item.on_hand,note,auth.uid());
+    VALUES(item.id,purchase.id,'receipt',q,item.on_hand,v_note,auth.uid());
   ELSE
    IF p_action IN ('approve','reject') AND purchase.status<>'requested' THEN RAISE EXCEPTION 'Request already reviewed' USING ERRCODE='22023'; END IF;
    IF p_action='cancel' AND purchase.status NOT IN ('requested','approved','part_received') THEN RAISE EXCEPTION 'Cannot cancel this request' USING ERRCODE='22023'; END IF;
-   IF p_action IN ('reject','cancel') AND length(note) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'Explain this decision in 3-1000 characters' USING ERRCODE='22023'; END IF;
+   IF p_action IN ('reject','cancel') AND length(v_note) NOT BETWEEN 3 AND 1000 THEN RAISE EXCEPTION 'Explain this decision in 3-1000 characters' USING ERRCODE='22023'; END IF;
    UPDATE public.cafe_inventory_purchases SET status=CASE p_action WHEN 'approve' THEN 'approved' WHEN 'reject' THEN 'rejected' ELSE 'cancelled' END,
-    review_note=note,version=version+1,updated_at=clock_timestamp() WHERE id=purchase.id RETURNING * INTO purchase;
+    review_note=v_note,version=version+1,updated_at=clock_timestamp() WHERE id=purchase.id RETURNING * INTO purchase;
   END IF;
   result:=to_jsonb(purchase);
  END IF;
