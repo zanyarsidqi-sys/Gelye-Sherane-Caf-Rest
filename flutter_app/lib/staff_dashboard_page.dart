@@ -4402,7 +4402,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                                 ? 'Create permission profile'
                                 : 'Edit permission profile',
                             style: const TextStyle(
-                              color: _executiveText,
+                              color: Color(0xFF1D2C43),
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
                             ),
@@ -4457,6 +4457,23 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             validator: (value) =>
                                 value == null ? 'Choose a department' : null,
                           ),
+                          const SizedBox(height: 12),
+                          Wrap(spacing: 8, children: [
+                            OutlinedButton(
+                              onPressed: saving ? null : () => setDialogState(() {
+                                selectedPermissions.clear();
+                                for (final section in _StaffDashboardPageState._sections) {
+                                  selectedPermissions[section.key] = {'*'};
+                                }
+                                error = null;
+                              }),
+                              child: const Text('Select all cards'),
+                            ),
+                            TextButton(
+                              onPressed: saving ? null : () => setDialogState(() => selectedPermissions.clear()),
+                              child: const Text('Clear selection'),
+                            ),
+                          ]),
                           const SizedBox(height: 12),
                           for (
                             var index = 0;

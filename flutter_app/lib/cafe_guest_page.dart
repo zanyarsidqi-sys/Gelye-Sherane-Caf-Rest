@@ -108,6 +108,39 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
     _pending={'method':'submit_cafe_guest_service','params':{'p_qr_token':widget.qrToken,'p_request_id':newCafeRequestId(),'p_kind':kind,'p_message':message}};
     await _sendPending();
   }
+  Future<void> _namedRequest({required bool individualBill}) async {
+    if(_busy || _pending!=null || _data?['visit_id']==null)return;
+    final name=TextEditingController();
+    final notes=TextEditingController();
+    final form=GlobalKey<FormState>();
+    final message=await showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
+      title:Text(individualBill?'Request individual bill':'Add my name to this table'),
+      content:SingleChildScrollView(child:Form(key:form,child:Column(mainAxisSize:MainAxisSize.min,children:[
+        TextFormField(controller:name,maxLength:80,autofocus:true,
+          decoration:const InputDecoration(labelText:'Your name'),
+          validator:(value)=>(value?.trim().isEmpty ?? true)?'Enter your name':null),
+        if(individualBill)...[
+          const Text('Tell staff which items are yours. Staff will confirm your separate bill; this does not split or pay the table bill automatically.'),
+          TextFormField(controller:notes,maxLength:500,maxLines:3,
+            decoration:const InputDecoration(labelText:'Your items / notes (optional)')),
+        ] else const Text('Your name will be sent to staff as a request for this table.'),
+      ]))),
+      actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:const Text('Cancel')),
+        FilledButton(onPressed:(){
+          if(!form.currentState!.validate())return;
+          Navigator.pop(ctx,individualBill
+            ?'Individual bill requested — Guest: ${name.text.trim()}\nItems / notes: ${notes.text.trim()}'
+            :'Guest name for table: ${name.text.trim()}');
+        },child:const Text('Send request'))]));
+    // Wait for the dialog route to finish before disposing its controllers.
+    await Future<void>.delayed(const Duration(milliseconds:300));
+    name.dispose();notes.dispose();
+    if(message==null || !mounted)return;
+    _pending={'method':'submit_cafe_guest_service','params':{
+      'p_qr_token':widget.qrToken,'p_request_id':newCafeRequestId(),
+      'p_kind':'special_request','p_message':message}};
+    await _sendPending();
+  }
   void _bill() {
     final bill=Map<String,dynamic>.from(_data!['bill'] as Map);
     showDialog<void>(context:context,builder:(ctx)=>AlertDialog(title:const Text('Your table bill'),
@@ -143,6 +176,8 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
             OutlinedButton(onPressed:locked?null:()=>_request('special_request'),child:const Text('Special request')),
             OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_request('bill'),child:const Text('Request bill')),
             OutlinedButton(onPressed:_busy?null:_bill,child:const Text('View bill')),
+            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_namedRequest(individualBill:true),child:const Text('Individual bill')),
+            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_namedRequest(individualBill:false),child:const Text('Add my name')),
             IconButton(tooltip:'Refresh menu and bill',onPressed:_busy?null:_load,icon:const Icon(Icons.refresh)),
           ]),
           if(_data!['visit_id']==null)const Padding(padding:EdgeInsets.symmetric(vertical:12),child:Text('Browse the menu below. Ask staff to start your table visit before ordering.')),
@@ -173,6 +208,7 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
             Semantics(liveRegion:true,child:Chip(avatar:Icon(switch(order['status']){'preparing'=>Icons.soup_kitchen,'ready'=>Icons.room_service,'served'=>Icons.check_circle,'cancelled'=>Icons.cancel_outlined,_=>Icons.receipt_long}),label:Text(switch(order['status']){'preparing'=>'Preparing','ready'=>'Ready','served'=>'Served','cancelled'=>'Cancelled',_=>'Received'}))),
             for(final item in cafeRows(order['items']))Text('${item['quantity']} × ${item['name']}'),
             if(order['status']!='cancelled')Text('${order['total_iqd']} IQD'),
+            if(['preparing','ready','served'].contains(order['status']))const Text('Accepted by staff. Contact staff for any changes or cancellation.'),
             if(order['status']=='cancelled')const Text('This order is cancelled and excluded from your bill.'),
           ]))),
           const SizedBox(height:20),
@@ -182,3 +218,4 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
       ]))));
   }
 }
+

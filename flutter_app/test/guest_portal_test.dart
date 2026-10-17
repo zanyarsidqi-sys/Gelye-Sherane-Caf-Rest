@@ -55,6 +55,7 @@ void main() {
     await tester.tap(find.byTooltip('Add Tea'));
     await tester.pump();
     expect(find.text('Order total: 3500 IQD'), findsOneWidget);
+    await tester.ensureVisible(find.text('Review and place order'));
     await tester.tap(find.text('Review and place order'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Confirm order'));
@@ -73,6 +74,38 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
+  testWidgets('named individual bill and table name use service requests only', (tester) async {
+    final submissions=<Map<String,dynamic>>[];
+    await tester.pumpWidget(MaterialApp(home:CafeGuestPage(qrToken:'table-token',pendingStore:MemoryPending(),rpc:(method,params) async {
+      if(method=='get_cafe_guest_portal')return portal();
+      expect(method,'submit_cafe_guest_service');
+      submissions.add(Map.of(params));
+      return {};
+    })));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Individual bill'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Send request'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter your name'),findsOneWidget);
+    expect(submissions,isEmpty);
+    await tester.enterText(find.byType(TextFormField).first,'Sara');
+    await tester.enterText(find.byType(TextFormField).last,'One tea');
+    await tester.tap(find.text('Send request'));
+    await tester.pumpAndSettle();
+    expect(submissions.single['p_kind'],'special_request');
+    expect(submissions.single['p_qr_token'],'table-token');
+    expect(submissions.single['p_message'],'Individual bill requested — Guest: Sara\nItems / notes: One tea');
+    await tester.tap(find.text('Add my name'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField),'Ali');
+    await tester.tap(find.text('Send request'));
+    await tester.pumpAndSettle();
+    expect(submissions.last['p_message'],'Guest name for table: Ali');
+    expect(submissions.last['p_request_id'],isNot(submissions.first['p_request_id']));
+    expect(tester.takeException(),isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets('storage failure cannot be bypassed by automatic refresh', (tester) async {
     var calls = 0;
     await tester.pumpWidget(MaterialApp(home: CafeGuestPage(qrToken:'token', pendingStore:MemoryPending()..fail=true, rpc:(name,params) async { calls++; return portal(); })));
@@ -84,3 +117,4 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 }
+
