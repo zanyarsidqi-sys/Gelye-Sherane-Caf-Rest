@@ -1,3 +1,4 @@
+import 'cafe_table_maintenance.dart';
 import 'cafe_dashboard_employees.dart';
 import 'cafe_service_speed.dart';
 import 'cafe_reservation_filters.dart';
@@ -6052,6 +6053,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if ((index == 0 && const {'Maintenance', 'Maintenance Requests'}.contains(card)) ||
+        (index == 1 && card == 'Table Maintenance')) {
+      if (!allowed(1, 'Table Maintenance')) {
+        return const CafeText('Table Maintenance access has not been assigned.');
+      }
+      return CafeTableMaintenance(key: const ValueKey('table-maintenance-workflow'), rpc: rpc);
+    }
     if (index == 0 && const {'Employees', 'Employee Assignments'}.contains(card)) {
       if (!allowed(1, 'Waiter Table Assignment') && !allowed(1, 'Table Assignment')) {
         return const CafeText('Table assignment access has not been assigned.');
@@ -9712,7 +9720,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments'}.contains(title);
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests'}.contains(title);
     final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
