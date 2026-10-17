@@ -6238,7 +6238,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       return CafeCashWorkspace(key: ValueKey('cash-$index-$card'), section: _sections[index].key, card: _permissionSlug(card), title: card, rpc: rpc);
     }
     if (operationalReportCards[_sections[index].key]?.contains(card) == true) {
-      return CafeOperationalReport(key: ValueKey('report-$index-$card'), section: _sections[index].key, card: _permissionSlug(card), title: card, rpc: rpc);
+      return CafeOperationalReport(key: ValueKey('report-$index-$card'), section: _sections[index].key, card: _permissionSlug(card), title: card, account: widget.email, rpc: rpc);
     }
     if (index == 1 && _tableOverviewCards.contains(card)) {
       return CafeTableOverview(key: ValueKey('table-workflow-$card'), rpc: rpc,
