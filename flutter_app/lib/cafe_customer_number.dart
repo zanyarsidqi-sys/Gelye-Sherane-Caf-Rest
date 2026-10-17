@@ -140,8 +140,9 @@ class _CafeCustomerNumberState extends State<CafeCustomerNumber> {
       if (!mounted || request != _request) return;
       setState(() { _summary = summary; _loadedAt = now; });
     } catch (_) {
-      if (mounted && request == _request) setState(() =>
-        _error = 'Could not load customer counts. Check Table Overview, Table Reservations and Guests Today access, then retry.');
+      if (mounted && request == _request) {
+        setState(() => _error = 'Could not load customer counts. Check Table Overview, Table Reservations and Guests Today access, then retry.');
+      }
     } finally {
       if (mounted && request == _request) setState(() => _loading = false);
     }
