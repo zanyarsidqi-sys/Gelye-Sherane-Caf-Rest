@@ -5,6 +5,8 @@ import 'package:gelye_sherane_cafe/cafe_orders_workspace.dart';
 
 class MenuStore implements CafeMenuStore {
   @override
+  Future<List<String>> categories() async => ['Drinks','Food'];
+  @override
   Future<List<Map<String,dynamic>>> stations() async => [{'id':'kitchen','name':'Kitchen','active':true},{'id':'minibar','name':'Minibar','active':true}];
   final rows = <CafeMenuItem>[];
   bool fail = false;
