@@ -1,4 +1,5 @@
 import 'cafe_language.dart';
+import 'cafe_report_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -36,6 +37,9 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
   bool _loading = true;
   String? _error;
   String _query = '';
+  final _filters = <String, String>{};
+  int? _sortColumn;
+  bool _ascending = true;
   int _request = 0;
   final _search = TextEditingController();
 
@@ -61,6 +65,9 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
         oldWidget.initialRange?.start != widget.initialRange?.start ||
         oldWidget.initialRange?.end != widget.initialRange?.end) {
       _query = '';
+      _filters.clear();
+      _sortColumn = null;
+      _ascending = true;
       _search.clear();
       _setInitialRange();
       _load();
@@ -75,10 +82,20 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
   }
 
   String _date(DateTime value) => value.toIso8601String().substring(0, 10);
-  List<List<dynamic>> get _rows => (_report?['rows'] as List? ?? [])
-      .map((row) => List<dynamic>.from(row as List))
-      .where((row) => row.join(' ').toLowerCase().contains(_query.trim().toLowerCase()))
-      .toList();
+  List<String> get _columns => (_report?['columns'] as List? ?? []).map((e) => '$e').toList();
+  List<List<dynamic>> get _allRows => (_report?['rows'] as List? ?? [])
+      .map((row) => List<dynamic>.from(row as List)).toList();
+  List<List<dynamic>> get _rows => selectCafeReportRows(
+    columns: _columns, rows: _allRows, query: _query,
+    filters: _filters, sortColumn: _sortColumn, ascending: _ascending,
+  );
+  void _clearSelection() => setState(() {
+    _query = '';
+    _search.clear();
+    _filters.clear();
+    _sortColumn = null;
+    _ascending = true;
+  });
 
   Future<void> _load() async {
     final request = ++_request;
@@ -102,7 +119,12 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
         throw const FormatException('Invalid report shape');
       }
       if (mounted && request == _request) {
-        setState(() { _report = report; _loadedAt = DateTime.now().toUtc(); });
+        setState(() {
+          _report = report;
+          _loadedAt = DateTime.now().toUtc();
+          _filters.removeWhere((column, value) => !cafeReportOptions(_columns, _allRows, column).contains(value));
+          if (_sortColumn != null && _sortColumn! >= _columns.length) _sortColumn = null;
+        });
       }
     } catch (_) {
       if (mounted && request == _request) {
@@ -143,6 +165,8 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
         pw.Header(level: 0, text: widget.title),
         pw.Text('${_date(_from)} to ${_date(_to)} · Baghdad'),
         if (_query.trim().isNotEmpty) pw.Text('Search: ${_query.trim()}'),
+        for (final filter in _filters.entries) pw.Text('${filter.key}: ${filter.value}'),
+        if (_sortColumn != null) pw.Text('Sort: ${_columns[_sortColumn!]} · ${_ascending ? 'Ascending' : 'Descending'}'),
         pw.Text('${rows.length} matching records'),
         pw.SizedBox(height: 10),
         pw.Text('${report['note'] ?? ''}'),
@@ -219,6 +243,46 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
             onChanged: (value) => setState(() => _query = value),
           ),
           const SizedBox(height: 12),
+          Wrap(spacing: 12, runSpacing: 12, children: [
+            for (final column in const ['Source', 'Status', 'Mode'])
+              if (columns.contains(column)) SizedBox(width: 240,
+                child: DropdownButtonFormField<String>(
+                  key: ValueKey('report-filter-$column-${_filters[column]}'),
+                  initialValue: _filters[column] ?? '',
+                  isExpanded: true,
+                  decoration: InputDecoration(label: CafeText(column)),
+                  items: [
+                    const DropdownMenuItem(value: '', child: CafeText('All')),
+                    for (final value in cafeReportOptions(columns, _allRows, column))
+                      DropdownMenuItem(value: value, child: Text(value)),
+                  ],
+                  onChanged: (value) => setState(() {
+                    if (value == null || value.isEmpty) { _filters.remove(column); }
+                    else { _filters[column] = value; }
+                  }),
+                )),
+            SizedBox(width: 240, child: DropdownButtonFormField<int>(
+              key: ValueKey('report-sort-$_sortColumn'),
+              initialValue: _sortColumn ?? -1, isExpanded: true,
+              decoration: const InputDecoration(label: CafeText('Sort by')),
+              items: [
+                const DropdownMenuItem(value: -1, child: CafeText('Original order')),
+                for (var i = 0; i < columns.length; i++)
+                  DropdownMenuItem(value: i, child: CafeText(columns[i])),
+              ],
+              onChanged: (value) => setState(() => _sortColumn = value == -1 ? null : value),
+            )),
+            if (_sortColumn != null) OutlinedButton.icon(
+              onPressed: () => setState(() => _ascending = !_ascending),
+              icon: Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward),
+              label: CafeText(_ascending ? 'Ascending' : 'Descending'),
+            ),
+            TextButton(onPressed: _clearSelection, child: const CafeText('Clear filters')),
+          ]),
+          const SizedBox(height: 8),
+          CafeText('${_allRows.length} loaded records · filters apply to these records only',
+            style: const TextStyle(color: muted, fontSize: 12)),
+          const SizedBox(height: 12),
           Wrap(spacing: 16, runSpacing: 6, children: [
             CafeText('${rows.length} matching records'),
             if (refreshed != null) CafeText(
@@ -227,8 +291,8 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
             ),
           ]),
           const SizedBox(height: 12),
-          if (rows.isEmpty) const Padding(padding: EdgeInsets.all(20),
-            child: CafeText('No recorded activity for this report.')),
+          if (rows.isEmpty) Padding(padding: const EdgeInsets.all(20),
+            child: CafeText(_allRows.isEmpty ? 'No recorded activity for this report.' : 'No records match these filters. Clear filters to see loaded records.')),
           if (rows.isNotEmpty) LayoutBuilder(builder: (context, constraints) {
             if (constraints.maxWidth < 640) {
               return Column(key: const ValueKey('report-mobile-records'), children: [
