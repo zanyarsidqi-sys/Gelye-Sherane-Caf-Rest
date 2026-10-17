@@ -22,7 +22,7 @@ Map<String,dynamic> minibarBoardData(dynamic raw,String card) {
    row['item_name'] is! String || row['quantity'] is! num || row['quantity']<=0 ||
    !const ['received','preparing','ready','served','cancelled'].contains(row['order_status']) ||
    !(row['department']=='nargile'||card=='minibar_live_board'&&row['department']=='drinks') ||
-   DateTime.tryParse('${row['ordered_at']}')==null) throw const FormatException('Invalid routed item');
+   DateTime.tryParse('${row['ordered_at']}')==null) { throw const FormatException('Invalid routed item'); }
  }
  for(final s in cafeRows(data['stations'])) {
   if(s['id'] is! String || s['name'] is! String || !stationDepartments.contains(s['department']) ||
@@ -50,9 +50,9 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
  @override void initState(){super.initState();_load();_startTimer();}
  void _startTimer(){
   _timer?.cancel();
-  if(widget.autoRefresh) _timer=Timer.periodic(const Duration(seconds:20),(_){
+  if(widget.autoRefresh) { _timer=Timer.periodic(const Duration(seconds:20),(_){
    if(!_loading&&!_busy&&_pending==null) _load();
-  });
+  }); }
  }
  @override void didUpdateWidget(CafeMinibarBoard oldWidget){
   super.didUpdateWidget(oldWidget);
@@ -68,10 +68,10 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
   try{
    if(rpc==null) throw StateError('Connection unavailable');
    final data=minibarBoardData(await rpc('get_cafe_minibar_board',{'p_card':_card,'p_history':_history,'p_query':_query}),_card);
-   if(mounted&&revision==_revision) setState((){
+   if(mounted&&revision==_revision) { setState((){
     _data=data;
     if(!cafeRows(data['stations']).any((s)=>s['id']==_station && (s['department']=='nargile'||_card=='minibar_live_board'&&s['department']=='drinks'))) _station='All';
-   });
+   }); }
   }catch(_){if(mounted&&revision==_revision) setState(()=>_error='Could not load the board. Check connection, card permission and the station classification migration.');}
   finally{if(mounted&&revision==_revision) setState(()=>_loading=false);}
  }
