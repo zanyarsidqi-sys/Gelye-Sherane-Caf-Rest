@@ -59,7 +59,7 @@ class CafeApp extends StatelessWidget {
       title: 'Gelye Sherane Management System',
       locale: Locale(cafeLanguage.language.code),
       supportedLocales: const [Locale('en'),Locale('ar'),Locale('ku')],
-      localizationsDelegates: const [BadiniMaterialDelegate(), ...GlobalMaterialLocalizations.delegates],
+      localizationsDelegates: const [BadiniMaterialDelegate(), BadiniCupertinoDelegate(), ...GlobalMaterialLocalizations.delegates],
       debugShowCheckedModeBanner: false,
       builder: (context,child) => Directionality(
         textDirection:cafeLanguage.language.isRtl?TextDirection.rtl:TextDirection.ltr,
