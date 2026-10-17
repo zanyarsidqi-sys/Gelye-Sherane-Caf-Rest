@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -193,11 +194,11 @@ class _CafeMenuWorkspaceState extends State<CafeMenuWorkspace> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            const CafeText(
               'Product catalog',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const Text(
+            const CafeText(
               'Normal, Tourism and Owner prices in IQD. Available products can be added to orders.',
             ),
             const SizedBox(height: 12),
@@ -211,12 +212,12 @@ class _CafeMenuWorkspaceState extends State<CafeMenuWorkspace> {
                         ? null
                         : () => _edit(),
                     icon: const Icon(Icons.add),
-                    label: const Text('Add product'),
+                    label: const CafeText('Add product'),
                   ),
                 OutlinedButton.icon(
                   onPressed: _loading ? null : _load,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Refresh products'),
+                  label: const CafeText('Refresh products'),
                 ),
               ],
             ),
@@ -231,17 +232,17 @@ class _CafeMenuWorkspaceState extends State<CafeMenuWorkspace> {
               const SizedBox(height: 12),
               TextField(
                 decoration: const InputDecoration(
-                  labelText: 'Search products or categories',
+                  label: CafeText('Search products or categories'),
                   prefixIcon: Icon(Icons.search),
                 ),
                 onChanged: (v) => setState(() => _query = v),
               ),
               const SizedBox(height: 12),
-              Text('${matches.length} products'),
+              CafeText('${matches.length} products'),
               if (matches.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(16),
-                  child: Text(
+                  child: CafeText(
                     'No products match. Add a product or change your search.',
                   ),
                 ),
@@ -250,7 +251,7 @@ class _CafeMenuWorkspaceState extends State<CafeMenuWorkspace> {
                   leading: item.imagePath == null ? null : Image.network(Supabase.instance.client.storage.from('cafe-product-images').getPublicUrl(item.imagePath!),width:54,height:54,fit:BoxFit.cover,errorBuilder:(_,e,s)=>const Icon(Icons.broken_image_outlined)),
                   title: Text(item.name),
 
-                  subtitle: Text(
+                  subtitle: CafeText(
                     '${item.category} \nNormal: ${item.priceIqd} IQD · Tourism: ${item.tourismPriceIqd ?? item.priceIqd} IQD · Owner: ${item.ownerPriceIqd ?? item.priceIqd} IQD\nPrint to: ${item.stationNames.isEmpty ? 'Choose a station' : item.stationNames.join(', ')}\n${item.available ? 'Available' : 'Unavailable'}',
                   ),
                   trailing: widget.canEdit
@@ -369,7 +370,7 @@ class _MenuEditorState extends State<_MenuEditor> {
                   controller: _name,
                   enabled: !_saving,
                   maxLength: 120,
-                  decoration: const InputDecoration(labelText: 'Product name'),
+                  decoration: const InputDecoration(label: CafeText('Product name')),
                   validator: (v) => v == null || v.trim().isEmpty
                       ? 'Enter a product name.'
                       : null,
@@ -377,7 +378,7 @@ class _MenuEditorState extends State<_MenuEditor> {
                 DropdownButtonFormField<String>(
                   initialValue: _category.text.isEmpty ? null : _category.text,
                   isExpanded: true,
-                  decoration: const InputDecoration(labelText:'Category',helperText:'Add categories in Product Categories.'),
+                  decoration: const InputDecoration(label: CafeText('Category'),helperText:'Add categories in Product Categories.'),
                   items: {..._categories, if (_category.text.isNotEmpty) _category.text}.map((name)=>DropdownMenuItem(value:name,child:Text(name))).toList(),
                   onChanged: _saving || _loadingStations ? null : (value)=>setState(()=>_category.text=value??''),
                   validator: (value)=>value==null||value.isEmpty?'Choose a category':null,
@@ -387,14 +388,14 @@ class _MenuEditorState extends State<_MenuEditor> {
                   enabled: !_saving,
                   maxLength: 500,
                   maxLines: 3,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: const InputDecoration(label: CafeText('Description')),
                 ),
                 TextFormField(
                   controller: _price,
                   enabled: !_saving,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Normal price IQD',
+                    label: CafeText('Normal price IQD'),
                   ),
                   validator: (v) {
                     final value = int.tryParse(v?.trim() ?? '');
@@ -408,7 +409,7 @@ class _MenuEditorState extends State<_MenuEditor> {
                   enabled: !_saving,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Tourism price IQD',
+                    label: CafeText('Tourism price IQD'),
                   ),
                   validator: (v) {
                     final value = int.tryParse(v?.trim() ?? '');
@@ -422,7 +423,7 @@ class _MenuEditorState extends State<_MenuEditor> {
                   enabled: !_saving,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Owner price IQD',
+                    label: CafeText('Owner price IQD'),
                   ),
                   validator: (v) {
                     final value = int.tryParse(v?.trim() ?? '');
@@ -433,23 +434,23 @@ class _MenuEditorState extends State<_MenuEditor> {
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Available to order'),
+                  title: const CafeText('Available to order'),
                   value: _available,
                   onChanged: _saving
                       ? null
                       : (v) => setState(() => _available = v),
                 ),
-                const Align(alignment:Alignment.centerLeft,child:Text('Print destinations',style:TextStyle(fontWeight:FontWeight.bold))),
-                const Text('Select every station that should receive this item. Manage additional stations in Product Printing Routing.'),
+                const Align(alignment:Alignment.centerLeft,child:CafeText('Print destinations',style:TextStyle(fontWeight:FontWeight.bold))),
+                const CafeText('Select every station that should receive this item. Manage additional stations in Product Printing Routing.'),
                 if(_loadingStations) const LinearProgressIndicator(),
                 for(final station in _stations)
-                  CheckboxListTile(contentPadding:EdgeInsets.zero,title:Text('${station['name']}${station['active']==true ? '' : ' (disabled)'}'),value:_stationIds.contains(station['id']),
+                  CheckboxListTile(contentPadding:EdgeInsets.zero,title:CafeText('${station['name']}${station['active']==true ? '' : ' (disabled)'}'),value:_stationIds.contains(station['id']),
                     onChanged:_saving ? null : (v)=>setState(() {
                       if(v==true && station['active']==true) { _stationIds.add('${station['id']}'); } else { _stationIds.remove(station['id']); }
                       _stationError=null;
                     })),
                 if(_stationError!=null) Text(_stationError!),
-                if(_stationError!=null) TextButton(onPressed:_saving?null:_loadStations,child:const Text('Reload stations')),
+                if(_stationError!=null) TextButton(onPressed:_saving?null:_loadStations,child:const CafeText('Reload stations')),
                 if (_error != null) Text(_error!),
               ],
             ),
@@ -459,7 +460,7 @@ class _MenuEditorState extends State<_MenuEditor> {
       actions: [
         TextButton(
           onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: const CafeText('Close'),
         ),
         FilledButton(
           onPressed: _saving || _error != null ? null : _save,

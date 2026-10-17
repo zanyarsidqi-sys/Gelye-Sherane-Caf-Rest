@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'cafe_operations_workspace.dart';
@@ -37,8 +38,8 @@ class _CafeMenuAssetsState extends State<CafeMenuAssets> {
     final form=GlobalKey<FormState>();
     final name=await showDialog<String>(context:context,builder:(context)=>AlertDialog(
       title:Text(row==null?'Add category':'Rename category'),
-      content:Form(key:form,child:TextFormField(controller:controller,maxLength:60,decoration:const InputDecoration(labelText:'Category name'),validator:(v)=>(v?.trim().isEmpty??true)?'Enter a category name':null)),
-      actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const Text('Cancel')),FilledButton(onPressed:(){if(form.currentState!.validate())Navigator.pop(context,controller.text.trim());},child:const Text('Save'))]));
+      content:Form(key:form,child:TextFormField(controller:controller,maxLength:60,decoration:const InputDecoration(label: CafeText('Category name')),validator:(v)=>(v?.trim().isEmpty??true)?'Enter a category name':null)),
+      actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const CafeText('Cancel')),FilledButton(onPressed:(){if(form.currentState!.validate())Navigator.pop(context,controller.text.trim());},child:const CafeText('Save'))]));
     controller.dispose();
     if(name==null||!mounted)return;
     setState(()=>_busy=true);
@@ -56,7 +57,7 @@ class _CafeMenuAssetsState extends State<CafeMenuAssets> {
       final jpg=bytes.length>3&&bytes[0]==255&&bytes[1]==216&&bytes[2]==255;
       if(bytes.length>5242880||(!png&&!jpg))throw const FormatException('Choose a JPEG or PNG up to 5 MB.');
       if(!mounted)return;
-      final yes=await showDialog<bool>(context:context,builder:(context)=>AlertDialog(title:Text("Product picture · ${row['name']}"),content:SizedBox(width:400,child:Column(mainAxisSize:MainAxisSize.min,children:[Image.memory(bytes,height:200,fit:BoxFit.contain,errorBuilder:(_,e,s)=>const Text('Invalid image')),const Text('This product image will be publicly accessible.')])),actions:[TextButton(onPressed:()=>Navigator.pop(context,false),child:const Text('Cancel')),FilledButton(onPressed:()=>Navigator.pop(context,true),child:const Text('Upload'))]));
+      final yes=await showDialog<bool>(context:context,builder:(context)=>AlertDialog(title:CafeText("Product picture · ${row['name']}"),content:SizedBox(width:400,child:Column(mainAxisSize:MainAxisSize.min,children:[Image.memory(bytes,height:200,fit:BoxFit.contain,errorBuilder:(_,e,s)=>const CafeText('Invalid image')),const CafeText('This product image will be publicly accessible.')])),actions:[TextButton(onPressed:()=>Navigator.pop(context,false),child:const CafeText('Cancel')),FilledButton(onPressed:()=>Navigator.pop(context,true),child:const CafeText('Upload'))]));
       if(yes!=true)return;
       final client=widget.client!;
       final path="${client.auth.currentUser!.id}/${row['id']}/${newCafeRequestId()}${png ? '.png' : '.jpg'}";
@@ -67,7 +68,7 @@ class _CafeMenuAssetsState extends State<CafeMenuAssets> {
     finally {if(mounted)setState(()=>_busy=false);}
   }
   Future<void> _remove(Map<String,dynamic> row) async {
-    final yes=await showDialog<bool>(context:context,builder:(context)=>AlertDialog(title:const Text('Remove product picture?'),content:const Text('The product stays saved. The previous uploaded file remains in storage.'),actions:[TextButton(onPressed:()=>Navigator.pop(context,false),child:const Text('Cancel')),FilledButton(onPressed:()=>Navigator.pop(context,true),child:const Text('Remove'))]));
+    final yes=await showDialog<bool>(context:context,builder:(context)=>AlertDialog(title:const CafeText('Remove product picture?'),content:const CafeText('The product stays saved. The previous uploaded file remains in storage.'),actions:[TextButton(onPressed:()=>Navigator.pop(context,false),child:const CafeText('Cancel')),FilledButton(onPressed:()=>Navigator.pop(context,true),child:const CafeText('Remove'))]));
     if(yes!=true||!mounted)return;
     setState(()=>_busy=true);
     try {await _call('set_image',id:row['id'] as String);if(mounted)await _load();}
@@ -81,17 +82,17 @@ class _CafeMenuAssetsState extends State<CafeMenuAssets> {
     return Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[
       Text(widget.images?'Product Pictures':'Product Categories',style:Theme.of(context).textTheme.titleLarge),
       Text(widget.images?'Choose a saved product to upload, replace or remove its picture.':'Add categories before creating products. Renaming updates the current product catalog.'),
-      Wrap(spacing:8,children:[if(!widget.images)FilledButton.icon(onPressed:enabled?()=>_category():null,icon:const Icon(Icons.add),label:const Text('Add category')),TextButton.icon(onPressed:_loading||_busy?null:_load,icon:const Icon(Icons.refresh),label:const Text('Refresh'))]),
+      Wrap(spacing:8,children:[if(!widget.images)FilledButton.icon(onPressed:enabled?()=>_category():null,icon:const Icon(Icons.add),label:const CafeText('Add category')),TextButton.icon(onPressed:_loading||_busy?null:_load,icon:const Icon(Icons.refresh),label:const CafeText('Refresh'))]),
       if(_loading||_busy)const LinearProgressIndicator(),
       if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
-      TextField(decoration:const InputDecoration(labelText:'Search'),onChanged:(v)=>setState(()=>_query=v)),
-      if(!_loading&&rows.isEmpty)const Padding(padding:EdgeInsets.all(24),child:Text('No matching records.')),
+      TextField(decoration:const InputDecoration(label: CafeText('Search')),onChanged:(v)=>setState(()=>_query=v)),
+      if(!_loading&&rows.isEmpty)const Padding(padding:EdgeInsets.all(24),child:CafeText('No matching records.')),
       for(final row in rows)Card(child:Padding(padding:const EdgeInsets.all(12),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-        if(widget.images&&row['image_path']!=null&&widget.client!=null)Image.network(widget.client!.storage.from('cafe-product-images').getPublicUrl(row['image_path'] as String),height:140,width:180,fit:BoxFit.cover,errorBuilder:(_,e,s)=>const Text('Picture unavailable')),
+        if(widget.images&&row['image_path']!=null&&widget.client!=null)Image.network(widget.client!.storage.from('cafe-product-images').getPublicUrl(row['image_path'] as String),height:140,width:180,fit:BoxFit.cover,errorBuilder:(_,e,s)=>const CafeText('Picture unavailable')),
         Text(row['name'].toString(),style:const TextStyle(fontWeight:FontWeight.bold)),
         Text(widget.images?(row['category']??'').toString():"${row['product_count']} products"),
         Wrap(spacing:8,children:[OutlinedButton(onPressed:enabled?()=>widget.images?_upload(row):_category(row):null,child:Text(widget.images?'Upload / replace picture':'Rename')),
-          if(widget.images&&row['image_path']!=null)TextButton(onPressed:enabled?()=>_remove(row):null,child:const Text('Remove picture'))]),
+          if(widget.images&&row['image_path']!=null)TextButton(onPressed:enabled?()=>_remove(row):null,child:const CafeText('Remove picture'))]),
       ]))),
     ])));
   }

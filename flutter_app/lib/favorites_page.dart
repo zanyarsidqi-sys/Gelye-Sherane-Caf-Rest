@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -121,7 +122,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
+        const CafeText(
           'Favorites',
           style: TextStyle(
             color: Color(0xFFF6F2E9),
@@ -130,7 +131,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
+        const CafeText(
           'Your cards from any section. Saved for this account on this browser or device.',
           style: TextStyle(color: Color(0xFFB7C2D1)),
         ),
@@ -151,7 +152,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
               icon: Icon(_adding ? Icons.done : Icons.add),
               label: Text(_adding ? 'Done adding cards' : 'Add cards'),
             ),
-            Text(
+            CafeText(
               '${visibleFavorites.length} favorite cards',
               style: const TextStyle(color: Color(0xFFB7C2D1)),
             ),
@@ -164,7 +165,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           Text(_error!, style: const TextStyle(color: Color(0xFFF6F2E9))),
           TextButton(
             onPressed: _saving ? null : _load,
-            child: const Text(
+            child: const CafeText(
               'Retry',
               style: TextStyle(color: Color(0xFFD6AA57)),
             ),

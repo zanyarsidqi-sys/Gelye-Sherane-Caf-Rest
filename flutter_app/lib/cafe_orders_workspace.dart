@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -72,18 +73,18 @@ class _CafeOrdersWorkspaceState extends State<CafeOrdersWorkspace> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Cancel this order?'),
-          content: const Text(
+          title: const CafeText('Cancel this order?'),
+          content: const CafeText(
             'This ends preparation. Any payment or stock adjustment must be handled separately.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Keep order'),
+              child: const CafeText('Keep order'),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Cancel order'),
+              child: const CafeText('Cancel order'),
             ),
           ],
         ),
@@ -112,11 +113,11 @@ class _CafeOrdersWorkspaceState extends State<CafeOrdersWorkspace> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          const CafeText(
             'Active table orders',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
-          const Text(
+          const CafeText(
             'Received → Preparing → Ready → Served. Refresh for the latest status. Payments, printing and stock deductions are not connected yet.',
           ),
           Align(
@@ -124,7 +125,7 @@ class _CafeOrdersWorkspaceState extends State<CafeOrdersWorkspace> {
             child: OutlinedButton.icon(
               onPressed: _loading || _busy.isNotEmpty ? null : _load,
               icon: const Icon(Icons.refresh),
-              label: const Text('Refresh orders'),
+              label: const CafeText('Refresh orders'),
             ),
           ),
           if (_error != null)
@@ -135,7 +136,7 @@ class _CafeOrdersWorkspaceState extends State<CafeOrdersWorkspace> {
             if (_orders.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(16),
-                child: Text('No active table orders.'),
+                child: CafeText('No active table orders.'),
               ),
             for (final order in _orders)
               Card(
@@ -144,18 +145,18 @@ class _CafeOrdersWorkspaceState extends State<CafeOrdersWorkspace> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
+                      CafeText(
                         '${order['table_name']} · ${order['area']}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      Text('Order ${order['id']}'),
-                      Text('${order['status']} · ${order['total_iqd']} IQD'),
+                      CafeText('Order ${order['id']}'),
+                      CafeText('${order['status']} · ${order['total_iqd']} IQD'),
                       for (final item in order['items'] as List)
-                        Text(
+                        CafeText(
                           '${item['quantity']} × ${item['name']} · ${item['unit_price_iqd']} IQD each',
                         ),
                       if ((order['notes'] as String).isNotEmpty)
-                        Text('Notes: ${order['notes']}'),
+                        CafeText('Notes: ${order['notes']}'),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,

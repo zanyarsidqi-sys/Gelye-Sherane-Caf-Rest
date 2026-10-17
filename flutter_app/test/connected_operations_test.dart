@@ -30,6 +30,35 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('ready pickup excludes other statuses and history requests completed orders', (tester) async {
+    final calls=<Map<String,dynamic>>[];
+    Future<dynamic> rpc(String name, Map<String,dynamic> params) async {
+      expect(name,'list_cafe_staff_orders');
+      calls.add(Map.of(params));
+      return [
+        for(final status in ['received','ready','served','cancelled'])
+          {'id':'order-$status','table_name':'Counter $status','status':status,
+           'total_iqd':1000,'items':[],'notes':''},
+      ];
+    }
+    await tester.pumpWidget(MaterialApp(home:Scaffold(body:SingleChildScrollView(
+      child:CafeOperationsWorkspace(source:'walk_in',canCreate:false,rpc:rpc,
+        title:'Ready for Pickup',initialStatus:'ready')))));
+    await tester.pumpAndSettle();
+    expect(calls.single,{'p_source':'walk_in','p_history':false});
+    expect(find.text('Order order-ready'),findsOneWidget);
+    expect(find.text('Order order-received'),findsNothing);
+    expect(find.text('Order order-served'),findsNothing);
+    expect(find.text('New order'),findsNothing);
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Served').last);
+    await tester.pumpAndSettle();
+    expect(calls.last['p_history'],true);
+    expect(find.text('Order order-served'),findsOneWidget);
+    expect(find.text('Order order-ready'),findsNothing);
+    expect(tester.takeException(),isNull);
+  });
   testWidgets('order retry keeps request and payload unchanged', (
     tester,
   ) async {
