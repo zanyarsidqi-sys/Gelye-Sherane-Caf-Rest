@@ -12,7 +12,7 @@ Widget host(Widget child) => MaterialApp(
 );
 Map<String, dynamic> overview() => {
   'server_time': '2026-10-17T10:00:00Z',
-  'tables': [
+  'tables': <Map<String, dynamic>>[
     {
       'id': 't',
       'name': 'Table 1',
@@ -306,7 +306,9 @@ void main() {
             title,
           );
           await tester.pumpAndSettle();
-          final entry = find.byKey(
+          await tester.tap(find.byKey(const ValueKey('dashboard-category-tab-5')));
+        await tester.pumpAndSettle();
+        final entry = find.byKey(
             ValueKey(
               'dashboard-card-${title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_')}',
             ),
