@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'workspace_reporting.dart';
 
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart' as pdf;
@@ -2315,7 +2316,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   List<Map<String, dynamic>> _staffMembers = const [];
   bool _isLoadingEmployeeData = false;
   String? _employeeManagementError;
-  DateTime _selectedReportDate = DateTime.now();
+  DateTime _selectedReportDate = baghdadCalendarDate(DateTime.now());
+  String _dashboardSearch = '';
   String _selectedDateRange = 'Today';
   String _financeStatusFilter = 'All';
   String _financeSearch = '';
@@ -2830,31 +2832,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   List<CafeWorkspaceRecord> _recordsInSelectedRange(
     Iterable<CafeWorkspaceRecord> records,
   ) {
-    final selectedDay = DateTime(
-      _selectedReportDate.year,
-      _selectedReportDate.month,
-      _selectedReportDate.day,
-    );
-    final start = switch (_selectedDateRange) {
-      'Yesterday' => selectedDay.subtract(const Duration(days: 1)),
-      'This Week' => selectedDay.subtract(
-        Duration(days: selectedDay.weekday - 1),
-      ),
-      'This Month' => DateTime(selectedDay.year, selectedDay.month),
-      'This Year' => DateTime(selectedDay.year),
-      _ => selectedDay,
-    };
-    final end = switch (_selectedDateRange) {
-      'This Week' => start.add(const Duration(days: 7)),
-      'This Month' => DateTime(start.year, start.month + 1),
-      'This Year' => DateTime(start.year + 1),
-      _ => start.add(const Duration(days: 1)),
-    };
+    final range = WorkspaceReportRange.forSelection(_selectedReportDate, _selectedDateRange);
     return records
         .where(
-          (record) =>
-              !record.createdAt.isBefore(start) &&
-              record.createdAt.isBefore(end),
+          (record) => range.contains(record.createdAt),
         )
         .toList(growable: false);
   }
@@ -8675,6 +8656,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final assignedCards = _visibleSubcards(0);
     List<String> cardsForGroup(int index) => assignedCards
         .where(_dashboardGroups[index].cards.contains)
+        .where((title) => '$title ${_dashboardGroups[index].title}'.toLowerCase().contains(_dashboardSearch.trim().toLowerCase()))
         .toList(growable: false);
     final visibleGroupIndices = [
       for (var index = 0; index < _dashboardGroups.length; index++)
@@ -8716,7 +8698,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'A clear view of today’s service, team and priorities.',
+                  'Saved records and confirmed bookings · Baghdad time (UTC+03:00).',
                   style: TextStyle(color: _executiveMuted, fontSize: 13),
                 ),
               ],
@@ -8727,9 +8709,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 OutlinedButton.icon(
-                  onPressed: _isLoadingRecords
+                  onPressed: _isLoadingRecords || _isLoadingTableReservations
                       ? null
-                      : () => unawaited(_loadWorkspaceRecords()),
+                      : () => unawaited(Future.wait<void>([
+                          _loadWorkspaceRecords(),
+                          if (_canViewTableReservations) _loadTableReservations(),
+                        ])),
                   icon: const Icon(Icons.refresh, size: 18),
                   label: const Text('Refresh'),
                   style: OutlinedButton.styleFrom(
@@ -8761,6 +8746,19 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           },
         ),
         const SizedBox(height: 12),
+        TextField(
+          key: const ValueKey('dashboard-search'),
+          style: const TextStyle(color: _executiveText),
+          decoration: const InputDecoration(
+            labelText: 'Search dashboard cards or categories',
+            labelStyle: TextStyle(color: _executiveMuted),
+            prefixIcon: Icon(Icons.search, color: _executiveMuted),
+          ),
+          onChanged: (value) => setState(() => _dashboardSearch = value),
+        ),
+        const SizedBox(height: 12),
+        if (visibleGroupIndices.isEmpty)
+          const Text('No assigned dashboard cards match your search.', style: TextStyle(color: _executiveMuted)),
         LayoutBuilder(
           builder: (context, constraints) {
             final mobile = constraints.maxWidth < 760;
@@ -9690,7 +9688,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             _recordsFor(section.key, _permissionSlug(title)),
           );
     final confirmedReservationCount = _tableReservations
-        .where((reservation) => reservation.status == 'confirmed')
+        .where((reservation) => reservation.status == 'confirmed' &&
+          WorkspaceReportRange.forSelection(_selectedReportDate, _selectedDateRange).contains(reservation.startsAt))
         .length;
     final amountRecords = records.where((record) => record.amount != null);
     final recordedAmount = amountRecords.fold<double>(
@@ -9721,7 +9720,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         : records.isEmpty
         ? '—'
         : amountRecords.isNotEmpty
-        ? '${recordedAmount.toStringAsFixed(0)} $currency'
+        ? sectionIndex == 0
+          ? workspaceAmountLabel(amountRecords.map((record) => (amount: record.amount, currency: record.currency)))
+          : '${recordedAmount.toStringAsFixed(0)} $currency'
         : '${records.length}';
     final supporting = reservationDashboardCard
         ? !_canViewTableReservations
@@ -9730,17 +9731,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ? 'Unavailable'
               : isLoading
               ? 'Loading reservations'
-              : 'Confirmed bookings'
+              : 'Confirmed in selected period'
         : designOnly
         ? 'Not connected'
         : unavailable
         ? 'Unavailable'
         : isLoading
-        ? 'Loading live data'
+        ? 'Loading saved records'
         : records.isEmpty
         ? 'No records'
         : amountRecords.isNotEmpty
-        ? '${records.length} tracked record(s)'
+        ? '${records.length} saved amount record(s)'
         : records.length == 1
         ? '1 tracked record'
         : 'Tracked records';
