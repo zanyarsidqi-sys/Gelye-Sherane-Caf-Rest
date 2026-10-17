@@ -75,3 +75,25 @@ Initial Batch 1 implementation: Waiting List and read-only Dashboard Table Map.
 Each card must have its actual data source, required authorized actions, loading/error/empty states, matching Style 2 layout and relevant tests. A design preview or a renamed generic notes workspace does not establish a completed domain workflow. Reusing an existing workflow must preserve its underlying permissions.
 
 Before publishing either batch, record each card's implemented behavior and remaining limitations. Financial settlement, Standing Cash semantics, credit accounting, server-enforced read-only/time-range restrictions, historical itemized bills and translations remain independent unfinished work within previously improved cards. Do not convert the 98-card improvement count into a claim of total functional completion.
+
+## Expanded checkpoint — 17 October 2026
+
+Latest instruction: improve all remaining cards, then publish once. The two lists above organize development, not separate releases. Keep PR23 unpublished.
+
+Nine additional unique Dashboard card routes now have improvements:
+- Table Reservations: Today/Upcoming/Past/All dates filters, Baghdad-day overlap handling and matching counts. Shared Reservations route benefits too but is not double-counted.
+- Station Printers: existing printer workflow behind underlying station permissions, executive styling, stale ticket removal and disabled actions after load failures.
+- Service Speed: receipt-to-first-ready timing, measured coverage, mean and median; cancelled and missing/invalid samples excluded. No fabricated response/delivery timing.
+- Takeaway & Delivery: permission-scoped online/walk-in tracking and safe permission changes. Pickup versus delivery, driver assignment and fulfilment-specific milestones remain pending.
+- Tourism Customers: current active visits in Tourism pricing mode with guest totals and incomplete-count warnings; not tour-company history.
+- Employees: searchable minimal staff directory using authorized table-assignment data. Full HR profiles and payroll are not added.
+- Employee Assignments: existing table-assignment operations with current occupied visits and backend capability checks.
+- Maintenance and Maintenance Requests: shared table-repair lifecycle, required table/problem, server version and request identity, admin review, retained history. Other asset maintenance, evidence upload and employee assignment in this UI remain pending.
+
+Shared order refreshes now clear stale data and reject outdated responses.
+
+Verified code head: c5a1d415c0d8985caa2c54fd2e31f672cbfbfc60.
+GitHub run 39038641270 passed analysis, full Flutter tests and release web build.
+Tests include timing coverage, reservation boundaries, tourism scope, source permission changes, stale clearing, directory search, repair approvals, form validation and Dashboard permission gates. No production mutation tests or authenticated device end-to-end checks were performed.
+
+Progress by unique card improvements: 52 published + 11 unpublished = 63 of 98; 35 cards remain outside these improvement batches. Batch 1 has 11 of 23 improved, with 12 outstanding; Batch 2 has 23 outstanding. This is not a functional-completion percentage. Full financial settlement, credit accounting, time/read-only permission enforcement and other prior gaps remain on the checklist.
