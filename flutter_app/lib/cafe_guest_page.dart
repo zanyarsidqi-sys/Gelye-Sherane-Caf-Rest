@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -68,8 +69,8 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
     if(_pending==null) {
       if(_cart.isEmpty)return;
       final ok=await showDialog<bool>(context:context,builder:(ctx)=>AlertDialog(
-        title:const Text('Confirm your order'),content:Text('Place ${_cart.values.fold<int>(0,(a,b)=>a+b)} items for this table? The table’s current menu prices apply.'),
-        actions:[TextButton(onPressed:()=>Navigator.pop(ctx,false),child:const Text('Keep editing')),FilledButton(onPressed:()=>Navigator.pop(ctx,true),child:const Text('Confirm order'))]));
+        title:const CafeText('Confirm your order'),content:CafeText('Place ${_cart.values.fold<int>(0,(a,b)=>a+b)} items for this table? The table’s current menu prices apply.'),
+        actions:[TextButton(onPressed:()=>Navigator.pop(ctx,false),child:const CafeText('Keep editing')),FilledButton(onPressed:()=>Navigator.pop(ctx,true),child:const CafeText('Confirm order'))]));
       if(ok!=true)return;
       final total = cafeRows(_data!['menu']).fold<int>(0, (sum,p) => sum + (_cart[p['id']] ?? 0) * (p['price_iqd'] as num).toInt());
       _pending={'method':'submit_cafe_guest_quoted_order','params':{'p_qr_token':widget.qrToken,'p_request_id':newCafeRequestId(),'p_items':_cart.entries.map((e)=>{'item_id':e.key,'quantity':e.value}).toList(),'p_notes':_notes.text.trim(),'p_visit_id':_data!['visit_id'],'p_expected_total':total,'p_expected_mode':(_data!['table'] as Map)['pricing_mode']}};
@@ -99,10 +100,10 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
     final controller=TextEditingController();
     final title=switch(kind){'call_staff'=>'Call staff','bill'=>'Request bill',_=>'Special request'};
     final message=await showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
-      title:Text(title),content:TextField(controller:controller,maxLength:1000,maxLines:3,decoration:InputDecoration(labelText:kind=='special_request'?'Tell us what you need':'Message (optional)')),
-      actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:const Text('Cancel')),FilledButton(onPressed:(){
+      title:CafeText(title),content:TextField(controller:controller,maxLength:1000,maxLines:3,decoration:InputDecoration(label:CafeText(kind=='special_request'?'Tell us what you need':'Message (optional)'))),
+      actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:const CafeText('Cancel')),FilledButton(onPressed:(){
         if(kind=='special_request'&&controller.text.trim().isEmpty)return;
-        Navigator.pop(ctx,controller.text.trim());},child:const Text('Send request'))]));
+        Navigator.pop(ctx,controller.text.trim());},child:const CafeText('Send request'))]));
     controller.dispose();
     if(message==null)return;
     _pending={'method':'submit_cafe_guest_service','params':{'p_qr_token':widget.qrToken,'p_request_id':newCafeRequestId(),'p_kind':kind,'p_message':message}};
@@ -114,24 +115,24 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
     final notes=TextEditingController();
     final form=GlobalKey<FormState>();
     final message=await showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
-      title:Text(individualBill?'Request individual bill':'Add my name to this table'),
+      title:CafeText(individualBill?'Request individual bill':'Add my name to this table'),
       content:SingleChildScrollView(child:Form(key:form,child:Column(mainAxisSize:MainAxisSize.min,children:[
         TextFormField(controller:name,maxLength:80,autofocus:true,
-          decoration:const InputDecoration(labelText:'Your name'),
+          decoration:const InputDecoration(label: CafeText('Your name')),
           validator:(value)=>(value?.trim().isEmpty ?? true)?'Enter your name':null),
         if(individualBill)...[
-          const Text('Tell staff which items are yours. Staff will confirm your separate bill; this does not split or pay the table bill automatically.'),
+          const CafeText('Tell staff which items are yours. Staff will confirm your separate bill; this does not split or pay the table bill automatically.'),
           TextFormField(controller:notes,maxLength:500,maxLines:3,
-            decoration:const InputDecoration(labelText:'Your items / notes (optional)')),
-        ] else const Text('Your name will be sent to staff as a request for this table.'),
+            decoration:const InputDecoration(label: CafeText('Your items / notes (optional)'))),
+        ] else const CafeText('Your name will be sent to staff as a request for this table.'),
       ]))),
-      actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:const Text('Cancel')),
+      actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:const CafeText('Cancel')),
         FilledButton(onPressed:(){
           if(!form.currentState!.validate())return;
           Navigator.pop(ctx,individualBill
             ?'Individual bill requested — Guest: ${name.text.trim()}\nItems / notes: ${notes.text.trim()}'
             :'Guest name for table: ${name.text.trim()}');
-        },child:const Text('Send request'))]));
+        },child:const CafeText('Send request'))]));
     // Wait for the dialog route to finish before disposing its controllers.
     await Future<void>.delayed(const Duration(milliseconds:300));
     name.dispose();notes.dispose();
@@ -143,17 +144,17 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
   }
   void _bill() {
     final bill=Map<String,dynamic>.from(_data!['bill'] as Map);
-    showDialog<void>(context:context,builder:(ctx)=>AlertDialog(title:const Text('Your table bill'),
+    showDialog<void>(context:context,builder:(ctx)=>AlertDialog(title:const CafeText('Your table bill'),
       content:SizedBox(width:520,child:SingleChildScrollView(child:Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisSize:MainAxisSize.min,children:[
         for(final order in cafeRows(bill['orders']))...[
-          Text('Order ${(order['id'] as String).substring(0,8)} · ${order['status']}',style:const TextStyle(fontWeight:FontWeight.bold)),
-          for(final item in cafeRows(order['items']))Text('${item['quantity']} × ${item['name']} — ${(item['quantity'] as num)*(item['unit_price_iqd'] as num)} IQD'),
+          CafeText('Order ${(order['id'] as String).substring(0,8)} · ${order['status']}',style:const TextStyle(fontWeight:FontWeight.bold)),
+          for(final item in cafeRows(order['items']))CafeText('${item['quantity']} × ${item['name']} — ${(item['quantity'] as num)*(item['unit_price_iqd'] as num)} IQD'),
           const Divider(),
         ],
-        Text('Total: ${bill['total_iqd']} IQD'),Text('Paid: ${bill['paid_iqd']} IQD'),
-        Text('Remaining: ${bill['balance_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold)),
-        const Text('Payments are confirmed by staff. Requesting a bill does not make a payment.'),
-      ]))),actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:const Text('Close'))]));
+        CafeText('Total: ${bill['total_iqd']} IQD'),CafeText('Paid: ${bill['paid_iqd']} IQD'),
+        CafeText('Remaining: ${bill['balance_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold)),
+        const CafeText('Payments are confirmed by staff. Requesting a bill does not make a payment.'),
+      ]))),actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:const CafeText('Close'))]));
   }
   @override
   Widget build(BuildContext context) {
@@ -162,60 +163,59 @@ class _CafeGuestPageState extends State<CafeGuestPage> {
     final table=_data?['table'] as Map?;
     final locked=_busy||_pending!=null||_error!=null;
     final total=menu.fold<int>(0,(sum,p)=>sum+(_cart[p['id']]??0)*(p['price_iqd'] as num).toInt());
-    return Scaffold(backgroundColor:const Color(0xFFF5F7FB),appBar:AppBar(title:const Text('Gelye Sherane Café'),backgroundColor:const Color(0xFF09243A),foregroundColor:Colors.white),
+    return Scaffold(backgroundColor:const Color(0xFFF5F7FB),appBar:AppBar(actions:const [CafeLanguageButton()],title:const CafeText('Gelye Sherane Café'),backgroundColor:const Color(0xFF09243A),foregroundColor:Colors.white),
       body:_loading?const Center(child:CircularProgressIndicator()):Center(child:ConstrainedBox(constraints:const BoxConstraints(maxWidth:760),child:ListView(padding:const EdgeInsets.all(18),children:[
-        if(_error!=null)...[Text(_error!,style:const TextStyle(color:Colors.red)),TextButton(onPressed:_busy?null:(_data==null?_init:_load),child:const Text('Try again'))],
-        if(_pending!=null)FilledButton(onPressed:_busy?null:_sendPending,child:Text(_busy?'Sending…':'Retry pending request')),
-        if(_notice!=null)Text(_notice!,style:const TextStyle(color:Colors.green)),
+        if(_error!=null)...[CafeText(_error!,style:const TextStyle(color:Colors.red)),TextButton(onPressed:_busy?null:(_data==null?_init:_load),child:const CafeText('Try again'))],
+        if(_pending!=null)FilledButton(onPressed:_busy?null:_sendPending,child:CafeText(_busy?'Sending…':'Retry pending request')),
+        if(_notice!=null)CafeText(_notice!,style:const TextStyle(color:Colors.green)),
         if(table!=null)...[
-          Text('${table['name']} · ${table['area']}',style:Theme.of(context).textTheme.headlineSmall),
-          Text('Menu prices: ${table['pricing_mode'] ?? 'normal'} mode'),
+          CafeText('${table['name']} · ${table['area']}',style:Theme.of(context).textTheme.headlineSmall),
+          CafeText('Menu prices: ${table['pricing_mode'] ?? 'normal'} mode'),
           const SizedBox(height:12),
           Wrap(spacing:8,runSpacing:8,children:[
-            OutlinedButton.icon(onPressed:locked?null:()=>_request('call_staff'),icon:const Icon(Icons.room_service_outlined),label:const Text('Call staff')),
-            OutlinedButton(onPressed:locked?null:()=>_request('special_request'),child:const Text('Special request')),
-            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_request('bill'),child:const Text('Request bill')),
-            OutlinedButton(onPressed:_busy?null:_bill,child:const Text('View bill')),
-            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_namedRequest(individualBill:true),child:const Text('Individual bill')),
-            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_namedRequest(individualBill:false),child:const Text('Add my name')),
+            OutlinedButton.icon(onPressed:locked?null:()=>_request('call_staff'),icon:const Icon(Icons.room_service_outlined),label:const CafeText('Call staff')),
+            OutlinedButton(onPressed:locked?null:()=>_request('special_request'),child:const CafeText('Special request')),
+            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_request('bill'),child:const CafeText('Request bill')),
+            OutlinedButton(onPressed:_busy?null:_bill,child:const CafeText('View bill')),
+            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_namedRequest(individualBill:true),child:const CafeText('Individual bill')),
+            OutlinedButton(onPressed:locked||_data!['visit_id']==null?null:()=>_namedRequest(individualBill:false),child:const CafeText('Add my name')),
             IconButton(tooltip:'Refresh menu and bill',onPressed:_busy?null:_load,icon:const Icon(Icons.refresh)),
           ]),
-          if(_data!['visit_id']==null)const Padding(padding:EdgeInsets.symmetric(vertical:12),child:Text('Browse the menu below. Ask staff to start your table visit before ordering.')),
+          if(_data!['visit_id']==null)const Padding(padding:EdgeInsets.symmetric(vertical:12),child:CafeText('Browse the menu below. Ask staff to start your table visit before ordering.')),
           const SizedBox(height:12),
-          TextField(decoration:const InputDecoration(labelText:'Search menu',prefixIcon:Icon(Icons.search)),onChanged:(v)=>setState(()=>_query=v)),
+          TextField(decoration:const InputDecoration(label: CafeText('Search menu'),prefixIcon:Icon(Icons.search)),onChanged:(v)=>setState(()=>_query=v)),
           const SizedBox(height:8),
           Wrap(spacing:8,children:[for(final category in {'All',...menu.map((p)=>p['category'] as String)})ChoiceChip(label:Text(category),selected:_category==category,onSelected:(_)=>setState(()=>_category=category))]),
           for(final product in filtered)Card(child:Padding(padding:const EdgeInsets.all(12),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
             if(product['image_path'] != null) Image.network(Supabase.instance.client.storage.from('cafe-product-images').getPublicUrl(product['image_path'] as String),height:140,fit:BoxFit.cover,errorBuilder:(_,e,s)=>const SizedBox.shrink()),
             Text(product['name'] as String,style:const TextStyle(fontSize:18,fontWeight:FontWeight.bold)),
             if((product['description'] as String? ?? '').isNotEmpty)Text(product['description'] as String),
-            Row(children:[Expanded(child:Text('${product['price_iqd']} IQD')),
+            Row(children:[Expanded(child:CafeText('${product['price_iqd']} IQD')),
               IconButton(tooltip:'Remove ${product['name']}',onPressed:locked?null:()=>setState((){final q=(_cart[product['id']]??0)-1;if(q<=0){_cart.remove(product['id']);}else{_cart[product['id'] as String]=q;}}),icon:const Icon(Icons.remove)),
-              Text('${_cart[product['id']]??0}'),
+              CafeText('${_cart[product['id']]??0}'),
               IconButton(tooltip:'Add ${product['name']}',onPressed:locked||_data!['visit_id']==null||(_cart[product['id']]??0)>=20||(!_cart.containsKey(product['id'])&&_cart.length>=20)?null:()=>setState(()=>_cart[product['id'] as String]=(_cart[product['id']]??0)+1),icon:const Icon(Icons.add)),
             ]),
           ]))),
-          if(filtered.isEmpty)const Text('No available products match this search.'),
-          TextField(controller:_notes,enabled:!locked,maxLength:500,maxLines:2,decoration:const InputDecoration(labelText:'Order notes / special preparation')),
-          Text('Order total: $total IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:18)),
-          FilledButton(onPressed:locked||_cart.isEmpty||_data!['visit_id']==null?null:_submit,child:const Text('Review and place order')),
+          if(filtered.isEmpty)const CafeText('No available products match this search.'),
+          TextField(controller:_notes,enabled:!locked,maxLength:500,maxLines:2,decoration:const InputDecoration(label: CafeText('Order notes / special preparation'))),
+          CafeText('Order total: $total IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:18)),
+          FilledButton(onPressed:locked||_cart.isEmpty||_data!['visit_id']==null?null:_submit,child:const CafeText('Review and place order')),
           const SizedBox(height:20),
-          const Text('Orders for this table',style:TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
-          const Text('Status refreshes every 20 seconds. Only this table’s current visit is shown.'),
-          if(cafeRows(_data!['orders'] ?? []).isEmpty)const Text('No orders placed for this visit yet.'),
+          const CafeText('Orders for this table',style:TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
+          const CafeText('Status refreshes every 20 seconds. Only this table’s current visit is shown.'),
+          if(cafeRows(_data!['orders'] ?? []).isEmpty)const CafeText('No orders placed for this visit yet.'),
           for(final order in cafeRows(_data!['orders'] ?? []))Card(child:Padding(padding:const EdgeInsets.all(14),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-            Text('Order ${(order['id'] as String).substring(0,8)}',style:const TextStyle(fontWeight:FontWeight.bold)),
-            Semantics(liveRegion:true,child:Chip(avatar:Icon(switch(order['status']){'preparing'=>Icons.soup_kitchen,'ready'=>Icons.room_service,'served'=>Icons.check_circle,'cancelled'=>Icons.cancel_outlined,_=>Icons.receipt_long}),label:Text(switch(order['status']){'preparing'=>'Preparing','ready'=>'Ready','served'=>'Served','cancelled'=>'Cancelled',_=>'Received'}))),
-            for(final item in cafeRows(order['items']))Text('${item['quantity']} × ${item['name']}'),
-            if(order['status']!='cancelled')Text('${order['total_iqd']} IQD'),
-            if(['preparing','ready','served'].contains(order['status']))const Text('Accepted by staff. Contact staff for any changes or cancellation.'),
-            if(order['status']=='cancelled')const Text('This order is cancelled and excluded from your bill.'),
+            CafeText('Order ${(order['id'] as String).substring(0,8)}',style:const TextStyle(fontWeight:FontWeight.bold)),
+            Semantics(liveRegion:true,child:Chip(avatar:Icon(switch(order['status']){'preparing'=>Icons.soup_kitchen,'ready'=>Icons.room_service,'served'=>Icons.check_circle,'cancelled'=>Icons.cancel_outlined,_=>Icons.receipt_long}),label:CafeText(switch(order['status']){'preparing'=>'Preparing','ready'=>'Ready','served'=>'Served','cancelled'=>'Cancelled',_=>'Received'}))),
+            for(final item in cafeRows(order['items']))CafeText('${item['quantity']} × ${item['name']}'),
+            if(order['status']!='cancelled')CafeText('${order['total_iqd']} IQD'),
+            if(['preparing','ready','served'].contains(order['status']))const CafeText('Accepted by staff. Contact staff for any changes or cancellation.'),
+            if(order['status']=='cancelled')const CafeText('This order is cancelled and excluded from your bill.'),
           ]))),
           const SizedBox(height:20),
-          const Text('Requests',style:TextStyle(fontWeight:FontWeight.bold)),
+          const CafeText('Requests',style:TextStyle(fontWeight:FontWeight.bold)),
           for(final request in cafeRows(_data!['requests']))ListTile(title:Text((request['kind'] as String).replaceAll('_',' ')),subtitle:Text(request['status'] as String)),
         ],
       ]))));
   }
 }
-
