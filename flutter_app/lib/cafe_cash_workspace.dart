@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'cafe_operations_workspace.dart';
 import 'cafe_request_id.dart';
@@ -31,7 +32,7 @@ class _CafeCashWorkspaceState extends State<CafeCashWorkspace>{
  Future<void> _review(Map<String,dynamic> row,bool approve) async {
   final reason=TextEditingController();
   final form=GlobalKey<FormState>();
-  final text=await showDialog<String>(context:context,builder:(context)=>AlertDialog(title:Text('${approve?'Approve':'Reject'} ${row['amount_iqd']} IQD'),content:Form(key:form,child:TextFormField(controller:reason,maxLength:500,decoration:const InputDecoration(labelText:'Review reason'),validator:(v)=>(v?.trim().length??0)<3?'Enter a reason':null)),actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const Text('Cancel')),FilledButton(onPressed:(){if(form.currentState!.validate())Navigator.pop(context,reason.text.trim());},child:const Text('Confirm'))]));
+  final text=await showDialog<String>(context:context,builder:(context)=>AlertDialog(title:CafeText('${approve?'Approve':'Reject'} ${row['amount_iqd']} IQD'),content:Form(key:form,child:TextFormField(controller:reason,maxLength:500,decoration:const InputDecoration(label: CafeText('Review reason')),validator:(v)=>(v?.trim().length??0)<3?'Enter a reason':null)),actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const CafeText('Cancel')),FilledButton(onPressed:(){if(form.currentState!.validate())Navigator.pop(context,reason.text.trim());},child:const CafeText('Confirm'))]));
   if(text==null||!mounted)return;
   setState(()=>_busy=true);
   try{await _rpc('review_cafe_cash_entry',{'p_id':row['id'],'p_approve':approve,'p_reason':text});await _load();}
@@ -44,11 +45,11 @@ class _CafeCashWorkspaceState extends State<CafeCashWorkspace>{
   final entries=cafeRows(_data?['entries']??[]).where((e)=>(_filter=='All'||e['status']==_filter)&&(!widget.card.contains('expense')||e['kind']=='expense')).toList();
   return Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
    Text(widget.title,style:Theme.of(context).textTheme.headlineSmall),
-   const Text('IQD · Baghdad time · Recorded cash is not a physical cash count. Record opening cash once through Cash in, with a clear reason.'),
-   if(_data!=null)Text('Recorded cash balance: ${_data!['balance_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
-   if((_data?['balance_iqd'] as num? ??0)<0)const Text('Recorded cash is negative. Review refunds, opening cash and missing receipts.',style:TextStyle(color:Colors.red)),
+   const CafeText('IQD · Baghdad time · Recorded cash is not a physical cash count. Record opening cash once through Cash in, with a clear reason.'),
+   if(_data!=null)CafeText('Recorded cash balance: ${_data!['balance_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
+   if((_data?['balance_iqd'] as num? ??0)<0)const CafeText('Recorded cash is negative. Review refunds, opening cash and missing receipts.',style:TextStyle(color:Colors.red)),
    Wrap(spacing:8,children:[
-    OutlinedButton.icon(onPressed:_busy||_loading?null:_load,icon:const Icon(Icons.refresh),label:const Text('Refresh')),
+    OutlinedButton.icon(onPressed:_busy||_loading?null:_load,icon:const Icon(Icons.refresh),label:const CafeText('Refresh')),
     for(final action in {'cash_in':'Cash in','cash_out':'Request owner withdrawal','expense':'Submit expense','count':'Reconcile cash'}.entries)
      if(caps[action.key]==true)FilledButton(onPressed:_busy||_loading||_error!=null?null:()=>_entry(action.key),child:Text(action.value)),
    ]),
@@ -56,19 +57,19 @@ class _CafeCashWorkspaceState extends State<CafeCashWorkspace>{
    if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
    if(_data!=null)...[
     const SizedBox(height:12),
-    const Text('Journal · Latest 500 entries',style:TextStyle(fontWeight:FontWeight.bold)),
+    const CafeText('Journal · Latest 500 entries',style:TextStyle(fontWeight:FontWeight.bold)),
     Wrap(spacing:8,children:[for(final f in ['All','pending','posted','rejected'])ChoiceChip(label:Text(f),selected:_filter==f,onSelected:(_)=>setState(()=>_filter=f))]),
-    if(entries.isEmpty)const Text('No matching journal entries.'),
+    if(entries.isEmpty)const CafeText('No matching journal entries.'),
     for(final e in entries)Card(child:Padding(padding:const EdgeInsets.all(12),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-     Text('${e['kind']} · ${e['amount_iqd']} IQD · ${e['method']}',style:const TextStyle(fontWeight:FontWeight.bold)),
-     Text('${e['reason']}'),Text('${e['status']} · ${_time(e['created_at'])}'),
-     if(e['review_reason']!=null)Text('Review: ${e['review_reason']}'),
-     if(caps['approve']==true&&e['status']=='pending')Wrap(spacing:8,children:[TextButton(onPressed:_busy?null:()=>_review(e,true),child:const Text('Approve')),TextButton(onPressed:_busy?null:()=>_review(e,false),child:const Text('Reject'))]),
+     CafeText('${e['kind']} · ${e['amount_iqd']} IQD · ${e['method']}',style:const TextStyle(fontWeight:FontWeight.bold)),
+     CafeText('${e['reason']}'),CafeText('${e['status']} · ${_time(e['created_at'])}'),
+     if(e['review_reason']!=null)CafeText('Review: ${e['review_reason']}'),
+     if(caps['approve']==true&&e['status']=='pending')Wrap(spacing:8,children:[TextButton(onPressed:_busy?null:()=>_review(e,true),child:const CafeText('Approve')),TextButton(onPressed:_busy?null:()=>_review(e,false),child:const CafeText('Reject'))]),
     ]))),
     const SizedBox(height:20),
-    const Text('Cash reconciliation · Latest 100 counts',style:TextStyle(fontWeight:FontWeight.bold)),
-    const Text('A count preserves the expected balance and difference at that time. It never silently adjusts the ledger.'),
-    for(final c in cafeRows(_data!['counts']))ListTile(title:Text('Counted ${c['counted_iqd']} · Expected ${c['expected_iqd']} IQD'),subtitle:Text('Difference: ${(c['counted_iqd'] as num)-(c['expected_iqd'] as num)} IQD · ${_time(c['created_at'])}\n${c['reason']}')),
+    const CafeText('Cash reconciliation · Latest 100 counts',style:TextStyle(fontWeight:FontWeight.bold)),
+    const CafeText('A count preserves the expected balance and difference at that time. It never silently adjusts the ledger.'),
+    for(final c in cafeRows(_data!['counts']))ListTile(title:CafeText('Counted ${c['counted_iqd']} · Expected ${c['expected_iqd']} IQD'),subtitle:CafeText('Difference: ${(c['counted_iqd'] as num)-(c['expected_iqd'] as num)} IQD · ${_time(c['created_at'])}\n${c['reason']}')),
    ],
   ])));
  }
@@ -92,10 +93,10 @@ class _CashEntryState extends State<_CashEntry>{
   finally{if(mounted)setState(()=>_busy=false);}
  }
  @override Widget build(BuildContext context)=>PopScope(canPop:!_busy,child:AlertDialog(title:Text(widget.kind=='count'?'Physical cash count':widget.kind.replaceAll('_',' ')),content:SizedBox(width:420,child:Form(key:_form,child:SingleChildScrollView(child:Column(mainAxisSize:MainAxisSize.min,children:[
-  TextFormField(controller:_amount,enabled:_request==null,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Amount IQD'),validator:(v){final n=int.tryParse(v??'');return n==null||n<(widget.kind=='count'?0:1)||n>999999999999?'Enter a valid whole IQD amount':null;}),
-  if(widget.kind=='expense')DropdownButtonFormField<String>(initialValue:_method,items:['cash','manual_card'].map((m)=>DropdownMenuItem(value:m,child:Text(m))).toList(),onChanged:_request!=null?null:(v)=>setState(()=>_method=v!),decoration:const InputDecoration(labelText:'Payment method')),
-  TextFormField(controller:_reason,enabled:_request==null,maxLength:500,maxLines:3,decoration:const InputDecoration(labelText:'Reason / receipt reference'),validator:(v)=>(v?.trim().length??0)<3?'Enter a reason':null),
+  TextFormField(controller:_amount,enabled:_request==null,keyboardType:TextInputType.number,decoration:const InputDecoration(label: CafeText('Amount IQD')),validator:(v){final n=int.tryParse(v??'');return n==null||n<(widget.kind=='count'?0:1)||n>999999999999?'Enter a valid whole IQD amount':null;}),
+  if(widget.kind=='expense')DropdownButtonFormField<String>(initialValue:_method,items:['cash','manual_card'].map((m)=>DropdownMenuItem(value:m,child:Text(m))).toList(),onChanged:_request!=null?null:(v)=>setState(()=>_method=v!),decoration:const InputDecoration(label: CafeText('Payment method'))),
+  TextFormField(controller:_reason,enabled:_request==null,maxLength:500,maxLines:3,decoration:const InputDecoration(label: CafeText('Reason / receipt reference')),validator:(v)=>(v?.trim().length??0)<3?'Enter a reason':null),
   Text(widget.kind=='cash_in'?'Only record cash actually received. Do not enter order payments here.':widget.kind=='count'?'Enter the cash physically counted. This does not change the recorded balance.':'This request remains pending until an authorized review posts it.'),
   if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
- ])))),actions:[TextButton(onPressed:_busy?null:()=>Navigator.pop(context),child:const Text('Close')),FilledButton(onPressed:_busy?null:_save,child:Text(_request==null?'Save':'Retry same entry'))]));
+ ])))),actions:[TextButton(onPressed:_busy?null:()=>Navigator.pop(context),child:const CafeText('Close')),FilledButton(onPressed:_busy?null:_save,child:Text(_request==null?'Save':'Retry same entry'))]));
 }
