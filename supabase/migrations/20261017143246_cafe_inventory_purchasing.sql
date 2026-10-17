@@ -91,7 +91,8 @@ BEGIN
  AND (p_card NOT IN ('low_stock','low_stock_alerts') OR i.on_hand<=i.reorder_level)
  AND (p_card<>'low_stock' OR i.department<>'general');
  SELECT coalesce(jsonb_agg(x ORDER BY x.name,x.id),'[]') INTO items FROM(
-  SELECT i.*,EXISTS(SELECT 1 FROM public.cafe_inventory_movements m WHERE m.item_id=i.id) has_movements
+  SELECT i.*,EXISTS(SELECT 1 FROM public.cafe_inventory_movements m WHERE m.item_id=i.id) has_movements,
+   (EXISTS(SELECT 1 FROM public.cafe_inventory_movements m WHERE m.item_id=i.id) OR EXISTS(SELECT 1 FROM public.cafe_inventory_purchases p WHERE p.item_id=i.id)) unit_locked
   FROM public.cafe_inventory_items i
   WHERE (query='' OR position(query in lower(i.name||' '||i.department))>0)
   AND (p_card NOT IN ('low_stock','low_stock_alerts') OR i.on_hand<=i.reorder_level)
@@ -162,8 +163,8 @@ BEGIN
   IF item.id IS NULL OR p_version IS NULL OR item.version<>p_version THEN RAISE EXCEPTION 'Stock changed; refresh' USING ERRCODE='40001'; END IF;
   before_row:=to_jsonb(item);target:=item.id;
   IF p_action='update_item' THEN
-   IF trim(p_data->>'unit') IS DISTINCT FROM item.unit AND EXISTS(SELECT 1 FROM public.cafe_inventory_movements WHERE item_id=item.id) THEN
-    RAISE EXCEPTION 'Unit cannot change after a movement' USING ERRCODE='22023'; END IF;
+   IF trim(p_data->>'unit') IS DISTINCT FROM item.unit AND (EXISTS(SELECT 1 FROM public.cafe_inventory_movements WHERE item_id=item.id) OR EXISTS(SELECT 1 FROM public.cafe_inventory_purchases WHERE item_id=item.id)) THEN
+    RAISE EXCEPTION 'Unit cannot change after a movement or purchase request' USING ERRCODE='22023'; END IF;
    UPDATE public.cafe_inventory_items SET name=trim(p_data->>'name'),unit=trim(p_data->>'unit'),
     department=p_data->>'department',reorder_level=cafe_private.inventory_quantity(p_data->>'reorder_level',true),
     version=version+1,updated_at=clock_timestamp() WHERE id=item.id RETURNING * INTO item;
