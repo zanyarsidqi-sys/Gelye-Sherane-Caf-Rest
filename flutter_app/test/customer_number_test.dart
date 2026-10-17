@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gelye_sherane_cafe/cafe_customer_number.dart';
+import 'package:gelye_sherane_cafe/cafe_operational_report.dart';
+import 'package:gelye_sherane_cafe/cafe_report_selection.dart';
 import 'package:gelye_sherane_cafe/cafe_operations_workspace.dart';
 import 'package:gelye_sherane_cafe/cafe_table_overview.dart';
 import 'package:gelye_sherane_cafe/staff_dashboard_page.dart';
@@ -28,6 +30,14 @@ Map<String,dynamic> get completed => history([
 ]);
 
 void main() {
+  test('table history keeps three distinct sessions for the same table', () {
+    final result = selectCafeReportRows(columns: ['Table','Visit','Guests'], rows: [
+      ['Table 7','session-1',4], ['Table 7','session-2',6], ['Table 7','session-3',2],
+      ['Table 8','session-4',5],
+    ], query: 'Table 7', filters: {}, sortColumn: null, ascending: true);
+    expect(result.length,3);
+    expect(result.map((r)=>r[1]),['session-1','session-2','session-3']);
+  });
   test('10 seated, 6 expected, 16 finished counts people and keeps paid guests seated', () {
     final result = summarizeCustomers(tables: [table('1',10),table('1',10)],
       reservations: [reservation('r1',6),reservation('r1',6),
@@ -72,8 +82,9 @@ void main() {
       child:Directionality(textDirection:TextDirection.rtl,child:CafeCustomerNumber(
         rpc:(name,params) async {
           if (fail) throw StateError('Offline');
-          if (name == 'get_cafe_table_overview') return {
-            'server_time':DateTime.now().toUtc().toIso8601String(),'tables':[table('1',10)]};
+          if (name == 'get_cafe_table_overview') {
+            return {'server_time':DateTime.now().toUtc().toIso8601String(),'tables':[table('1',10)]};
+          }
           expect(params['p_card'],'guests_today');
           return history([['Table 2','done',16,'${customerDay(today)} 00:00','${customerDay(today)} 01:00',60]]);
         },
@@ -99,7 +110,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(home:StaffDashboardPage(
       email:'review@example.com',role:admin?'admin':'staff',
       grantedPermissions: admin ? const {} : {
-        'dashboard:customer_number','dashboard:customer_requests','dashboard:kitchen_live_board',
+        'dashboard:customer_number','dashboard:customer_requests','dashboard:kitchen_live_board','dashboard:table_history',
       })));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('dashboard-search')),title);
@@ -113,6 +124,8 @@ void main() {
   testWidgets('new card and remaining workflow routes open actual widgets', (tester) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    await open(tester,'Table History');
+    expect(tester.widget<CafeOperationalReport>(find.byType(CafeOperationalReport)).card,'guests_today');
     await open(tester,'Customer Number');
     expect(find.byType(CafeCustomerNumber),findsOneWidget);
     await open(tester,'Customer Requests');
@@ -125,6 +138,8 @@ void main() {
   testWidgets('dashboard-only permissions cannot enter underlying workflows', (tester) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    await open(tester,'Table History',admin:false);
+    expect(find.byType(CafeOperationalReport),findsNothing);
     await open(tester,'Customer Number',admin:false);
     expect(find.byType(CafeCustomerNumber),findsNothing);
     expect(find.textContaining('Customer counts require'),findsOneWidget);
