@@ -43,7 +43,7 @@ Map<String,dynamic> cafeInventoryData(dynamic raw){
      throw const FormatException('Invalid quantity');
     }
    }
-   if(key=='items'&&(row['name'] is! String||row['unit'] is! String||row['version'] is! int)){
+   if(key=='items'&&(row['name'] is! String||row['unit'] is! String||row['version'] is! int||row['has_movements'] is! bool||row['unit_locked'] is! bool||!const {'kitchen','drinks','nargile','general'}.contains(row['department']))){
     throw const FormatException('Invalid stock item');
    }
    if(key=='purchases'&&(!_purchaseStates.contains(row['status'])||row['version'] is! int||
