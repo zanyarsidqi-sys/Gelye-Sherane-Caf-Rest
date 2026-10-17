@@ -57,7 +57,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$
 $$;
 
 CREATE FUNCTION cafe_private.people_workspace(p_kind text,p_from date,p_to date) RETURNS jsonb
-LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$
 DECLARE admin boolean; start_at timestamptz; end_at timestamptz; result_rows jsonb; event_rows jsonb;
  row_count bigint; active_row jsonb; snapshot timestamptz:=now();
 BEGIN
@@ -136,7 +136,7 @@ BEGIN
     RAISE EXCEPTION 'Clock-in uses server identity and time only' USING ERRCODE='22023'; END IF;
    IF EXISTS(SELECT 1 FROM public.cafe_staff_attendance WHERE staff_id=auth.uid() AND clocked_out_at IS NULL) THEN
     RAISE EXCEPTION 'Already clocked in; refresh' USING ERRCODE='23505'; END IF;
-   INSERT INTO public.cafe_staff_attendance(staff_id) VALUES(auth.uid()) RETURNING * INTO a;
+   INSERT INTO public.cafe_staff_attendance(staff_id,clocked_in_at) VALUES(auth.uid(),clock_timestamp()) RETURNING * INTO a;
   ELSIF p_action='clock_out' THEN
    SELECT * INTO a FROM public.cafe_staff_attendance WHERE id=p_id AND staff_id=auth.uid() FOR UPDATE;
    IF a.id IS NULL THEN RAISE EXCEPTION 'Only your own attendance can be changed' USING ERRCODE='42501'; END IF;
@@ -144,7 +144,7 @@ BEGIN
     RAISE EXCEPTION 'Attendance changed; refresh' USING ERRCODE='40001'; END IF;
    IF p_data<>'{}'::jsonb THEN RAISE EXCEPTION 'Clock-out uses server time only' USING ERRCODE='22023'; END IF;
    before_row:=to_jsonb(a);
-   UPDATE public.cafe_staff_attendance SET clocked_out_at=greatest(now(),clocked_in_at),version=version+1 WHERE id=a.id RETURNING * INTO a;
+   UPDATE public.cafe_staff_attendance SET clocked_out_at=greatest(clock_timestamp(),clocked_in_at),version=version+1 WHERE id=a.id RETURNING * INTO a;
   ELSE RAISE EXCEPTION 'Unknown attendance action' USING ERRCODE='22023';
   END IF;
   entity:=a.id;result:=to_jsonb(a);
