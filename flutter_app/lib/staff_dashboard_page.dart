@@ -1,3 +1,5 @@
+import 'cafe_customer_number.dart';
+import 'cafe_finance_surface.dart';
 import 'cafe_dashboard_menu.dart';
 import 'cafe_dashboard_tables.dart';
 import 'cafe_language.dart';
@@ -6044,6 +6046,60 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && card == 'Table History') {
+      if (!allowed(0, 'Guests Today')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Guests Today access has not been assigned.')));
+      }
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const CafeText('Each row is one table session. Search a table to see all its visits. Sessions spanning midnight appear on each day they overlap; duration is limited to the selected period. An empty departure time means the visit is still open.'),
+        CafeOperationalReport(key: const ValueKey('dashboard-table-history'), section: 'dashboard',
+          card: 'guests_today', title: 'Table History', rpc: rpc),
+      ]);
+    }
+    if (index == 0 && card == 'Customer Number') {
+      if (!allowed(0, 'Guests Today') || !allowed(1, 'Table Reservations') ||
+          !(_tableOverviewCards.any((title) => allowed(1, title)) || allowed(24, 'Table Overview'))) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Customer counts require Table Overview, Table Reservations and Guests Today access.')));
+      }
+      return CafeCustomerNumber(rpc: rpc, reservations: _hasValidSupabaseConfiguration
+        ? (from, to) => loadCustomerReservations(Supabase.instance.client, from, to) : null);
+    }
+    if (index == 0 && card == 'Customer Requests') {
+      if (!allowed(1, 'Table Service Requests')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Table Service Requests access has not been assigned.')));
+      }
+      return CafeTableOverview(key: const ValueKey('dashboard-customer-requests'), rpc: rpc,
+        title: 'Customer Requests', executiveStyle: true, requestsOnly: true,
+        onQr: (id) async { await _loadDiningTables(); final table = _diningTables.where((t) => t.id == id).firstOrNull; if (table != null && mounted) await _showDiningTableQr(table); });
+    }
+    if (index == 0 && card == 'Kitchen Live Board') {
+      if (!allowed(4, 'Live Kitchen Orders')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Live Kitchen Orders access has not been assigned.')));
+      }
+      return CafeFinanceSurface(builder: (context) => CafeOperationsWorkspace(
+        key: const ValueKey('dashboard-kitchen-live-board'), title: card,
+        source: 'all', canCreate: false, rpc: rpc));
+    }
+    if (index == 0 && card == 'Reservations') {
+      if (!_canViewTableReservations || !allowed(1, 'Table Reservations')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Table Reservations access has not been assigned.')));
+      }
+      return _tableReservationsWorkspace();
+    }
+    if (index == 0 && card == 'Guest Check-In') {
+      if (!allowed(1, 'Guest Check-In & No-Show')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Guest Check-In & No-Show access has not been assigned.')));
+      }
+      return CafeTableOverview(key: const ValueKey('dashboard-guest-check-in'), rpc: rpc,
+        title: 'Guest Check-In', executiveStyle: true, initialStatus: 'Reserved',
+        onQr: (id) async { await _loadDiningTables(); final table = _diningTables.where((t) => t.id == id).firstOrNull; if (table != null && mounted) await _showDiningTableQr(table); });
+    }
     if (index == 0 && dashboardMenuCards.contains(card)) {
       return CafeDashboardMenu(key: ValueKey('dashboard-menu-$card'), title: card,
         store: _hasValidSupabaseConfiguration ? SupabaseCafeMenuStore(Supabase.instance.client) : null);
@@ -9180,6 +9236,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         'Table Cleaning',
         'Table Service Requests',
         'Guests Today',
+        'Table History',
         'Table Map',
         'Reservations',
         'Cleaning Needed',
@@ -9237,6 +9294,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         'Maintenance Requests',
         'Notifications & Alerts',
         'Customers',
+        'Customer Number',
         'Employees',
         'Tasks',
         'Events',
@@ -9598,7 +9656,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final operationalReport = menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History'}.contains(title);
+    final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
         !_subcards[sectionIndex].contains(title) &&
@@ -9626,7 +9685,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isLoading = reservationDashboardCard
         ? _isLoadingTableReservations
         : _isLoadingRecords;
-    final primary = menuSnapshot ? 'Open products' : tableSnapshot ? 'Open tables' : operationalReport ? 'Open report' : reservationDashboardCard
+    final primary = reservationWorkflow ? 'Open workflow' : menuSnapshot ? 'Open products' : tableSnapshot ? 'Open tables' : operationalReport ? 'Open report' : reservationDashboardCard
         ? unavailable
               ? '—'
               : isLoading
@@ -9645,7 +9704,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ? workspaceAmountLabel(amountRecords.map((record) => (amount: record.amount, currency: record.currency)))
           : '${recordedAmount.toStringAsFixed(0)} $currency'
         : '${records.length}';
-    final supporting = menuSnapshot ? 'Current menu snapshot' : tableSnapshot ? 'Current table snapshot' : operationalReport ? 'Connected operational data' : reservationDashboardCard
+    final supporting = reservationWorkflow ? 'Requires workflow permissions' : menuSnapshot ? 'Current menu snapshot' : tableSnapshot ? 'Current table snapshot' : operationalReport ? 'Connected operational data' : reservationDashboardCard
         ? !_canViewTableReservations
               ? 'Access not assigned'
               : unavailable
@@ -10205,9 +10264,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
             const SizedBox(height: 3),
             CafeText(
-              '${MaterialLocalizations.of(context).formatMediumDate(reservation.startsAt)} · '
-              '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(reservation.startsAt))}'
-              '–${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(reservation.endsAt))}',
+              '${cafeFinanceTimestamp(reservation.startsAt.toUtc().toIso8601String())}'
+              ' – ${cafeFinanceTimestamp(reservation.endsAt.toUtc().toIso8601String())} · Baghdad',
               style: const TextStyle(color: _executiveMuted),
             ),
             const SizedBox(height: 3),

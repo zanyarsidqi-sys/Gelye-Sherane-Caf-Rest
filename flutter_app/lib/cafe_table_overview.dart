@@ -1,4 +1,5 @@
 import 'cafe_language.dart';
+import 'cafe_finance_surface.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'cafe_operations_workspace.dart';
@@ -6,8 +7,10 @@ import 'cafe_request_id.dart';
 
 /// Table state comes from the server; filters never change operational state.
 class CafeTableOverview extends StatefulWidget {
-  const CafeTableOverview({super.key, this.rpc, required this.onQr, this.initialStatus = 'All', this.requestsOnly = false});
+  const CafeTableOverview({super.key, this.rpc, required this.onQr, this.initialStatus = 'All', this.requestsOnly = false, this.executiveStyle = false, this.title = 'Table Overview'});
   final String initialStatus;
+  final String title;
+  final bool executiveStyle;
   final bool requestsOnly;
   final CafeRpc? rpc;
   final Future<void> Function(String id) onQr;
@@ -199,14 +202,17 @@ class _CafeTableOverviewState extends State<CafeTableOverview> {
     ])));
   }
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => widget.executiveStyle
+      ? CafeFinanceSurface(builder: _content) : _content(context);
+
+  Widget _content(BuildContext context) {
     final rows = _tables.where((t) => (_waiter == 'All' || t['waiter_name'] == _waiter) && (!widget.requestsOnly || (t['requests'] as List).isNotEmpty) && (_area == 'All' || t['area'] == _area) && (_mode == 'All' || t['pricing_mode'] == _mode) && (_status == 'All' || _state(t) == _status) && '${t['name']} ${t['id']} ${t['customer_name']} ${t['contact']}'.toLowerCase().contains(_query.toLowerCase())).toList();
     rows.sort((a,b) => _sort == 'Longest visit' ? '${a['started_at'] ?? 'z'}'.compareTo('${b['started_at'] ?? 'z'}') : _sort == 'Requests' ? (b['requests'] as List).length.compareTo((a['requests'] as List).length) : '${a['name']}'.compareTo('${b['name']}'));
     final page = _page.clamp(0, rows.isEmpty ? 0 : (rows.length - 1) ~/ 12);
     final shown = rows.skip(page * 12).take(12).toList();
     final baghdad = _now.add(const Duration(hours: 3));
-    return Container(color: Colors.white, padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      CafeText('Table Overview', style: Theme.of(context).textTheme.headlineMedium),
+    return Container(color: widget.executiveStyle ? const Color(0xFF14243A) : Colors.white, padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      CafeText(widget.title, style: Theme.of(context).textTheme.headlineMedium),
       CafeText('${baghdad.toString().substring(0, 19)} · Baghdad'),
       const SizedBox(height: 16),
       TextField(decoration: const InputDecoration(label: CafeText('Search table, customer or phone'), prefixIcon: Icon(Icons.search)), onChanged: (v) => setState(() { _query = v; _page = 0; })),
