@@ -47,6 +47,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
   late String _filter = widget.initialHistory ? 'All' : 'Active';
   late String _status = widget.initialStatus;
   bool _loading = true, _busy = false;
+  int _loadRequest = 0;
   String? _error;
   Future<dynamic> _rpc(String name, Map<String, dynamic> params) async {
     if (widget.rpc == null) throw StateError('Connection not configured');
@@ -59,10 +60,15 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
     _load();
   }
 
+  @override
+  void dispose() { _loadRequest++; super.dispose(); }
+
   Future<void> _load() async {
+    final request = ++_loadRequest;
     setState(() {
       _loading = true;
       _error = null;
+      _rows = [];
     });
     try {
       final rows = cafeRows(
@@ -73,15 +79,15 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
           widget.payments ? {} : {'p_source': widget.source, 'p_history': _filter == 'All'},
         ),
       );
-      if (mounted) setState(() => _rows = rows.where((r) => (widget.tableId == null || r['table_id'] == widget.tableId) && (widget.visitId == null || r['visit_id'] == widget.visitId)).toList());
+      if (mounted && request == _loadRequest) setState(() => _rows = rows.where((r) => (widget.tableId == null || r['table_id'] == widget.tableId) && (widget.visitId == null || r['visit_id'] == widget.visitId)).toList());
     } catch (_) {
-      if (mounted) {
+      if (mounted && request == _loadRequest) {
         setState(
           () => _error = 'Could not load records. Check your connection and assigned permissions, then refresh.',
         );
       }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && request == _loadRequest) setState(() => _loading = false);
     }
   }
 
