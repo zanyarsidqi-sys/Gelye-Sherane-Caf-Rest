@@ -3,7 +3,7 @@ on:
   push:
     branches: [codex/table-card-workflows]
   pull_request:
-    paths: ['flutter_app/**']
+    paths: ['flutter_app/**', 'supabase/migrations/**', 'review/table-task-contract-test.sql', '.github/workflows/verify-card-workflows.yml']
 permissions:
   contents: read
 jobs:
@@ -23,3 +23,27 @@ jobs:
         working-directory: flutter_app
       - run: flutter build web --release
         working-directory: flutter_app
+  task-database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: contract-test-only
+          POSTGRES_DB: task_workflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: contract-test-only
+      PGDATABASE: task_workflow_test
+    steps:
+      - uses: actions/checkout@v4
+      - run: psql -v ON_ERROR_STOP=1 -f review/table-task-contract-test.sql
