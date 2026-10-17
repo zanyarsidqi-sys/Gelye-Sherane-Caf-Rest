@@ -97,3 +97,27 @@ GitHub run 39038641270 passed analysis, full Flutter tests and release web build
 Tests include timing coverage, reservation boundaries, tourism scope, source permission changes, stale clearing, directory search, repair approvals, form validation and Dashboard permission gates. No production mutation tests or authenticated device end-to-end checks were performed.
 
 Progress by unique card improvements: 52 published + 11 unpublished = 63 of 98; 35 cards remain outside these improvement batches. Batch 1 has 11 of 23 improved, with 12 outstanding; Batch 2 has 23 outstanding. This is not a functional-completion percentage. Full financial settlement, credit accounting, time/read-only permission enforcement and other prior gaps remain on the checklist.
+
+## Task and report checkpoint — 17 October 2026
+
+Latest instruction remains one combined publication after the remaining work. No deployment or production database changes in this checkpoint.
+
+Three additional unique routes implemented in draft:
+- Tasks: permission-scoped table-service task board combining maintenance, chair requests, waiting-list parties and table groups. Oldest first, source/search/history/assignment filters; exact returned table and employee information; source failures explicitly mark incomplete results.
+- Pending Staff Tasks: the same underlying task board, restricted to non-terminal records. This is table-service work, not a new general staff task or shift system.
+- Reports: searchable library of existing authorized Dashboard reports. Opening a report preserves its existing server permission, date selection, filters and export behavior. Losing report permission removes the selected report.
+
+Administrators can assign a task to an employee using the repository's versioned, audited task command. Confirmation, stale-version handling and identical-request retries are included. Retry identity lasts for the mounted screen only. Staff cannot see assignment actions without the server capability, and the server still enforces authorization. Status changes remain in the original workflow; no new general task creation, deadlines, notifications or attendance ledger is claimed.
+
+### Corrected backend assumption — release blocker
+A read-only production catalog check found that public.cafe_table_tasks and both get_cafe_table_task_workspace / perform_cafe_table_task_command are absent. Earlier descriptions of these as "existing" referred to repository code, not deployed database availability. Waiting List, Maintenance, Maintenance Requests, Tasks and Pending Staff Tasks require the table-task migration before they can work against production.
+
+The existing undeployed migration 20261017092728_cafe_table_card_workflows.sql used double quotes for string replacements inside its patch block. Corrected to dollar-quoted string literals, with explicit failure if either expected function patch target is absent. Read-only checks confirm both patch targets currently match the deployed table_access/table_overview definitions.
+
+CI now executes the actual task migration in an isolated PostgreSQL 17 database and checks create/assignment retry identity, record versions, maintenance lifecycle, staff denial, maintenance seating guard, audit entries and direct/anonymous access restrictions. Auth/MFA, chair movement and seating functions are fixture boundaries; this is not full Supabase end-to-end acceptance or a production migration rehearsal. Existing Flutter tests use mocked RPC responses.
+
+Release gate: rehearse the corrected migration with the real prerequisite schema in staging, test authenticated admin/staff workflows, review advisors, then install it as part of the authorized combined release before deploying dependent UI. Do not silently mark these cards production-ready from widget or fixture tests.
+
+Progress after these additions: 52 published improvements + 14 draft improvements = 66 of 98; 32 remain outside the improvement batches. Batch 1: 13/23; Batch 2: 1/23. These counts do not represent complete domain workflows. Prior financial, permissions, translation and deployment gaps remain.
+
+Verified code head: 10fb935beb2e0ff01d766682c2d4342fd02d0218. Run 39039723097 passed flutter analyze, the full Flutter test suite, release web build, and isolated PostgreSQL task-contract checks. Eight new unit/widget tests cover parsing, authorized sources, pending/history, source failures, permission changes, assignment retries, report permissions, mobile RTL and Dashboard route scoping.
