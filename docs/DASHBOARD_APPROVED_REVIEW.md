@@ -16,7 +16,9 @@ User approved the proposed direction for all 96 Dashboard card detail screens. A
 
 ## Development batch 1
 
-Implemented shared report screen changes used by 28 Dashboard report routes: executive styling, mobile labeled-record layout, inherited Dashboard date range, request-race protection, stale-data removal on refresh/error, data-shape validation, refresh timestamp, translated title/controls, filtered PDF export.
+Implemented shared report screen changes used by 28 Dashboard report routes: executive styling, mobile labeled-record layout, optional inherited date-range support (Dashboard caller hookup blocked), request-race protection, stale-data removal on refresh/error, data-shape validation, refresh timestamp, translated title/controls, filtered PDF export.
+
+Automatic approval review rejected the staff_dashboard_page.dart full-file write twice, including after exact inverse-substitution evidence. The available connector replaces whole files; no narrow write API is available. That file remains unchanged. Report initialRange support is tested independently, but Dashboard navigation still starts at today's default until the caller hookup is permitted.
 
 No invented financial aggregates, no database changes, no permissions changes, no deployment. Remaining cards and domain-specific report designs are pending. This is not completion of the 96 cards.
 
