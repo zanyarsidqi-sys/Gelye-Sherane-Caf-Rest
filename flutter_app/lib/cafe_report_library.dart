@@ -19,7 +19,7 @@ class _CafeReportLibraryState extends State<CafeReportLibrary> {
   @override
   void didUpdateWidget(CafeReportLibrary oldWidget){
     super.didUpdateWidget(oldWidget);
-    if(!_reports.contains(_selected))_selected=null;
+    if(_selected!=null&&!_reports.contains(_selected)){_selected=null;_query='';}
   }
   @override
   Widget build(BuildContext context){
@@ -30,7 +30,7 @@ class _CafeReportLibraryState extends State<CafeReportLibrary> {
       const CafeText('Open an authorized Dashboard report. Choose dates, search, filter and export inside each report.'),
       if(selected!=null)...[
         Align(alignment:AlignmentDirectional.centerStart,child:TextButton.icon(
-          onPressed:()=>setState(()=>_selected=null),icon:const Icon(Icons.arrow_back),
+          onPressed:()=>setState((){_selected=null;_query='';}),icon:const Icon(Icons.arrow_back),
           label:const CafeText('All reports'))),
         CafeOperationalReport(key:ValueKey(selected),section:'dashboard',
           card:selected.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'),'_').replaceAll(RegExp(r'^_|_$'),''),
