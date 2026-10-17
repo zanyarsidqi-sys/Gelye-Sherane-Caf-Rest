@@ -23,12 +23,18 @@ class CafeOperationsWorkspace extends StatefulWidget {
     this.canRefund = false,
     this.tableId,
     this.visitId,
+    this.title,
+    this.initialHistory = false,
+    this.initialStatus = 'All',
   });
   final String source;
   final bool canCreate, payments, canRefund;
   final CafeRpc? rpc;
   final String? tableId;
   final String? visitId;
+  final String? title;
+  final bool initialHistory;
+  final String initialStatus;
   @override
   State<CafeOperationsWorkspace> createState() =>
       _CafeOperationsWorkspaceState();
@@ -36,7 +42,9 @@ class CafeOperationsWorkspace extends StatefulWidget {
 
 class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
   List<Map<String, dynamic>> _rows = [];
-  String _query = '', _filter = 'Active';
+  String _query = '';
+  late String _filter = widget.initialHistory ? 'All' : 'Active';
+  late String _status = widget.initialStatus;
   bool _loading = true, _busy = false;
   String? _error;
   Future<dynamic> _rpc(String name, Map<String, dynamic> params) async {
@@ -165,6 +173,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                 r['status'] != 'cancelled'
           : !['served', 'cancelled'].contains(r['status']);
       return (_filter == 'All' || active) &&
+          (_status == 'All' || r['status'] == _status) &&
           '${r['id']} ${r['table_name']} ${r['status']}'.toLowerCase().contains(
             _query.toLowerCase(),
           );
@@ -194,9 +203,9 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.payments
+              widget.title ?? (widget.payments
                   ? 'Order payments'
-                  : '${widget.source.replaceAll('_', ' ')} orders',
+                  : '${widget.source.replaceAll('_', ' ')} orders'),
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             Text(
@@ -240,6 +249,26 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                     },
                   ),
               ],
+            ),
+            if (!widget.payments) Padding(
+              padding: const EdgeInsets.symmetric(vertical:8),
+              child: DropdownButtonFormField<String>(
+                initialValue: _status,
+                decoration: const InputDecoration(labelText:'Order status'),
+                items: [for(final status in const ['All','received','preparing','ready','served','cancelled'])
+                  DropdownMenuItem(value:status,child:Text(switch(status) {
+                    'received'=>'Received', 'preparing'=>'Preparing', 'ready'=>'Ready',
+                    'served'=>'Served', 'cancelled'=>'Cancelled', _=>'All statuses',
+                  }))],
+                onChanged: _loading || _busy ? null : (value) {
+                  if(value==null)return;
+                  setState(() {
+                    _status=value;
+                    if(value=='served'||value=='cancelled')_filter='All';
+                  });
+                  _load();
+                },
+              ),
             ),
             TextField(
               decoration: const InputDecoration(
