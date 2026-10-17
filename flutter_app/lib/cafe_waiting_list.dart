@@ -132,7 +132,7 @@ class _CafeWaitingListState extends State<CafeWaitingList> {
     if (confirmed != true || !mounted) return;
     _pending = {'p_request_id':newCafeRequestId(),'p_kind':'waiting','p_action':action,
       'p_id':row['id'],'p_version':row['version'],
-      'p_data':{if(tableId!=null)'table_id':tableId}};
+      'p_data':{if(action=='offered')'table_id':tableId}};
     await _send();
   }
 
@@ -212,9 +212,11 @@ class _WaitingPartyEditorState extends State<_WaitingPartyEditor> {
     actions:[
       TextButton(onPressed:()=>Navigator.pop(context),child:const CafeText('Cancel')),
       FilledButton(onPressed:(){
-        if (_form.currentState!.validate()) Navigator.pop(context,<String,dynamic>{
-          'title':_name.text.trim(),'quantity':int.parse(_guests.text),'details':_notes.text.trim(),
-        });
+        if (_form.currentState!.validate()) {
+          Navigator.pop(context,<String,dynamic>{
+            'title':_name.text.trim(),'quantity':int.parse(_guests.text),'details':_notes.text.trim(),
+          });
+        }
       },child:const CafeText('Save party')),
     ],
   );
