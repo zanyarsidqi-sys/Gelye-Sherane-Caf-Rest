@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gelye_sherane_cafe/cafe_dashboard_employees.dart';
+import 'package:gelye_sherane_cafe/cafe_table_overview.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gelye_sherane_cafe/cafe_service_speed.dart';
 import 'package:gelye_sherane_cafe/cafe_reservation_filters.dart';
@@ -23,6 +25,23 @@ CafeTableReservation booking(String start,String end)=>CafeTableReservation(
 Widget host(Widget child)=>MaterialApp(home:Scaffold(body:SingleChildScrollView(child:child)));
 
 void main() {
+  testWidgets('staff directory searches real returned staff and clears on failure',(tester)async{
+    var fail=false;
+    await tester.pumpWidget(host(CafeDashboardEmployees(rpc:(name,params)async{
+      expect(name,'get_cafe_table_staff');
+      if(fail)throw StateError('Offline');
+      return [{'id':'a','name':'Ali'},{'id':'b','name':'Zana'}];
+    })));
+    await tester.pumpAndSettle();
+    expect(find.text('Ali'),findsOneWidget);
+    await tester.enterText(find.byType(TextField),'zana');await tester.pumpAndSettle();
+    expect(find.text('Ali'),findsNothing);
+    expect(find.text('Zana'),findsOneWidget);
+    fail=true;await tester.tap(find.text('Refresh'));await tester.pumpAndSettle();
+    expect(find.text('Zana'),findsNothing);
+    expect(find.textContaining('Could not load staff'),findsOneWidget);
+  });
+
   testWidgets('permission changes remove the previously selected fulfilment source',(tester) async {
     final sources=<String>[];
     Future<dynamic> rpc(String name,Map<String,dynamic> params)async {
@@ -118,16 +137,18 @@ void main() {
     tester.view.physicalSize=const Size(1440,1800);tester.view.devicePixelRatio=1;
     addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
     for(final admin in [true,false]) {
-      for(final title in ['Station Printers','Service Speed','Takeaway & Delivery']) {
+      for(final title in ['Station Printers','Service Speed','Takeaway & Delivery','Employees','Employee Assignments']) {
         await tester.pumpWidget(const SizedBox());
         await tester.pumpWidget(MaterialApp(home:StaffDashboardPage(email:'test@example.com',role:admin?'admin':'staff',
-          grantedPermissions:const {'dashboard:station_printers','dashboard:service_speed','dashboard:takeaway_delivery'})));
+          grantedPermissions:const {'dashboard:station_printers','dashboard:service_speed','dashboard:takeaway_delivery','dashboard:employees','dashboard:employee_assignments'})));
         await tester.pumpAndSettle();
         await tester.enterText(find.byKey(const ValueKey('dashboard-search')),title);await tester.pumpAndSettle();
         final entry=find.byKey(ValueKey('dashboard-card-${title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'),'_')}'));
         await tester.ensureVisible(entry);await tester.tap(entry);await tester.pumpAndSettle();
         final view= title=='Station Printers'?find.byType(CafeStationWorkspace):
-          title=='Service Speed'?find.byType(CafeOperationalReport):find.byType(CafeOperationsWorkspace);
+          title=='Service Speed'?find.byType(CafeOperationalReport):
+          title=='Employees'?find.byType(CafeDashboardEmployees):
+          title=='Employee Assignments'?find.byType(CafeTableOverview):find.byType(CafeOperationsWorkspace);
         expect(view,admin?findsOneWidget:findsNothing);
         expect(tester.takeException(),isNull);
       }
