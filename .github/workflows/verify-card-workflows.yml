@@ -46,4 +46,4 @@ jobs:
       PGDATABASE: task_workflow_test
     steps:
       - uses: actions/checkout@v4
-      - run: psql -v ON_ERROR_STOP=1 -f review/table-task-contract-test.sql -f review/people-workflow-contract-test.sql -f review/inventory-contract-test.sql
+      - run: psql -v ON_ERROR_STOP=1 -f review/table-task-contract-test.sql -f review/people-workflow-contract-test.sql -f review/inventory-contract-test.sql -f review/minibar-contract-test.sql
