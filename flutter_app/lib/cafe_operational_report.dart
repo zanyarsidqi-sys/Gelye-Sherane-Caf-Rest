@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -67,15 +68,15 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
     final rows=(_report?['rows'] as List? ?? []).where((row)=>(row as List).join(' ').toLowerCase().contains(_query.toLowerCase())).toList();
     return Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
       Text(widget.title,style:Theme.of(context).textTheme.titleLarge),
-      Text('${_date(_from)} to ${_date(_to)} · Baghdad time'),
-      Wrap(spacing:8,children:[TextButton.icon(onPressed:_loading?null:_range,icon:const Icon(Icons.date_range),label:const Text('Dates')),TextButton.icon(onPressed:_loading?null:_load,icon:const Icon(Icons.refresh),label:const Text('Refresh')),TextButton.icon(onPressed:_loading||_error!=null||_report==null?null:_print,icon:const Icon(Icons.print_outlined),label:const Text('Print / save PDF'))]),
+      CafeText('${_date(_from)} to ${_date(_to)} · Baghdad time'),
+      Wrap(spacing:8,children:[TextButton.icon(onPressed:_loading?null:_range,icon:const Icon(Icons.date_range),label:const CafeText('Dates')),TextButton.icon(onPressed:_loading?null:_load,icon:const Icon(Icons.refresh),label:const CafeText('Refresh')),TextButton.icon(onPressed:_loading||_error!=null||_report==null?null:_print,icon:const Icon(Icons.print_outlined),label:const CafeText('Print / save PDF'))]),
       if(_loading)const LinearProgressIndicator(),
       if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
       if(_report!=null && _error==null)...[
-        Text('${_report!['note']}'),
-        TextField(decoration:const InputDecoration(labelText:'Search report'),onChanged:(v)=>setState(()=>_query=v)),
-        Text('${rows.length} matching records'),
-        if(rows.isEmpty)const Padding(padding:EdgeInsets.all(24),child:Text('No recorded activity for this report.')),
+        CafeText('${_report!['note']}'),
+        TextField(decoration:const InputDecoration(label: CafeText('Search report')),onChanged:(v)=>setState(()=>_query=v)),
+        CafeText('${rows.length} matching records'),
+        if(rows.isEmpty)const Padding(padding:EdgeInsets.all(24),child:CafeText('No recorded activity for this report.')),
         if(rows.isNotEmpty)SingleChildScrollView(scrollDirection:Axis.horizontal,child:DataTable(columns:[for(final c in columns)DataColumn(label:Text(c))],rows:[for(final row in rows)DataRow(cells:[for(final value in row as List)DataCell(SelectableText(value==null?'—':'$value'))])])),
       ],
     ])));
