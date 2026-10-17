@@ -44,13 +44,13 @@ INSERT INTO public.staff_profiles VALUES
 INSERT INTO public.cafe_dining_tables VALUES('10000000-0000-0000-0000-000000000001','Table 1','Main',4,'available');
 SELECT set_config('test.actor','00000000-0000-0000-0000-000000000001',false);
 
-DO $$ DECLARE r jsonb; repeated jsonb; task_id uuid; req uuid:=gen_random_uuid(); BEGIN
+DO $$ DECLARE r jsonb; repeated jsonb; target_task uuid; req uuid:=gen_random_uuid(); BEGIN
  r:=public.perform_cafe_table_task_command(req,'maintenance','create',null,null,
    '{"table_id":"10000000-0000-0000-0000-000000000001","title":"Repair chair","quantity":1}');
  repeated:=public.perform_cafe_table_task_command(req,'maintenance','create',null,null,
    '{"table_id":"10000000-0000-0000-0000-000000000001","title":"Repair chair","quantity":1}');
  IF r<>repeated OR (SELECT count(*) FROM public.cafe_table_tasks)<>1 THEN RAISE EXCEPTION 'Create retry duplicated task'; END IF;
- task_id:=(r->>'id')::uuid;
+ target_task:=(r->>'id')::uuid;
  IF public.get_cafe_table_task_workspace('maintenance')->'can_approve'<>'true'::jsonb THEN RAISE EXCEPTION 'Admin capability missing'; END IF;
  IF cafe_private.table_overview()->0->'maintenance_blocked'<>'true'::jsonb THEN RAISE EXCEPTION 'Overview patch missing'; END IF;
  BEGIN
@@ -58,17 +58,17 @@ DO $$ DECLARE r jsonb; repeated jsonb; task_id uuid; req uuid:=gen_random_uuid()
   RAISE EXCEPTION 'Maintenance allowed seating';
  EXCEPTION WHEN sqlstate '22023' THEN NULL; END;
  req:=gen_random_uuid();
- r:=public.perform_cafe_table_task_command(req,'maintenance','assign',task_id,1,
+ r:=public.perform_cafe_table_task_command(req,'maintenance','assign',target_task,1,
    '{"assigned_to":"00000000-0000-0000-0000-000000000002"}');
- repeated:=public.perform_cafe_table_task_command(req,'maintenance','assign',task_id,1,
+ repeated:=public.perform_cafe_table_task_command(req,'maintenance','assign',target_task,1,
    '{"assigned_to":"00000000-0000-0000-0000-000000000002"}');
  IF r<>repeated OR (r->>'version')::int<>2 THEN RAISE EXCEPTION 'Assignment retry changed version'; END IF;
  BEGIN
-  PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','in_progress',task_id,1,'{}');
+  PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','in_progress',target_task,1,'{}');
   RAISE EXCEPTION 'Stale version accepted';
  EXCEPTION WHEN serialization_failure THEN NULL; END;
- PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','in_progress',task_id,2,'{}');
- PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','review',task_id,3,'{}');
+ PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','in_progress',target_task,2,'{}');
+ PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','review',target_task,3,'{}');
  PERFORM set_config('test.actor','00000000-0000-0000-0000-000000000002',false);
  BEGIN
   PERFORM public.get_cafe_table_task_workspace('maintenance');
@@ -76,19 +76,19 @@ DO $$ DECLARE r jsonb; repeated jsonb; task_id uuid; req uuid:=gen_random_uuid()
  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
  INSERT INTO public.staff_permissions VALUES(auth.uid(),'tables_orders','table_maintenance',null);
  BEGIN
-  PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','resolved',task_id,4,'{}');
+  PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','resolved',target_task,4,'{}');
   RAISE EXCEPTION 'Staff approved repair';
  EXCEPTION WHEN sqlstate '22023' THEN NULL; END;
  BEGIN
-  PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','assign',task_id,4,
+  PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','assign',target_task,4,
     '{"assigned_to":"00000000-0000-0000-0000-000000000002"}');
   RAISE EXCEPTION 'Staff assigned task';
  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
  PERFORM set_config('test.actor','00000000-0000-0000-0000-000000000001',false);
- PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','resolved',task_id,4,'{}');
+ PERFORM public.perform_cafe_table_task_command(gen_random_uuid(),'maintenance','resolved',target_task,4,'{}');
  IF cafe_private.table_overview()->0->'maintenance_blocked'<>'false'::jsonb THEN RAISE EXCEPTION 'Repair did not unblock'; END IF;
  INSERT INTO public.cafe_table_visits(table_id) VALUES('10000000-0000-0000-0000-000000000001');
- IF (SELECT count(*) FROM public.cafe_table_task_events WHERE cafe_table_task_events.task_id=task_id)<>5 THEN
+ IF (SELECT count(*) FROM public.cafe_table_task_events WHERE cafe_table_task_events.task_id=target_task)<>5 THEN
   RAISE EXCEPTION 'Expected one audit entry for each distinct command';
  END IF;
  IF has_function_privilege('anon','public.get_cafe_table_task_workspace(text)','EXECUTE') THEN RAISE EXCEPTION 'Anonymous RPC access'; END IF;
