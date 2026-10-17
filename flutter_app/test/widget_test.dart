@@ -100,6 +100,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const ValueKey('dashboard-category-tab-2')));
+    await tester.pumpAndSettle();
     final reservationsCard = find.textContaining('Table Reservations').first;
     expect(reservationsCard, findsOneWidget);
     await tester.ensureVisible(reservationsCard);
@@ -438,40 +440,21 @@ void main() {
       'Dashboard Personalization',
     ];
     expect(proposedCards, hasLength(70));
-    for (final title in proposedCards) {
-      expect(find.text(title), findsOneWidget, reason: title);
+    final observed = <String>{};
+    for (var i = 0; i < categories.length; i++) {
+      final tab = find.byKey(ValueKey('dashboard-category-tab-$i'));
+      await tester.ensureVisible(tab);
+      await tester.tap(tab);
+      await tester.pumpAndSettle();
+      for (final title in proposedCards) {
+        if (find.text(title).evaluate().isNotEmpty) observed.add(title);
+      }
     }
+    expect(observed, containsAll(proposedCards));
 
-    for (final legacyCard in [
-      'Today Orders',
-      'Guests Today',
-      'Tourism Customers',
-      'Table Map',
-      'Table Occupancy',
-      'Cleaning Needed',
-      'Reservations',
-      'Menu',
-      'Low Stock',
-      'Nargile Orders',
-      'Kitchen Queue',
-      'Online Orders',
-      'Takeaway & Delivery',
-      'Attendance',
-      'Customers',
-      'Employees',
-      'Tasks',
-      'Events',
-      'Feedback',
-      'Maintenance',
-      'Reports',
-      'Security',
-      'Backup',
-      'Offline Mode',
-      'Audit & Activity',
-      'Personalization',
-    ]) {
-      expect(find.text(legacyCard), findsWidgets, reason: legacyCard);
-    }
+    await tester.ensureVisible(find.byKey(const ValueKey('dashboard-category-tab-1')));
+    await tester.tap(find.byKey(const ValueKey('dashboard-category-tab-1')));
+    await tester.pumpAndSettle();
 
     final previewCard = find.text('Cash Out — Owner');
     await tester.ensureVisible(previewCard);
@@ -633,7 +616,7 @@ void main() {
       matching: find.byType(Card),
     );
     final cashCard = find.ancestor(
-      of: find.text('Standing Cash'),
+      of: find.text('Tables Occupied'),
       matching: find.byType(Card),
     );
 

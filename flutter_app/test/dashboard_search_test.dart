@@ -28,6 +28,35 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('category selection shows only the selected category', (
+    tester,
+  ) async {
+    await open(tester);
+    expect(find.text('Today Revenue'), findsOneWidget);
+    expect(find.text('Standing Cash'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('dashboard-category-tab-1')));
+    await tester.pumpAndSettle();
+    expect(find.text('Standing Cash'), findsOneWidget);
+    expect(find.text('Today Revenue'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('dashboard-category-tab-0')));
+    await tester.pumpAndSettle();
+    expect(find.text('Today Revenue'), findsOneWidget);
+    expect(find.text('Standing Cash'), findsNothing);
+  });
+  testWidgets('Favorites navigation returns to Dashboard on phone', (
+    tester,
+  ) async {
+    await open(tester, mobile: true);
+    await tester.tap(find.byTooltip('Favorites'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('favorites-picker')), findsOneWidget);
+    expect(find.byKey(const ValueKey('dashboard-search')), findsNothing);
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('dashboard-search')), findsOneWidget);
+    expect(find.byKey(const ValueKey('favorites-picker')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('dashboard search filters cards and clears back to the catalog', (
     tester,
   ) async {

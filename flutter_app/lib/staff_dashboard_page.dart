@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'workspace_reporting.dart';
+import 'favorites_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart' as pdf;
@@ -2253,6 +2254,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   int _selectedIndex = 0;
+  bool _showFavorites = false;
   String? _selectedSubcard;
   int _selectedTablesCategory = 0;
   final _diningTablePanelFormKey = GlobalKey<FormState>();
@@ -4171,6 +4173,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 title: Text(_sections[index].title),
                 onTap: () {
                   setState(() {
+                    _showFavorites = false;
                     _selectedIndex = index;
                     _selectedSubcard = null;
                   });
@@ -5213,6 +5216,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       )
                     : const Text('Gelye Sherane · Management System'),
                 actions: [
+                  IconButton(tooltip: 'Favorites', onPressed: _openFavorites, icon: const Icon(Icons.star_outline)),
                   IconButton(
                     tooltip: 'Refresh live records',
                     onPressed: _isLoadingRecords
@@ -5233,6 +5237,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     IconButton(
                       tooltip: 'Notifications',
                       onPressed: () => setState(() {
+                        _showFavorites = false;
                         _selectedIndex = 11;
                         _selectedSubcard = null;
                       }),
@@ -5242,6 +5247,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     IconButton(
                       tooltip: 'Employee workspace',
                       onPressed: () => setState(() {
+                        _showFavorites = false;
                         _selectedIndex = 7;
                         _selectedSubcard = null;
                       }),
@@ -5277,7 +5283,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         body: LayoutBuilder(
           builder: (context, constraints) {
             final showSidebar = constraints.maxWidth >= 760;
-            final sectionContent = _sectionContent(_selectedIndex);
+            final sectionContent = _showFavorites ? _favoritesContent() : _sectionContent(_selectedIndex);
             if (showSidebar) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -5321,7 +5327,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ],
             Expanded(
               child: Text(
-                _sections[_selectedIndex].title,
+                _showFavorites ? 'Favorites' : _sections[_selectedIndex].title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -5367,6 +5373,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               IconButton(
                 tooltip: 'Notifications',
                 onPressed: () => setState(() {
+                  _showFavorites = false;
                   _selectedIndex = 11;
                   _selectedSubcard = null;
                 }),
@@ -5376,6 +5383,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               IconButton(
                 tooltip: 'Employee workspace',
                 onPressed: () => setState(() {
+                  _showFavorites = false;
                   _selectedIndex = 7;
                   _selectedSubcard = null;
                 }),
@@ -5405,7 +5413,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final visiblePrimary = primarySections
         .where(_hasSectionAccess)
         .toList(growable: false);
-    final selectedPrimary = visiblePrimary.indexOf(_selectedIndex);
+    final selectedPrimary = _showFavorites ? -1 : visiblePrimary.indexOf(_selectedIndex);
     final moreDestination = visiblePrimary.length;
     return SafeArea(
       top: false,
@@ -5433,6 +5441,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             return;
           }
           setState(() {
+            _showFavorites = false;
             _selectedIndex = visiblePrimary[destination];
             _selectedSubcard = null;
           });
@@ -5521,6 +5530,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
                 children: [
+                  _favoritesNavigationItem(),
                   for (final group in _navigationGroups)
                     if (group.indices.any(_hasSectionAccess)) ...[
                       Padding(
@@ -5561,7 +5571,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _navigationSectionItem(int index) {
     final section = _sections[index];
-    final selected = index == _selectedIndex;
+    final selected = !_showFavorites && index == _selectedIndex;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       child: ListTile(
@@ -5586,12 +5596,83 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         ),
         onTap: () {
           setState(() {
+            _showFavorites = false;
             _selectedIndex = index;
             _selectedSubcard = null;
           });
           _scaffoldKey.currentState?.closeDrawer();
         },
       ),
+    );
+  }
+
+  void _openFavorites() {
+    setState(() { _showFavorites = true; _selectedSubcard = null; });
+    _scaffoldKey.currentState?.closeDrawer();
+  }
+
+  Widget _favoritesNavigationItem() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+    child: ListTile(
+      key: const ValueKey('management-favorites'),
+      selected: _showFavorites, selectedTileColor: _gold,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      leading: Icon(Icons.star_outline, color: _showFavorites ? _deepNavy : _gold),
+      title: Text('Favorites', style: TextStyle(color: _showFavorites ? _deepNavy : _executiveText)),
+      onTap: _openFavorites,
+    ),
+  );
+
+  Widget _favoritesContent() {
+    final cards = <FavoriteCardEntry>[
+      if (widget.permissionsLoadError == null)
+        for (final index in _visibleSectionIndices)
+          for (final title in _visibleSubcards(index))
+            FavoriteCardEntry(id: '${_sections[index].key}:$title', section: _sections[index].title, title: title),
+    ];
+    return FavoritesPage(
+      key: ValueKey('favorites-${widget.email.toLowerCase()}'),
+      account: '$_supabaseExpectedProjectRef:${widget.email.toLowerCase()}',
+      cards: cards,
+      onOpen: (card) {
+        if (widget.permissionsLoadError != null) return;
+        var index = _sections.indexWhere((section) => '${section.key}:${card.title}' == card.id);
+        if (index < 0 || !_visibleSubcards(index).contains(card.title)) return;
+        if (index == 0 && card.title == 'Table Reservations') {
+          if (!_canViewTableReservations || !_visibleSubcards(1).contains(card.title)) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Table Reservations access has not been assigned.')));
+            return;
+          }
+          index = 1;
+        }
+        setState(() {
+          _showFavorites = false;
+          _selectedIndex = index;
+          _selectedSubcard = card.title;
+          _workspaceSearch = '';
+          _workspaceStatusFilter = 'All';
+          _financeSearch = '';
+          _financeStatusFilter = 'All';
+          _reservationSearch = '';
+          _reservationStatusFilter = 'All';
+          if (index == 1) {
+            _tableSearch = '';
+            _tableStatusFilter = 'All';
+            _selectedDiningTableArea = 'All areas';
+            _selectedDiningTablePanelId = null;
+            _diningTablePanelIsNew = card.title == 'Add Table';
+            _diningTablePanelOnMobile = card.title == 'Add Table';
+            _diningTablePanelShowMap = card.title == 'Table Map';
+            _tableWorkspaceView = card.title == 'Table Map' ? 'Floor map' : 'Table list';
+            _diningTablePanelError = null;
+            _diningTableEditorTab = card.title == 'QR Code Management' ? 3 : 0;
+            _diningTablePanelNameController.clear();
+            _diningTablePanelAreaController.text = 'Main';
+            _diningTablePanelSeatsController.text = '4';
+            _diningTablePanelPricingMode = 'normal';
+          }
+        });
+      },
     );
   }
 
@@ -8759,61 +8840,24 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         const SizedBox(height: 12),
         if (visibleGroupIndices.isEmpty)
           const Text('No assigned dashboard cards match your search.', style: TextStyle(color: _executiveMuted)),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final mobile = constraints.maxWidth < 760;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (mobile && visibleGroupIndices.length > 1) ...[
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (final index in visibleGroupIndices) ...[
-                          if (index != visibleGroupIndices.first)
-                            const SizedBox(width: 8),
-                          ChoiceChip(
-                            key: ValueKey('dashboard-category-tab-$index'),
-                            avatar: Icon(
-                              _dashboardGroups[index].icon,
-                              size: 17,
-                            ),
-                            label: Text(_dashboardGroups[index].title),
-                            selected: _selectedDashboardCategory == index,
-                            onSelected: (_) {
-                              setState(
-                                () => _selectedDashboardCategory = index,
-                              );
-                              final targetContext =
-                                  _dashboardCategoryKeys[index].currentContext;
-                              if (targetContext != null) {
-                                unawaited(
-                                  Scrollable.ensureVisible(
-                                    targetContext,
-                                    alignment: 0.08,
-                                    duration: const Duration(milliseconds: 250),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                for (final index in visibleGroupIndices)
-                  _dashboardGroup(
-                    index: index,
-                    group: _dashboardGroups[index],
-                    visibleCards: cardsForGroup(index),
-                  ),
-              ],
-            );
-          },
-        ),
+        if (visibleGroupIndices.isNotEmpty) ...[
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final index in visibleGroupIndices)
+                ChoiceChip(
+                  key: ValueKey('dashboard-category-tab-$index'),
+                  label: Text(_dashboardGroups[index].title),
+                  selected: index == (visibleGroupIndices.contains(_selectedDashboardCategory) ? _selectedDashboardCategory : visibleGroupIndices.first),
+                  onSelected: (_) => setState(() => _selectedDashboardCategory = index),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          for (final index in [visibleGroupIndices.contains(_selectedDashboardCategory) ? _selectedDashboardCategory : visibleGroupIndices.first])
+            _dashboardGroup(index: index, group: _dashboardGroups[index], visibleCards: cardsForGroup(index)),
+        ],
         const SizedBox(height: 16),
         Container(
           width: double.infinity,
@@ -8874,6 +8918,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ].where((link) => _hasSectionAccess(link.index)))
               OutlinedButton.icon(
                 onPressed: () => setState(() {
+                  _showFavorites = false;
                   _selectedIndex = link.index;
                   _selectedSubcard = null;
                 }),
@@ -9775,6 +9820,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           }
           setState(() {
             if (reservationDashboardCard) {
+              _showFavorites = false;
               _selectedIndex = 1;
               _reservationSearch = '';
               _reservationStatusFilter = 'All';
