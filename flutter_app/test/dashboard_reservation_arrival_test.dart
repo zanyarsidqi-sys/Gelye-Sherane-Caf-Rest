@@ -16,7 +16,7 @@ Future<void> openDashboard(WidgetTester tester, String title, {bool admin = true
   await tester.pumpAndSettle();
   await tester.enterText(find.byKey(const ValueKey('dashboard-search')), title);
   await tester.pumpAndSettle();
-  final entry = find.byKey(ValueKey('dashboard-card-${title.toLowerCase().replaceAll(' ', '_')}'));
+  final entry = find.byKey(ValueKey('dashboard-card-${title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_')}'));
   await tester.ensureVisible(entry);
   await tester.tap(entry);
   await tester.pumpAndSettle();
