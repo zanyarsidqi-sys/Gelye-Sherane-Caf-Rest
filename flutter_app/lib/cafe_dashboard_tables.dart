@@ -93,8 +93,10 @@ class _CafeDashboardTablesState extends State<CafeDashboardTables> {
         if (!_tables.any((t) => t['pricing_mode'] == _mode)) _mode = '';
       });
     } catch (_) {
-      if (mounted && request == _request) setState(() => _error =
-        'Could not load tables. Refresh or ask an administrator to check your Table Overview access.');
+      if (mounted && request == _request) {
+        setState(() => _error =
+          'Could not load tables. Refresh or ask an administrator to check your Table Overview access.');
+      }
     } finally {
       if (mounted && request == _request) setState(() => _loading = false);
     }
