@@ -56,6 +56,10 @@ DO $$ DECLARE r jsonb; duplicate jsonb; fid uuid; aid uuid; req uuid; day date:=
   RAISE EXCEPTION 'Attendance without card permission accepted';
  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
  INSERT INTO public.staff_permissions VALUES(auth.uid(),'dashboard','attendance',null),(auth.uid(),'dashboard','feedback',null);
+ BEGIN
+  PERFORM public.perform_cafe_people_command(req,'attendance','clock_in',null,null,'{}');
+  RAISE EXCEPTION 'Another actor replayed a command';
+ EXCEPTION WHEN unique_violation THEN NULL; END;
  IF jsonb_array_length(public.get_cafe_people_workspace('attendance',day,day)->'rows')<>0 THEN
   RAISE EXCEPTION 'Employee saw another attendance record'; END IF;
  BEGIN
@@ -88,6 +92,22 @@ DO $$ DECLARE r jsonb; duplicate jsonb; fid uuid; aid uuid; req uuid; day date:=
     has_function_privilege('anon','public.perform_cafe_people_command(uuid,text,text,uuid,integer,jsonb)','EXECUTE') THEN
   RAISE EXCEPTION 'Direct or anonymous access granted'; END IF;
 END $$;
+
+-- Check Baghdad midnight clipping without changing production data.
+DO $ DECLARE crossing uuid:=gen_random_uuid(); boundary uuid:=gen_random_uuid(); workspace jsonb; seconds bigint; BEGIN
+ INSERT INTO public.cafe_staff_attendance(id,staff_id,clocked_in_at,clocked_out_at) VALUES
+  (crossing,'00000000-0000-0000-0000-000000000001','2026-10-16T20:30:00Z','2026-10-16T22:30:00Z'),
+  (boundary,'00000000-0000-0000-0000-000000000001','2026-10-16T19:00:00Z','2026-10-16T21:00:00Z');
+ workspace:=public.get_cafe_people_workspace('attendance','2026-10-17','2026-10-17');
+ SELECT (value->>'period_seconds')::bigint INTO seconds FROM jsonb_array_elements(workspace->'rows') WHERE value->>'id'=crossing::text;
+ IF seconds IS DISTINCT FROM 5400 THEN RAISE EXCEPTION 'Baghdad date clipping failed: %',seconds; END IF;
+ IF EXISTS(SELECT 1 FROM jsonb_array_elements(workspace->'rows') WHERE value->>'id'=boundary::text) THEN RAISE EXCEPTION 'Exclusive date boundary failed'; END IF;
+ INSERT INTO public.cafe_customer_feedback(title,category,created_by,created_at)
+ SELECT 'Limit test','suggestion','00000000-0000-0000-0000-000000000001','2030-01-01T10:00:00Z' FROM generate_series(1,501);
+ workspace:=public.get_cafe_people_workspace('feedback','2030-01-01','2030-01-01');
+ IF workspace->'truncated'<>'true'::jsonb OR workspace->>'total_count'<>'501' OR jsonb_array_length(workspace->'rows')<>500 THEN
+  RAISE EXCEPTION 'Bounded list or coverage indicator failed'; END IF;
+END $;
 
 -- Also execute the public invoker wrapper as the application role.
 SET ROLE authenticated;
