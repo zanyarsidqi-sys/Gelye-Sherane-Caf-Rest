@@ -5,7 +5,7 @@ import 'cafe_operations_workspace.dart';
 
 const dashboardTableCards = {
   'Live Tables', 'Tables Occupied', 'Available Tables',
-  'Table Cleaning', 'Cleaning Needed', 'Table Service Requests',
+  'Table Cleaning', 'Cleaning Needed', 'Table Service Requests', 'Tourism Customers',
 };
 
 String dashboardTableStatus(Map<String, dynamic> table) {
@@ -29,6 +29,7 @@ bool dashboardTableMatches(String title, Map<String, dynamic> table) {
     'Available Tables' => status == 'Available',
     'Table Cleaning' || 'Cleaning Needed' => status == 'Cleaning',
     'Table Service Requests' => dashboardOpenRequests(table).isNotEmpty,
+    'Tourism Customers' => table['visit_id'] != null && table['pricing_mode'] == 'tourism',
     'Live Tables' => true,
     _ => false,
   };
@@ -126,6 +127,8 @@ class _CafeDashboardTablesState extends State<CafeDashboardTables> {
       CafeText(widget.title, style: Theme.of(context).textTheme.headlineSmall),
       const SizedBox(height: 8),
       const CafeText('Current table snapshot. Use Table Overview for operational actions.'),
+      if (widget.title == 'Tourism Customers')
+        const CafeText('Current table visits in Tourism mode. These are recorded guests, not unique customers or tour-company history.'),
       if (widget.title == 'Available Tables')
         const CafeText('Recorded availability only. Check the next reservation before seating guests.'),
       Align(alignment: AlignmentDirectional.centerStart, child: OutlinedButton.icon(
@@ -145,6 +148,11 @@ class _CafeDashboardTablesState extends State<CafeDashboardTables> {
           TextButton(onPressed: () => setState(_clear), child: const CafeText('Clear filters')),
         ]),
         CafeText('${rows.length} matching tables · ${scoped.length} in this card'),
+        if (widget.title == 'Tourism Customers') ...[
+          CafeText('Recorded guests in matching visits: ${rows.fold<int>(0, (sum, row) => sum + (row['guest_count'] is int && row['guest_count'] > 0 ? row['guest_count'] as int : 0))}'),
+          if (rows.any((row) => row['guest_count'] is! int || row['guest_count'] <= 0))
+            const CafeText('Some party sizes are not recorded; the total is incomplete.'),
+        ],
         if (rows.isEmpty) const Padding(padding: EdgeInsets.all(16), child: CafeText('No matching tables.')),
         for (final table in rows) Card(child: ExpansionTile(
           key: ValueKey('dashboard-table-row-${table['id']}'),
