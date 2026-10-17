@@ -354,7 +354,7 @@ void main() {
     await tester.pumpAndSettle();
 
     const categories = [
-      'Today at a Glance',
+      'Favorites',
       'Payments & Finance',
       'Tables & Reservations',
       'Kitchen & Minibar',
@@ -450,7 +450,7 @@ void main() {
         if (find.text(title).evaluate().isNotEmpty) observed.add(title);
       }
     }
-    expect(observed, containsAll(proposedCards));
+    expect(observed, containsAll(proposedCards.skip(8)));
 
     await tester.ensureVisible(find.byKey(const ValueKey('dashboard-category-tab-1')));
     await tester.tap(find.byKey(const ValueKey('dashboard-category-tab-1')));
@@ -501,7 +501,7 @@ void main() {
 
     expect(find.text('Tables & Chairs'), findsWidgets);
     expect(find.text('Payment Management'), findsNothing);
-    expect(find.text('Today Revenue'), findsOneWidget);
+    expect(find.byKey(const ValueKey('favorites-picker')), findsOneWidget);
     expect(find.text('Standing Cash'), findsNothing);
     expect(find.text('Devices & Printing Management'), findsOneWidget);
     expect(find.text('Security & Audit Management'), findsOneWidget);
@@ -611,26 +611,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final revenueCard = find.ancestor(
-      of: find.text('Today Revenue'),
-      matching: find.byType(Card),
-    );
-    final cashCard = find.ancestor(
-      of: find.text('Tables Occupied'),
-      matching: find.byType(Card),
-    );
-
-    expect(revenueCard, findsOneWidget);
-    expect(cashCard, findsOneWidget);
-    expect(tester.getSize(revenueCard).height, tester.getSize(cashCard).height);
-    expect(tester.getSize(revenueCard).width, lessThan(200));
-    final revenueColor = tester.widget<Card>(revenueCard).color;
-    final cashColor = tester.widget<Card>(cashCard).color;
-    expect(revenueColor, isNot(Colors.white));
-    expect(cashColor, isNot(Colors.white));
-    expect(revenueColor, isNot(cashColor));
-    expect(tester.getSize(revenueCard).height, 118);
-    expect(find.text('Today at a Glance'), findsWidgets);
+    expect(find.byKey(const ValueKey('favorites-picker')), findsOneWidget);
+    expect(find.text('Today Revenue'), findsNothing);
+    expect(find.text('Favorites'), findsWidgets);
     expect(find.text('Payments & Finance'), findsWidgets);
     expect(find.text('Reports & System'), findsWidgets);
     final reportsTab = find.byKey(const ValueKey('dashboard-category-tab-7'));
@@ -697,11 +680,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final dashboardCard = find.ancestor(
-        of: find.text('Today Revenue'),
-        matching: find.byType(Card),
-      );
-      final dashboardCardSize = tester.getSize(dashboardCard);
+      expect(find.byKey(const ValueKey('favorites-picker')), findsOneWidget);
       await tester.tap(
         find.descendant(
           of: find.byType(NavigationBar),
@@ -739,7 +718,7 @@ void main() {
       await tester.tap(find.text('Back to Tables & Chairs'));
       await tester.pumpAndSettle();
 
-      expect(dashboardCardSize.width, lessThan(200));
+
       expect(find.text('More cards (20)'), findsNothing);
       expect(find.text('Live Tables'), findsNothing);
       expect(find.text('Table Orders'), findsNothing);
@@ -748,11 +727,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Payment Management').last);
       await tester.pumpAndSettle();
-      expect(find.text('Payments & Finance'), findsOneWidget);
-      expect(find.textContaining('Finance data unavailable'), findsOneWidget);
+      expect(find.byKey(const ValueKey('payment-category-0')), findsOneWidget);
+      expect(find.text('Connected workflow'), findsNWidgets(3));
       expect(find.text('Pending Payments'), findsOneWidget);
       expect(find.text('Receive Payment'), findsOneWidget);
-      expect(find.text('Invoices & Receipts'), findsOneWidget);
+      expect(find.text('Invoices & Receipts'), findsNothing);
 
       await tester.ensureVisible(find.text('Payment Overview'));
       await tester.pumpAndSettle();
@@ -782,10 +761,9 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('management-section-2')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Payment activity'), findsOneWidget);
-    expect(find.text('Transaction ledger'), findsOneWidget);
-    expect(find.text('Finance actions'), findsOneWidget);
-    expect(find.text('Search payment records...'), findsOneWidget);
+    expect(find.byKey(const ValueKey('payment-category-0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('payment-category-3')), findsOneWidget);
+    expect(find.text('Connected workflow'), findsNWidgets(3));
 
     const featuredCards = [
       'Payment Overview',
@@ -823,10 +801,10 @@ void main() {
     ];
 
     Future<void> openAndVerify(String title) async {
-      if (find.text(title).evaluate().isEmpty) {
-        final moreCards = find.text('More finance cards (17)');
-        await tester.ensureVisible(moreCards);
-        await tester.tap(moreCards);
+      for (var category = 0; category < 4 && find.text(title).evaluate().isEmpty; category++) {
+        final tab = find.byKey(ValueKey('payment-category-$category'));
+        await tester.ensureVisible(tab);
+        await tester.tap(tab);
         await tester.pumpAndSettle();
       }
       await tester.ensureVisible(find.text(title));

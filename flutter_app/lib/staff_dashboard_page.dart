@@ -1388,6 +1388,7 @@ class StaffDashboardPage extends StatefulWidget {
     required this.role,
     this.grantedPermissions = const {},
     this.permissionsLoadError,
+    this.favoritesStorage,
     super.key,
   });
 
@@ -1395,6 +1396,7 @@ class StaffDashboardPage extends StatefulWidget {
   final String role;
   final Set<String> grantedPermissions;
   final String? permissionsLoadError;
+  final FavoritesStorage? favoritesStorage;
 
   @override
   State<StaffDashboardPage> createState() => _StaffDashboardPageState();
@@ -2256,7 +2258,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   int _selectedIndex = 0;
-  bool _showFavorites = false;
+
   String? _selectedSubcard;
   int _selectedTablesCategory = 0;
   final _diningTablePanelFormKey = GlobalKey<FormState>();
@@ -4175,7 +4177,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 title: Text(_sections[index].title),
                 onTap: () {
                   setState(() {
-                    _showFavorites = false;
+                    
                     _selectedIndex = index;
                     _selectedSubcard = null;
                   });
@@ -5239,7 +5241,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     IconButton(
                       tooltip: 'Notifications',
                       onPressed: () => setState(() {
-                        _showFavorites = false;
+                        
                         _selectedIndex = 11;
                         _selectedSubcard = null;
                       }),
@@ -5249,7 +5251,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     IconButton(
                       tooltip: 'Employee workspace',
                       onPressed: () => setState(() {
-                        _showFavorites = false;
+                        
                         _selectedIndex = 7;
                         _selectedSubcard = null;
                       }),
@@ -5285,7 +5287,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         body: LayoutBuilder(
           builder: (context, constraints) {
             final showSidebar = constraints.maxWidth >= 760;
-            final sectionContent = _showFavorites ? _favoritesContent() : _sectionContent(_selectedIndex);
+            final sectionContent = _sectionContent(_selectedIndex);
             if (showSidebar) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -5329,7 +5331,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ],
             Expanded(
               child: Text(
-                _showFavorites ? 'Favorites' : _sections[_selectedIndex].title,
+                _sections[_selectedIndex].title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -5375,7 +5377,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               IconButton(
                 tooltip: 'Notifications',
                 onPressed: () => setState(() {
-                  _showFavorites = false;
+                  
                   _selectedIndex = 11;
                   _selectedSubcard = null;
                 }),
@@ -5385,7 +5387,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               IconButton(
                 tooltip: 'Employee workspace',
                 onPressed: () => setState(() {
-                  _showFavorites = false;
+                  
                   _selectedIndex = 7;
                   _selectedSubcard = null;
                 }),
@@ -5415,7 +5417,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final visiblePrimary = primarySections
         .where(_hasSectionAccess)
         .toList(growable: false);
-    final selectedPrimary = _showFavorites ? -1 : visiblePrimary.indexOf(_selectedIndex);
+    final selectedPrimary = visiblePrimary.indexOf(_selectedIndex);
     final moreDestination = visiblePrimary.length;
     return SafeArea(
       top: false,
@@ -5443,7 +5445,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             return;
           }
           setState(() {
-            _showFavorites = false;
+            
             _selectedIndex = visiblePrimary[destination];
             _selectedSubcard = null;
           });
@@ -5532,7 +5534,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
                 children: [
-                  _favoritesNavigationItem(),
+
                   for (final group in _navigationGroups)
                     if (group.indices.any(_hasSectionAccess)) ...[
                       Padding(
@@ -5573,7 +5575,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   Widget _navigationSectionItem(int index) {
     final section = _sections[index];
-    final selected = !_showFavorites && index == _selectedIndex;
+    final selected = index == _selectedIndex;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       child: ListTile(
@@ -5598,7 +5600,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         ),
         onTap: () {
           setState(() {
-            _showFavorites = false;
+            
             _selectedIndex = index;
             _selectedSubcard = null;
           });
@@ -5609,21 +5611,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   }
 
   void _openFavorites() {
-    setState(() { _showFavorites = true; _selectedSubcard = null; });
+    setState(() {  _selectedIndex = 0; _selectedDashboardCategory = 0; _dashboardSearch = ''; _selectedSubcard = null; });
     _scaffoldKey.currentState?.closeDrawer();
   }
-
-  Widget _favoritesNavigationItem() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-    child: ListTile(
-      key: const ValueKey('management-favorites'),
-      selected: _showFavorites, selectedTileColor: _gold,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      leading: Icon(Icons.star_outline, color: _showFavorites ? _deepNavy : _gold),
-      title: Text('Favorites', style: TextStyle(color: _showFavorites ? _deepNavy : _executiveText)),
-      onTap: _openFavorites,
-    ),
-  );
 
   Widget _favoritesContent() {
     final cards = <FavoriteCardEntry>[
@@ -5636,6 +5626,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       key: ValueKey('favorites-${widget.email.toLowerCase()}'),
       account: '$_supabaseExpectedProjectRef:${widget.email.toLowerCase()}',
       cards: cards,
+      storage: widget.favoritesStorage,
       onOpen: (card) {
         if (widget.permissionsLoadError != null) return;
         var index = _sections.indexWhere((section) => '${section.key}:${card.title}' == card.id);
@@ -5648,7 +5639,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           index = 1;
         }
         setState(() {
-          _showFavorites = false;
+          
           _selectedIndex = index;
           _selectedSubcard = card.title;
           _workspaceSearch = '';
@@ -8124,7 +8115,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       button: true,
       label:
           '$title. $purpose. '
-          '${hasExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
+          '${_connectedOperations(4, title) != null ? 'Connected kitchen workflow' : hasExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
       child: Card(
         key: ValueKey('kitchen-category-card-$title'),
         margin: EdgeInsets.zero,
@@ -8525,6 +8516,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 final title = visibleCards[index];
                 final isOperationalWorkflow = const {
                   'Add Table',
+                  'Table Ordering',
                   'Edit & Manage Tables',
                   'Table Map',
                   'QR Code Management',
@@ -8768,9 +8760,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         .toList(growable: false);
     final visibleGroupIndices = [
       for (var index = 0; index < _dashboardGroups.length; index++)
-        if (cardsForGroup(index).isNotEmpty) index,
+        if (index == 0 ? (_dashboardSearch.trim().isEmpty || 'favorites'.contains(_dashboardSearch.trim().toLowerCase())) : cardsForGroup(index).isNotEmpty) index,
     ];
-    if (assignedCards.isEmpty) {
+    if (widget.permissionsLoadError != null) {
       return Text(
         widget.permissionsLoadError == null
             ? 'No dashboard cards are assigned to this account.'
@@ -8883,7 +8875,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
           const SizedBox(height: 12),
           for (final index in [visibleGroupIndices.contains(_selectedDashboardCategory) ? _selectedDashboardCategory : visibleGroupIndices.first])
-            _dashboardGroup(index: index, group: _dashboardGroups[index], visibleCards: cardsForGroup(index)),
+            if (index == 0) _favoritesContent() else _dashboardGroup(index: index, group: _dashboardGroups[index], visibleCards: cardsForGroup(index)),
         ],
         const SizedBox(height: 16),
         Container(
@@ -8945,7 +8937,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ].where((link) => _hasSectionAccess(link.index)))
               OutlinedButton.icon(
                 onPressed: () => setState(() {
-                  _showFavorites = false;
+                  
                   _selectedIndex = link.index;
                   _selectedSubcard = null;
                 }),
@@ -8964,20 +8956,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
 
   static const _dashboardGroups = [
     (
-      title: 'Today at a Glance',
+      title: 'Favorites',
       icon: Icons.dashboard_outlined,
       tint: Color(0xFFE9EFFD),
       iconColor: Color(0xFF3562B5),
-      cards: [
-        'Today Revenue',
-        'Tables Occupied',
-        'Kitchen Orders',
-        'Pending Payment',
-        'Today’s Orders',
-        'Today’s Customers',
-        'Motel Orders',
-        'Online & Walk-In Orders',
-      ],
+      cards: ['Today Revenue', 'Tables Occupied', 'Kitchen Orders', 'Pending Payment', 'Today’s Orders', 'Today’s Customers', 'Motel Orders', 'Online & Walk-In Orders'],
     ),
     (
       title: 'Payments & Finance',
@@ -9340,367 +9323,99 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
+  static const _paymentCategories = [
+    (title: 'Payments', cards: ['Receive Payment', 'Payment History', 'Refunds & Voids', 'Payment Overview', 'Pending Payments', 'Payment Collection', 'Cash/Card/Online', 'Pending Payment']),
+    (title: 'Cash & Income', cards: ['Standing Cash', 'Collected Cash', 'Available Cash', 'Owner Cash Out', 'Table Income', 'Today Revenue', 'Revenue', 'Cash Over / Short', 'Cash Reconciliation']),
+    (title: 'Expenses & Credit', cards: ['Expenses Management', 'Confirm Credit Payment', 'Expenses', 'Confirm Credit', 'Costs & Expenses', 'Customer Credit', 'Discounts']),
+    (title: 'Invoices & Administration', cards: ['Invoices & Receipts', 'Invoices & Payments', 'Invoices', 'Refunds', 'Approvals', 'Audit']),
+  ];
+  int _selectedPaymentCategory = 0;
+
   Widget _paymentManagementOverview(List<String> titles) {
-    const featuredFinanceCards = [
-      'Payment Overview',
-      'Receive Payment',
-      'Standing Cash',
-      'Pending Payments',
-      'Collected Cash',
-      'Available Cash',
-      'Owner Cash Out',
-      'Expenses Management',
-      'Confirm Credit Payment',
-      'Invoices & Receipts',
-      'Refunds & Voids',
-      'Table Income',
-      'Payment History',
+    final groups = [
+      for (var i = 0; i < _paymentCategories.length; i++)
+        if (_paymentCategories[i].cards.any(titles.contains)) i,
     ];
-    final featuredCards = [
-      for (final title in featuredFinanceCards)
-        if (titles.contains(title)) title,
-    ];
-    final visibleSubcardKeys = titles.map(_permissionSlug).toSet();
-    final additionalCards = titles
-        .where((title) => !featuredFinanceCards.contains(title))
-        .toList(growable: false);
-    final allRecords = _recordsInSelectedRange(
-      _workspaceRecords.where(
-        (record) =>
-            record.sectionKey == 'payment_management' &&
-            visibleSubcardKeys.contains(record.subcardKey),
-      ),
-    );
-    final amountRecords = allRecords.where((record) => record.amount != null);
-    final recordedAmounts = amountRecords.fold<double>(
-      0,
-      (total, record) => total + record.amount!,
-    );
-    final openCount = allRecords
-        .where(
-          (record) => record.status == 'open' || record.status == 'in_progress',
-        )
-        .length;
-    final completedCount = allRecords
-        .where((record) => record.status == 'completed')
-        .length;
-    final refundCount = allRecords
-        .where((record) => record.subcardKey == 'refunds_voids')
-        .length;
-    final query = _financeSearch.trim().toLowerCase();
-    final visibleRecords = allRecords
-        .where((record) {
-          final matchesStatus =
-              _financeStatusFilter == 'All' ||
-              record.status ==
-                  _financeStatusFilter.toLowerCase().replaceAll(' ', '_');
-          final matchesQuery =
-              query.isEmpty ||
-              record.title.toLowerCase().contains(query) ||
-              record.details.toLowerCase().contains(query) ||
-              record.subcardKey.replaceAll('_', ' ').contains(query);
-          return matchesStatus && matchesQuery;
-        })
-        .toList(growable: false);
+    final selected = groups.contains(_selectedPaymentCategory)
+        ? _selectedPaymentCategory : groups.first;
+    final cards = _paymentCategories[selected].cards.where(titles.contains).toList();
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _dateRangeControls(),
-        const SizedBox(height: 12),
-        const Text(
-          'Payment activity',
-          style: TextStyle(
-            color: _executiveText,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 3),
-        const Text(
-          'Saved workspace records only · not reconciled to a payment provider.',
-          style: TextStyle(color: _executiveMuted, fontSize: 11),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            _financeSummaryCard(
-              icon: Icons.receipt_long_outlined,
-              label: 'Tracked records',
-              value: _workspaceError != null
-                  ? '—'
-                  : _isLoadingRecords
-                  ? '…'
-                  : '${allRecords.length}',
-              tint: Colors.white,
-              accent: const Color(0xFF4166A3),
-            ),
-            _financeSummaryCard(
-              icon: Icons.payments_outlined,
-              label: 'Recorded amount',
-              value: _workspaceError != null
-                  ? '—'
-                  : _isLoadingRecords
-                  ? '…'
-                  : amountRecords.isEmpty
-                  ? '—'
-                  : '${recordedAmounts.toStringAsFixed(0)} ${amountRecords.first.currency}',
-              tint: Colors.white,
-              accent: const Color(0xFF16814A),
-            ),
-            _financeSummaryCard(
-              icon: Icons.schedule_outlined,
-              label: 'Open records',
-              value: _workspaceError != null
-                  ? '—'
-                  : _isLoadingRecords
-                  ? '…'
-                  : '$openCount',
-              tint: Colors.white,
-              accent: const Color(0xFFB9670C),
-            ),
-            _financeSummaryCard(
-              icon: Icons.undo_rounded,
-              label: 'Refund records',
-              value: _workspaceError != null
-                  ? '—'
-                  : _isLoadingRecords
-                  ? '…'
-                  : '$refundCount',
-              tint: Colors.white,
-              accent: const Color(0xFFD7355D),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final ledger = Card(
-              margin: EdgeInsets.zero,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE4EAF1)),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: [
+            for (final index in groups) ...[
+              if (index != groups.first) const SizedBox(width: 8),
+              ChoiceChip(
+                key: ValueKey('payment-category-$index'),
+                label: Text('${_paymentCategories[index].title} (${_paymentCategories[index].cards.where(titles.contains).length})'),
+                selected: selected == index,
+                onSelected: (_) => setState(() => _selectedPaymentCategory = index),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Transaction ledger',
-                                style: TextStyle(
-                                  color: _navy,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              SizedBox(height: 3),
-                              Text(
-                                'Reference, workspace card, status and amount',
-                                style: TextStyle(color: _muted, fontSize: 11),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          _workspaceError == null ? 'IQD' : 'Unavailable',
-                          style: const TextStyle(
-                            color: _muted,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      onChanged: (value) =>
-                          setState(() => _financeSearch = value),
-                      decoration: InputDecoration(
-                        hintText: 'Search payment records...',
-                        prefixIcon: const Icon(Icons.search),
-                        filled: true,
-                        fillColor: const Color(0xFFF6F8FB),
-                        isDense: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for (final status in const [
-                            'All',
-                            'Open',
-                            'In progress',
-                            'Completed',
-                            'Cancelled',
-                          ])
-                            Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: ChoiceChip(
-                                label: Text(status),
-                                selected: _financeStatusFilter == status,
-                                onSelected: (_) => setState(
-                                  () => _financeStatusFilter = status,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (_workspaceError != null)
-                      _AuthErrorMessage(
-                        'Finance data unavailable: $_workspaceError',
-                      )
-                    else if (_isLoadingRecords)
-                      const Center(child: CircularProgressIndicator())
-                    else if (visibleRecords.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        child: Center(
-                          child: Text(
-                            allRecords.isEmpty
-                                ? 'No saved payment records for this date range.'
-                                : 'No payment records match these filters.',
-                            style: const TextStyle(color: _muted),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      )
-                    else
-                      for (final record in visibleRecords)
-                        _financeRecordTile(
-                          record,
-                          canManage:
-                              widget.role == 'admin' ||
-                              widget.grantedPermissions.contains(
-                                'payment_management:*',
-                              ) ||
-                              widget.grantedPermissions.contains(
-                                'payment_management:${record.subcardKey}',
-                              ),
-                        ),
-                    if (completedCount > 0) ...[
-                      const Divider(height: 22),
-                      Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: Text(
-                          '$completedCount completed record(s)',
-                          style: const TextStyle(
-                            color: _muted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            );
-
-            final financeActions = Card(
-              margin: EdgeInsets.zero,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFFE4EAF1)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Finance actions',
-                      style: TextStyle(
-                        color: _navy,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    const Text(
-                      'Open a permission-assigned finance workspace',
-                      style: TextStyle(color: _muted, fontSize: 11),
-                    ),
-                    const SizedBox(height: 10),
-                    for (final title in featuredCards.take(6))
-                      ListTile(
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        leading: Icon(
-                          _metricIcon(title, _sections[2].icon),
-                          color: const Color(0xFF4166A3),
-                          size: 19,
-                        ),
-                        title: Text(
-                          'Open $title',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        trailing: const Icon(Icons.chevron_right, size: 18),
-                        onTap: () => setState(() {
-                          _financeSearch = '';
-                          _financeStatusFilter = 'All';
-                          _selectedSubcard = title;
-                        }),
-                      ),
-                  ],
-                ),
-              ),
-            );
-
-            if (constraints.maxWidth < 900) {
-              return Column(
-                children: [ledger, const SizedBox(height: 10), financeActions],
-              );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: ledger),
-                const SizedBox(width: 12),
-                SizedBox(width: 280, child: financeActions),
-              ],
-            );
-          },
+            ],
+          ]),
         ),
         const SizedBox(height: 16),
-        _compactMetricGrid(sectionIndex: 2, titles: featuredCards, height: 150),
-        if (additionalCards.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          Card(
-            margin: EdgeInsets.zero,
-            clipBehavior: Clip.antiAlias,
-            child: ExpansionTile(
-              title: Text('More finance cards (${additionalCards.length})'),
-              childrenPadding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
-              children: [
-                _compactMetricGrid(
-                  sectionIndex: 2,
-                  titles: additionalCards,
-                  height: 150,
-                ),
-              ],
+        LayoutBuilder(builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 1050 ? 4
+              : constraints.maxWidth >= 700 ? 3
+              : constraints.maxWidth >= 450 ? 2 : 1;
+          return GridView.builder(
+            key: ValueKey('payment-category-cards-$selected'),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: cards.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: columns, mainAxisExtent: 160,
+              crossAxisSpacing: 12, mainAxisSpacing: 12,
             ),
-          ),
-        ],
+            itemBuilder: (context, index) {
+              final title = cards[index];
+              final connected = const {'Receive Payment', 'Payment History', 'Refunds & Voids'}.contains(title);
+              final palette = _executiveCardPalette(index);
+              final description = switch (title) {
+                'Receive Payment' => 'Record cash or manually confirmed card payments against an order.',
+                'Payment History' => 'Review order balances, recorded payments and refunds.',
+                'Refunds & Voids' => 'Record a refund against a collected payment.',
+                _ => 'Manual records only. Automated balances and approvals are not connected.',
+              };
+              return Card(
+                key: ValueKey('payment-category-card-$title'),
+                margin: EdgeInsets.zero, color: palette.background,
+                clipBehavior: Clip.antiAlias, elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: BorderSide(color: palette.accent.withValues(alpha: 0.35))),
+                child: InkWell(
+                  onTap: () => setState(() {
+                    _financeSearch = '';
+                    _financeStatusFilter = 'All';
+                    _selectedSubcard = title;
+                  }),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Icon(_metricIcon(title, Icons.payments_outlined), color: palette.accent, size: 22),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: _executiveText, fontWeight: FontWeight.w700))),
+                        const Icon(Icons.chevron_right, color: _executiveMuted, size: 18),
+                      ]),
+                      const SizedBox(height: 8),
+                      Text(description, maxLines: 3, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: _executiveMuted, fontSize: 12)),
+                      const Spacer(),
+                      Text(connected ? 'Connected workflow' : 'Manual records',
+                        style: TextStyle(color: palette.accent, fontSize: 11, fontWeight: FontWeight.w600)),
+                    ]),
+                  ),
+                ),
+              );
+            },
+          );
+        }),
       ],
     );
   }
@@ -9847,7 +9562,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           }
           setState(() {
             if (reservationDashboardCard) {
-              _showFavorites = false;
+              
               _selectedIndex = 1;
               _reservationSearch = '';
               _reservationStatusFilter = 'All';
