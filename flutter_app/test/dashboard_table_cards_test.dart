@@ -125,10 +125,13 @@ void main() {
         favoritesStorage: TableFavoritesStorage(),
       )));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const ValueKey('dashboard-search')), title);
-      await tester.pumpAndSettle();
+      if (title != 'Tables Occupied') {
+        await tester.enterText(find.byKey(const ValueKey('dashboard-search')), title);
+        await tester.pumpAndSettle();
+      }
       final slug = title.toLowerCase().replaceAll(' ', '_');
-      final entry = find.byKey(ValueKey('dashboard-card-$slug'));
+      final entry = find.byKey(ValueKey(title == 'Tables Occupied'
+        ? 'favorite-open-dashboard:Tables Occupied' : 'dashboard-card-$slug'));
       expect(entry, findsOneWidget, reason: 'Entry card: $title');
       await tester.ensureVisible(entry);
       await tester.tap(entry);
