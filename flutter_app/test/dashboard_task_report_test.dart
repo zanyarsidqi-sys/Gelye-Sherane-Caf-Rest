@@ -125,7 +125,8 @@ void main(){
     await tester.pumpWidget(MaterialApp(home:StaffDashboardPage(email:'test@example.com',role:'staff',
       grantedPermissions:const {'dashboard:tasks'})));
     await tester.pumpAndSettle();
-    final entry=find.text('Tasks').first;
+    await tester.enterText(find.byKey(const ValueKey('dashboard-search')),'Tasks');await tester.pumpAndSettle();
+    final entry=find.byKey(const ValueKey('dashboard-card-tasks'));
     await tester.ensureVisible(entry);await tester.tap(entry);await tester.pumpAndSettle();
     expect(tester.widget<CafeStaffTasks>(find.byType(CafeStaffTasks)).kinds,isEmpty);
     expect(find.text('No table-task source access has been assigned.'),findsOneWidget);
