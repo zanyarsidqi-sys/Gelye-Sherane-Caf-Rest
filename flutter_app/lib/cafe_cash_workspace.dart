@@ -1,4 +1,5 @@
 import 'cafe_language.dart';
+import 'cafe_finance_surface.dart';
 import 'package:flutter/material.dart';
 import 'cafe_operations_workspace.dart';
 import 'cafe_request_id.dart';
@@ -16,14 +17,27 @@ class _CafeCashWorkspaceState extends State<CafeCashWorkspace>{
  Map<String,dynamic>? _data;
  bool _busy=false,_loading=true;
  String? _error;
- String _filter='All';
+ String _filter='All',_query='';
+ DateTime? _loadedAt;
+ int _loadRevision=0;
  Future<dynamic> _rpc(String name,Map<String,dynamic> p) async {if(widget.rpc==null)throw StateError('Connection unavailable');return widget.rpc!(name,p);}
  @override void initState(){super.initState(); if(widget.card=='pending_expenses'||widget.card=='approvals')_filter='pending';_load();}
+ @override void didUpdateWidget(CafeCashWorkspace oldWidget){
+  super.didUpdateWidget(oldWidget);
+  if(oldWidget.section!=widget.section||oldWidget.card!=widget.card){
+   _filter=widget.card=='pending_expenses'||widget.card=='approvals'?'pending':'All';
+   _query='';_load();
+  }
+ }
+ @override void dispose(){_loadRevision++;super.dispose();}
  Future<void> _load() async{
-  setState(()=>_loading=true);
-  try{final data=Map<String,dynamic>.from(await _rpc('get_cafe_cash_workspace',{'p_section':widget.section,'p_card':widget.card}));if(mounted)setState((){_data=data;_error=null;});}
-  catch(_){if(mounted)setState(()=>_error='Could not load the cash journal. Check connection and assigned permission.');}
-  finally{if(mounted)setState(()=>_loading=false);}
+  final revision=++_loadRevision;
+  setState((){_loading=true;_data=null;_loadedAt=null;_error=null;});
+  try{
+   final data=Map<String,dynamic>.from(await _rpc('get_cafe_cash_workspace',{'p_section':widget.section,'p_card':widget.card}));
+   if(mounted&&revision==_loadRevision)setState((){_data=data;_loadedAt=DateTime.now().toUtc();});
+  }catch(_){if(mounted&&revision==_loadRevision)setState(()=>_error='Could not load the cash journal. Check connection and assigned permission.');}
+  finally{if(mounted&&revision==_loadRevision)setState(()=>_loading=false);}
  }
  Future<void> _entry(String kind) async {
   final result=await showDialog<bool>(context:context,barrierDismissible:false,builder:(_)=>_CashEntry(kind:kind,rpc:_rpc));
@@ -39,15 +53,19 @@ class _CafeCashWorkspaceState extends State<CafeCashWorkspace>{
   catch(_){if(mounted)setState(()=>_error='Review was not confirmed. Refresh to check its status. Approval requires sufficient recorded cash; owner withdrawals and approving your own request require an administrator.');}
   finally{if(mounted)setState(()=>_busy=false);}
  }
- String _time(dynamic value)=>DateTime.parse('$value').toUtc().add(const Duration(hours:3)).toString().substring(0,19);
+ String _time(dynamic value)=>cafeFinanceTimestamp(value);
  @override Widget build(BuildContext context){
   final caps=_data?['capabilities'] as Map? ?? {};
-  final entries=cafeRows(_data?['entries']??[]).where((e)=>(_filter=='All'||e['status']==_filter)&&(!widget.card.contains('expense')||e['kind']=='expense')).toList();
-  return Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-   Text(widget.title,style:Theme.of(context).textTheme.headlineSmall),
+  final kind=cafeCashEntryKind(widget.card);
+  final entries=cafeRows(_data?['entries']??[]).where((e)=>
+   (_filter=='All'||e['status']==_filter)&&(kind==null||e['kind']==kind)&&
+   '${e['reason']} ${e['review_reason']??''} ${e['amount_iqd']} ${e['method']}'
+     .toLowerCase().contains(_query.trim().toLowerCase())).toList();
+  return CafeFinanceSurface(builder:(context)=>Card(child:Padding(padding:const EdgeInsets.all(18),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+   CafeText(widget.title,style:Theme.of(context).textTheme.headlineSmall),
    const CafeText('IQD · Baghdad time · Recorded cash is not a physical cash count. Record opening cash once through Cash in, with a clear reason.'),
-   if(_data!=null)CafeText('Recorded cash balance: ${_data!['balance_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
-   if((_data?['balance_iqd'] as num? ??0)<0)const CafeText('Recorded cash is negative. Review refunds, opening cash and missing receipts.',style:TextStyle(color:Colors.red)),
+   if(_data!=null&&!_loading&&_error==null)CafeText('Recorded cash balance: ${_data!['balance_iqd']} IQD',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:20)),
+   if(!_loading&&_error==null&&(_data?['balance_iqd'] as num? ??0)<0)const CafeText('Recorded cash is negative. Review refunds, opening cash and missing receipts.',style:TextStyle(color:Colors.red)),
    Wrap(spacing:8,children:[
     OutlinedButton.icon(onPressed:_busy||_loading?null:_load,icon:const Icon(Icons.refresh),label:const CafeText('Refresh')),
     for(final action in {'cash_in':'Cash in','cash_out':'Request owner withdrawal','expense':'Submit expense','count':'Reconcile cash'}.entries)
@@ -55,23 +73,30 @@ class _CafeCashWorkspaceState extends State<CafeCashWorkspace>{
    ]),
    if(_loading)const LinearProgressIndicator(),
    if(_error!=null)Text(_error!,style:const TextStyle(color:Colors.red)),
-   if(_data!=null)...[
+   if(_data!=null&&!_loading&&_error==null)...[
+    if(_loadedAt!=null)CafeText('Last updated: ${_time(_loadedAt)} · Baghdad'),
     const SizedBox(height:12),
     const CafeText('Journal · Latest 500 entries',style:TextStyle(fontWeight:FontWeight.bold)),
+    if(kind!=null)CafeText(kind=='cash_out'?'Owner withdrawals only':kind=='cash_in'?'Cash in entries only':'Expense entries only'),
+    TextField(key:ValueKey('cash-search-${widget.section}-${widget.card}'),
+     decoration:const InputDecoration(label: CafeText('Search reason, amount or method'),prefixIcon:Icon(Icons.search)),
+     onChanged:(value)=>setState(()=>_query=value)),
+    CafeText('${entries.length} matching journal entries'),
+    const CafeText('Filters apply to the loaded journal entries. The recorded cash balance is not recalculated from this list.'),
     Wrap(spacing:8,children:[for(final f in ['All','pending','posted','rejected'])ChoiceChip(label:Text(f),selected:_filter==f,onSelected:(_)=>setState(()=>_filter=f))]),
     if(entries.isEmpty)const CafeText('No matching journal entries.'),
     for(final e in entries)Card(child:Padding(padding:const EdgeInsets.all(12),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
      CafeText('${e['kind']} · ${e['amount_iqd']} IQD · ${e['method']}',style:const TextStyle(fontWeight:FontWeight.bold)),
      CafeText('${e['reason']}'),CafeText('${e['status']} · ${_time(e['created_at'])}'),
      if(e['review_reason']!=null)CafeText('Review: ${e['review_reason']}'),
-     if(caps['approve']==true&&e['status']=='pending')Wrap(spacing:8,children:[TextButton(onPressed:_busy?null:()=>_review(e,true),child:const CafeText('Approve')),TextButton(onPressed:_busy?null:()=>_review(e,false),child:const CafeText('Reject'))]),
+     if(caps['approve']==true&&e['status']=='pending'&&!_loading&&_error==null)Wrap(spacing:8,children:[TextButton(onPressed:_busy?null:()=>_review(e,true),child:const CafeText('Approve')),TextButton(onPressed:_busy?null:()=>_review(e,false),child:const CafeText('Reject'))]),
     ]))),
     const SizedBox(height:20),
     const CafeText('Cash reconciliation · Latest 100 counts',style:TextStyle(fontWeight:FontWeight.bold)),
     const CafeText('A count preserves the expected balance and difference at that time. It never silently adjusts the ledger.'),
     for(final c in cafeRows(_data!['counts']))ListTile(title:CafeText('Counted ${c['counted_iqd']} · Expected ${c['expected_iqd']} IQD'),subtitle:CafeText('Difference: ${(c['counted_iqd'] as num)-(c['expected_iqd'] as num)} IQD · ${_time(c['created_at'])}\n${c['reason']}')),
    ],
-  ])));
+  ]))));
  }
 }
 class _CashEntry extends StatefulWidget{
