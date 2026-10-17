@@ -6046,6 +6046,17 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && card == 'Table History') {
+      if (!allowed(0, 'Guests Today')) {
+        return const Card(child: Padding(padding: EdgeInsets.all(20),
+          child: CafeText('Guests Today access has not been assigned.')));
+      }
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const CafeText('Each row is one table session. Search a table to see all its visits. Sessions spanning midnight appear on each day they overlap; duration is limited to the selected period. An empty departure time means the visit is still open.'),
+        CafeOperationalReport(key: const ValueKey('dashboard-table-history'), section: 'dashboard',
+          card: 'guests_today', title: 'Table History', rpc: rpc),
+      ]);
+    }
     if (index == 0 && card == 'Customer Number') {
       if (!allowed(0, 'Guests Today') || !allowed(1, 'Table Reservations') ||
           !(_tableOverviewCards.any((title) => allowed(1, title)) || allowed(24, 'Table Overview'))) {
@@ -9225,6 +9236,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         'Table Cleaning',
         'Table Service Requests',
         'Guests Today',
+        'Table History',
         'Table Map',
         'Reservations',
         'Cleaning Needed',
@@ -9644,7 +9656,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board'}.contains(title);
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History'}.contains(title);
     final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
