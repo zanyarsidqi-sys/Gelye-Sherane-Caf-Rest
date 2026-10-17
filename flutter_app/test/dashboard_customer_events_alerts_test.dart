@@ -314,13 +314,15 @@ void main() {
           await tester.ensureVisible(entry);
           await tester.tap(entry);
           await tester.pumpAndSettle();
-          if (title == 'Customers')
+          if (title == 'Customers') {
             expect(
               find.byType(CafeCustomerActivity),
               admin ? findsOneWidget : findsNothing,
             );
-          if (title == 'Events')
+          }
+          if (title == 'Events') {
             expect(find.byType(CafeEvents), findsOneWidget);
+          }
           if (title == 'Notifications & Alerts') {
             final alert = tester.widget<CafeDashboardAlerts>(
               find.byType(CafeDashboardAlerts),

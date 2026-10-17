@@ -76,8 +76,9 @@ class _CafeDashboardAlertsState extends State<CafeDashboardAlerts> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.tables != widget.tables ||
         oldWidget.inventory != widget.inventory ||
-        oldWidget.rpc != widget.rpc)
+        oldWidget.rpc != widget.rpc) {
       _load();
+    }
   }
 
   @override

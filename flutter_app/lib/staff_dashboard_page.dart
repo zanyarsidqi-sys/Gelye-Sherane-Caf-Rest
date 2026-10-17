@@ -1,3 +1,4 @@
+import 'cafe_card_order.dart';
 import 'cafe_customer_activity.dart';
 import 'cafe_dashboard_alerts.dart';
 import 'cafe_events.dart';
@@ -7724,6 +7725,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
+  Widget _orderedCards(String scope, List<String> titles, Widget Function(List<String>) builder) => CafeCardOrder(
+    key: ValueKey('card-order-$scope'),
+    account: '$_supabaseExpectedProjectRef:${widget.email.toLowerCase()}',
+    scope: scope, titles: titles, storage: widget.favoritesStorage, builder: builder,
+  );
+
   Widget _sectionSubcardGrid(int sectionIndex) {
     if (sectionIndex == 0) return _dashboardLayout();
     if (sectionIndex == 1) {
@@ -7922,7 +7929,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           )
         else
-          LayoutBuilder(
+          _orderedCards('inventory-category-$_selectedInventoryCategory', categoryCards, (categoryCards) => LayoutBuilder(
             builder: (context, constraints) {
               final columns = constraints.maxWidth >= 1120
                   ? 4
@@ -7948,7 +7955,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ],
               );
             },
-          ),
+          )),
       ],
     );
   }
@@ -8187,7 +8194,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           )
         else
-          LayoutBuilder(
+          _orderedCards('motel-category-$_selectedMotelOrdersCategory', categoryCards, (categoryCards) => LayoutBuilder(
             builder: (context, constraints) {
               final columns = constraints.maxWidth >= 1120
                   ? 4
@@ -8213,7 +8220,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ],
               );
             },
-          ),
+          )),
       ],
     );
   }
@@ -8439,7 +8446,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           )
         else
-          LayoutBuilder(
+          _orderedCards('menu-category-$_selectedMenuCategory', categoryCards, (categoryCards) => LayoutBuilder(
             builder: (context, constraints) {
               final columns = constraints.maxWidth >= 1120
                   ? 4
@@ -8460,7 +8467,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ],
               );
             },
-          ),
+          )),
       ],
     );
   }
@@ -8550,7 +8557,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           )
         else
-          LayoutBuilder(
+          _orderedCards('kitchen-category-$_selectedKitchenCategory', categoryCards, (categoryCards) => LayoutBuilder(
             builder: (context, constraints) {
               final columns = constraints.maxWidth >= 1120
                   ? 4
@@ -8573,7 +8580,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ],
               );
             },
-          ),
+          )),
       ],
     );
   }
@@ -8964,7 +8971,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(
+        _orderedCards('tables-category-$_selectedTablesCategory', visibleCards, (visibleCards) => LayoutBuilder(
           builder: (context, constraints) {
             final columns = constraints.maxWidth >= 1050
                 ? 4
@@ -8987,7 +8994,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               itemBuilder: (context, index) => _tableCategoryCard(visibleCards[index], index),
             );
           },
-        ),
+        )),
       ],
     );
   }
@@ -9057,7 +9064,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     double? revenue,
     bool revenueUnavailable = false,
   }) {
-    return LayoutBuilder(
+    return _orderedCards('section-$sectionIndex-${titles.isEmpty ? 'empty' : (_featuredSectionCards[sectionIndex]?.contains(titles.first) == true ? 'featured' : 'other')}', titles, (titles) => LayoutBuilder(
       builder: (context, constraints) {
         final responsiveColumns = constraints.maxWidth >= 1120
             ? 4
@@ -9092,7 +9099,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ],
         );
       },
-    );
+    ));
   }
 
   Widget _dashboardLayout() {
@@ -9702,7 +9709,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ]),
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(builder: (context, constraints) {
+        _orderedCards('payment-category-$selected', cards, (cards) => LayoutBuilder(builder: (context, constraints) {
           final columns = constraints.maxWidth >= 1050 ? 4
               : constraints.maxWidth >= 700 ? 3
               : constraints.maxWidth >= 450 ? 2 : 1;
@@ -9717,7 +9724,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
               itemBuilder: (context, index) => _paymentCategoryCard(cards[index], index),
           );
-        }),
+        })),
       ],
     );
   }
@@ -9728,7 +9735,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     required double height,
     int paletteOffset = 0,
   }) {
-    return LayoutBuilder(
+    return _orderedCards('dashboard-category-$paletteOffset', titles, (titles) => LayoutBuilder(
       builder: (context, constraints) {
         final columns = constraints.maxWidth < 820
             ? 2
@@ -9755,7 +9762,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ],
         );
       },
-    );
+    ));
   }
 
   Widget _compactMetricCard({
@@ -9769,7 +9776,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance', 'Dashboard Personalization', 'Personalization', 'Minibar Live Board', 'Nargile Orders'}.contains(title) || (sectionIndex == 0 && cafeInventoryCards.containsKey(title));
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance', 'Dashboard Personalization', 'Personalization', 'Minibar Live Board', 'Nargile Orders', 'Customers', 'Notifications & Alerts', 'Events'}.contains(title) || (sectionIndex == 0 && cafeInventoryCards.containsKey(title));
     final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
