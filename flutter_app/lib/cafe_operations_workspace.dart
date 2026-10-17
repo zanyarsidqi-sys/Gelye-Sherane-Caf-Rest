@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -116,18 +117,18 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Cancel order?'),
-          content: const Text(
+          title: const CafeText('Cancel order?'),
+          content: const CafeText(
             'Recorded payments must be refunded first. This keeps the order in history.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Keep order'),
+              child: const CafeText('Keep order'),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Cancel order'),
+              child: const CafeText('Cancel order'),
             ),
           ],
         ),
@@ -216,7 +217,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
             if (widget.payments && !_loading && _error == null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
+                child: CafeText(
                   'Today · Baghdad time\nCollected: $collected IQD · Refunds: $refunded IQD · Net: ${collected - refunded} IQD',
                 ),
               ),
@@ -227,7 +228,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                 OutlinedButton.icon(
                   onPressed: _busy || _loading ? null : _load,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Refresh'),
+                  label: const CafeText('Refresh'),
                 ),
                 if (!widget.payments && widget.canCreate)
                   FilledButton.icon(
@@ -235,7 +236,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                         ? null
                         : _create,
                     icon: const Icon(Icons.add),
-                    label: const Text('New order'),
+                    label: const CafeText('New order'),
                   ),
                 for (final f in ['Active', 'All'])
                   ChoiceChip(
@@ -254,7 +255,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
               padding: const EdgeInsets.symmetric(vertical:8),
               child: DropdownButtonFormField<String>(
                 initialValue: _status,
-                decoration: const InputDecoration(labelText:'Order status'),
+                decoration: const InputDecoration(label: CafeText('Order status')),
                 items: [for(final status in const ['All','received','preparing','ready','served','cancelled'])
                   DropdownMenuItem(value:status,child:Text(switch(status) {
                     'received'=>'Received', 'preparing'=>'Preparing', 'ready'=>'Ready',
@@ -272,7 +273,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
             ),
             TextField(
               decoration: const InputDecoration(
-                labelText: 'Search order, table or reference',
+                label: CafeText('Search order, table or reference'),
               ),
               onChanged: (s) => setState(() => _query = s),
             ),
@@ -283,7 +284,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
             else if (_error == null && visible.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(20),
-                child: Text('No matching orders.'),
+                child: CafeText('No matching orders.'),
               ),
             if (!_loading)
               for (final row in visible)
@@ -293,14 +294,14 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
+                        CafeText(
                           '${row['table_name']} · ${row['status']}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         SelectableText('Order ${row['id']}'),
-                        Text('Total: ${row['total_iqd']} IQD'),
+                        CafeText('Total: ${row['total_iqd']} IQD'),
                         if (widget.payments) ...[
-                          Text(
+                          CafeText(
                             'Net paid: ${row['paid_iqd']} IQD · Outstanding: ${(row['total_iqd'] as num) - (row['paid_iqd'] as num)} IQD',
                           ),
                           if (widget.canCreate &&
@@ -313,16 +314,16 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                                 onPressed: _busy || _error != null
                                     ? null
                                     : () => _payment(row),
-                                child: const Text('Record payment'),
+                                child: const CafeText('Record payment'),
                               ),
                             ),
                           for (final p in cafeRows(row['payments']))
                             ListTile(
                               contentPadding: EdgeInsets.zero,
-                              title: Text(
+                              title: CafeText(
                                 '${p['kind']} · ${p['amount_iqd']} IQD · ${p['method']}',
                               ),
-                              subtitle: Text(
+                              subtitle: CafeText(
                                 '${p['reference']}\nReceipt ${p['id']}',
                               ),
                               trailing:
@@ -331,17 +332,17 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                                       onPressed: _busy || _error != null
                                           ? null
                                           : () => _payment(row, p),
-                                      child: const Text('Refund'),
+                                      child: const CafeText('Refund'),
                                     )
                                   : null,
                             ),
                         ] else ...[
                           for (final item in cafeRows(row['items']))
-                            Text(
+                            CafeText(
                               '${item['quantity']} × ${item['name']} · ${item['unit_price_iqd']} IQD',
                             ),
                           if ('${row['notes']}'.isNotEmpty)
-                            Text('Notes: ${row['notes']}'),
+                            CafeText('Notes: ${row['notes']}'),
                           Wrap(
                             spacing: 8,
                             children: [
@@ -377,7 +378,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
                                   onPressed: _busy || _error != null
                                       ? null
                                       : () => _transition(row, 'cancelled'),
-                                  child: const Text('Cancel order'),
+                                  child: const CafeText('Cancel order'),
                                 ),
                             ],
                           ),
@@ -486,7 +487,7 @@ class _OrderEditorState extends State<_OrderEditor> {
     return PopScope(
       canPop: !_busy,
       child: AlertDialog(
-        title: const Text('New order'),
+        title: const CafeText('New order'),
         content: SizedBox(
           width: 520,
           child: SingleChildScrollView(
@@ -495,7 +496,7 @@ class _OrderEditorState extends State<_OrderEditor> {
               children: [
                 if (widget.source != 'table') DropdownButtonFormField<String>(
                   initialValue: _pricingMode,
-                  decoration: const InputDecoration(labelText: 'Pricing mode'),
+                  decoration: const InputDecoration(label: CafeText('Pricing mode')),
                   items: [for (final mode in (widget.catalog['pricing_modes'] as List? ?? ['normal']))
                     DropdownMenuItem(value: mode as String, child: Text(switch(mode) { 'tourism' => 'Tourism', 'owner' => 'Owner', _ => 'Normal' }))],
                   onChanged: locked ? null : (value) => setState(() => _pricingMode = value!),
@@ -504,7 +505,7 @@ class _OrderEditorState extends State<_OrderEditor> {
                   DropdownButtonFormField<String>(
                     initialValue: _table,
                     isExpanded: true,
-                    decoration: const InputDecoration(labelText: 'Table'),
+                    decoration: const InputDecoration(label: CafeText('Table')),
                     items: [
                       for (final t in cafeRows(widget.catalog['tables']))
                         DropdownMenuItem(
@@ -533,16 +534,16 @@ class _OrderEditorState extends State<_OrderEditor> {
                     ),
                   ),
                 if (widget.source == 'table' && _table != null)
-                  Text('Table pricing: ${_pricingMode == 'tourism' ? 'Tourism' : _pricingMode == 'owner' ? 'Owner' : 'Normal'}'),
+                  CafeText('Table pricing: ${_pricingMode == 'tourism' ? 'Tourism' : _pricingMode == 'owner' ? 'Owner' : 'Normal'}'),
                 if (products.isEmpty)
-                  const Text(
+                  const CafeText(
                     'No available products. Add products in Menu Management first.',
                   ),
                 for (final p in products)
                   Row(
                     children: [
                       Expanded(
-                        child: Text('${p['name']} · ${_price(p)} IQD'),
+                        child: CafeText('${p['name']} · ${_price(p)} IQD'),
                       ),
                       IconButton(
                         tooltip: 'Remove ${p['name']}',
@@ -558,7 +559,7 @@ class _OrderEditorState extends State<_OrderEditor> {
                               }),
                         icon: const Icon(Icons.remove),
                       ),
-                      Text('${_quantities[p['id']] ?? 0}'),
+                      CafeText('${_quantities[p['id']] ?? 0}'),
                       IconButton(
                         tooltip: 'Add ${p['name']}',
                         onPressed:
@@ -580,10 +581,10 @@ class _OrderEditorState extends State<_OrderEditor> {
                   enabled: !locked,
                   maxLength: 500,
                   decoration: const InputDecoration(
-                    labelText: 'Preparation notes',
+                    label: CafeText('Preparation notes'),
                   ),
                 ),
-                Text('Total: $total IQD'),
+                CafeText('Total: $total IQD'),
                 if (_error != null) Text(_error!),
               ],
             ),
@@ -592,7 +593,7 @@ class _OrderEditorState extends State<_OrderEditor> {
         actions: [
           TextButton(
             onPressed: _busy ? null : () => Navigator.pop(context, false),
-            child: const Text('Close'),
+            child: const CafeText('Close'),
           ),
           FilledButton(
             onPressed: _busy || products.isEmpty ? null : _save,
@@ -712,15 +713,15 @@ class _PaymentEditorState extends State<_PaymentEditor> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Maximum: $maximum IQD'),
+                CafeText('Maximum: $maximum IQD'),
                 if (!refund)
                   DropdownButtonFormField<String>(
                     initialValue: _method,
                     items: const [
-                      DropdownMenuItem(value: 'cash', child: Text('Cash')),
+                      DropdownMenuItem(value: 'cash', child: CafeText('Cash')),
                       DropdownMenuItem(
                         value: 'manual_card',
-                        child: Text('Card — already paid on terminal'),
+                        child: CafeText('Card — already paid on terminal'),
                       ),
                     ],
                     onChanged: locked
@@ -732,7 +733,7 @@ class _PaymentEditorState extends State<_PaymentEditor> {
                   controller: _amount,
                   enabled: !locked,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Amount (IQD)'),
+                  decoration: const InputDecoration(label: CafeText('Amount (IQD)')),
                 ),
                 TextField(
                   controller: _reference,
@@ -759,7 +760,7 @@ class _PaymentEditorState extends State<_PaymentEditor> {
         actions: [
           TextButton(
             onPressed: _busy ? null : () => Navigator.pop(context, false),
-            child: const Text('Close'),
+            child: const CafeText('Close'),
           ),
           FilledButton(
             onPressed: _busy || maximum <= 0 ? null : _save,
