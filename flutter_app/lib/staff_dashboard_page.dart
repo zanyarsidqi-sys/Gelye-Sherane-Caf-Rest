@@ -1,3 +1,4 @@
+import 'cafe_language.dart';
 import 'cafe_menu_assets.dart';
 import 'dart:async';
 import 'workspace_reporting.dart';
@@ -2616,7 +2617,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (auth.currentUser == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign in again to load this table QR.')),
+          const SnackBar(content: CafeText('Sign in again to load this table QR.')),
         );
       }
       return false;
@@ -2633,7 +2634,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
+            content: CafeText(
               'Could not load authenticator factors: ${exception.message}',
             ),
           ),
@@ -2644,7 +2645,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Could not load authenticator factors: $exception'),
+            content: CafeText('Could not load authenticator factors: $exception'),
           ),
         );
       }
@@ -2655,7 +2656,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
+            content: CafeText(
               'Set up an authenticator for this staff account, then retry the QR.',
             ),
           ),
@@ -2672,13 +2673,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Verify staff session'),
+          title: const CafeText('Verify staff session'),
           content: Form(
             key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                const CafeText(
                   'Enter the current six-digit code from your authenticator '
                   'app to load this table QR.',
                 ),
@@ -2689,7 +2690,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   keyboardType: TextInputType.number,
                   maxLength: 6,
                   decoration: const InputDecoration(
-                    labelText: 'Authenticator code',
+                    label: CafeText('Authenticator code'),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) =>
@@ -2709,7 +2710,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               onPressed: isVerifying
                   ? null
                   : () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const CafeText('Cancel'),
             ),
             FilledButton(
               onPressed: isVerifying
@@ -2746,7 +2747,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Verify & load QR'),
+                  : const CafeText('Verify & load QR'),
             ),
           ],
         ),
@@ -2992,7 +2993,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     controller: titleController,
                     maxLength: 160,
                     decoration: const InputDecoration(
-                      labelText: 'Title',
+                      label: CafeText('Title'),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) => value == null || value.trim().isEmpty
@@ -3004,7 +3005,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     controller: detailsController,
                     maxLines: 3,
                     decoration: const InputDecoration(
-                      labelText: 'Details',
+                      label: CafeText('Details'),
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -3013,18 +3014,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     DropdownButtonFormField<String>(
                       initialValue: selectedTableId,
                       decoration: const InputDecoration(
-                        labelText: 'Dining table',
+                        label: CafeText('Dining table'),
                         border: OutlineInputBorder(),
                       ),
                       items: [
                         const DropdownMenuItem(
                           value: '',
-                          child: Text('No table selected'),
+                          child: CafeText('No table selected'),
                         ),
                         for (final table in _diningTables)
                           DropdownMenuItem(
                             value: table.id,
-                            child: Text('${table.name} · ${table.area}'),
+                            child: CafeText('${table.name} · ${table.area}'),
                           ),
                       ],
                       onChanged: (tableId) {
@@ -3040,7 +3041,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       signed: true,
                     ),
                     decoration: const InputDecoration(
-                      labelText: 'Amount (optional, IQD)',
+                      label: CafeText('Amount (optional, IQD)'),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -3063,7 +3064,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               onPressed: submitting
                   ? null
                   : () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const CafeText('Cancel'),
             ),
             FilledButton(
               onPressed: submitting
@@ -3349,7 +3350,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     autofocus: true,
                     maxLength: 80,
                     decoration: const InputDecoration(
-                      labelText: 'Table name or number',
+                      label: CafeText('Table name or number'),
                       hintText: 'For example, Table 1',
                       border: OutlineInputBorder(),
                     ),
@@ -3362,7 +3363,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     controller: areaController,
                     maxLength: 80,
                     decoration: const InputDecoration(
-                      labelText: 'Area',
+                      label: CafeText('Area'),
                       hintText: 'For example, Main Hall or Patio',
                       border: OutlineInputBorder(),
                     ),
@@ -3375,7 +3376,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     controller: seatsController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      labelText: 'Seats',
+                      label: CafeText('Seats'),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -3398,7 +3399,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               onPressed: isSaving
                   ? null
                   : () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const CafeText('Cancel'),
             ),
             FilledButton(
               onPressed: isSaving
@@ -3455,7 +3456,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             ..hideCurrentSnackBar()
                             ..showSnackBar(
                               SnackBar(
-                                content: Text(
+                                content: CafeText(
                                   '${createdDiningTable!.name} added to the floor plan.',
                                 ),
                               ),
@@ -3546,7 +3547,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               AuthenticatorAssuranceLevels.aal2;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
+          content: CafeText(
             '${table.name} is still saved, but its QR could not be loaded. '
             'Do not add the table again. ${_diningTableFailure(exception)}',
           ),
@@ -3577,13 +3578,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               )
               .toString();
           return AlertDialog(
-            title: Text('${table.name} QR code'),
+            title: CafeText('${table.name} QR code'),
             content: SizedBox(
               width: 320,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  const CafeText(
                     'Gelye Sherane Café & Restaurant',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontWeight: FontWeight.w700),
@@ -3596,7 +3597,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     backgroundColor: Colors.white,
                     errorCorrectionLevel: QrErrorCorrectLevel.H,
                   ),
-                  Text('Scan to open the menu for ${table.name}.'),
+                  CafeText('Scan to open the menu for ${table.name}.'),
                   if (qrError != null) ...[
                     const SizedBox(height: 8),
                     Text(qrError!, style: const TextStyle(color: Colors.red)),
@@ -3663,13 +3664,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         }
                       },
                 icon: const Icon(Icons.download_outlined),
-                label: const Text('PDF'),
+                label: const CafeText('PDF'),
               ),
               TextButton(
                 onPressed: isRegenerating || isPrinting
                     ? null
                     : () => Navigator.of(dialogContext).pop(),
-                child: const Text('Close'),
+                child: const CafeText('Close'),
               ),
               TextButton(
                 onPressed: isRegenerating || isPrinting
@@ -3678,8 +3679,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         final confirmed = await showDialog<bool>(
                           context: dialogContext,
                           builder: (confirmContext) => AlertDialog(
-                            title: const Text('Regenerate table QR?'),
-                            content: const Text(
+                            title: const CafeText('Regenerate table QR?'),
+                            content: const CafeText(
                               'The current QR will stop working. Replace '
                               'printed copies with the new code.',
                             ),
@@ -3687,12 +3688,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                               TextButton(
                                 onPressed: () =>
                                     Navigator.of(confirmContext).pop(false),
-                                child: const Text('Cancel'),
+                                child: const CafeText('Cancel'),
                               ),
                               FilledButton(
                                 onPressed: () =>
                                     Navigator.of(confirmContext).pop(true),
-                                child: const Text('Regenerate'),
+                                child: const CafeText('Regenerate'),
                               ),
                             ],
                           ),
@@ -3781,18 +3782,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete dining table?'),
-        content: Text(
+        title: const CafeText('Delete dining table?'),
+        content: CafeText(
           'Delete ${table.name} from ${table.area}? This cannot be undone.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: const CafeText('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: const CafeText('Delete'),
           ),
         ],
       ),
@@ -3854,19 +3855,19 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Area: ${table.area}'),
-                    Text('Seats: ${table.seats}'),
+                    CafeText('Area: ${table.area}'),
+                    CafeText('Seats: ${table.seats}'),
                     if (_canManageDiningTables) ...[
                       OutlinedButton.icon(
                         onPressed: () => _showDiningTableQr(table),
                         icon: const Icon(Icons.qr_code_2),
-                        label: const Text('View table QR'),
+                        label: const CafeText('View table QR'),
                       ),
                       const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
                         initialValue: selectedStatus,
                         decoration: const InputDecoration(
-                          labelText: 'Table status',
+                          label: CafeText('Table status'),
                           border: OutlineInputBorder(),
                         ),
                         items: [
@@ -3886,15 +3887,15 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         },
                       ),
                     ] else
-                      Text('Status: ${_diningTableStatusLabel(table.status)}'),
+                      CafeText('Status: ${_diningTableStatusLabel(table.status)}'),
                     const SizedBox(height: 16),
-                    const Text(
+                    const CafeText(
                       'Reservations',
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 6),
                     if (reservations.isEmpty)
-                      const Text(
+                      const CafeText(
                         'No reservations are linked to this table.',
                         style: TextStyle(color: _muted),
                       )
@@ -3918,7 +3919,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Close'),
+                child: const CafeText('Close'),
               ),
             ],
           );
@@ -4114,16 +4115,16 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete record?'),
-        content: Text('Delete "${record.title}"? This cannot be undone.'),
+        title: const CafeText('Delete record?'),
+        content: CafeText('Delete "${record.title}"? This cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: const CafeText('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: const CafeText('Delete'),
           ),
         ],
       ),
@@ -4182,7 +4183,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           children: [
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 4, 20, 12),
-              child: Text(
+              child: CafeText(
                 'More management sections',
                 style: TextStyle(
                   fontSize: 18,
@@ -4194,7 +4195,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             if (moreSections.isEmpty)
               const Padding(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
-                child: Text('No additional management sections are assigned.'),
+                child: CafeText('No additional management sections are assigned.'),
               ),
             for (final index in moreSections)
               ListTile(
@@ -4241,7 +4242,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     autofocus: true,
                     maxLength: 80,
                     decoration: const InputDecoration(
-                      labelText: 'Department name',
+                      label: CafeText('Department name'),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) => value == null || value.trim().isEmpty
@@ -4261,7 +4262,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               onPressed: saving
                   ? null
                   : () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const CafeText('Cancel'),
             ),
             FilledButton(
               onPressed: saving
@@ -4415,7 +4416,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
+                          const CafeText(
                             'Save a reusable set of section and card access.',
                             style: TextStyle(color: _muted, fontSize: 13),
                           ),
@@ -4434,7 +4435,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             controller: nameController,
                             maxLength: 80,
                             decoration: const InputDecoration(
-                              labelText: 'Permission profile name',
+                              label: CafeText('Permission profile name'),
                               border: OutlineInputBorder(),
                             ),
                             validator: (value) =>
@@ -4446,7 +4447,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           DropdownButtonFormField<String>(
                             initialValue: selectedDepartmentId,
                             decoration: const InputDecoration(
-                              labelText: 'Department',
+                              label: CafeText('Department'),
                               border: OutlineInputBorder(),
                             ),
                             items: [
@@ -4474,11 +4475,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                                 }
                                 error = null;
                               }),
-                              child: const Text('Select all cards'),
+                              child: const CafeText('Select all cards'),
                             ),
                             TextButton(
                               onPressed: saving ? null : () => setDialogState(() => selectedPermissions.clear()),
-                              child: const Text('Clear selection'),
+                              child: const CafeText('Clear selection'),
                             ),
                           ]),
                           const SizedBox(height: 12),
@@ -4515,7 +4516,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           onPressed: saving
                               ? null
                               : () => Navigator.of(dialogContext).pop(false),
-                          child: const Text('Cancel'),
+                          child: const CafeText('Cancel'),
                         ),
                         const SizedBox(width: 8),
                         FilledButton(
@@ -4604,7 +4605,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           }
 
           return AlertDialog(
-            title: const Text('Add staff account'),
+            title: const CafeText('Add staff account'),
             content: SizedBox(
               width: 460,
               child: Form(
@@ -4617,7 +4618,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
-                          labelText: 'Staff email',
+                          label: CafeText('Staff email'),
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
@@ -4632,7 +4633,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         controller: passwordController,
                         obscureText: true,
                         decoration: const InputDecoration(
-                          labelText: 'Initial password (12+ characters)',
+                          label: CafeText('Initial password (12+ characters)'),
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) => value == null || value.length < 12
@@ -4643,7 +4644,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       DropdownButtonFormField<String>(
                         initialValue: departmentId,
                         decoration: const InputDecoration(
-                          labelText: 'Department',
+                          label: CafeText('Department'),
                           border: OutlineInputBorder(),
                         ),
                         items: [
@@ -4666,7 +4667,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       DropdownButtonFormField<String>(
                         initialValue: permissionProfileId,
                         decoration: const InputDecoration(
-                          labelText: 'Permission profile',
+                          label: CafeText('Permission profile'),
                           border: OutlineInputBorder(),
                         ),
                         items: [
@@ -4688,7 +4689,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       const SizedBox(height: 10),
                       const Align(
                         alignment: AlignmentDirectional.centerStart,
-                        child: Text(
+                        child: CafeText(
                           'Create a department and permission profile first. '
                           'The account will receive that profile’s access.',
                           style: TextStyle(color: _muted, height: 1.4),
@@ -4708,7 +4709,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 onPressed: saving
                     ? null
                     : () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
+                child: const CafeText('Cancel'),
               ),
               FilledButton(
                 onPressed: saving ? null : submit,
@@ -4725,7 +4726,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (created == true && context.mounted) {
       await _loadEmployeeManagement();
       messenger.showSnackBar(
-        SnackBar(content: Text('Staff account created for $createdEmail.')),
+        SnackBar(content: CafeText('Staff account created for $createdEmail.')),
       );
     }
   }
@@ -4748,7 +4749,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             permissionProfileId = null;
           }
           return AlertDialog(
-            title: Text('Edit access · ${member['email']}'),
+            title: CafeText('Edit access · ${member['email']}'),
             content: SizedBox(
               width: 420,
               child: Column(
@@ -4757,7 +4758,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   DropdownButtonFormField<String>(
                     initialValue: departmentId,
                     decoration: const InputDecoration(
-                      labelText: 'Department',
+                      label: CafeText('Department'),
                       border: OutlineInputBorder(),
                     ),
                     items: [
@@ -4778,7 +4779,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   DropdownButtonFormField<String>(
                     initialValue: permissionProfileId,
                     decoration: const InputDecoration(
-                      labelText: 'Permission profile',
+                      label: CafeText('Permission profile'),
                       border: OutlineInputBorder(),
                     ),
                     items: [
@@ -4805,7 +4806,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 onPressed: saving
                     ? null
                     : () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
+                child: const CafeText('Cancel'),
               ),
               FilledButton(
                 onPressed: saving
@@ -4906,7 +4907,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             visualDensity: VisualDensity.compact,
             activeColor: const Color(0xFF9A6A1D),
             controlAffinity: ListTileControlAffinity.leading,
-            title: const Text('All section cards'),
+            title: const CafeText('All section cards'),
             value: allSelected,
             onChanged: isSubmitting
                 ? null
@@ -4924,7 +4925,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               visualDensity: VisualDensity.compact,
               activeColor: const Color(0xFF2463EB),
               controlAffinity: ListTileControlAffinity.leading,
-              title: Text(subcard),
+              title: CafeText(subcard),
               value: allSelected || selected.contains(_permissionSlug(subcard)),
               onChanged: isSubmitting || allSelected
                   ? null
@@ -4967,12 +4968,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        const CafeText(
           'Employee workspace',
           style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 6),
-        const Text(
+        const CafeText(
           'Set up departments and reusable access profiles first, then create '
           'staff accounts. You can change a staff member’s department and '
           'permissions at any time.',
@@ -4986,14 +4987,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             FilledButton.icon(
               onPressed: () => _saveDepartment(),
               icon: const Icon(Icons.add_business_outlined),
-              label: const Text('Add department'),
+              label: const CafeText('Add department'),
             ),
             OutlinedButton.icon(
               onPressed: _staffDepartments.isEmpty
                   ? null
                   : () => _savePermissionProfile(),
               icon: const Icon(Icons.checklist_outlined),
-              label: const Text('Create permission profile'),
+              label: const CafeText('Create permission profile'),
             ),
             OutlinedButton.icon(
               onPressed:
@@ -5001,7 +5002,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ? null
                   : _addStaffUser,
               icon: const Icon(Icons.person_add_alt_1),
-              label: const Text('Add staff account'),
+              label: const CafeText('Add staff account'),
             ),
             IconButton(
               tooltip: 'Refresh employee management',
@@ -5027,7 +5028,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               onPressed: _isLoadingEmployeeData
                   ? null
                   : () => unawaited(_loadEmployeeManagement()),
-              child: const Text('Retry loading employee data'),
+              child: const CafeText('Retry loading employee data'),
             ),
           ),
         ],
@@ -5056,7 +5057,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 child: Icon(Icons.apartment_outlined),
               ),
               title: Text(department['name'] as String),
-              subtitle: Text(
+              subtitle: CafeText(
                 '${_staffPermissionProfiles.where((profile) => profile['department_id'] == department['id']).length} permission profile(s)',
               ),
               trailing: IconButton(
@@ -5085,7 +5086,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 child: Icon(Icons.admin_panel_settings_outlined),
               ),
               title: Text(profile['name'] as String),
-              subtitle: Text(
+              subtitle: CafeText(
                 '${departmentName(profile['department_id'])} · '
                 '${(profile['permissions'] as List? ?? const []).length} access grant(s)',
               ),
@@ -5115,7 +5116,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             child: ListTile(
               leading: const CircleAvatar(child: Icon(Icons.person_outline)),
               title: Text(member['email'] as String? ?? 'Staff account'),
-              subtitle: Text(
+              subtitle: CafeText(
                 '${departmentName(member['department_id'])} · '
                 '${permissionProfileName(member['permission_profile_id'])}',
               ),
@@ -5139,7 +5140,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     child: Row(
       children: [
         Expanded(
-          child: Text(
+          child: CafeText(
             title,
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
@@ -5244,14 +5245,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
+                          CafeText(
                             'Gelye Sherane',
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          Text(
+                          CafeText(
                             'Café & Restaurant · Management',
                             style: TextStyle(
                               fontSize: 11,
@@ -5260,8 +5261,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           ),
                         ],
                       )
-                    : const Text('Gelye Sherane · Management System'),
+                    : const CafeText('Gelye Sherane · Management System'),
                 actions: [
+                  const CafeLanguageButton(),
                   IconButton(tooltip: 'Favorites', onPressed: _openFavorites, icon: const Icon(Icons.star_outline)),
                   IconButton(
                     tooltip: 'Refresh live records',
@@ -5303,7 +5305,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Center(
-                        child: Text(
+                        child: CafeText(
                           '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
                           style: const TextStyle(fontSize: 13),
                         ),
@@ -5365,7 +5367,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         builder: (context, constraints) => Row(
           children: [
             if (constraints.maxWidth >= 600) ...[
-              const Text('Workspace', style: TextStyle(color: _executiveMuted)),
+              const CafeText('Workspace', style: TextStyle(color: _executiveMuted)),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 child: Icon(Icons.chevron_right, color: _gold),
@@ -5408,6 +5410,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ],
                 ),
               ),
+            const CafeLanguageButton(),
             IconButton(
               tooltip: 'Refresh live records',
               onPressed: _isLoadingRecords
@@ -5438,7 +5441,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             if (constraints.maxWidth >= 960)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
+                child: CafeText(
                   '${widget.email} · ${widget.role == 'admin' ? 'Admin' : 'Staff'}',
                   style: const TextStyle(color: _executiveMuted, fontSize: 11),
                 ),
@@ -5531,7 +5534,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     backgroundColor: _gold,
                     foregroundColor: _deepNavy,
                     radius: 21,
-                    child: Text(
+                    child: CafeText(
                       'G',
                       style: TextStyle(
                         fontFamily: 'serif',
@@ -5545,7 +5548,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        CafeText(
                           'Gelye Sherane',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -5555,7 +5558,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        Text(
+                        CafeText(
                           'CAFÉ & RESTAURANT',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -5601,7 +5604,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             Divider(height: 1, color: Colors.white.withValues(alpha: 0.12)),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
+              child: CafeText(
                 '${widget.email}\n${widget.role == 'admin' ? 'Administrator' : 'Staff'}',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.72),
@@ -5632,7 +5635,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           size: 19,
           color: selected ? _deepNavy : const Color(0xFFC5D0DF),
         ),
-        title: Text(
+        title: CafeText(
           section.title,
           style: TextStyle(
             color: selected ? _deepNavy : const Color(0xFFC5D0DF),
@@ -5760,7 +5763,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             ],
                           ),
                           const Spacer(),
-                          Text(
+                          CafeText(
                             title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -5819,7 +5822,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       Row(children: [
                         Icon(_metricIcon(title, Icons.payments_outlined), color: palette.accent, size: 22),
                         const SizedBox(width: 8),
-                        Expanded(child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
+                        Expanded(child: CafeText(title, maxLines: 2, overflow: TextOverflow.ellipsis,
                           style: const TextStyle(color: _executiveText, fontWeight: FontWeight.w700))),
                         const Icon(Icons.chevron_right, color: _executiveMuted, size: 18),
                       ]),
@@ -5870,7 +5873,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         if (index < 0 || !_visibleSubcards(index).contains(card.title)) return;
         if (index == 0 && card.title == 'Table Reservations') {
           if (!_canViewTableReservations || !_visibleSubcards(1).contains(card.title)) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Table Reservations access has not been assigned.')));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: CafeText('Table Reservations access has not been assigned.')));
             return;
           }
           index = 1;
@@ -5963,7 +5966,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           TextButton.icon(
             onPressed: () => setState(() => _selectedSubcard = null),
             icon: const Icon(Icons.arrow_back),
-            label: Text('Back to ${section.title}'),
+            label: CafeText('Back to ${section.title}'),
           ),
         if (index != 0) _sectionPageHeading(section, subcard),
         if (index != 0) const SizedBox(height: 16),
@@ -6024,7 +6027,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _subcardDetail(section, subcard),
         if (index != 1 || subcard != null) ...[
           const SizedBox(height: 20),
-          Text(
+          CafeText(
             'Signed in as ${widget.email}',
             style: const TextStyle(color: _executiveMuted, fontSize: 13),
           ),
@@ -6085,7 +6088,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if(orderView != null) {
       if(!allowed(index,orderView.required)) {
         return Card(child:Padding(padding:const EdgeInsets.all(20),
-          child:Text('Ask an administrator to assign ${orderView.required} access to use this order workflow.')));
+          child:CafeText('Ask an administrator to assign ${orderView.required} access to use this order workflow.')));
       }
       return CafeOperationsWorkspace(key:ValueKey('order-view-$index-$card'),
         source:orderView.source, canCreate:false, rpc:rpc,
@@ -6270,7 +6273,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               items: [
                 const DropdownMenuItem(
                   value: 'All areas',
-                  child: Text('All areas'),
+                  child: CafeText('All areas'),
                 ),
                 for (final area in areas)
                   DropdownMenuItem(value: area, child: Text(area)),
@@ -6291,7 +6294,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 items: [
                   const DropdownMenuItem(
                     value: 'All',
-                    child: Text('All statuses'),
+                    child: CafeText('All statuses'),
                   ),
                   for (final status in CafeDiningTableRepository.statuses)
                     DropdownMenuItem(
@@ -6316,14 +6319,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   _selectedDiningTableArea = 'All areas';
                   _diningTableListPage = 0;
                 }),
-                child: const Text('Reset filters'),
+                child: const CafeText('Reset filters'),
               ),
             OutlinedButton.icon(
               onPressed: _isLoadingDiningTables
                   ? null
                   : () => unawaited(_loadDiningTables()),
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Refresh'),
+              label: const CafeText('Refresh'),
             ),
             if (_canManageDiningTables && allowTableEditing)
               FilledButton.icon(
@@ -6335,7 +6338,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     ? null
                     : () => _showDiningTableForm(),
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add table'),
+                label: const CafeText('Add table'),
               ),
           ],
         ),
@@ -6359,7 +6362,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 onPressed: _isLoadingDiningTables
                     ? null
                     : () => unawaited(_loadDiningTables()),
-                child: const Text('Retry loading tables'),
+                child: const CafeText('Retry loading tables'),
               ),
             ),
         ] else if (_isLoadingDiningTables) ...[
@@ -6367,7 +6370,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           const Center(child: CircularProgressIndicator()),
         ] else if (_diningTables.isNotEmpty && tables.isEmpty) ...[
           const SizedBox(height: 16),
-          const Text(
+          const CafeText(
             'No saved tables match these filters.',
             key: ValueKey('dining-table-no-results'),
             style: TextStyle(color: _muted),
@@ -6390,12 +6393,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   size: 28,
                 ),
                 SizedBox(height: 7),
-                Text(
+                CafeText(
                   'No dining tables yet',
                   style: TextStyle(color: _ink, fontWeight: FontWeight.w700),
                 ),
                 SizedBox(height: 4),
-                Text(
+                CafeText(
                   'Add a table to start building the floor layout.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: _muted, fontSize: 11),
@@ -6405,7 +6408,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
         ] else if (tables.isEmpty) ...[
           const SizedBox(height: 12),
-          const Text(
+          const CafeText(
             'There are no tables in this area yet.',
             style: TextStyle(color: _muted, fontSize: 11),
           ),
@@ -6420,21 +6423,21 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Text(
+                CafeText(
                   '${tables.isEmpty ? 0 : pageStart + 1}–'
                   '${(pageStart + visibleTables.length)} of ${tables.length}',
                   key: const ValueKey('dining-table-list-range'),
                 ),
                 const SizedBox(width: 12),
-                const Text('Rows'),
+                const CafeText('Rows'),
                 const SizedBox(width: 6),
                 DropdownButton<int>(
                   key: const ValueKey('dining-table-page-size'),
                   value: _diningTableListPageSize,
                   items: const [
-                    DropdownMenuItem(value: 10, child: Text('10')),
-                    DropdownMenuItem(value: 25, child: Text('25')),
-                    DropdownMenuItem(value: 50, child: Text('50')),
+                    DropdownMenuItem(value: 10, child: CafeText('10')),
+                    DropdownMenuItem(value: 25, child: CafeText('25')),
+                    DropdownMenuItem(value: 50, child: CafeText('50')),
                   ],
                   onChanged: (size) {
                     if (size != null) {
@@ -6453,7 +6456,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       : null,
                   icon: const Icon(Icons.chevron_left),
                 ),
-                Text('${page + 1} / ${pageCount == 0 ? 1 : pageCount}'),
+                CafeText('${page + 1} / ${pageCount == 0 ? 1 : pageCount}'),
                 IconButton(
                   tooltip: 'Next tables page',
                   onPressed: page + 1 < pageCount
@@ -6493,7 +6496,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     ? null
                     : _discardDiningTableMapEdit,
                 icon: const Icon(Icons.undo_outlined),
-                label: const Text('Discard'),
+                label: const CafeText('Discard'),
               ),
               FilledButton.icon(
                 key: const ValueKey('dining-map-save'),
@@ -6518,7 +6521,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     ? null
                     : _startDiningTableMapEdit,
                 icon: const Icon(Icons.edit_location_alt_outlined),
-                label: const Text('Edit map'),
+                label: const CafeText('Edit map'),
               ),
             IconButton(
               tooltip: 'Zoom in on table map',
@@ -6552,7 +6555,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         if (_isEditingDiningTableMap && canEdit)
           const Padding(
             padding: EdgeInsets.only(bottom: 8),
-            child: Text(
+            child: CafeText(
               'Long-press and drag tables to arrange them. Use the list view '
               'for keyboard-accessible position controls.',
               style: TextStyle(color: _executiveMuted, fontSize: 12),
@@ -6583,7 +6586,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     const PositionedDirectional(
                       start: 12,
                       top: 10,
-                      child: Text(
+                      child: CafeText(
                         'SINGLE-FLOOR VIEW · SAVED AREAS',
                         style: TextStyle(
                           color: Color(0xFF8491A4),
@@ -6663,7 +6666,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ],
               ),
-            const Text(
+            const CafeText(
               'Saved table status (not live occupancy)',
               style: TextStyle(color: _executiveMuted, fontSize: 11),
             ),
@@ -6750,7 +6753,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ),
               if (reservations.isNotEmpty) ...[
                 const SizedBox(height: 3),
-                Text(
+                CafeText(
                   '${reservations.length} reservation'
                   '${reservations.length == 1 ? '' : 's'}',
                   style: const TextStyle(
@@ -6794,7 +6797,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
         ),
         title: Text(table.name),
-        subtitle: Text(
+        subtitle: CafeText(
           '${table.area} · '
           '${chairState == null ? '${table.seats} base seats' : '${chairState.currentChairs} chairs (${chairState.baseChairs} base)'}'
           '${reservations.isEmpty ? '' : ' · ${reservations.length} reservation${reservations.length == 1 ? '' : 's'}'}',
@@ -6973,7 +6976,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    CafeText(
                       'Table workspace',
                       style: TextStyle(
                         color: _executiveText,
@@ -6981,7 +6984,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       ),
                     ),
                     SizedBox(height: 3),
-                    Text(
+                    CafeText(
                       'Saved tables and table details',
                       style: TextStyle(color: _executiveMuted, fontSize: 12),
                     ),
@@ -6993,7 +6996,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   onPressed: () =>
                       setState(() => _diningTablePanelOnMobile = false),
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('List'),
+                  label: const CafeText('List'),
                 ),
             ],
           ),
@@ -7042,7 +7045,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             Row(
               children: [
                 const Expanded(
-                  child: Text(
+                  child: CafeText(
                     'Saved tables',
                     style: TextStyle(
                       color: _executiveText,
@@ -7065,7 +7068,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         ? null
                         : _startDiningTablePanelDraft,
                     icon: const Icon(Icons.add),
-                    label: const Text('Add table'),
+                    label: const CafeText('Add table'),
                   ),
               ],
             ),
@@ -7122,7 +7125,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   items: [
                     const DropdownMenuItem(
                       value: 'All',
-                      child: Text('All statuses'),
+                      child: CafeText('All statuses'),
                     ),
                     for (final status in CafeDiningTableRepository.statuses)
                       DropdownMenuItem(
@@ -7143,7 +7146,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     _selectedDiningTableArea = 'All areas';
                     _diningTableListPage = 0;
                   }),
-                  child: const Text('Reset'),
+                  child: const CafeText('Reset'),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => setState(
@@ -7170,7 +7173,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             else if (_diningTables.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(18),
-                child: Text(
+                child: CafeText(
                   'No saved tables yet.',
                   key: ValueKey('saved-tables-empty'),
                   style: TextStyle(color: _executiveMuted),
@@ -7179,7 +7182,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             else if (tables.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(18),
-                child: Text(
+                child: CafeText(
                   'No tables match these filters.',
                   key: ValueKey('saved-tables-no-results'),
                   style: TextStyle(color: _executiveMuted),
@@ -7211,7 +7214,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    subtitle: Text(
+                    subtitle: CafeText(
                       '${table.area} · ${table.seats} seats',
                       style: const TextStyle(color: _executiveMuted),
                     ),
@@ -7248,7 +7251,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 !(_selectedSubcard == 'Table Map' && _isEditingDiningTableMap))
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(
+                child: CafeText(
                   'Showing 8 of ${tables.length} saved tables. Use search '
                   'and filters to narrow the list.',
                   style: const TextStyle(color: _executiveMuted, fontSize: 12),
@@ -7315,7 +7318,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             if (!hasSelected)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 36),
-                child: Text(
+                child: CafeText(
                   'Select a saved table or choose Add table. '
                   'The current database supports name, area, seats, '
                   'manual status, and map position only.',
@@ -7332,7 +7335,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       controller: _diningTablePanelNameController,
                       maxLength: 80,
                       decoration: const InputDecoration(
-                        labelText: 'Table name or number',
+                        label: CafeText('Table name or number'),
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) =>
@@ -7346,7 +7349,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       controller: _diningTablePanelAreaController,
                       maxLength: 80,
                       decoration: const InputDecoration(
-                        labelText: 'Area',
+                        label: CafeText('Area'),
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) =>
@@ -7360,7 +7363,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       controller: _diningTablePanelSeatsController,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
-                        labelText: 'Seat capacity',
+                        label: CafeText('Seat capacity'),
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
@@ -7374,7 +7377,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       const SizedBox(height: 8),
                       InputDecorator(
                         decoration: const InputDecoration(
-                          labelText: 'Current table status',
+                          label: CafeText('Current table status'),
                           border: OutlineInputBorder(),
                         ),
                         child: Align(
@@ -7421,7 +7424,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       onPressed: _isSavingDiningTablePanel
                           ? null
                           : () => _saveDiningTablePanel(addAnother: true),
-                      child: const Text('Save & add another'),
+                      child: const CafeText('Save & add another'),
                     ),
                 ],
               ),
@@ -7444,7 +7447,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            const CafeText(
               'Default mode for this table',
               style: TextStyle(
                 color: _executiveText,
@@ -7456,7 +7459,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               key: const ValueKey('dining-table-pricing-mode'),
               initialValue: _diningTablePanelPricingMode,
               decoration: const InputDecoration(
-                labelText: 'Pricing mode',
+                label: CafeText('Pricing mode'),
                 border: OutlineInputBorder(),
               ),
               items: [
@@ -7478,7 +7481,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   : null,
             ),
             const SizedBox(height: 8),
-            const Text(
+            const CafeText(
               'This table’s active mode selects product prices for its QR menu and new orders. Existing orders keep their original prices.',
               style: TextStyle(color: _executiveMuted, height: 1.4),
             ),
@@ -7527,7 +7530,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 }
               }),
               icon: const Icon(Icons.map_outlined),
-              label: const Text('Show table map'),
+              label: const CafeText('Show table map'),
             ),
           ],
           if (_diningTableEditorTab == 3 && table != null) ...[
@@ -7535,7 +7538,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             OutlinedButton.icon(
               onPressed: () => _showDiningTableQr(table),
               icon: const Icon(Icons.qr_code_2_outlined),
-              label: const Text('Preview / print table QR'),
+              label: const CafeText('Preview / print table QR'),
             ),
           ],
         ],
@@ -7547,7 +7550,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (sectionIndex == 0) return _dashboardLayout();
     if (sectionIndex == 1) {
       return _visibleSubcards(sectionIndex).isEmpty
-          ? const Text(
+          ? const CafeText(
               'Add Table access has not been assigned to this account.',
               style: TextStyle(color: _executiveMuted),
             )
@@ -7555,7 +7558,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     }
     final visibleSubcards = _visibleSubcards(sectionIndex);
     if (visibleSubcards.isEmpty) {
-      return const Text(
+      return const CafeText(
         'No cards in this section are assigned to this account.',
         style: TextStyle(color: _executiveMuted),
       );
@@ -7606,7 +7609,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               ),
               child: ExpansionTile(
                 key: PageStorageKey<String>('section-more-cards-$sectionIndex'),
-                title: Text(
+                title: CafeText(
                   'More cards (${additionalCards.length})',
                   style: const TextStyle(
                     color: _executiveText,
@@ -7691,7 +7694,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     _inventoryManagementCategories[index].icon,
                     size: 17,
                   ),
-                  label: Text(
+                  label: CafeText(
                     '${_inventoryManagementCategories[index].title} '
                     '(${categoryCounts[index]})',
                   ),
@@ -7815,7 +7818,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ],
                 ),
                 const SizedBox(height: 9),
-                Text(
+                CafeText(
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -7881,7 +7884,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: CafeText(
                     title,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -7889,7 +7892,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 const Chip(
-                  label: Text('Design only'),
+                  label: CafeText('Design only'),
                   visualDensity: VisualDensity.compact,
                 ),
               ],
@@ -7907,7 +7910,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
+              child: const CafeText(
                 'Coming Soon — Awaiting a verified inventory ledger and '
                 'approved integrations. This preview does not change stock '
                 'quantities, receive purchases, update menu availability, '
@@ -7939,7 +7942,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 Icon(Icons.info_outline, color: theme.colorScheme.primary),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: CafeText(
                     'This card preserves the existing generic records for '
                     '"$workspaceTitle". They are not connected to stock '
                     'balances or an inventory ledger.',
@@ -7982,7 +7985,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ChoiceChip(
                   key: ValueKey('motel-orders-category-tab-$index'),
                   avatar: Icon(_motelOrdersCategories[index].icon, size: 17),
-                  label: Text(
+                  label: CafeText(
                     '${_motelOrdersCategories[index].title} '
                     '(${categoryCounts[index]})',
                   ),
@@ -7999,7 +8002,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         if (categoryCards.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 24),
-            child: Text(
+            child: CafeText(
               'No cards in this category are assigned to this account.',
               textAlign: TextAlign.center,
               style: TextStyle(color: _muted),
@@ -8075,7 +8078,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ],
                 ),
                 const SizedBox(height: 9),
-                Text(
+                CafeText(
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -8137,7 +8140,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: CafeText(
                     title,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -8145,7 +8148,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 const Chip(
-                  label: Text('Design only'),
+                  label: CafeText('Design only'),
                   visualDensity: VisualDensity.compact,
                 ),
               ],
@@ -8163,7 +8166,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
+              child: const CafeText(
                 'Coming Soon — Awaiting verified integrations. This preview '
                 'does not create or process orders, charge payments, reserve '
                 'rooms, or dispatch deliveries. Existing saved records remain '
@@ -8208,7 +8211,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ChoiceChip(
                   key: ValueKey('menu-category-tab-$index'),
                   avatar: Icon(_menuManagementCategories[index].icon, size: 17),
-                  label: Text(
+                  label: CafeText(
                     '${_menuManagementCategories[index].title} '
                     '(${categoryCounts[index]})',
                   ),
@@ -8319,7 +8322,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     _kitchenManagementCategories[index].icon,
                     size: 17,
                   ),
-                  label: Text(
+                  label: CafeText(
                     '${_kitchenManagementCategories[index].title} '
                     '(${categoryCounts[index]})',
                   ),
@@ -8440,7 +8443,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ],
                 ),
                 const SizedBox(height: 9),
-                Text(
+                CafeText(
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -8506,7 +8509,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: CafeText(
                     title,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -8514,7 +8517,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 const Chip(
-                  label: Text('Design only'),
+                  label: CafeText('Design only'),
                   visualDensity: VisualDensity.compact,
                 ),
               ],
@@ -8532,7 +8535,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
+              child: const CafeText(
                 'Kitchen order, station, printer, menu and inventory '
                 'integrations have not been verified. This card is a design '
                 'preview only: it does not load or change orders, create '
@@ -8560,7 +8563,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Text(
+          child: const CafeText(
             'This existing route and its saved records are preserved in the '
             'generic workspace. They are not connected to a verified live '
             'kitchen order, station, or printer system.',
@@ -8616,7 +8619,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ],
                 ),
                 const SizedBox(height: 9),
-                Text(
+                CafeText(
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -8682,7 +8685,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: CafeText(
                     title,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -8690,7 +8693,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 const Chip(
-                  label: Text('Design only'),
+                  label: CafeText('Design only'),
                   visualDensity: VisualDensity.compact,
                 ),
               ],
@@ -8708,7 +8711,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
+              child: const CafeText(
                 'Product-specific data sources and integrations have not been '
                 'verified. This workspace is a design preview only: no catalog '
                 'records are loaded or changed, and operational actions are '
@@ -8736,7 +8739,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Text(
+          child: const CafeText(
             'This existing route and its stored workspace records are preserved. '
             'They use the generic record workspace and are not verified product '
             'catalog, pricing, inventory, or order integrations.',
@@ -8770,7 +8773,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 if (index > 0) const SizedBox(width: 8),
                 ChoiceChip(
                   key: ValueKey('tables-category-$index'),
-                  label: Text(
+                  label: CafeText(
                     '${_tablesChairsCategories[index].title} '
                     '(${_tablesChairsCategories[index].cards.where(canShowCard).length})',
                   ),
@@ -8840,13 +8843,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   color: const Color(0xFF61718A),
                 ),
                 const SizedBox(height: 14),
-                Text(
+                CafeText(
                   subcard,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                const CafeText(
                   'Coming Soon — Awaiting Specification',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -8855,7 +8858,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                const CafeText(
                   'This card is not operational yet. It will be designed and '
                   'implemented after its requirements are approved.',
                   textAlign: TextAlign.center,
@@ -8940,7 +8943,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             final pageHeading = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                const CafeText(
                   'Operational overview',
                   style: TextStyle(
                     color: _gold,
@@ -8950,7 +8953,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                const Text(
+                const CafeText(
                   'Dashboard',
                   style: TextStyle(
                     color: _executiveText,
@@ -8959,7 +8962,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                const CafeText(
                   'Saved records and confirmed bookings · Baghdad time (UTC+03:00).',
                   style: TextStyle(color: _executiveMuted, fontSize: 13),
                 ),
@@ -8978,7 +8981,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           if (_canViewTableReservations) _loadTableReservations(),
                         ])),
                   icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('Refresh'),
+                  label: const CafeText('Refresh'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: _ink,
                     backgroundColor: Colors.white,
@@ -9012,7 +9015,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           key: const ValueKey('dashboard-search'),
           style: const TextStyle(color: _executiveText),
           decoration: const InputDecoration(
-            labelText: 'Search dashboard cards or categories',
+            label: CafeText('Search dashboard cards or categories'),
             labelStyle: TextStyle(color: _executiveMuted),
             prefixIcon: Icon(Icons.search, color: _executiveMuted),
           ),
@@ -9020,7 +9023,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         ),
         const SizedBox(height: 12),
         if (visibleGroupIndices.isEmpty)
-          const Text('No assigned dashboard cards match your search.', style: TextStyle(color: _executiveMuted)),
+          const CafeText('No assigned dashboard cards match your search.', style: TextStyle(color: _executiveMuted)),
         if (visibleGroupIndices.isNotEmpty) ...[
           Wrap(
             spacing: 8,
@@ -9075,7 +9078,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        const CafeText(
           'Quick Links',
           style: TextStyle(
             color: _executiveText,
@@ -9331,7 +9334,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
               ),
-              Text(
+              CafeText(
                 'See all (${visibleCards.length})',
                 style: TextStyle(
                   color: _gold,
@@ -9385,7 +9388,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    CafeText(
                       title,
                       style: const TextStyle(
                         color: _navy,
@@ -9404,7 +9407,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
+                    const CafeText(
                       'Design preview — not live',
                       style: TextStyle(
                         color: Color(0xFF9A5B00),
@@ -9412,7 +9415,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    const CafeText(
                       'The authoritative data source and integration for this '
                       'Dashboard card have not been verified. It does not '
                       'show live figures or perform business operations.',
@@ -9450,7 +9453,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             }
           },
           icon: const Icon(Icons.calendar_month_outlined, size: 18),
-          label: Text('$dateLabel · $_selectedDateRange'),
+          label: CafeText('$dateLabel · $_selectedDateRange'),
           style: OutlinedButton.styleFrom(
             foregroundColor: _ink,
             backgroundColor: Colors.white,
@@ -9511,7 +9514,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               if (index != groups.first) const SizedBox(width: 8),
               ChoiceChip(
                 key: ValueKey('payment-category-$index'),
-                label: Text('${_paymentCategories[index].title} (${_paymentCategories[index].cards.where(titles.contains).length})'),
+                label: CafeText('${_paymentCategories[index].title} (${_paymentCategories[index].cards.where(titles.contains).length})'),
                 selected: selected == index,
                 onSelected: (_) => setState(() => _selectedPaymentCategory = index),
               ),
@@ -9673,7 +9676,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   !_visibleSubcards(1).contains(title))) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text(
+                content: CafeText(
                   'Table Reservations access has not been assigned.',
                 ),
               ),
@@ -9721,7 +9724,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ],
               ),
               const Spacer(),
-              Text(
+              CafeText(
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -10001,7 +10004,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               Icon(Icons.info_outline, color: _gold),
               SizedBox(width: 10),
               Expanded(
-                child: Text(
+                child: CafeText(
                   'New reservations are checked and saved by Supabase. The '
                   'server verifies table capacity, table state, time overlap, '
                   'staff permission, and retry identity before confirming.',
@@ -10134,7 +10137,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ? null
                   : _showCreateTableReservation,
               icon: const Icon(Icons.add),
-              label: const Text('New reservation'),
+              label: const CafeText('New reservation'),
             ),
           ),
         ],
@@ -10180,24 +10183,24 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   TextButton(
                     key: ValueKey('cancel-reservation-${reservation.id}'),
                     onPressed: () => _cancelTableReservation(reservation),
-                    child: const Text('Cancel'),
+                    child: const CafeText('Cancel'),
                   ),
               ],
             ),
             const SizedBox(height: 5),
-            Text(
+            CafeText(
               '$tableLabel · ${reservation.partySize} guests',
               style: const TextStyle(color: _executiveMuted),
             ),
             const SizedBox(height: 3),
-            Text(
+            CafeText(
               '${MaterialLocalizations.of(context).formatMediumDate(reservation.startsAt)} · '
               '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(reservation.startsAt))}'
               '–${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(reservation.endsAt))}',
               style: const TextStyle(color: _executiveMuted),
             ),
             const SizedBox(height: 3),
-            Text(
+            CafeText(
               '${reservation.contact} · ${reservation.status.toUpperCase()}',
               style: const TextStyle(color: _executiveMuted, fontSize: 12),
             ),
@@ -10312,7 +10315,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             }
 
             return AlertDialog(
-              title: const Text('New table reservation'),
+              title: const CafeText('New table reservation'),
               content: SizedBox(
                 width: 460,
                 child: SingleChildScrollView(
@@ -10326,7 +10329,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           autofocus: true,
                           maxLength: 120,
                           decoration: const InputDecoration(
-                            labelText: 'Customer name',
+                            label: CafeText('Customer name'),
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) =>
@@ -10340,7 +10343,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           maxLength: 80,
                           keyboardType: TextInputType.phone,
                           decoration: const InputDecoration(
-                            labelText: 'Contact number',
+                            label: CafeText('Contact number'),
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) =>
@@ -10353,7 +10356,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           controller: partySizeController,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
-                            labelText: 'Party size',
+                            label: CafeText('Party size'),
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
@@ -10378,14 +10381,14 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           ),
                           initialValue: dropdownValue,
                           decoration: const InputDecoration(
-                            labelText: 'Available table',
+                            label: CafeText('Available table'),
                             border: OutlineInputBorder(),
                           ),
                           items: [
                             for (final table in eligibleTables)
                               DropdownMenuItem(
                                 value: table.id,
-                                child: Text(
+                                child: CafeText(
                                   '${table.name} · ${table.area} · ${table.seats} seats',
                                 ),
                               ),
@@ -10411,7 +10414,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                                     ? null
                                     : () => chooseDateTime(chooseStart: true),
                                 icon: const Icon(Icons.calendar_month_outlined),
-                                label: Text(
+                                label: CafeText(
                                   'Starts · ${formatDateTime(startsAt)}',
                                 ),
                               ),
@@ -10420,7 +10423,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                                     ? null
                                     : () => chooseDateTime(chooseStart: false),
                                 icon: const Icon(Icons.schedule_outlined),
-                                label: Text('Ends · ${formatDateTime(endsAt)}'),
+                                label: CafeText('Ends · ${formatDateTime(endsAt)}'),
                               ),
                             ],
                           ),
@@ -10431,7 +10434,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           maxLength: 1000,
                           maxLines: 2,
                           decoration: const InputDecoration(
-                            labelText: 'Notes (optional)',
+                            label: CafeText('Notes (optional)'),
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -10449,7 +10452,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   onPressed: isSaving
                       ? null
                       : () => Navigator.of(dialogContext).pop(false),
-                  child: const Text('Cancel'),
+                  child: const CafeText('Cancel'),
                 ),
                 FilledButton(
                   onPressed: isSaving
@@ -10491,7 +10494,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Confirm reservation'),
+                      : const CafeText('Confirm reservation'),
                 ),
               ],
             );
@@ -10505,7 +10508,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           messenger
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              const SnackBar(content: Text('Reservation confirmed.')),
+              const SnackBar(content: CafeText('Reservation confirmed.')),
             );
         }
       }
@@ -10522,19 +10525,19 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Cancel reservation?'),
-        content: Text(
+        title: const CafeText('Cancel reservation?'),
+        content: CafeText(
           'Cancel the reservation for ${reservation.customerName}? '
           'This action will be recorded in the audit history.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Keep reservation'),
+            child: const CafeText('Keep reservation'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Cancel reservation'),
+            child: const CafeText('Cancel reservation'),
           ),
         ],
       ),
@@ -10568,7 +10571,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              const CafeText(
                 'Chair management',
                 style: TextStyle(
                   color: _executiveText,
@@ -10577,7 +10580,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              const CafeText(
                 'Current chairs equal the original table capacity plus audited '
                 'movements. Record the actual spare pool and the verified '
                 'guest/reservation minimum before moving chairs.',
@@ -10623,7 +10626,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      const CafeText(
                         'Verified spare-chair pool',
                         style: TextStyle(
                           color: _executiveText,
@@ -10661,7 +10664,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                             unawaited(_loadDiningTables());
                           },
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Refresh'),
+                    label: const CafeText('Refresh'),
                   ),
                 ],
               ),
@@ -10686,7 +10689,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         ? () => _showChairMovementForm('give')
                         : null,
                     icon: const Icon(Icons.add),
-                    label: const Text('Give extra chairs'),
+                    label: const CafeText('Give extra chairs'),
                   ),
                   OutlinedButton.icon(
                     key: const ValueKey('take-chairs'),
@@ -10694,7 +10697,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         ? () => _showChairMovementForm('take')
                         : null,
                     icon: const Icon(Icons.remove),
-                    label: const Text('Take chairs'),
+                    label: const CafeText('Take chairs'),
                   ),
                   OutlinedButton.icon(
                     key: const ValueKey('transfer-chairs'),
@@ -10702,13 +10705,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         ? () => _showChairMovementForm('transfer')
                         : null,
                     icon: const Icon(Icons.swap_horiz),
-                    label: const Text('Transfer chairs'),
+                    label: const CafeText('Transfer chairs'),
                   ),
                   OutlinedButton.icon(
                     key: const ValueKey('chair-movement-history'),
                     onPressed: () => _showChairMovementHistory(snapshot),
                     icon: const Icon(Icons.history),
-                    label: const Text('Movement history'),
+                    label: const CafeText('Movement history'),
                   ),
                 ],
               ),
@@ -10725,7 +10728,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
+                  const CafeText(
                     'Table chair counts',
                     style: TextStyle(
                       color: _executiveText,
@@ -10733,7 +10736,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  const CafeText(
                     'Before taking or transferring chairs, record the actual '
                     'current-guest and confirmed-reservation seat minimum.',
                     style: TextStyle(color: _executiveMuted, height: 1.4),
@@ -10741,7 +10744,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   if (snapshot.tables.isEmpty)
                     const Padding(
                       padding: EdgeInsets.only(top: 12),
-                      child: Text(
+                      child: CafeText(
                         'No saved tables are available for this account.',
                         style: TextStyle(color: _executiveMuted),
                       ),
@@ -10755,7 +10758,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           table.name,
                           style: const TextStyle(color: _executiveText),
                         ),
-                        subtitle: Text(
+                        subtitle: CafeText(
                           '${table.area} · ${_diningTableStatusLabel(table.status)}'
                           ' · ${table.protectedSeats == null ? 'guest minimum not verified' : '${table.protectedSeats} protected seats'}',
                           style: const TextStyle(color: _executiveMuted),
@@ -10764,7 +10767,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           crossAxisAlignment: WrapCrossAlignment.center,
                           spacing: 4,
                           children: [
-                            Text(
+                            CafeText(
                               '${table.currentChairs} / ${table.baseChairs} base',
                               style: const TextStyle(
                                 color: _executiveText,
@@ -10805,13 +10808,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Record actual spare-chair count'),
+          title: const CafeText('Record actual spare-chair count'),
           content: SizedBox(
             width: 420,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                const CafeText(
                   'Count the physical spare chairs now. This sets the verified '
                   'pool balance and is recorded in movement history.',
                 ),
@@ -10820,7 +10823,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   controller: countController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Spare chairs physically available',
+                    label: CafeText('Spare chairs physically available'),
                   ),
                   validator: (value) {
                     final count = int.tryParse(value ?? '');
@@ -10834,7 +10837,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   controller: reasonController,
                   maxLength: 300,
                   decoration: const InputDecoration(
-                    labelText: 'Reconciliation reason',
+                    label: CafeText('Reconciliation reason'),
                   ),
                 ),
                 if (error.isNotEmpty) ...[
@@ -10849,7 +10852,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               onPressed: isSaving
                   ? null
                   : () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const CafeText('Cancel'),
             ),
             FilledButton(
               onPressed: isSaving
@@ -10892,7 +10895,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Save verified count'),
+                  : const CafeText('Save verified count'),
             ),
           ],
         ),
@@ -10917,13 +10920,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text('${table.name} protected seat minimum'),
+          title: CafeText('${table.name} protected seat minimum'),
           content: SizedBox(
             width: 420,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                const CafeText(
                   'Enter the verified number of current guests plus confirmed '
                   'reservation seats that must remain available.',
                 ),
@@ -10932,7 +10935,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   controller: countController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Guests and reserved seats to protect',
+                    label: CafeText('Guests and reserved seats to protect'),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -10940,7 +10943,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   controller: reasonController,
                   maxLength: 300,
                   decoration: const InputDecoration(
-                    labelText: 'Why is this count being recorded?',
+                    label: CafeText('Why is this count being recorded?'),
                   ),
                 ),
                 if (error.isNotEmpty) ...[
@@ -10955,7 +10958,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               onPressed: isSaving
                   ? null
                   : () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const CafeText('Cancel'),
             ),
             FilledButton(
               onPressed: isSaving
@@ -11001,7 +11004,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Save verified minimum'),
+                  : const CafeText('Save verified minimum'),
             ),
           ],
         ),
@@ -11023,7 +11026,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (operation == 'transfer' && tables.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('A transfer needs two active dining tables.'),
+          content: CafeText('A transfer needs two active dining tables.'),
         ),
       );
       return;
@@ -11091,13 +11094,13 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       DropdownButtonFormField<String>(
                         initialValue: sourceId,
                         decoration: const InputDecoration(
-                          labelText: 'Source table',
+                          label: CafeText('Source table'),
                         ),
                         items: [
                           for (final table in tables)
                             DropdownMenuItem(
                               value: table.tableId,
-                              child: Text(
+                              child: CafeText(
                                 '${table.name} · ${table.currentChairs} chairs',
                               ),
                             ),
@@ -11121,7 +11124,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       DropdownButtonFormField<String>(
                         initialValue: destinationId,
                         decoration: const InputDecoration(
-                          labelText: 'Destination table',
+                          label: CafeText('Destination table'),
                         ),
                         items: [
                           for (final table in tables)
@@ -11129,7 +11132,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                                 table.tableId != sourceId)
                               DropdownMenuItem(
                                 value: table.tableId,
-                                child: Text(
+                                child: CafeText(
                                   '${table.name} · ${table.currentChairs} chairs',
                                 ),
                               ),
@@ -11146,7 +11149,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       controller: quantityController,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
-                        labelText: 'Number of chairs',
+                        label: CafeText('Number of chairs'),
                       ),
                       onChanged: (_) => setDialogState(() {}),
                     ),
@@ -11154,11 +11157,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     TextField(
                       controller: reasonController,
                       maxLength: 300,
-                      decoration: const InputDecoration(labelText: 'Reason'),
+                      decoration: const InputDecoration(label: CafeText('Reason')),
                     ),
                     if (operationPreview.isNotEmpty) ...[
                       const SizedBox(height: 8),
-                      Text('Before → after: $operationPreview'),
+                      CafeText('Before → after: $operationPreview'),
                     ],
                     if (error.isNotEmpty) ...[
                       const SizedBox(height: 8),
@@ -11173,7 +11176,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 onPressed: isSaving
                     ? null
                     : () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
+                child: const CafeText('Cancel'),
               ),
               FilledButton(
                 onPressed: isSaving
@@ -11229,7 +11232,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         dimension: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Confirm movement'),
+                    : const CafeText('Confirm movement'),
               ),
             ],
           );
@@ -11264,12 +11267,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Chair movement history'),
+        title: const CafeText('Chair movement history'),
         content: SizedBox(
           width: 620,
           height: 480,
           child: snapshot.movements.isEmpty
-              ? const Center(child: Text('No chair movements recorded yet.'))
+              ? const Center(child: CafeText('No chair movements recorded yet.'))
               : ListView.separated(
                   itemCount: snapshot.movements.length,
                   separatorBuilder: (_, _) => const Divider(),
@@ -11281,18 +11284,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         : ' · ${movement.quantity} chairs';
                     return ListTile(
                       isThreeLine: true,
-                      title: Text(
+                      title: CafeText(
                         '${action[0].toUpperCase()}${action.substring(1)}'
                         '$quantity',
                       ),
-                      subtitle: Text(
+                      subtitle: CafeText(
                         '${tableName(movement.sourceTableId)} → '
                         '${tableName(movement.destinationTableId)}\n'
                         '${movement.reason}\n'
                         '${stateSummary(movement.beforeState)} → '
                         '${stateSummary(movement.afterState)}',
                       ),
-                      trailing: Text(
+                      trailing: CafeText(
                         'Staff ${movement.actorId.substring(0, 8)}\n'
                         '${movement.createdAt.toLocal()}',
                         textAlign: TextAlign.end,
@@ -11304,7 +11307,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Close'),
+            child: const CafeText('Close'),
           ),
         ],
       ),
@@ -11519,7 +11522,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     ? null
                     : () => _createWorkspaceRecord(section, subcard),
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add record'),
+                label: const CafeText('Add record'),
               ),
           ],
         ),
@@ -11579,7 +11582,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: const TextStyle(color: _executiveMuted)),
+                    CafeText(label, style: const TextStyle(color: _executiveMuted)),
                     const SizedBox(height: 2),
                     Text(
                       value,
@@ -11689,7 +11692,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
+                    child: CafeText(
                       '$subcard records',
                       style: const TextStyle(
                         color: _ink,
@@ -11704,7 +11707,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                           ? null
                           : () => _createWorkspaceRecord(section, subcard),
                       icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Add record'),
+                      label: const CafeText('Add record'),
                     ),
                 ],
               ),
@@ -11772,7 +11775,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         ),
                         if (canManage && records.isEmpty) ...[
                           const SizedBox(height: 4),
-                          const Text(
+                          const CafeText(
                             'Add a record to begin tracking this card.',
                             style: TextStyle(color: _muted, fontSize: 12),
                           ),
@@ -11788,7 +11791,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 const Divider(height: 22),
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: Text(
+                  child: CafeText(
                     'Tracked amount total · ${amountTotal.toStringAsFixed(0)} ${amountRecords.first.currency}',
                     style: const TextStyle(
                       color: _ink,
@@ -11798,7 +11801,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
               ],
               const SizedBox(height: 4),
-              const Text(
+              const CafeText(
                 'Totals include only records saved in this workspace. They are '
                 'not reconciled against a payment provider or cash register.',
                 style: TextStyle(color: _muted, fontSize: 11, height: 1.4),
@@ -11845,7 +11848,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
           ),
           const SizedBox(height: 3),
-          Text(
+          CafeText(
             label,
             maxLines: 2,
             style: const TextStyle(color: _executiveMuted, fontSize: 11),
@@ -11903,7 +11906,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    Text(
+                    CafeText(
                       'Updated ${record.updatedAt.toLocal().toString().substring(0, 16)}',
                       style: const TextStyle(color: _muted, fontSize: 11),
                     ),
@@ -11911,7 +11914,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 ),
               ),
               if (record.amount != null)
-                Text(
+                CafeText(
                   '${record.amount!.toStringAsFixed(0)} ${record.currency}',
                   style: const TextStyle(
                     color: _ink,
@@ -11929,23 +11932,23 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     }
                   },
                   itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'open', child: Text('Mark open')),
+                    PopupMenuItem(value: 'open', child: CafeText('Mark open')),
                     PopupMenuItem(
                       value: 'in_progress',
-                      child: Text('Mark in progress'),
+                      child: CafeText('Mark in progress'),
                     ),
                     PopupMenuItem(
                       value: 'completed',
-                      child: Text('Mark completed'),
+                      child: CafeText('Mark completed'),
                     ),
                     PopupMenuItem(
                       value: 'cancelled',
-                      child: Text('Mark cancelled'),
+                      child: CafeText('Mark cancelled'),
                     ),
                     PopupMenuDivider(),
                     PopupMenuItem(
                       value: 'delete',
-                      child: Text('Delete record'),
+                      child: CafeText('Delete record'),
                     ),
                   ],
                 ),
@@ -12084,7 +12087,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    CafeText(
                       title,
                       maxLines: sectionIndex == 1 ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
@@ -12175,7 +12178,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         children: [
           Icon(section.icon, color: const Color(0xFF4166A3), size: 22),
           const SizedBox(height: 8),
-          Text(
+          CafeText(
             '$subcard records',
             style: const TextStyle(
               color: _navy,
@@ -12202,7 +12205,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                       ? null
                       : () => _createWorkspaceRecord(section, subcard),
                   icon: const Icon(Icons.add),
-                  label: const Text('Add record'),
+                  label: const CafeText('Add record'),
                 ),
             ],
           ),
@@ -12279,7 +12282,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           else if (_isLoadingRecords)
             const Center(child: CircularProgressIndicator())
           else if (filteredRecords.isEmpty)
-            const Text(
+            const CafeText(
               'No records match this card and its current filters.',
               style: TextStyle(color: _muted),
             )
@@ -12313,7 +12316,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                   ),
                 ),
                 if (record.amount != null)
-                  Text(
+                  CafeText(
                     '${record.amount!.toStringAsFixed(2)} ${record.currency}',
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
@@ -12347,7 +12350,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             Row(
               children: [
                 Expanded(
-                  child: Text(
+                  child: CafeText(
                     'Updated ${record.updatedAt.toLocal().toString().substring(0, 16)}',
                     style: const TextStyle(color: _muted, fontSize: 12),
                   ),
@@ -12357,18 +12360,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     value: record.status,
                     underline: const SizedBox.shrink(),
                     items: const [
-                      DropdownMenuItem(value: 'open', child: Text('Open')),
+                      DropdownMenuItem(value: 'open', child: CafeText('Open')),
                       DropdownMenuItem(
                         value: 'in_progress',
-                        child: Text('In progress'),
+                        child: CafeText('In progress'),
                       ),
                       DropdownMenuItem(
                         value: 'completed',
-                        child: Text('Completed'),
+                        child: CafeText('Completed'),
                       ),
                       DropdownMenuItem(
                         value: 'cancelled',
-                        child: Text('Cancelled'),
+                        child: CafeText('Cancelled'),
                       ),
                     ],
                     onChanged: (status) {
@@ -12759,7 +12762,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Verify code'),
+                : const CafeText('Verify code'),
           ),
         if (widget.supabaseConfigured && signedInEmail != null && !_mfaPending)
           FilledButton(
@@ -12770,7 +12773,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Sign out'),
+                : const CafeText('Sign out'),
           ),
         if (widget.supabaseConfigured && signedInEmail == null)
           FilledButton(
@@ -12781,7 +12784,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Sign in'),
+                : const CafeText('Sign in'),
           ),
       ],
     );
@@ -12811,21 +12814,21 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Signed in as $email.'),
+        CafeText('Signed in as $email.'),
         const SizedBox(height: 12),
         if (_isAdmin == true) ...[
-          const Text(
+          const CafeText(
             'Administrator access',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
-          const Text(
+          const CafeText(
             'Create staff accounts from the management workspace so you can '
             'assign their section and card permissions.',
             style: TextStyle(color: _muted, height: 1.45),
           ),
         ] else
-          const Text(
+          const CafeText(
             'This account does not have an administrator role. The first '
             'administrator must be assigned by the project owner.',
             style: TextStyle(color: _muted, height: 1.45),
@@ -12854,14 +12857,14 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
           ),
           if (_mfaEnrollmentSecret case final secret?) ...[
             const SizedBox(height: 12),
-            const Text(
+            const CafeText(
               'Account setup key',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             SelectableText(secret),
             const SizedBox(height: 8),
-            const Text(
+            const CafeText(
               'Keep this setup key private. After setup, use the rotating '
               'six-digit code from your authenticator app.',
               style: TextStyle(color: _muted, height: 1.4),
@@ -12875,7 +12878,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
             autofillHints: const [AutofillHints.oneTimeCode],
             maxLength: 6,
             decoration: const InputDecoration(
-              labelText: 'Authenticator code',
+              label: CafeText('Authenticator code'),
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.security),
               counterText: '',
@@ -12900,7 +12903,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
+        const CafeText(
           'Authenticator verification is required before staff access. The '
           'authenticator setup could not be prepared. Sign out and try again.',
           style: TextStyle(color: _muted, height: 1.45),
@@ -12921,7 +12924,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
         children: [
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text(
+            child: CafeText(
               'Use your staff account to continue.',
               style: TextStyle(color: _muted, height: 1.4),
             ),
@@ -12933,7 +12936,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.username, AutofillHints.email],
             decoration: const InputDecoration(
-              labelText: 'Staff email',
+              label: CafeText('Staff email'),
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.email_outlined),
             ),
@@ -12951,7 +12954,7 @@ class _StaffSignInDialogState extends State<StaffSignInDialog> {
             obscureText: true,
             autofillHints: const [AutofillHints.password],
             decoration: const InputDecoration(
-              labelText: 'Password',
+              label: CafeText('Password'),
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.password_outlined),
             ),
