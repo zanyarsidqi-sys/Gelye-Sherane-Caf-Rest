@@ -13,6 +13,13 @@ class CafeDashboardFulfilment extends StatefulWidget {
 class _CafeDashboardFulfilmentState extends State<CafeDashboardFulfilment> {
   late String _source = widget.online ? 'online' : 'walk_in';
   @override
+  void didUpdateWidget(CafeDashboardFulfilment oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if ((_source == 'online' && !widget.online) || (_source == 'walk_in' && !widget.walkIn)) {
+      _source = widget.online ? 'online' : 'walk_in';
+    }
+  }
+  @override
   Widget build(BuildContext context) {
     if (!widget.online && !widget.walkIn) {
       return const CafeText('Online Orders or Active Walk-In Orders access has not been assigned.');
