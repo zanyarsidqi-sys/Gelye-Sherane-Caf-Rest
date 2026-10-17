@@ -1,3 +1,4 @@
+import 'cafe_dashboard_tables.dart';
 import 'cafe_language.dart';
 import 'cafe_menu_assets.dart';
 import 'dart:async';
@@ -6042,6 +6043,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && dashboardTableCards.contains(card)) {
+      return CafeDashboardTables(key: ValueKey('dashboard-tables-$card'), title: card, rpc: rpc);
+    }
     if ((index==3 && card=='Product Printing Routing') || (index==4 && const {'Kitchen Stations Management','Kitchen Printing Management','Minibar Printing Management'}.contains(card))) {
       return CafeStationWorkspace(key:ValueKey('stations-$card'),rpc:rpc,devicePreferenceKey:widget.email);
     }
