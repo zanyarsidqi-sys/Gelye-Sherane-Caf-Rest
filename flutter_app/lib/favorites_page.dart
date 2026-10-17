@@ -104,8 +104,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
       final ids = await storage.read(account);
       if (_current(generation)) setState(() => _ids = ids.toSet().toList());
     } catch (_) {
-      if (_current(generation)) setState(() => _error =
-        'Could not load favorites on this device. Retry to avoid replacing your saved list.');
+      if (_current(generation)) { setState(() => _error =
+        'Could not load favorites on this device. Retry to avoid replacing your saved list.'); }
     } finally {
       if (_current(generation)) setState(() => _loading = false);
     }
@@ -125,8 +125,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
       await storage.write(account, updated);
       if (_current(generation)) setState(() => _ids = updated);
     } catch (_) {
-      if (_current(generation)) setState(() => _error =
-        'Could not confirm the change. Retry to reload your favorites.');
+      if (_current(generation)) { setState(() => _error =
+        'Could not confirm the change. Retry to reload your favorites.'); }
     } finally {
       if (_current(generation)) setState(() => _saving = false);
     }
