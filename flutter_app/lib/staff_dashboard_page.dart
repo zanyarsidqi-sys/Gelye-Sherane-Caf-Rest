@@ -1,3 +1,4 @@
+import 'cafe_minibar_board.dart';
 import 'cafe_inventory_workspace.dart';
 import 'cafe_people_workspace.dart';
 import 'cafe_staff_tasks.dart';
@@ -6059,6 +6060,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && minibarBoardCards.containsKey(card)) {
+      return CafeMinibarBoard(key: ValueKey('dashboard-minibar-$card'), title: card, rpc: rpc);
+    }
     if (index == 0 && const {'Dashboard Personalization', 'Personalization'}.contains(card)) {
       return _favoritesContent(title: card, manage: true);
     }
@@ -9748,7 +9752,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance', 'Dashboard Personalization', 'Personalization'}.contains(title) || (sectionIndex == 0 && cafeInventoryCards.containsKey(title));
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance', 'Dashboard Personalization', 'Personalization', 'Minibar Live Board', 'Nargile Orders'}.contains(title) || (sectionIndex == 0 && cafeInventoryCards.containsKey(title));
     final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
