@@ -1,3 +1,4 @@
+import 'cafe_inventory_workspace.dart';
 import 'cafe_people_workspace.dart';
 import 'cafe_staff_tasks.dart';
 import 'cafe_report_library.dart';
@@ -6056,6 +6057,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && cafeInventoryCards.containsKey(card)) {
+      return CafeInventoryWorkspace(key: ValueKey('dashboard-inventory-$card'), title: card, rpc: rpc);
+    }
     if (index == 0 && const {'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance'}.contains(card)) {
       final kind = const {'Customer Feedback', 'Feedback'}.contains(card) ? 'feedback' : 'attendance';
       return CafePeopleWorkspace(key: ValueKey('dashboard-people-$kind'), kind: kind, rpc: rpc);
@@ -9740,7 +9744,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
     final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance'}.contains(title);
-    final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
+    final operationalReport = (sectionIndex == 0 && cafeInventoryCards.containsKey(title)) || reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
         !_subcards[sectionIndex].contains(title) &&
