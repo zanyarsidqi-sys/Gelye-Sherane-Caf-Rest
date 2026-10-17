@@ -1,3 +1,6 @@
+import 'cafe_customer_activity.dart';
+import 'cafe_dashboard_alerts.dart';
+import 'cafe_events.dart';
 import 'cafe_minibar_board.dart';
 import 'cafe_inventory_workspace.dart';
 import 'cafe_people_workspace.dart';
@@ -6060,6 +6063,20 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    final tableAccess = _tableOverviewCards.any((title) => allowed(1, title)) || allowed(24, 'Table Overview');
+    if (index == 0 && card == 'Customers') {
+      if (!tableAccess) return const CafeText('Table Overview access has not been assigned.');
+      return CafeCustomerActivity(key: const ValueKey('dashboard-customer-activity'), rpc: rpc);
+    }
+    if (index == 0 && card == 'Notifications & Alerts') {
+      return CafeDashboardAlerts(key: const ValueKey('dashboard-attention'),
+        tables: tableAccess, inventory: allowed(0, 'Low Stock Alerts'), rpc: rpc);
+    }
+    if (index == 0 && card == 'Events') {
+      return CafeEvents(key: const ValueKey('dashboard-event-planner'),
+        actor: _hasValidSupabaseConfiguration ? Supabase.instance.client.auth.currentUser?.id : null,
+        store: _hasValidSupabaseConfiguration ? SupabaseCafeEventStore(Supabase.instance.client) : null);
+    }
     if (index == 0 && minibarBoardCards.containsKey(card)) {
       return CafeMinibarBoard(key: ValueKey('dashboard-minibar-$card'), title: card, rpc: rpc);
     }
