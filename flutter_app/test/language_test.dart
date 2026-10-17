@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gelye_sherane_cafe/cafe_language.dart';
+import 'package:gelye_sherane_cafe/main.dart';
 import 'package:gelye_sherane_cafe/cafe_translations.dart';
 
 class MemoryLanguageStore implements CafeLanguageStore {
@@ -10,6 +11,22 @@ class MemoryLanguageStore implements CafeLanguageStore {
   @override Future<void> write(String code) async { if(fail)throw StateError('blocked'); value=code; }
 }
 void main() {
+  testWidgets('application supports the Badini default on a phone-sized screen', (tester) async {
+    tester.view.physicalSize=const Size(390,844);
+    tester.view.devicePixelRatio=1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final previous=cafeLanguage.language;
+    cafeLanguage.language=CafeLanguage.badini;
+    await tester.pumpWidget(const CafeApp());
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('cafe-language-selector')),findsOneWidget);
+    expect(Directionality.of(tester.element(find.byType(CafeLandingPage))),TextDirection.rtl);
+    expect(tester.takeException(),isNull);
+    await tester.pumpWidget(const SizedBox());
+    cafeLanguage.language=previous;
+  });
+
   test('new customers and staff default to Badini; remembered language wins',() async {
     final storage=MemoryLanguageStore();
     final controller=CafeLanguageController(store:storage);
