@@ -18,7 +18,7 @@ CREATE TABLE public.cafe_inventory_purchases(
  quantity numeric(14,3) NOT NULL CHECK(quantity BETWEEN 0.001 AND 999999999.999),
  received numeric(14,3) NOT NULL DEFAULT 0 CHECK(received>=0 AND received<=quantity),
  status text NOT NULL DEFAULT 'requested' CHECK(status IN ('requested','approved','rejected','part_received','received','cancelled')),
- note text NOT NULL DEFAULT '' CHECK(length(v_note)<=1000),review_note text NOT NULL DEFAULT '' CHECK(length(review_note)<=1000),
+ note text NOT NULL DEFAULT '' CHECK(length(note)<=1000),review_note text NOT NULL DEFAULT '' CHECK(length(review_note)<=1000),
  version integer NOT NULL DEFAULT 1,created_by uuid NOT NULL REFERENCES auth.users,
  created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now()
 );
