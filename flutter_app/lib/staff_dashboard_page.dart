@@ -1,3 +1,4 @@
+import 'cafe_dashboard_menu.dart';
 import 'cafe_dashboard_tables.dart';
 import 'cafe_language.dart';
 import 'cafe_menu_assets.dart';
@@ -6043,6 +6044,10 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 0 && dashboardMenuCards.contains(card)) {
+      return CafeDashboardMenu(key: ValueKey('dashboard-menu-$card'), title: card,
+        store: _hasValidSupabaseConfiguration ? SupabaseCafeMenuStore(Supabase.instance.client) : null);
+    }
     if (index == 0 && dashboardTableCards.contains(card)) {
       return CafeDashboardTables(key: ValueKey('dashboard-tables-$card'), title: card, rpc: rpc);
     }
@@ -9592,7 +9597,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final reservationDashboardCard =
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
-    final operationalReport = tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
+    final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
+    final operationalReport = menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
         !_subcards[sectionIndex].contains(title) &&
@@ -9620,7 +9626,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isLoading = reservationDashboardCard
         ? _isLoadingTableReservations
         : _isLoadingRecords;
-    final primary = tableSnapshot ? 'Open tables' : operationalReport ? 'Open report' : reservationDashboardCard
+    final primary = menuSnapshot ? 'Open products' : tableSnapshot ? 'Open tables' : operationalReport ? 'Open report' : reservationDashboardCard
         ? unavailable
               ? '—'
               : isLoading
@@ -9639,7 +9645,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ? workspaceAmountLabel(amountRecords.map((record) => (amount: record.amount, currency: record.currency)))
           : '${recordedAmount.toStringAsFixed(0)} $currency'
         : '${records.length}';
-    final supporting = tableSnapshot ? 'Current table snapshot' : operationalReport ? 'Connected operational data' : reservationDashboardCard
+    final supporting = menuSnapshot ? 'Current menu snapshot' : tableSnapshot ? 'Current table snapshot' : operationalReport ? 'Connected operational data' : reservationDashboardCard
         ? !_canViewTableReservations
               ? 'Access not assigned'
               : unavailable
