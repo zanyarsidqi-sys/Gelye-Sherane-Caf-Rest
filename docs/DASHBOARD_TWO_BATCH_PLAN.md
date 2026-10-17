@@ -242,3 +242,20 @@ Published improvement coverage is now 81/98 card routes; 17 remain as listed abo
 Live: https://cafe.gelyesheranecompany.com/
 Version: https://cafe.gelyesheranecompany.com/version.json
 Deployment: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39045285933
+
+
+## System Health continuation — 17 October 2026
+
+User resumed checkpoint xx, then requested Next (development only).
+
+PR24 already contains Customers, Notifications & Alerts, internal Events, and per-account/device card ordering within existing categories. Earlier code head fa2a0f502e987703d5bec3ab3fa3e1376c1b744e passed CI run 39047395417. Those three card improvements raise draft coverage from 81 published to 84 combined. Events is internal planning, not table reservation, deposits or approved booking.
+
+This batch adds ONE unique card improvement: System Health. It provides manual read-only checks of Table Overview and Low Stock Alerts APIs, only when the employee has the underlying access. It shows per-service request duration, validates response shape/server timestamp, reports independent errors and ten-second timeouts, and discards stale results after account/permission/source changes. Refresh clears old results. No business records or raw error details are rendered. The existing server authorization remains authoritative.
+
+Limits: successful reads are not an uptime or whole-system health guarantee. Check time uses the device clock, explicitly labelled; durations are client-observed request time. No CPU/RAM/disk, printer, backup/restore, offline-queue or security telemetry exists in this screen. It does not run commands, repair services, create backups or change staff permissions. Translation and authenticated device acceptance remain unverified. No production schema/data or deployment changes.
+
+Validation of code head 37695ed0c2bba945e237e67653ee2a6399edaf90: PASSED Flutter analysis, full Flutter test suite, release web build and existing isolated PostgreSQL contract suite.
+https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39048499285
+Seven new widget tests cover manual/permission-scoped calls, independent failures and stale clearing, malformed/unconfigured responses, timeout/late completion, account/access changes, mobile RTL and actual Dashboard routing. First CI attempt found one test-helper lint; fixed before the final run.
+
+Combined improved-route coverage: 81 published + 4 draft = 85/98; 13 remain. This is not full functional completion or Phase 4 readiness. Remaining: Invoices, Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, Backup & Sync Status, Security, Backup, Offline Mode. Full settlement, server-enforced view/edit/date restrictions, backup/restore/offline infrastructure, translations and authenticated integration checks remain separate gates. Staff & Permissions work stays unpublished.
