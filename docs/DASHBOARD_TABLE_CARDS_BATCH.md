@@ -19,8 +19,10 @@ Read-only snapshot, manually refreshed. No seating, cleaning completion, payment
 request assignment/completion, QR changes, or new financial workflows implemented.
 Operational actions remain in Table Overview. Existing approved executive style reused.
 
-Only an import and one guarded route were added to staff_dashboard_page.dart;
-exact inverse substitution restores its original content byte-for-byte.
+staff_dashboard_page.dart changes are limited to one import, one guarded route,
+and read-only entry-card labels. Exact inverse substitution verified each edit
+preserved all other content byte-for-byte. Favorites-based navigation is tested
+with a seeded saved Tables Occupied favorite.
 
 Seven tests cover scopes, phone RTL, unknown values, stale failures/retry,
 late responses, malformed data, all six actual entry-card routes, and unassigned-card
