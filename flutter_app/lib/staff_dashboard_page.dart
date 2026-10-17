@@ -9591,7 +9591,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final section = _sections[sectionIndex];
     final reservationDashboardCard =
         sectionIndex == 0 && title == 'Table Reservations';
-    final operationalReport = operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
+    final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
+    final operationalReport = tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
         !_subcards[sectionIndex].contains(title) &&
@@ -9619,7 +9620,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isLoading = reservationDashboardCard
         ? _isLoadingTableReservations
         : _isLoadingRecords;
-    final primary = operationalReport ? 'Open report' : reservationDashboardCard
+    final primary = tableSnapshot ? 'Open tables' : operationalReport ? 'Open report' : reservationDashboardCard
         ? unavailable
               ? '—'
               : isLoading
@@ -9638,7 +9639,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ? workspaceAmountLabel(amountRecords.map((record) => (amount: record.amount, currency: record.currency)))
           : '${recordedAmount.toStringAsFixed(0)} $currency'
         : '${records.length}';
-    final supporting = operationalReport ? 'Connected operational data' : reservationDashboardCard
+    final supporting = tableSnapshot ? 'Current table snapshot' : operationalReport ? 'Connected operational data' : reservationDashboardCard
         ? !_canViewTableReservations
               ? 'Access not assigned'
               : unavailable
