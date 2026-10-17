@@ -9743,8 +9743,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         sectionIndex == 0 && title == 'Table Reservations';
     final tableSnapshot = sectionIndex == 0 && dashboardTableCards.contains(title);
     final menuSnapshot = sectionIndex == 0 && dashboardMenuCards.contains(title);
-    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance'}.contains(title);
-    final operationalReport = (sectionIndex == 0 && cafeInventoryCards.containsKey(title)) || reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
+    final reservationWorkflow = sectionIndex == 0 && const {'Reservations', 'Guest Check-In', 'Customer Number', 'Customer Requests', 'Kitchen Live Board', 'Table History', 'Waiting List', 'Table Map', 'Station Printers', 'Service Speed', 'Takeaway & Delivery', 'Employees', 'Employee Assignments', 'Maintenance', 'Maintenance Requests', 'Tasks', 'Pending Staff Tasks', 'Reports', 'Customer Feedback', 'Feedback', 'Employee Attendance', 'Attendance'}.contains(title) || (sectionIndex == 0 && cafeInventoryCards.containsKey(title));
+    final operationalReport = reservationWorkflow || menuSnapshot || tableSnapshot || operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
         !_subcards[sectionIndex].contains(title) &&
