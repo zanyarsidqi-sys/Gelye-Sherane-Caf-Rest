@@ -1939,11 +1939,10 @@ void main() {
       find.byKey(const ValueKey('kitchen-category-card-Kitchen Orders')),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Kitchen Orders records'), findsOneWidget);
-    expect(
-      find.textContaining('generic workspace. They are not connected'),
-      findsOneWidget,
-    );
+    expect(find.text('Kitchen Orders records'), findsNothing);
+    expect(find.textContaining('Could not load records'), findsOneWidget);
+    expect(find.text('Order status'), findsOneWidget);
+    expect(find.text('Add record'), findsNothing);
 
     await tester.tap(find.text('Back to Kitchen Management'));
     await tester.pumpAndSettle();
