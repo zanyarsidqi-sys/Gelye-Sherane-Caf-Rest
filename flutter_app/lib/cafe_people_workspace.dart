@@ -123,7 +123,7 @@ class _CafePeopleWorkspaceState extends State<CafePeopleWorkspace>{
   _prepare(action,row,values);await _send();
  }
  Future<void> _history(Map<String,dynamic> row)async{
-  final events=cafeRows(_data?['events']).where((e)=>e['entity_id']==row['id']).toList();
+  final events=cafeRows(_data?['events'] ?? const []).where((e)=>e['entity_id']==row['id']).toList();
   await showDialog<void>(context:context,builder:(ctx)=>AlertDialog(
    title:const CafeText('Record history'),
    content:SizedBox(width:480,child:SingleChildScrollView(child:Column(mainAxisSize:MainAxisSize.min,
@@ -138,7 +138,7 @@ class _CafePeopleWorkspaceState extends State<CafePeopleWorkspace>{
   ));
  }
  @override Widget build(BuildContext context)=>CafeFinanceSurface(builder:(context){
-  final rows=cafeRows(_data?['rows']);
+  final rows=cafeRows(_data?['rows'] ?? const []);
   final visible=rows.where((r){
    final state=_feedback?r['status']:(r['clocked_out_at']==null?'Open':'Closed');
    return (_status=='All'||_status==state)&&(!_feedback||_category=='All'||_category==r['category'])&&
