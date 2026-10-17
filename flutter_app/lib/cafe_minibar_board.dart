@@ -45,7 +45,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
  String _status='All',_station='All',_query='';
  bool _loading=true,_busy=false,_history=false;
  String? _error;
- Timer? _timer; int _revision=0;
+ Timer? _timer; int _revision=0, _operation=0;
  String get _card=>minibarBoardCards[widget.title]!;
  @override void initState(){super.initState();_load();_startTimer();}
  void _startTimer(){
@@ -57,11 +57,11 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
  @override void didUpdateWidget(CafeMinibarBoard oldWidget){
   super.didUpdateWidget(oldWidget);
   if(oldWidget.title!=widget.title||oldWidget.rpc!=widget.rpc){
-   _pending=null;_busy=false;_history=false;_status='All';_station='All';_query='';_search.clear();_load();
+   _operation++;_pending=null;_busy=false;_history=false;_status='All';_station='All';_query='';_search.clear();_load();
   }
   if(oldWidget.autoRefresh!=widget.autoRefresh) _startTimer();
  }
- @override void dispose(){_revision++;_timer?.cancel();_search.dispose();super.dispose();}
+ @override void dispose(){_operation++;_revision++;_timer?.cancel();_search.dispose();super.dispose();}
  Future<void> _load()async{
   final revision=++_revision;final rpc=widget.rpc;
   setState((){_loading=true;_data=null;_error=null;});
@@ -78,6 +78,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
  Future<void> _classify(Map<String,dynamic> station)async{
   if(_busy||_loading||_pending!=null||_data?['can_classify']!=true) return;
   final revision=_revision;
+  final operation=++_operation;
   setState(()=>_busy=true);
   String selected=station['department'];
   final department=await showDialog<String>(context:context,builder:(context)=>StatefulBuilder(builder:(context,update)=>AlertDialog(
@@ -91,7 +92,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
    actions:[TextButton(onPressed:()=>Navigator.pop(context),child:const CafeText('Cancel')),
     FilledButton(onPressed:selected==station['department']?null:()=>Navigator.pop(context,selected),child:const CafeText('Confirm classification'))],
   )));
-  if(mounted) setState(()=>_busy=false);
+  if(mounted&&operation==_operation) setState(()=>_busy=false);
   if(department==null||!mounted||revision!=_revision) return;
   _pending={'p_card':_card,'p_request_id':newCafeRequestId(),'p_station_id':station['id'],
    'p_version':station['department_version'],'p_department':department};
@@ -99,7 +100,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
  }
  Future<void> _send()async{
   if(_busy||_pending==null||widget.rpc==null) return;
-  final revision=_revision;final pending=Map<String,dynamic>.from(_pending!);
+  final revision=_revision;final operation=++_operation;final pending=Map<String,dynamic>.from(_pending!);
   setState(()=>_busy=true);
   try{
    await widget.rpc!('classify_cafe_station',pending);
@@ -113,7 +114,7 @@ class _CafeMinibarBoardState extends State<CafeMinibarBoard> {
     }else{setState(()=>_error='Classification response was not confirmed. Retry the same request.');}
    }
   }catch(_){if(mounted&&revision==_revision) setState(()=>_error='Classification response was not confirmed. Retry the same request.');}
-  finally{if(mounted) setState(()=>_busy=false);}
+  finally{if(mounted&&operation==_operation) setState(()=>_busy=false);}
  }
  @override Widget build(BuildContext context){
   final all=cafeRows(_data?['rows']??[]);
