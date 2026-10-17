@@ -44,6 +44,7 @@ const allowedSectionKeys = new Set([
   "customer_feedback_management",
   "staff_operations_management",
   "reports_management",
+  "table_overview",
 ]);
 
 type PermissionGrant = {
@@ -75,7 +76,7 @@ function getJwtClaims(token: string): Record<string, unknown> | null {
 }
 
 function parsePermissionGrants(input: unknown): PermissionGrant[] | null {
-  if (!Array.isArray(input) || input.length > 200) return null;
+  if (!Array.isArray(input) || input.length > 2000) return null;
   const grants = new Map<string, Set<string>>();
   for (const item of input) {
     if (typeof item !== "object" || item === null || Array.isArray(item)) {
