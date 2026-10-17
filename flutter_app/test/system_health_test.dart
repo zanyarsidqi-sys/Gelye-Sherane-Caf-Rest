@@ -73,7 +73,7 @@ void main() {
   });
   testWidgets('account or permission changes invalidate pending results', (tester) async {
     final pending = Completer<dynamic>();
-    final CafeRpc rpc = (_, _) => pending.future;
+    Future<dynamic> rpc(String name, Map<String, dynamic> params) => pending.future;
     await tester.pumpWidget(host(rpc: rpc));
     await tester.tap(find.text('Check services'));
     await tester.pump();
