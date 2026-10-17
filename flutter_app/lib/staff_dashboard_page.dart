@@ -2,7 +2,13 @@ import 'dart:async';
 import 'workspace_reporting.dart';
 import 'favorites_page.dart';
 import 'cafe_menu_workspace.dart';
+import 'cafe_station_workspace.dart';
 import 'cafe_operations_workspace.dart';
+import 'cafe_table_overview.dart';
+import 'cafe_operational_report.dart';
+import 'cafe_cash_workspace.dart';
+import 'cafe_expense_workspace.dart';
+import 'expense_evidence.dart';
 
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart' as pdf;
@@ -1404,7 +1410,7 @@ class StaffDashboardPage extends StatefulWidget {
 
 class _StaffDashboardPageState extends State<StaffDashboardPage> {
   static const _navigationGroups = [
-    (title: 'Operations', indices: [0, 1, 3, 4, 5, 6]),
+    (title: 'Operations', indices: [0, 24, 1, 3, 4, 5, 6]),
     (title: 'Finance', indices: [2, 14, 23]),
     (title: 'People & Service', indices: [7, 8, 9, 12, 13, 18, 19, 20, 21, 22]),
     (title: 'Administration', indices: [10, 11, 15, 16, 17]),
@@ -1558,6 +1564,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       title: 'Reports Management',
       description: 'Business, financial, operational, audit and scheduled report records.',
     ),
+    (
+      key: 'table_overview',
+      icon: Icons.grid_view_rounded,
+      title: 'Table Overview',
+      description: 'Live tables, visits, service requests and bills.',
+    ),
   ];
 
   static const _subcards = [
@@ -1652,6 +1664,8 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Available Cash',
       'Owner Cash Out',
       'Expenses Management',
+      'Unpaid Expenses',
+      'Expense Payments',
       'Confirm Credit Payment',
       'Invoices & Receipts',
       'Refunds & Voids',
@@ -2183,10 +2197,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       'Report Settings',
       'Report Quick Actions',
     ],
+    ['Table Overview'],
   ];
 
   bool _hasSectionAccess(int sectionIndex) {
     if (widget.role == 'admin' || sectionIndex == 0) return true;
+    if (sectionIndex == 24) return _canAccessTablesCard('Table Overview');
     return _visibleSubcards(sectionIndex).isNotEmpty;
   }
 
@@ -2196,6 +2212,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   ];
 
   List<String> _visibleSubcards(int sectionIndex) {
+    if (sectionIndex == 24) return _hasSectionAccess(24) ? ['Table Overview'] : [];
     final sectionKey = _sections[sectionIndex].key;
     if (sectionIndex == 1) {
       return _tablesChairsCategories
@@ -5615,6 +5632,200 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     _scaffoldKey.currentState?.closeDrawer();
   }
 
+  Widget _tableCategoryCard(String title, int index) {
+                
+                final isOperationalWorkflow = const {
+                  'Add Table',
+                  'Table Ordering',
+                  'Edit & Manage Tables',
+                  'Table Map',
+                  'QR Code Management',
+                  'Table Reservations',
+                  'Chairs Management',
+                }.contains(title) || _tableOverviewCards.contains(title);
+                final description = switch (title) {
+                  'Add Table' => 'Create and manage saved dining tables.',
+                  'Edit & Manage Tables' =>
+                    'View, edit, and maintain saved dining tables.',
+                  'Table Map' =>
+                    'Pan, zoom, and save an authorized layout of saved tables.',
+                  'Chairs Management' =>
+                    'Review base capacity; chair changes stay locked until '
+                        'verified sources and guest counts are available.',
+                  'QR Code Management' =>
+                    'View, print, and rotate saved table QR codes.',
+                  'Table Reservations' =>
+                    'Create and manage dedicated table reservations.',
+                  'Table Ordering' => 'Create priced table orders and track preparation.',
+                  _ => _tableOverviewCards.contains(title) ? 'Live table status, visits and permission-controlled actions.' : 'Coming Soon — Awaiting Specification',
+                };
+                final palette = _executiveCardPalette(index);
+                return Card(
+                  key: ValueKey('tables-category-card-$title'),
+                  margin: EdgeInsets.zero,
+                  color: palette.background,
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(
+                      color: palette.accent.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () => setState(() {
+                      if (title == 'Add Table') {
+                        _tableSearch = '';
+                        _tableStatusFilter = 'All';
+                        _selectedDiningTableArea = 'All areas';
+                        _tableWorkspaceView = 'Table list';
+                      }
+                      if (title == 'Edit & Manage Tables' ||
+                          title == 'QR Code Management') {
+                        _tableSearch = '';
+                        _tableWorkspaceView = 'Table list';
+                      }
+                      if (title == 'Table Map') {
+                        _tableWorkspaceView = 'Floor map';
+                      }
+                      if (title == 'Add Table' ||
+                          title == 'Edit & Manage Tables' ||
+                          title == 'Table Map' ||
+                          title == 'QR Code Management') {
+                        _selectedDiningTablePanelId = null;
+                        _diningTablePanelIsNew = title == 'Add Table';
+                        _diningTablePanelOnMobile = title == 'Add Table';
+                        _diningTablePanelShowMap = title == 'Table Map';
+                        _diningTablePanelError = null;
+                        _diningTableEditorTab = title == 'QR Code Management'
+                            ? 3
+                            : 0;
+                        _diningTablePanelNameController.clear();
+                        _diningTablePanelAreaController.text = 'Main';
+                        _diningTablePanelSeatsController.text = '4';
+                        _diningTablePanelPricingMode = 'normal';
+                      }
+                      _selectedSubcard = title;
+                    }),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                _metricIcon(title, _sections[1].icon),
+                                color: palette.accent,
+                                size: 23,
+                              ),
+                              const Spacer(),
+                              if (isOperationalWorkflow)
+                                Icon(
+                                  Icons.arrow_outward,
+                                  size: 18,
+                                  color: palette.accent,
+                                )
+                              else
+                                Icon(
+                                  Icons.schedule_outlined,
+                                  size: 18,
+                                  color: palette.accent,
+                                ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Text(
+                            title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _executiveText,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _executiveMuted,
+                              fontSize: 11,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              
+  }
+
+  Widget _paymentCategoryCard(String title, int index) {
+              
+              final report = operationalReportCards['payment_management']?.contains(title) == true || cashWorkspaceCards['payment_management']?.contains(title) == true || expenseWorkspaceCards['payment_management']?.contains(title) == true;
+              final connected = const {'Receive Payment', 'Payment History', 'Refunds & Voids'}.contains(title) || report;
+              final palette = _executiveCardPalette(index);
+              final description = switch (title) {
+                'Receive Payment' => 'Record cash or manually confirmed card payments against an order.',
+                'Payment History' => 'Review order balances, recorded payments and refunds.',
+                'Refunds & Voids' => 'Record a refund against a collected payment.',
+                _ => report ? 'View confirmed operational transactions with Baghdad date filters.' : 'Manual records only. Automated balances and approvals are not connected.',
+              };
+              return Card(
+                key: ValueKey('payment-category-card-$title'),
+                margin: EdgeInsets.zero, color: palette.background,
+                clipBehavior: Clip.antiAlias, elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: BorderSide(color: palette.accent.withValues(alpha: 0.35))),
+                child: InkWell(
+                  onTap: () => setState(() {
+                    _financeSearch = '';
+                    _financeStatusFilter = 'All';
+                    _selectedSubcard = title;
+                  }),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Icon(_metricIcon(title, Icons.payments_outlined), color: palette.accent, size: 22),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: _executiveText, fontWeight: FontWeight.w700))),
+                        const Icon(Icons.chevron_right, color: _executiveMuted, size: 18),
+                      ]),
+                      const SizedBox(height: 8),
+                      Text(description, maxLines: 3, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: _executiveMuted, fontSize: 12)),
+                      const Spacer(),
+                      Text(connected ? 'Connected workflow' : 'Manual records',
+                        style: TextStyle(color: palette.accent, fontSize: 11, fontWeight: FontWeight.w600)),
+                    ]),
+                  ),
+                ),
+              );
+            
+  }
+
+  Widget _favoriteCardPreview(FavoriteCardEntry card) {
+    final index = _sections.indexWhere((section) => '${section.key}:${card.title}' == card.id);
+    final position = _visibleSubcards(index).indexOf(card.title);
+    return switch (index) {
+      0 => _compactMetricCard(sectionIndex: 0, title: card.title, index: position),
+      1 => _tableCategoryCard(card.title, position),
+      2 => _paymentCategoryCard(card.title, position),
+      3 when _menuCardPurposes.containsKey(card.title) => _menuCategoryCard(card.title),
+      4 when _kitchenCardPurposes.containsKey(card.title) => _kitchenCategoryCard(card.title),
+      5 when _motelOrderPurposes.containsKey(card.title) => _motelOrdersCategoryCard(card.title),
+      6 when _inventoryCardPurposes.containsKey(card.title) => _inventoryCategoryCard(card.title),
+      _ => _managementCard(index, card.title, cardIndex: position),
+    };
+  }
+
   Widget _favoritesContent() {
     final cards = <FavoriteCardEntry>[
       if (widget.permissionsLoadError == null)
@@ -5627,6 +5838,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       account: '$_supabaseExpectedProjectRef:${widget.email.toLowerCase()}',
       cards: cards,
       storage: widget.favoritesStorage,
+      cardBuilder: _favoriteCardPreview,
       onOpen: (card) {
         if (widget.permissionsLoadError != null) return;
         var index = _sections.indexWhere((section) => '${section.key}:${card.title}' == card.id);
@@ -5706,6 +5918,16 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   }
 
   Widget _sectionContent(int index) {
+    if (index == 24) {
+      return CafeTableOverview(
+        rpc: _hasValidSupabaseConfiguration ? cafeOperationsRpc : null,
+        onQr: (id) async {
+          await _loadDiningTables();
+          final matches = _diningTables.where((t) => t.id == id);
+          if (matches.isNotEmpty && mounted) await _showDiningTableQr(matches.first);
+        },
+      );
+    }
     final section = _sections[index];
     final subcard = _selectedSubcard;
 
@@ -5786,11 +6008,32 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     );
   }
 
+  static const _tableOverviewCards = {'Table Availability', 'Live Tables', 'Table Status', 'Table Cleaning', 'Table Session Management', 'Table Service Requests', 'Waiter Table Assignment', 'Table Transfer', 'Table History & Audit', 'Guest Check-In & No-Show'};
+
   Widget? _connectedOperations(int index, String? card) {
     if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
     bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
     final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
-    if (index == 3 && const {'Add New Product','Edit & Manage Products','Menu Overview','Product Availability','Product Categories','Normal Pricing'}.contains(card)) {
+    if ((index==3 && card=='Product Printing Routing') || (index==4 && const {'Kitchen Stations Management','Kitchen Printing Management','Minibar Printing Management'}.contains(card))) {
+      return CafeStationWorkspace(key:ValueKey('stations-$card'),rpc:rpc,devicePreferenceKey:widget.email);
+    }
+    if (expenseWorkspaceCards[_sections[index].key]?.contains(card) == true) {
+      return CafeExpenseWorkspace(key: ValueKey('expenses-$index-$card'), title: card, rpc: rpc,
+        evidence: _hasValidSupabaseConfiguration ? SupabaseExpenseEvidence(Supabase.instance.client) : null);
+    }
+    if (cashWorkspaceCards[_sections[index].key]?.contains(card) == true) {
+      return CafeCashWorkspace(key: ValueKey('cash-$index-$card'), section: _sections[index].key, card: _permissionSlug(card), title: card, rpc: rpc);
+    }
+    if (operationalReportCards[_sections[index].key]?.contains(card) == true) {
+      return CafeOperationalReport(key: ValueKey('report-$index-$card'), section: _sections[index].key, card: _permissionSlug(card), title: card, rpc: rpc);
+    }
+    if (index == 1 && _tableOverviewCards.contains(card)) {
+      return CafeTableOverview(key: ValueKey('table-workflow-$card'), rpc: rpc,
+        initialStatus: card == 'Table Availability' ? 'Available' : card == 'Table Cleaning' ? 'Cleaning' : 'All',
+        requestsOnly: card == 'Table Service Requests',
+        onQr: (id) async { await _loadDiningTables(); final table = _diningTables.where((t) => t.id == id).firstOrNull; if (table != null && mounted) await _showDiningTableQr(table); });
+    }
+    if (index == 3 && const {'Add New Product','Edit & Manage Products','Menu Overview','Product Availability','Product Categories','Normal Pricing','Tourism Pricing','Owner Pricing'}.contains(card)) {
       return CafeMenuWorkspace(key: ValueKey('catalog-$card'),
         store: _hasValidSupabaseConfiguration ? SupabaseCafeMenuStore(Supabase.instance.client) : null,
         canCreate: allowed(3,'Add New Product'), canEdit: allowed(3,'Edit & Manage Products'));
@@ -7171,7 +7414,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 for (final mode in CafeDiningTableRepository.pricingModes)
                   DropdownMenuItem(
                     value: mode,
-                    child: const Text('Normal Mode'),
+                    child: Text(switch (mode) { 'tourism' => 'Tourism Mode', 'owner' => 'Owner Mode', _ => 'Normal Mode' }),
                   ),
               ],
               onChanged: _canManageDiningTables
@@ -7187,8 +7430,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Normal Mode is the default for all existing and new tables. '
-              'It does not add a table charge or change menu prices.',
+              'This table’s active mode selects product prices for its QR menu and new orders. Existing orders keep their original prices.',
               style: TextStyle(color: _executiveMuted, height: 1.4),
             ),
           ],
@@ -8512,136 +8754,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
-              itemBuilder: (context, index) {
-                final title = visibleCards[index];
-                final isOperationalWorkflow = const {
-                  'Add Table',
-                  'Table Ordering',
-                  'Edit & Manage Tables',
-                  'Table Map',
-                  'QR Code Management',
-                  'Table Reservations',
-                  'Chairs Management',
-                }.contains(title);
-                final description = switch (title) {
-                  'Add Table' => 'Create and manage saved dining tables.',
-                  'Edit & Manage Tables' =>
-                    'View, edit, and maintain saved dining tables.',
-                  'Table Map' =>
-                    'Pan, zoom, and save an authorized layout of saved tables.',
-                  'Chairs Management' =>
-                    'Review base capacity; chair changes stay locked until '
-                        'verified sources and guest counts are available.',
-                  'QR Code Management' =>
-                    'View, print, and rotate saved table QR codes.',
-                  'Table Reservations' =>
-                    'Create and manage dedicated table reservations.',
-                  'Table Ordering' => 'Create priced table orders and track preparation.',
-                  _ => 'Coming Soon — Awaiting Specification',
-                };
-                final palette = _executiveCardPalette(index);
-                return Card(
-                  key: ValueKey('tables-category-card-$title'),
-                  margin: EdgeInsets.zero,
-                  color: palette.background,
-                  clipBehavior: Clip.antiAlias,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    side: BorderSide(
-                      color: palette.accent.withValues(alpha: 0.35),
-                    ),
-                  ),
-                  child: InkWell(
-                    onTap: () => setState(() {
-                      if (title == 'Add Table') {
-                        _tableSearch = '';
-                        _tableStatusFilter = 'All';
-                        _selectedDiningTableArea = 'All areas';
-                        _tableWorkspaceView = 'Table list';
-                      }
-                      if (title == 'Edit & Manage Tables' ||
-                          title == 'QR Code Management') {
-                        _tableSearch = '';
-                        _tableWorkspaceView = 'Table list';
-                      }
-                      if (title == 'Table Map') {
-                        _tableWorkspaceView = 'Floor map';
-                      }
-                      if (title == 'Add Table' ||
-                          title == 'Edit & Manage Tables' ||
-                          title == 'Table Map' ||
-                          title == 'QR Code Management') {
-                        _selectedDiningTablePanelId = null;
-                        _diningTablePanelIsNew = title == 'Add Table';
-                        _diningTablePanelOnMobile = title == 'Add Table';
-                        _diningTablePanelShowMap = title == 'Table Map';
-                        _diningTablePanelError = null;
-                        _diningTableEditorTab = title == 'QR Code Management'
-                            ? 3
-                            : 0;
-                        _diningTablePanelNameController.clear();
-                        _diningTablePanelAreaController.text = 'Main';
-                        _diningTablePanelSeatsController.text = '4';
-                        _diningTablePanelPricingMode = 'normal';
-                      }
-                      _selectedSubcard = title;
-                    }),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                _metricIcon(title, _sections[1].icon),
-                                color: palette.accent,
-                                size: 23,
-                              ),
-                              const Spacer(),
-                              if (isOperationalWorkflow)
-                                Icon(
-                                  Icons.arrow_outward,
-                                  size: 18,
-                                  color: palette.accent,
-                                )
-                              else
-                                Icon(
-                                  Icons.schedule_outlined,
-                                  size: 18,
-                                  color: palette.accent,
-                                ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Text(
-                            title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _executiveText,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: _executiveMuted,
-                              fontSize: 11,
-                              height: 1.3,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
+              itemBuilder: (context, index) => _tableCategoryCard(visibleCards[index], index),
             );
           },
         ),
@@ -9326,7 +9439,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
   static const _paymentCategories = [
     (title: 'Payments', cards: ['Receive Payment', 'Payment History', 'Refunds & Voids', 'Payment Overview', 'Pending Payments', 'Payment Collection', 'Cash/Card/Online', 'Pending Payment']),
     (title: 'Cash & Income', cards: ['Standing Cash', 'Collected Cash', 'Available Cash', 'Owner Cash Out', 'Table Income', 'Today Revenue', 'Revenue', 'Cash Over / Short', 'Cash Reconciliation']),
-    (title: 'Expenses & Credit', cards: ['Expenses Management', 'Confirm Credit Payment', 'Expenses', 'Confirm Credit', 'Costs & Expenses', 'Customer Credit', 'Discounts']),
+    (title: 'Expenses & Credit', cards: ['Expenses Management', 'Unpaid Expenses', 'Expense Payments', 'Confirm Credit Payment', 'Expenses', 'Confirm Credit', 'Costs & Expenses', 'Customer Credit', 'Discounts']),
     (title: 'Invoices & Administration', cards: ['Invoices & Receipts', 'Invoices & Payments', 'Invoices', 'Refunds', 'Approvals', 'Audit']),
   ];
   int _selectedPaymentCategory = 0;
@@ -9370,50 +9483,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
               crossAxisCount: columns, mainAxisExtent: 160,
               crossAxisSpacing: 12, mainAxisSpacing: 12,
             ),
-            itemBuilder: (context, index) {
-              final title = cards[index];
-              final connected = const {'Receive Payment', 'Payment History', 'Refunds & Voids'}.contains(title);
-              final palette = _executiveCardPalette(index);
-              final description = switch (title) {
-                'Receive Payment' => 'Record cash or manually confirmed card payments against an order.',
-                'Payment History' => 'Review order balances, recorded payments and refunds.',
-                'Refunds & Voids' => 'Record a refund against a collected payment.',
-                _ => 'Manual records only. Automated balances and approvals are not connected.',
-              };
-              return Card(
-                key: ValueKey('payment-category-card-$title'),
-                margin: EdgeInsets.zero, color: palette.background,
-                clipBehavior: Clip.antiAlias, elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  side: BorderSide(color: palette.accent.withValues(alpha: 0.35))),
-                child: InkWell(
-                  onTap: () => setState(() {
-                    _financeSearch = '';
-                    _financeStatusFilter = 'All';
-                    _selectedSubcard = title;
-                  }),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        Icon(_metricIcon(title, Icons.payments_outlined), color: palette.accent, size: 22),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(title, maxLines: 2, overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: _executiveText, fontWeight: FontWeight.w700))),
-                        const Icon(Icons.chevron_right, color: _executiveMuted, size: 18),
-                      ]),
-                      const SizedBox(height: 8),
-                      Text(description, maxLines: 3, overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: _executiveMuted, fontSize: 12)),
-                      const Spacer(),
-                      Text(connected ? 'Connected workflow' : 'Manual records',
-                        style: TextStyle(color: palette.accent, fontSize: 11, fontWeight: FontWeight.w600)),
-                    ]),
-                  ),
-                ),
-              );
-            },
+              itemBuilder: (context, index) => _paymentCategoryCard(cards[index], index),
           );
         }),
       ],
@@ -9465,11 +9535,12 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final section = _sections[sectionIndex];
     final reservationDashboardCard =
         sectionIndex == 0 && title == 'Table Reservations';
+    final operationalReport = operationalReportCards[section.key]?.contains(title) == true || cashWorkspaceCards[section.key]?.contains(title) == true || expenseWorkspaceCards[section.key]?.contains(title) == true;
     final designOnly =
         sectionIndex == 0 &&
         !_subcards[sectionIndex].contains(title) &&
-        !reservationDashboardCard;
-    final records = designOnly
+        !reservationDashboardCard && !operationalReport;
+    final records = designOnly || operationalReport
         ? const <CafeWorkspaceRecord>[]
         : _recordsInSelectedRange(
             _recordsFor(section.key, _permissionSlug(title)),
@@ -9492,7 +9563,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final isLoading = reservationDashboardCard
         ? _isLoadingTableReservations
         : _isLoadingRecords;
-    final primary = reservationDashboardCard
+    final primary = operationalReport ? 'Open report' : reservationDashboardCard
         ? unavailable
               ? '—'
               : isLoading
@@ -9511,7 +9582,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           ? workspaceAmountLabel(amountRecords.map((record) => (amount: record.amount, currency: record.currency)))
           : '${recordedAmount.toStringAsFixed(0)} $currency'
         : '${records.length}';
-    final supporting = reservationDashboardCard
+    final supporting = operationalReport ? 'Connected operational data' : reservationDashboardCard
         ? !_canViewTableReservations
               ? 'Access not assigned'
               : unavailable

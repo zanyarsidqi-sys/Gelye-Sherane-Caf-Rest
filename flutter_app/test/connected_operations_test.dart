@@ -36,7 +36,7 @@ void main() {
     final requests = <Map<String, dynamic>>[];
     await open(tester, (name, params) async {
       if (name == 'list_cafe_staff_orders') return <Map<String, dynamic>>[];
-      if (name == 'get_cafe_order_catalog') {
+      if (name == 'get_cafe_priced_order_catalog') {
         return {
           'products': [
             {'id': 'p', 'name': 'Tea', 'price_iqd': 1000},

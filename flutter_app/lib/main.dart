@@ -55,6 +55,7 @@ class CafeApp extends StatelessWidget {
     return MaterialApp(
       title: 'Gelye Sherane Management System',
       debugShowCheckedModeBanner: false,
+      builder: const bool.fromEnvironment('CAFE_STAGING') ? (context,child)=>Banner(message:'STAGING',location:BannerLocation.topEnd,child:child!) : null,
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFF5F7FB),

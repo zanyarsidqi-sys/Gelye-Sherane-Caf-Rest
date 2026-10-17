@@ -39,7 +39,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('dashboard-category-tab-0')));
     await tester.pumpAndSettle();
     expect(find.text('Receive Payment'), findsOneWidget);
-    await tester.tap(find.text('Receive Payment'));
+    expect(find.text('Connected workflow'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('favorite-open-payment_management:Receive Payment')));
     await tester.pumpAndSettle();
     expect(find.text('Order payments'), findsOneWidget);
     expect(tester.takeException(), isNull);

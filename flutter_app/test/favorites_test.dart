@@ -97,6 +97,20 @@ void main() {
       expect(storage.data['a'], contains('secret:Cash'));
     },
   );
+  testWidgets('cards open immediately while the add picker is still open', (tester) async {
+    final storage = MemoryFavorites();
+    String? opened;
+    await open(tester, storage, onOpen: (card) => opened = card.id);
+    await tester.tap(find.byKey(const ValueKey('favorites-picker')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('favorite-kitchen:Orders')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Kitchen'));
+    expect(opened, 'kitchen:Orders');
+    expect(storage.data['a'], ['kitchen:Orders']);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('storage failures do not report a successful change', (
     tester,
   ) async {

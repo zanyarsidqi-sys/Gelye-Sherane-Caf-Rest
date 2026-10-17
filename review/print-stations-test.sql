@@ -1,0 +1,30 @@
+BEGIN;
+DO $$
+DECLARE u uuid:=gen_random_uuid(); kitchen uuid; bar uuid; product uuid; o jsonb; req uuid:=gen_random_uuid(); count_rows int; q jsonb; ids uuid[];
+BEGIN
+ INSERT INTO auth.users(id) VALUES(u);
+ INSERT INTO public.staff_profiles(user_id,role) VALUES(u,'admin');
+ PERFORM set_config('request.jwt.claims',jsonb_build_object('sub',u,'aal','aal2','role','authenticated')::text,true);
+ SELECT id INTO kitchen FROM public.cafe_print_stations WHERE name='Kitchen';
+ SELECT id INTO bar FROM public.cafe_print_stations WHERE name='Minibar';
+ product:=public.save_cafe_menu_routed(NULL,'Routing test','Test','',1000,true,2000,500,ARRAY[kitchen,bar]);
+ o:=public.submit_cafe_priced_order(req,'walk_in',NULL,'',jsonb_build_array(jsonb_build_object('item_id',product,'quantity',2)),'No sugar','normal');
+ SELECT count(*) INTO count_rows FROM public.cafe_station_tickets q JOIN public.cafe_table_order_items i ON i.id=q.item_id WHERE i.order_id=(o->>'id')::uuid;
+ IF count_rows<>2 THEN RAISE EXCEPTION 'Expected exactly one item ticket per station'; END IF;
+ PERFORM public.submit_cafe_priced_order(req,'walk_in',NULL,'',jsonb_build_array(jsonb_build_object('item_id',product,'quantity',2)),'No sugar','normal');
+ IF (SELECT count(*) FROM public.cafe_station_tickets q JOIN public.cafe_table_order_items i ON i.id=q.item_id WHERE i.order_id=(o->>'id')::uuid)<>2 THEN RAISE EXCEPTION 'Retry duplicated station tickets'; END IF;
+ q:=public.get_cafe_station_queue(kitchen);
+ IF NOT EXISTS(SELECT 1 FROM jsonb_array_elements(q->'tickets') v WHERE v->>'order_id'=o->>'id' AND v->>'notes'='No sugar') THEN RAISE EXCEPTION 'Queue missing ticket or request'; END IF;
+ PERFORM public.save_cafe_menu_routed(product,'Routing test','Test','',1000,true,2000,500,ARRAY[bar]);
+ IF (SELECT count(*) FROM public.cafe_station_tickets q JOIN public.cafe_table_order_items i ON i.id=q.item_id WHERE i.order_id=(o->>'id')::uuid)<>2 THEN RAISE EXCEPTION 'Menu edit changed old routing'; END IF;
+ BEGIN PERFORM public.save_cafe_print_station(bar,'Minibar',false); RAISE EXCEPTION 'Disabled assigned station'; EXCEPTION WHEN invalid_parameter_value THEN NULL; END;
+ BEGIN PERFORM public.save_cafe_menu_routed(product,'Routing test','Test','',1000,true,2000,500,'{}'); RAISE EXCEPTION 'Accepted no station'; EXCEPTION WHEN invalid_parameter_value THEN NULL; END;
+ UPDATE public.cafe_table_orders SET status='cancelled' WHERE id=(o->>'id')::uuid;
+ IF (SELECT count(*) FROM public.cafe_station_tickets q JOIN public.cafe_table_order_items i ON i.id=q.item_id WHERE i.order_id=(o->>'id')::uuid AND q.event='cancelled')<>2 THEN RAISE EXCEPTION 'Cancellation did not use original stations'; END IF;
+ SELECT array_agg(q.id) INTO ids FROM public.cafe_station_tickets q JOIN public.cafe_table_order_items i ON i.id=q.item_id WHERE i.order_id=(o->>'id')::uuid;
+ PERFORM public.confirm_cafe_station_tickets(ids); PERFORM public.confirm_cafe_station_tickets(ids);
+ IF EXISTS(SELECT 1 FROM public.cafe_station_tickets WHERE id=ANY(ids) AND confirmed_at IS NULL) THEN RAISE EXCEPTION 'Confirmation failed'; END IF;
+ PERFORM set_config('request.jwt.claims','{}',true);
+ BEGIN PERFORM public.get_cafe_station_queue(kitchen); RAISE EXCEPTION 'Anonymous queue allowed'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+END $$;
+ROLLBACK;

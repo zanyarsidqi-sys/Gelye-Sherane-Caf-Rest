@@ -8,6 +8,10 @@ class CafeMenuItem {
     required this.category,
     required this.description,
     required this.priceIqd,
+    this.tourismPriceIqd,
+    this.ownerPriceIqd,
+    this.stationIds = const [],
+    this.stationNames = const [],
     required this.available,
   });
   factory CafeMenuItem.fromJson(Map<String, dynamic> row) => CafeMenuItem(
@@ -16,21 +20,31 @@ class CafeMenuItem {
     category: row['category'] as String,
     description: row['description'] as String,
     priceIqd: (row['price_iqd'] as num).toInt(),
+    tourismPriceIqd: (row['tourism_price_iqd'] as num?)?.toInt(),
+    ownerPriceIqd: (row['owner_price_iqd'] as num?)?.toInt(),
+    stationIds: List<String>.from(row['station_ids'] ?? []),
+    stationNames: List<String>.from(row['station_names'] ?? []),
     available: row['available'] as bool,
   );
   final String id, name, category, description;
   final int priceIqd;
+  final int? tourismPriceIqd, ownerPriceIqd;
+  final List<String> stationIds, stationNames;
   final bool available;
 }
 
 abstract class CafeMenuStore {
   Future<List<CafeMenuItem>> load();
+  Future<List<Map<String,dynamic>>> stations();
   Future<void> save({
     String? id,
     required String name,
     required String category,
     required String description,
     required int priceIqd,
+    required int tourismPriceIqd,
+    required int ownerPriceIqd,
+    required List<String> stationIds,
     required bool available,
   });
 }
@@ -40,12 +54,18 @@ class SupabaseCafeMenuStore implements CafeMenuStore {
   final SupabaseClient client;
   @override
   Future<List<CafeMenuItem>> load() async {
-    final rows = await client.rpc('list_cafe_menu_items') as List;
+    final rows = await client.rpc('list_cafe_menu_routed') as List;
     return rows
         .map(
           (row) => CafeMenuItem.fromJson(Map<String, dynamic>.from(row as Map)),
         )
         .toList();
+  }
+
+  @override
+  Future<List<Map<String,dynamic>>> stations() async {
+    final result = await client.rpc('get_cafe_print_stations') as Map;
+    return (result['stations'] as List).map((e)=>Map<String,dynamic>.from(e)).toList();
   }
 
   @override
@@ -55,6 +75,9 @@ class SupabaseCafeMenuStore implements CafeMenuStore {
     required String category,
     required String description,
     required int priceIqd,
+    required int tourismPriceIqd,
+    required int ownerPriceIqd,
+    required List<String> stationIds,
     required bool available,
   }) async {
     if (name.trim().isEmpty ||
@@ -63,7 +86,7 @@ class SupabaseCafeMenuStore implements CafeMenuStore {
         category.trim().length > 60 ||
         description.length > 500 ||
         priceIqd < 1 ||
-        priceIqd > 999999999) {
+        priceIqd > 999999999 || tourismPriceIqd < 1 || tourismPriceIqd > 999999999 || ownerPriceIqd < 1 || ownerPriceIqd > 999999999) {
       throw const FormatException(
         'Enter a name, category and whole IQD price from 1 to 999999999.',
       );
@@ -72,14 +95,17 @@ class SupabaseCafeMenuStore implements CafeMenuStore {
       throw const AuthException('Sign in to save menu products.');
     }
     await client.rpc(
-      'save_cafe_menu_item',
+      'save_cafe_menu_routed',
       params: {
         'p_id': id,
         'p_name': name.trim(),
         'p_category': category.trim(),
         'p_description': description.trim(),
         'p_price_iqd': priceIqd,
+        'p_tourism_price_iqd': tourismPriceIqd,
+        'p_owner_price_iqd': ownerPriceIqd,
         'p_available': available,
+        'p_station_ids': stationIds,
       },
     );
   }
@@ -162,7 +188,7 @@ class _CafeMenuWorkspaceState extends State<CafeMenuWorkspace> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const Text(
-              'Saved products and base prices in IQD. Available products can be added to orders.',
+              'Normal, Tourism and Owner prices in IQD. Available products can be added to orders.',
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -212,9 +238,9 @@ class _CafeMenuWorkspaceState extends State<CafeMenuWorkspace> {
               for (final item in matches)
                 ListTile(
                   title: Text(item.name),
-                  isThreeLine: true,
+
                   subtitle: Text(
-                    '${item.category} · ${item.priceIqd} IQD\n${item.available ? 'Available' : 'Unavailable'}',
+                    '${item.category} \nNormal: ${item.priceIqd} IQD · Tourism: ${item.tourismPriceIqd ?? item.priceIqd} IQD · Owner: ${item.ownerPriceIqd ?? item.priceIqd} IQD\nPrint to: ${item.stationNames.isEmpty ? 'Choose a station' : item.stationNames.join(', ')}\n${item.available ? 'Available' : 'Unavailable'}',
                   ),
                   trailing: widget.canEdit
                       ? IconButton(
@@ -241,6 +267,20 @@ class _MenuEditor extends StatefulWidget {
 }
 
 class _MenuEditorState extends State<_MenuEditor> {
+  List<Map<String,dynamic>> _stations = [];
+  late final Set<String> _stationIds = {...?widget.item?.stationIds};
+  bool _loadingStations = true;
+  String? _stationError;
+  @override
+  void initState() { super.initState(); _loadStations(); }
+  Future<void> _loadStations() async {
+    setState(() { _loadingStations=true; _stationError=null; });
+    try {
+      final rows=await widget.store.stations();
+      if(mounted)setState(()=>_stations=rows);
+    } catch (_) { if(mounted)setState(()=>_stationError='Could not load print stations. Retry before saving.'); }
+    finally { if(mounted)setState(()=>_loadingStations=false); }
+  }
   final _form = GlobalKey<FormState>();
   late final _name = TextEditingController(text: widget.item?.name);
   late final _category = TextEditingController(text: widget.item?.category);
@@ -250,6 +290,8 @@ class _MenuEditorState extends State<_MenuEditor> {
   late final _price = TextEditingController(
     text: widget.item?.priceIqd.toString(),
   );
+  late final _tourismPrice = TextEditingController(text: widget.item == null ? '' : (widget.item!.tourismPriceIqd ?? widget.item!.priceIqd).toString());
+  late final _ownerPrice = TextEditingController(text: widget.item == null ? '' : (widget.item!.ownerPriceIqd ?? widget.item!.priceIqd).toString());
   late bool _available = widget.item?.available ?? true;
   bool _saving = false;
   String? _error;
@@ -259,11 +301,16 @@ class _MenuEditorState extends State<_MenuEditor> {
     _category.dispose();
     _description.dispose();
     _price.dispose();
+    _tourismPrice.dispose();
+    _ownerPrice.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
     if (_saving || !_form.currentState!.validate()) return;
+    if (_loadingStations || _stationError != null || _stationIds.isEmpty) {
+      setState(()=>_stationError='Select at least one print station.'); return;
+    }
     setState(() {
       _saving = true;
       _error = null;
@@ -275,7 +322,10 @@ class _MenuEditorState extends State<_MenuEditor> {
         category: _category.text,
         description: _description.text,
         priceIqd: int.parse(_price.text.trim()),
+        tourismPriceIqd: int.parse(_tourismPrice.text.trim()),
+        ownerPriceIqd: int.parse(_ownerPrice.text.trim()),
         available: _available,
+        stationIds: _stationIds.toList(),
       );
       if (mounted) Navigator.pop(context, true);
     } catch (_) {
@@ -332,7 +382,35 @@ class _MenuEditorState extends State<_MenuEditor> {
                   enabled: !_saving,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Base price IQD',
+                    labelText: 'Normal price IQD',
+                  ),
+                  validator: (v) {
+                    final value = int.tryParse(v?.trim() ?? '');
+                    return value == null || value < 1 || value > 999999999
+                        ? 'Enter a whole IQD amount from 1 to 999999999.'
+                        : null;
+                  },
+                ),
+                TextFormField(
+                  controller: _tourismPrice,
+                  enabled: !_saving,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Tourism price IQD',
+                  ),
+                  validator: (v) {
+                    final value = int.tryParse(v?.trim() ?? '');
+                    return value == null || value < 1 || value > 999999999
+                        ? 'Enter a whole IQD amount from 1 to 999999999.'
+                        : null;
+                  },
+                ),
+                TextFormField(
+                  controller: _ownerPrice,
+                  enabled: !_saving,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Owner price IQD',
                   ),
                   validator: (v) {
                     final value = int.tryParse(v?.trim() ?? '');
@@ -349,6 +427,17 @@ class _MenuEditorState extends State<_MenuEditor> {
                       ? null
                       : (v) => setState(() => _available = v),
                 ),
+                const Align(alignment:Alignment.centerLeft,child:Text('Print destinations',style:TextStyle(fontWeight:FontWeight.bold))),
+                const Text('Select every station that should receive this item. Manage additional stations in Product Printing Routing.'),
+                if(_loadingStations) const LinearProgressIndicator(),
+                for(final station in _stations)
+                  CheckboxListTile(contentPadding:EdgeInsets.zero,title:Text('${station['name']}${station['active']==true ? '' : ' (disabled)'}'),value:_stationIds.contains(station['id']),
+                    onChanged:_saving ? null : (v)=>setState(() {
+                      if(v==true && station['active']==true) { _stationIds.add('${station['id']}'); } else { _stationIds.remove(station['id']); }
+                      _stationError=null;
+                    })),
+                if(_stationError!=null) Text(_stationError!),
+                if(_stationError!=null) TextButton(onPressed:_saving?null:_loadStations,child:const Text('Reload stations')),
                 if (_error != null) Text(_error!),
               ],
             ),

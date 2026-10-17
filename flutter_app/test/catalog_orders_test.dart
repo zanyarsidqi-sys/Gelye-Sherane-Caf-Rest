@@ -4,6 +4,8 @@ import 'package:gelye_sherane_cafe/cafe_menu_workspace.dart';
 import 'package:gelye_sherane_cafe/cafe_orders_workspace.dart';
 
 class MenuStore implements CafeMenuStore {
+  @override
+  Future<List<Map<String,dynamic>>> stations() async => [{'id':'kitchen','name':'Kitchen','active':true},{'id':'minibar','name':'Minibar','active':true}];
   final rows = <CafeMenuItem>[];
   bool fail = false;
   @override
@@ -19,6 +21,9 @@ class MenuStore implements CafeMenuStore {
     required String category,
     required String description,
     required int priceIqd,
+    required int tourismPriceIqd,
+    required int ownerPriceIqd,
+    required List<String> stationIds,
     required bool available,
   }) async {
     rows.add(
@@ -28,6 +33,9 @@ class MenuStore implements CafeMenuStore {
         category: category,
         description: description,
         priceIqd: priceIqd,
+        tourismPriceIqd: tourismPriceIqd,
+        ownerPriceIqd: ownerPriceIqd,
+        stationIds: stationIds,
         available: available,
       ),
     );
@@ -87,19 +95,30 @@ void main() {
         'Drinks',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Base price IQD'),
+        find.widgetWithText(TextFormField, 'Normal price IQD'),
         '-1',
       );
+      await tester.enterText(find.widgetWithText(TextFormField, 'Tourism price IQD'), '3500');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Owner price IQD'), '1500');
       await tester.tap(find.text('Save product'));
       await tester.pumpAndSettle();
       expect(store.rows, isEmpty);
+      await tester.ensureVisible(find.text('Kitchen'));
+      await tester.tap(find.text('Kitchen'));
+      await tester.ensureVisible(find.text('Minibar'));
+      await tester.tap(find.text('Minibar'));
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Base price IQD'),
+        find.widgetWithText(TextFormField, 'Normal price IQD'),
         '2500',
       );
+      await tester.enterText(find.widgetWithText(TextFormField, 'Tourism price IQD'), '3500');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Owner price IQD'), '1500');
       await tester.tap(find.text('Save product'));
       await tester.pumpAndSettle();
       expect(store.rows.single.priceIqd, 2500);
+      expect(store.rows.single.tourismPriceIqd, 3500);
+      expect(store.rows.single.ownerPriceIqd, 1500);
+      expect(store.rows.single.stationIds, containsAll(['kitchen','minibar']));
       expect(find.text('Tea'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },

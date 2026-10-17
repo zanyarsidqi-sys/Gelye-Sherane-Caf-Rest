@@ -21,10 +21,14 @@ class CafeOperationsWorkspace extends StatefulWidget {
     this.rpc,
     this.payments = false,
     this.canRefund = false,
+    this.tableId,
+    this.visitId,
   });
   final String source;
   final bool canCreate, payments, canRefund;
   final CafeRpc? rpc;
+  final String? tableId;
+  final String? visitId;
   @override
   State<CafeOperationsWorkspace> createState() =>
       _CafeOperationsWorkspaceState();
@@ -60,7 +64,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
           widget.payments ? {} : {'p_source': widget.source, 'p_history': _filter == 'All'},
         ),
       );
-      if (mounted) setState(() => _rows = rows);
+      if (mounted) setState(() => _rows = rows.where((r) => (widget.tableId == null || r['table_id'] == widget.tableId) && (widget.visitId == null || r['visit_id'] == widget.visitId)).toList());
     } catch (_) {
       if (mounted) {
         setState(
@@ -76,7 +80,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
     setState(() => _busy = true);
     try {
       final catalog = Map<String, dynamic>.from(
-        await _rpc('get_cafe_order_catalog', {'p_source': widget.source})
+        await _rpc('get_cafe_priced_order_catalog', {'p_source': widget.source})
             as Map,
       );
       if (!mounted) return;
@@ -84,7 +88,7 @@ class _CafeOperationsWorkspaceState extends State<CafeOperationsWorkspace> {
         context: context,
         barrierDismissible: false,
         builder: (_) =>
-            _OrderEditor(source: widget.source, catalog: catalog, rpc: _rpc),
+            _OrderEditor(source: widget.source, catalog: catalog, rpc: _rpc, tableId: widget.tableId),
       );
       if (saved == true && mounted) await _load();
     } catch (_) {
@@ -365,10 +369,12 @@ class _OrderEditor extends StatefulWidget {
     required this.source,
     required this.catalog,
     required this.rpc,
+    this.tableId,
   });
   final String source;
   final Map<String, dynamic> catalog;
   final CafeRpc rpc;
+  final String? tableId;
   @override
   State<_OrderEditor> createState() => _OrderEditorState();
 }
@@ -379,8 +385,18 @@ class _OrderEditorState extends State<_OrderEditor> {
   final _quantities = <String, int>{};
   final _request = newCafeRequestId();
   String? _table, _error;
+  String _pricingMode = 'normal';
+  int _price(Map<String, dynamic> p) => ((p[_pricingMode == 'normal' ? 'price_iqd' : '${_pricingMode}_price_iqd'] ?? p['price_iqd']) as num).toInt();
   bool _busy = false;
   Map<String, dynamic>? _submitted;
+  @override
+  void initState() {
+    super.initState();
+    if (widget.tableId != null) {
+      final table = cafeRows(widget.catalog['tables']).where((t) => t['id'] == widget.tableId).firstOrNull;
+      if (table != null) { _table = widget.tableId; _pricingMode = table['pricing_mode'] as String? ?? 'normal'; }
+    }
+  }
   @override
   void dispose() {
     _destination.dispose();
@@ -402,6 +418,7 @@ class _OrderEditorState extends State<_OrderEditor> {
       _submitted = {
         'p_request_id': _request,
         'p_source': widget.source,
+        'p_pricing_mode': _pricingMode,
         'p_table_id': _table,
         'p_destination': _destination.text.trim(),
         'p_notes': _notes.text.trim(),
@@ -415,7 +432,7 @@ class _OrderEditorState extends State<_OrderEditor> {
       _error = null;
     });
     try {
-      await widget.rpc('submit_cafe_staff_order', _submitted!);
+      await widget.rpc('submit_cafe_priced_order', _submitted!);
       if (mounted) Navigator.pop(context, true);
     } catch (_) {
       if (mounted) {
@@ -435,7 +452,7 @@ class _OrderEditorState extends State<_OrderEditor> {
     final total = products.fold<int>(
       0,
       (v, p) =>
-          v + (_quantities[p['id']] ?? 0) * (p['price_iqd'] as num).toInt(),
+          v + (_quantities[p['id']] ?? 0) * _price(p),
     );
     return PopScope(
       canPop: !_busy,
@@ -447,6 +464,13 @@ class _OrderEditorState extends State<_OrderEditor> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (widget.source != 'table') DropdownButtonFormField<String>(
+                  initialValue: _pricingMode,
+                  decoration: const InputDecoration(labelText: 'Pricing mode'),
+                  items: [for (final mode in (widget.catalog['pricing_modes'] as List? ?? ['normal']))
+                    DropdownMenuItem(value: mode as String, child: Text(switch(mode) { 'tourism' => 'Tourism', 'owner' => 'Owner', _ => 'Normal' }))],
+                  onChanged: locked ? null : (value) => setState(() => _pricingMode = value!),
+                ),
                 if (widget.source == 'table')
                   DropdownButtonFormField<String>(
                     initialValue: _table,
@@ -459,9 +483,12 @@ class _OrderEditorState extends State<_OrderEditor> {
                           child: Text(t['name'] as String),
                         ),
                     ],
-                    onChanged: locked
+                    onChanged: locked || widget.tableId != null
                         ? null
-                        : (v) => setState(() => _table = v),
+                        : (v) => setState(() {
+                            _table = v;
+                            _pricingMode = cafeRows(widget.catalog['tables']).firstWhere((t) => t['id'] == v)['pricing_mode'] as String? ?? 'normal';
+                          }),
                   )
                 else
                   TextField(
@@ -476,6 +503,8 @@ class _OrderEditorState extends State<_OrderEditor> {
                           : 'Customer reference (optional)',
                     ),
                   ),
+                if (widget.source == 'table' && _table != null)
+                  Text('Table pricing: ${_pricingMode == 'tourism' ? 'Tourism' : _pricingMode == 'owner' ? 'Owner' : 'Normal'}'),
                 if (products.isEmpty)
                   const Text(
                     'No available products. Add products in Menu Management first.',
@@ -484,7 +513,7 @@ class _OrderEditorState extends State<_OrderEditor> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text('${p['name']} · ${p['price_iqd']} IQD'),
+                        child: Text('${p['name']} · ${_price(p)} IQD'),
                       ),
                       IconButton(
                         tooltip: 'Remove ${p['name']}',

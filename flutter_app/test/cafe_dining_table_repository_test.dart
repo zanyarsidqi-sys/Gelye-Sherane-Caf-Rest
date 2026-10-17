@@ -63,7 +63,7 @@ void main() {
     });
 
     expect(table.pricingMode, 'normal');
-    expect(CafeDiningTableRepository.pricingModes, {'normal'});
+    expect(CafeDiningTableRepository.pricingModes, {'normal', 'tourism', 'owner'});
   });
 
   test('map saves reject overlapping positions before making a request', () {

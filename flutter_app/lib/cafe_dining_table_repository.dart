@@ -71,7 +71,7 @@ class CafeDiningTableRepository {
   const CafeDiningTableRepository(this._client);
 
   static const statuses = {'available', 'occupied', 'reserved', 'cleaning'};
-  static const pricingModes = {'normal'};
+  static const pricingModes = {'normal', 'tourism', 'owner'};
   static const mapCanvasWidth = 900.0;
   static const mapCanvasHeight = 520.0;
   static const mapTableWidth = 128.0;

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gelye_sherane_cafe/cafe_guest_page.dart';
+import 'package:gelye_sherane_cafe/cafe_operational_report.dart';
+import 'package:gelye_sherane_cafe/cafe_cash_workspace.dart';
+import 'package:gelye_sherane_cafe/cafe_expense_workspace.dart';
 import 'package:gelye_sherane_cafe/main.dart';
 import 'package:gelye_sherane_cafe/staff_dashboard_page.dart';
 
@@ -461,8 +464,8 @@ void main() {
     await tester.tap(previewCard);
     await tester.pumpAndSettle();
 
-    expect(find.text('Design preview — not live'), findsOneWidget);
-    expect(find.textContaining('authoritative data source'), findsOneWidget);
+    expect(find.byType(CafeCashWorkspace), findsOneWidget);
+    expect(find.textContaining('Could not load the cash journal'), findsOneWidget);
     expect(find.text('Add record'), findsNothing);
     expect(find.text('Search Cash Out — Owner...'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -515,7 +518,8 @@ void main() {
     await tester.tap(find.text('Tables & Chairs'));
     await tester.pumpAndSettle();
     expect(find.text('Add Table'), findsOneWidget);
-    expect(find.text('Table Overview'), findsNothing);
+    // The permitted standalone overview remains in navigation below Dashboard.
+    expect(find.text('Table Overview'), findsOneWidget);
     expect(find.text('Table Reservations'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('tables-category-0')));
     await tester.pumpAndSettle();
@@ -728,7 +732,7 @@ void main() {
       await tester.tap(find.text('Payment Management').last);
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('payment-category-0')), findsOneWidget);
-      expect(find.text('Connected workflow'), findsNWidgets(3));
+      expect(find.text('Connected workflow'), findsNWidgets(6));
       expect(find.text('Pending Payments'), findsOneWidget);
       expect(find.text('Receive Payment'), findsOneWidget);
       expect(find.text('Invoices & Receipts'), findsNothing);
@@ -737,8 +741,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Payment Overview'));
       await tester.pumpAndSettle();
-      expect(find.text('Payment Overview records'), findsOneWidget);
-      expect(find.text('Add record'), findsOneWidget);
+      expect(find.byType(CafeOperationalReport), findsOneWidget);
+      expect(find.text('Add record'), findsNothing);
       expect(find.text('No live records for this date range.'), findsNothing);
       expect(find.text('1,250,000 IQD'), findsNothing);
     },
@@ -763,7 +767,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('payment-category-0')), findsOneWidget);
     expect(find.byKey(const ValueKey('payment-category-3')), findsOneWidget);
-    expect(find.text('Connected workflow'), findsNWidgets(3));
+    expect(find.text('Connected workflow'), findsNWidgets(6));
 
     const featuredCards = [
       'Payment Overview',
@@ -813,6 +817,15 @@ void main() {
 
       if (const {'Receive Payment','Payment History','Refunds & Voids'}.contains(title)) {
         expect(find.text('Order payments'), findsOneWidget);
+        expect(find.text('Add record'), findsNothing);
+      } else if (expenseWorkspaceCards['payment_management']!.contains(title)) {
+        expect(find.byType(CafeExpenseWorkspace), findsOneWidget, reason: title);
+        expect(find.text('Add record'), findsNothing);
+      } else if (cashWorkspaceCards['payment_management']!.contains(title)) {
+        expect(find.byType(CafeCashWorkspace), findsOneWidget, reason: title);
+        expect(find.text('Add record'), findsNothing);
+      } else if (operationalReportCards['payment_management']!.contains(title)) {
+        expect(find.byType(CafeOperationalReport), findsOneWidget, reason: title);
         expect(find.text('Add record'), findsNothing);
       } else {
       expect(find.text('$title records'), findsOneWidget, reason: title);
@@ -1912,11 +1925,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Design only'), findsOneWidget);
-    expect(
-      find.textContaining('integrations have not been verified'),
-      findsOneWidget,
-    );
+    expect(find.text('Print stations'), findsOneWidget);
+    expect(find.textContaining('Could not load stations'), findsOneWidget);
     expect(find.text('Add record'), findsNothing);
 
     await tester.tap(find.text('Back to Kitchen Management'));

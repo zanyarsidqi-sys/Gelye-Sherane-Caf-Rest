@@ -36,11 +36,13 @@ class FavoritesPage extends StatefulWidget {
     required this.cards,
     required this.onOpen,
     this.storage,
+    this.cardBuilder,
   });
   final String account;
   final List<FavoriteCardEntry> cards;
   final ValueChanged<FavoriteCardEntry> onOpen;
   final FavoritesStorage? storage;
+  final Widget Function(FavoriteCardEntry)? cardBuilder;
   @override
   State<FavoritesPage> createState() => _FavoritesPageState();
 }
@@ -192,6 +194,44 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 style: const TextStyle(color: Color(0xFFB7C2D1)),
               ),
             )
+          else if (!_adding && widget.cardBuilder != null)
+            LayoutBuilder(builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 1000 ? 4 : constraints.maxWidth >= 720 ? 3 : constraints.maxWidth >= 480 ? 2 : 1;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: cards.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns, mainAxisExtent: 280,
+                  crossAxisSpacing: 12, mainAxisSpacing: 12,
+                ),
+                itemBuilder: (context, index) {
+                  final card = cards[index];
+                  return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    Expanded(child: Semantics(
+                      button: true, label: '${card.title}, ${card.section}',
+                      onTap: () => widget.onOpen(card),
+                      child: GestureDetector(
+                        key: ValueKey('favorite-open-${card.id}'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => widget.onOpen(card),
+                        child: ExcludeSemantics(child: IgnorePointer(child: widget.cardBuilder!(card))),
+                      ),
+                    )),
+                    Row(children: [
+                      Expanded(child: Text(card.section, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Color(0xFFB7C2D1), fontSize: 12))),
+                      IconButton(
+                        key: ValueKey('favorite-${card.id}'),
+                        tooltip: 'Remove ${card.title} from favorites',
+                        onPressed: _saving ? null : () => _toggle(card),
+                        icon: const Icon(Icons.star, color: Color(0xFFD6AA57)),
+                      ),
+                    ]),
+                  ]);
+                },
+              );
+            })
           else
             SizedBox(
               height: 440,
@@ -212,7 +252,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         card.section,
                         style: const TextStyle(color: Color(0xFFB7C2D1)),
                       ),
-                      onTap: _adding ? null : () => widget.onOpen(card),
+                      onTap: () => widget.onOpen(card),
                       trailing: IconButton(
                         key: ValueKey('favorite-${card.id}'),
                         tooltip: selected
