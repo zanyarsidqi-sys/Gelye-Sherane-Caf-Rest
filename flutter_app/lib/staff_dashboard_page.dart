@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'workspace_reporting.dart';
 import 'favorites_page.dart';
+import 'cafe_menu_workspace.dart';
+import 'cafe_operations_workspace.dart';
 
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart' as pdf;
@@ -380,8 +382,8 @@ const _motelOrderPurposes = <String, String>{
   'Delivery Schedule': 'Review delivery schedule records.',
   'Delivery Areas': 'Review delivery area records.',
   'New Walk-In Order':
-      'Design preview for counter orders without a table or room.',
-  'Active Walk-In Orders': 'Design preview for active counter orders.',
+      'Create a priced counter order without a table or room.',
+  'Active Walk-In Orders': 'Track active counter orders and preparation.',
   'Ready for Pickup': 'Design preview for prepared counter orders.',
   'Walk-In Order History': 'Design preview for completed counter orders.',
   'Invoices & Receipts': 'Review saved invoice and receipt records.',
@@ -5745,7 +5747,9 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
           _sectionSubcardGrid(index),
           const SizedBox(height: 16),
           _employeeManagementPanel(),
-        ] else if (index == 2 && subcard != null)
+        ] else if (_connectedOperations(index, subcard) != null)
+          _connectedOperations(index, subcard)!
+        else if (index == 2 && subcard != null)
           _financeDetail(section, subcard)
         else if (index == 0 &&
             subcard != null &&
@@ -5789,6 +5793,28 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
         ],
       ],
     );
+  }
+
+  Widget? _connectedOperations(int index, String? card) {
+    if (card == null || widget.permissionsLoadError != null || !_visibleSubcards(index).contains(card)) return null;
+    bool allowed(int section, String title) => _visibleSubcards(section).contains(title);
+    final rpc = _hasValidSupabaseConfiguration ? cafeOperationsRpc : null;
+    if (index == 3 && const {'Add New Product','Edit & Manage Products','Menu Overview','Product Availability','Product Categories','Normal Pricing'}.contains(card)) {
+      return CafeMenuWorkspace(key: ValueKey('catalog-$card'),
+        store: _hasValidSupabaseConfiguration ? SupabaseCafeMenuStore(Supabase.instance.client) : null,
+        canCreate: allowed(3,'Add New Product'), canEdit: allowed(3,'Edit & Manage Products'));
+    }
+    if (index == 2 && const {'Receive Payment','Payment History','Refunds & Voids'}.contains(card)) {
+      return CafeOperationsWorkspace(key: ValueKey('payments-$card'), source:'table', payments:true,
+        canCreate:allowed(2,'Receive Payment'), canRefund:allowed(2,'Refunds & Voids'), rpc:rpc);
+    }
+    String? source;
+    if(index==1 && card=='Table Ordering') source='table';
+    if(index==4) source=const {'Table Orders':'table','Motel Orders':'motel','Online Orders':'online','Live Kitchen Orders':'all','Status of All Orders':'all','Kitchen Display':'all'}[card];
+    if(index==5) source=const {'New Motel Order':'motel','Motel Orders':'motel','New Online Order':'online','Online Orders':'online','New Walk-In Order':'walk_in','Active Walk-In Orders':'walk_in'}[card];
+    if(source==null) return null;
+    return CafeOperationsWorkspace(key:ValueKey('operations-$index-$card'),source:source,
+      canCreate:index==1 || (index==5 && allowed(5, const {'motel':'New Motel Order','online':'New Online Order','walk_in':'New Walk-In Order'}[source]!)),rpc:rpc);
   }
 
   Widget _sectionPageHeading(
@@ -7537,7 +7563,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    hasExistingWorkspace
+                    _connectedOperations(4, title) != null ? 'Connected kitchen workflow' : hasExistingWorkspace
                         ? 'Existing generic records · no stock ledger'
                         : 'Design only · ledger integration unverified',
                     maxLines: 1,
@@ -7797,7 +7823,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'Design only · integration unverified',
+                    _connectedOperations(5, title) != null ? 'Connected order workflow' : 'Design only · integration unverified',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: palette.accent,
                       fontWeight: FontWeight.w600,
@@ -8338,7 +8364,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    isExistingWorkspace
+                    _connectedOperations(3, title) != null ? 'Connected product catalog' : isExistingWorkspace
                         ? 'Existing generic workspace'
                         : 'Design only · integration unverified',
                     maxLines: 1,

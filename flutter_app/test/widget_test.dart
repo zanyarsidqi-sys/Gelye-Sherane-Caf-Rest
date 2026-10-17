@@ -833,11 +833,16 @@ void main() {
       await tester.tap(find.text(title));
       await tester.pumpAndSettle();
 
+      if (const {'Receive Payment','Payment History','Refunds & Voids'}.contains(title)) {
+        expect(find.text('Order payments'), findsOneWidget);
+        expect(find.text('Add record'), findsNothing);
+      } else {
       expect(find.text('$title records'), findsOneWidget, reason: title);
       expect(find.text('Search $title...'), findsOneWidget, reason: title);
       expect(find.text('Tracked records'), findsOneWidget, reason: title);
       expect(find.text('Open records'), findsOneWidget, reason: title);
       expect(find.text('Add record'), findsOneWidget, reason: title);
+      }
       expect(tester.takeException(), isNull, reason: title);
 
       final back = find.text('Back to Payment Management');
@@ -1147,15 +1152,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(
-      find.textContaining('Coming Soon — Awaiting verified integrations'),
-      findsOneWidget,
-    );
-    expect(find.text('Design only'), findsOneWidget);
-    expect(
-      find.textContaining('does not create or process orders'),
-      findsOneWidget,
-    );
+    expect(find.text('walk in orders'), findsOneWidget);
+    expect(find.text('New order'), findsOneWidget);
     expect(find.text('Add record'), findsNothing);
     await tester.tap(find.text('Back to Motel & Online Orders'));
     await tester.pumpAndSettle();
@@ -1260,11 +1258,7 @@ void main() {
       find.byKey(const ValueKey('menu-category-card-Add New Product')),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Design only'), findsOneWidget);
-    expect(
-      find.textContaining('Product-specific data sources'),
-      findsOneWidget,
-    );
+    expect(find.text('Product catalog'), findsOneWidget);
     expect(find.text('Add record'), findsNothing);
     await tester.tap(find.text('Back to Menu Management'));
     await tester.pumpAndSettle();
@@ -1274,9 +1268,7 @@ void main() {
       find.byKey(const ValueKey('menu-category-card-Menu Overview')),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Menu Overview records'), findsOneWidget);
-    expect(find.textContaining('generic record workspace'), findsOneWidget);
-    expect(find.text('Search Menu Overview...'), findsOneWidget);
+    expect(find.text('Product catalog'), findsOneWidget);
     await tester.tap(find.text('Back to Menu Management'));
     await tester.pumpAndSettle();
     expect(
