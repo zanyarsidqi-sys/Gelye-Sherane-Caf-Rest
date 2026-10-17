@@ -1,3 +1,4 @@
+import 'cafe_receipt_summary.dart';
 import 'cafe_language.dart';
 import 'cafe_report_selection.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,8 @@ import 'cafe_operations_workspace.dart';
 import 'workspace_reporting.dart';
 
 const operationalReportCards = <String, Set<String>>{
-  'dashboard': {'Today Revenue', 'Cash Received', 'Daily Financial Summary', 'Cash & Payment Methods', 'Sales Performance', 'Pending Payment', 'Refunds & Adjustments', 'Today’s Orders', 'Today Orders', 'Kitchen Orders', 'Motel Orders', 'Online & Walk-In Orders', 'Orders Preparing', 'Ready for Delivery', 'Delayed Orders', 'Table Orders', 'Motel Orders Tracking', 'Online Orders Tracking', 'Walk-In Orders Tracking', 'Online Orders', 'Kitchen Queue', 'Today’s Customers', 'Guests Today', 'Table Occupancy Reports', 'Table Occupancy', 'Product Performance', 'Audit & Activity History', 'Audit & Activity'},
-  'payment_management': {'Today Revenue', 'Revenue', 'Payment Overview', 'Collected Cash', 'Table Income', 'Pending Payments', 'Pending Payment', 'Refunds', 'Audit'},
+  'dashboard': {'Invoices', 'Today Revenue', 'Cash Received', 'Daily Financial Summary', 'Cash & Payment Methods', 'Sales Performance', 'Pending Payment', 'Refunds & Adjustments', 'Today’s Orders', 'Today Orders', 'Kitchen Orders', 'Motel Orders', 'Online & Walk-In Orders', 'Orders Preparing', 'Ready for Delivery', 'Delayed Orders', 'Table Orders', 'Motel Orders Tracking', 'Online Orders Tracking', 'Walk-In Orders Tracking', 'Online Orders', 'Kitchen Queue', 'Today’s Customers', 'Guests Today', 'Table Occupancy Reports', 'Table Occupancy', 'Product Performance', 'Audit & Activity History', 'Audit & Activity'},
+  'payment_management': {'Invoices & Receipts', 'Invoices', 'Invoices & Payments', 'Today Revenue', 'Revenue', 'Payment Overview', 'Collected Cash', 'Table Income', 'Pending Payments', 'Pending Payment', 'Refunds', 'Audit'},
   'motel_online_orders': {'Motel & Online Orders Overview', 'Order Tracking', 'Order History', 'Order Details', 'Room Orders', 'Ready for Pickup', 'Walk-In Order History'},
   'customer_management': {'Kitchen Overview', 'Kitchen Reports', 'Kitchen Performance & Timing', 'Kitchen Priority & Delays'},
   'tables_orders': {'Table Reports'},
@@ -20,9 +21,10 @@ const operationalReportCards = <String, Set<String>>{
 class CafeOperationalReport extends StatefulWidget {
   const CafeOperationalReport({
     super.key, required this.section, required this.card, required this.title,
-    this.rpc, this.initialRange,
+    this.rpc, this.initialRange, this.account = '',
   });
   final String section, card, title;
+  final String account;
   final CafeRpc? rpc;
   /// UTC instants with an exclusive end, as used by the Dashboard.
   final WorkspaceReportRange? initialRange;
@@ -36,6 +38,7 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
   DateTime? _loadedAt;
   bool _loading = true;
   String? _error;
+  bool get _receipts => const {'invoices', 'invoices_receipts', 'invoices_payments'}.contains(widget.card);
   String _query = '';
   final _filters = <String, String>{};
   int? _sortColumn;
@@ -62,6 +65,7 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
   void didUpdateWidget(CafeOperationalReport oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.section != widget.section || oldWidget.card != widget.card ||
+        oldWidget.rpc != widget.rpc || oldWidget.account != widget.account ||
         oldWidget.initialRange?.start != widget.initialRange?.start ||
         oldWidget.initialRange?.end != widget.initialRange?.end) {
       _query = '';
@@ -118,6 +122,10 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
           rows.any((row) => row is! List || row.length != columns.length)) {
         throw const FormatException('Invalid report shape');
       }
+      if (_receipts) {
+        cafeReceiptTotals(columns.map((e) => '$e').toList(),
+            rows.map((row) => List<dynamic>.from(row as List)).toList());
+      }
       if (mounted && request == _request) {
         setState(() {
           _report = report;
@@ -168,6 +176,10 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
         for (final filter in _filters.entries) pw.Text('${filter.key}: ${filter.value}'),
         if (_sortColumn != null) pw.Text('Sort: ${_columns[_sortColumn!]} · ${_ascending ? 'Ascending' : 'Descending'}'),
         pw.Text('${rows.length} matching records'),
+        if (_receipts) ...[
+          pw.Text('Recorded payment receipts and refunds — not tax invoices.'),
+          pw.Text(cafeReceiptSummary(_columns, rows)),
+        ],
         pw.SizedBox(height: 10),
         pw.Text('${report['note'] ?? ''}'),
         pw.SizedBox(height: 10),
@@ -215,6 +227,7 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         CafeText(widget.title, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+        if (_receipts) const CafeText('Recorded payment receipts and refunds — not tax invoices. This view does not issue, change or settle an invoice.'),
         const SizedBox(height: 8),
         CafeText('${_date(_from)} to ${_date(_to)} · Baghdad time',
           style: const TextStyle(color: muted)),
@@ -244,7 +257,7 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
           ),
           const SizedBox(height: 12),
           Wrap(spacing: 12, runSpacing: 12, children: [
-            for (final column in const ['Source', 'Status', 'Mode'])
+            for (final column in const ['Source', 'Status', 'Mode', 'Kind', 'Method'])
               if (columns.contains(column)) SizedBox(width: 240,
                 child: DropdownButtonFormField<String>(
                   key: ValueKey('report-filter-$column-${_filters[column]}'),
@@ -280,6 +293,8 @@ class _CafeOperationalReportState extends State<CafeOperationalReport> {
             TextButton(onPressed: _clearSelection, child: const CafeText('Clear filters')),
           ]),
           const SizedBox(height: 8),
+          if (_receipts) CafeText(cafeReceiptSummary(columns, rows),
+            key: const ValueKey('receipt-summary')),
           CafeText('${_allRows.length} loaded records · filters apply to these records only',
             style: const TextStyle(color: muted, fontSize: 12)),
           const SizedBox(height: 12),

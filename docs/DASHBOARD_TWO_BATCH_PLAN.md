@@ -242,3 +242,54 @@ Published improvement coverage is now 81/98 card routes; 17 remain as listed abo
 Live: https://cafe.gelyesheranecompany.com/
 Version: https://cafe.gelyesheranecompany.com/version.json
 Deployment: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39045285933
+
+
+## System Health continuation — 17 October 2026
+
+User resumed checkpoint xx, then requested Next (development only).
+
+PR24 already contains Customers, Notifications & Alerts, internal Events, and per-account/device card ordering within existing categories. Earlier code head fa2a0f502e987703d5bec3ab3fa3e1376c1b744e passed CI run 39047395417. Those three card improvements raise draft coverage from 81 published to 84 combined. Events is internal planning, not table reservation, deposits or approved booking.
+
+This batch adds ONE unique card improvement: System Health. It provides manual read-only checks of Table Overview and Low Stock Alerts APIs, only when the employee has the underlying access. It shows per-service request duration, validates response shape/server timestamp, reports independent errors and ten-second timeouts, and discards stale results after account/permission/source changes. Refresh clears old results. No business records or raw error details are rendered. The existing server authorization remains authoritative.
+
+Limits: successful reads are not an uptime or whole-system health guarantee. Check time uses the device clock, explicitly labelled; durations are client-observed request time. No CPU/RAM/disk, printer, backup/restore, offline-queue or security telemetry exists in this screen. It does not run commands, repair services, create backups or change staff permissions. Translation and authenticated device acceptance remain unverified. No production schema/data or deployment changes.
+
+Validation of code head 37695ed0c2bba945e237e67653ee2a6399edaf90: PASSED Flutter analysis, full Flutter test suite, release web build and existing isolated PostgreSQL contract suite.
+https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39048499285
+Seven new widget tests cover manual/permission-scoped calls, independent failures and stale clearing, malformed/unconfigured responses, timeout/late completion, account/access changes, mobile RTL and actual Dashboard routing. First CI attempt found one test-helper lint; fixed before the final run.
+
+Combined improved-route coverage: 81 published + 4 draft = 85/98; 13 remain. This is not full functional completion or Phase 4 readiness. Remaining: Invoices, Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, Backup & Sync Status, Security, Backup, Offline Mode. Full settlement, server-enforced view/edit/date restrictions, backup/restore/offline infrastructure, translations and authenticated integration checks remain separate gates. Staff & Permissions work stays unpublished.
+
+
+## Invoice ledger continuation — 17 October 2026
+
+Next development batch adds ONE Dashboard card improvement: Invoices. Four entry points now use the existing protected receipt report: Dashboard Invoices and Payment Management Invoices, Invoices & Receipts, Invoices & Payments. Each sends its own section/card scope; the backend mapping and has_workspace_access check already exist. No schema changes or new payment commands.
+
+Added Kind and Method filters to the shared report UI, exact whole-IQD selected-row payment/refund/net totals in invoice reports and their PDF output, and an explicit receipt-versus-tax-invoice disclaimer. Original payments/refunds remain separate records. Negative, fractional, unsafe numeric, missing/unknown and duplicate-transaction input is rejected before rendering/export; integer string amounts sum with BigInt. Filtered totals are not cash balance or total revenue. Existing dates, search, sorting and export remain available.
+
+All operational reports now invalidate late reads when their source or passed account identity changes. Connected report routes pass the signed-in email as the account identity; identity does not grant server access.
+
+Validation passed: Flutter analysis, full Flutter test suite, release web build and existing isolated PostgreSQL contracts.
+Code head: 9ffaf9d7bf82b07e3c3a56bf50029329551449f7
+Run: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39048993839
+Seven new tests cover exact totals, invalid/duplicate receipts, method/search filtering, disabled export after bad data, account races, four permission scopes and the actual Dashboard invoice route. PDF generation is code-connected but no physical printer or authenticated device acceptance is claimed. Existing isolated PostgreSQL contracts do not test the receipt-report function. No new Supabase feature or migration is introduced.
+
+Combined coverage: 81 published + 5 draft = 86/98 improved card routes; 12 remain: Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Staff Performance, Backup & Sync Status, Security, Backup, Offline Mode.
+
+The Invoices card is a read-only receipt ledger, not invoice creation, invoice numbering, customer tax details, itemized fiscal invoices, resend-email or payment settlement. Discounts and general server-enforced date/view/edit restrictions remain pending. Production remains unchanged; Phase 4 readiness is not established.
+
+
+## Staff Performance continuation — 17 October 2026
+
+One additional Dashboard improvement: Staff Performance now opens a read-only attendance summary. Both the card and an underlying Attendance/Employee Attendance permission are required in navigation; the existing people-workspace RPC retains staff-own-record/admin scope and MFA enforcement. No backend authorization change or migration.
+
+Today, last 7 days and last 31 days use Baghdad dates. Grouping uses staff_id rather than employee names, keeps open/closed session counts separate, sums server-clipped period_seconds, and exposes recorded sessions. Search uses name/ID. Missing names are explicit; no absent employees are inferred. Invalid/duplicate records, negative/excessive duration and inconsistent coverage are rejected. Refresh and account/source changes clear stale results and reject late responses. Server snapshot and incomplete latest-500 coverage are shown.
+
+This is attendance evidence only, not productivity scoring, shifts, lateness, breaks, absence, payroll, attributed task completion or complete HR performance evaluation. Open-session duration stops at the server snapshot. Aggregates cover returned rows only. General time-range restrictions and translation review remain pending.
+
+Validation passed: Flutter analysis, full Flutter tests, release web build and existing isolated PostgreSQL contracts.
+Code: 4528e533c47ceb48c790f385924bd99f427052a0
+Run: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39049471271
+Seven new tests cover grouping/duration, rejected records/coverage, period requests/search, incomplete/error states, account races, mobile RTL and Dashboard permission gates. Existing people database contracts verify backend attendance identity/access; authenticated device acceptance is still unverified.
+
+Coverage: 81 published + 6 draft = 87/98 improved Dashboard routes; 11 remain: Discounts, Credit Accounts, Confirm Credit, Accounts Receivable, Credit Collections, Credit Approval History, Cash Transfers, Backup & Sync Status, Security, Backup, Offline Mode. These are improved-route counts, not completed workflows. Phase 4 readiness remains pending. No publication or production changes.
