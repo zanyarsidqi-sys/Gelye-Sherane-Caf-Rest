@@ -23,7 +23,8 @@
 - Repair selects Drinks from the dropdown and verifies its saved category.
   The same save-flow test now verifies Owner price zero.
 - Repair run: https://github.com/zanyarsidqi-sys/Gelye-Sherane-Caf-Rest/actions/runs/39023246234
-- See that run for current analysis/test/web-build results; do not infer success.
+- Repair run completed successfully: Flutter analysis, tests and release web build passed.
+- This verifies the repair commit, not production behavior or unfinished features.
 - Prior checkpoint reported staging rollback tests for Owner zero and zero-total
   orders. Those database tests have NOT been rerun in this continuation.
 - Product image uploads and narrowly permissioned staff access remain unverified
