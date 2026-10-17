@@ -569,19 +569,19 @@ const _inventoryCardRouteTitles = <String, String>{
 };
 
 const _menuCardPurposes = <String, String>{
-  'Menu Overview': 'Summary of product counts, active/inactive items, unpublished changes, category distribution and actionable exceptions.',
-  'Add New Product': 'Create a product with identity, category, language, image, availability, prices, variants and station assignment.',
-  'Edit & Manage Products': 'Search, filter, edit, archive, duplicate and inspect products without destroying historical references.',
-  'Product Categories': 'Maintain hierarchical categories, display order, translations, visibility and channel eligibility.',
+  'Menu Overview': 'Search saved products, categories, IQD prices and availability.',
+  'Add New Product': 'Add a product name, category, description, base IQD price and availability.',
+  'Edit & Manage Products': 'Search and edit saved products. Existing order prices stay unchanged.',
+  'Product Categories': 'Find products by category and update a category in the product editor.',
   'Product Images & Descriptions': 'Manage optimized product images, alt text, translations and publication readiness.',
   'Product Variations & Add-ons': 'Manage size, flavor, extras, required choices, price deltas and min/max selections.',
-  'Product Availability': 'Control sellable state by channel and station, with reasons and inventory-aware rules.',
+  'Product Availability': 'Use the product editor to make products available or unavailable for new orders.',
   'Bulk Product Management': 'Preview, validate and approve bulk category, availability, station or pricing edits.',
   'Product Combos & Meal Packages': 'Define bundles with component quantities, allowed substitutions, price rules and inventory decomposition.',
   'Product Scheduling':
       'Set availability by date, weekday, time window, season and timezone.',
   'Product Allergens & Nutrition': 'Maintain verified allergens, ingredient warnings, dietary tags and optional nutritional values.',
-  'Normal Pricing': 'Manage base prices in IQD and effective dates.',
+  'Normal Pricing': 'Edit base prices in IQD. New orders use the saved price.',
   'Tourism Pricing': 'Manage tourism prices applied to eligible orders, including motel orders.',
   'Owner Pricing':
       'Manage owner-specific price mode with authorization and audit.',
@@ -7761,7 +7761,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final purpose = _motelOrderPurposes[title]!;
     return Semantics(
       button: true,
-      label: '$title. $purpose. Design only; no live order processing.',
+      label: '$title. $purpose. ${_connectedOperations(5, title) != null ? 'Connected order workflow' : 'Design only; no live order processing'}',
       child: Card(
         key: ValueKey('motel-orders-category-card-$title'),
         margin: EdgeInsets.zero,
@@ -8124,7 +8124,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       button: true,
       label:
           '$title. $purpose. '
-          '${hasExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
+          '${_connectedOperations(4, title) != null ? 'Connected kitchen workflow' : hasExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
       child: Card(
         key: ValueKey('kitchen-category-card-$title'),
         margin: EdgeInsets.zero,
@@ -8300,7 +8300,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       button: true,
       label:
           '$title. $purpose. '
-          '${isExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
+          '${_connectedOperations(3, title) != null ? 'Connected product catalog' : isExistingWorkspace ? 'Existing generic workspace' : 'Design only'}',
       child: Card(
         key: ValueKey('menu-category-card-$title'),
         margin: EdgeInsets.zero,
@@ -8544,6 +8544,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
                     'View, print, and rotate saved table QR codes.',
                   'Table Reservations' =>
                     'Create and manage dedicated table reservations.',
+                  'Table Ordering' => 'Create priced table orders and track preparation.',
                   _ => 'Coming Soon — Awaiting Specification',
                 };
                 final palette = _executiveCardPalette(index);
