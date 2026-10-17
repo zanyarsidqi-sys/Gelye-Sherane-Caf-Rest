@@ -391,8 +391,8 @@ const _motelOrderPurposes = <String, String>{
   'New Walk-In Order':
       'Create a priced counter order without a table or room.',
   'Active Walk-In Orders': 'Track active counter orders and preparation.',
-  'Ready for Pickup': 'Design preview for prepared counter orders.',
-  'Walk-In Order History': 'Design preview for completed counter orders.',
+  'Ready for Pickup': 'View prepared counter orders and confirm handover.',
+  'Walk-In Order History': 'Search recent counter orders, including served and cancelled orders.',
   'Invoices & Receipts': 'Review saved invoice and receipt records.',
   'Payment Options': 'Review saved payment option records.',
 };
@@ -2212,16 +2212,11 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
       if (_hasSectionAccess(index)) index,
   ];
 
-  List<String> _visibleSubcards(int sectionIndex) {
-    if (sectionIndex == 24) return _hasSectionAccess(24) ? ['Table Overview'] : [];
-    final sectionKey = _sections[sectionIndex].key;
+  static List<String> _allSectionCards(int sectionIndex) {
     if (sectionIndex == 1) {
-      return _tablesChairsCategories
-          .expand((category) => category.cards)
-          .where(_canAccessTablesCard)
-          .toList(growable: false);
+      return <String>{for(final category in _tablesChairsCategories) ...category.cards}.toList(growable:false);
     }
-    final sectionSubcards = sectionIndex == 0
+    return sectionIndex == 0
         ? <String>{
             for (final group in _dashboardGroups) ...group.cards,
             ..._subcards[sectionIndex],
@@ -2249,6 +2244,18 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
             ..._subcards[sectionIndex],
           }.toList(growable: false)
         : _subcards[sectionIndex];
+  }
+
+  List<String> _visibleSubcards(int sectionIndex) {
+    if (sectionIndex == 24) return _hasSectionAccess(24) ? ['Table Overview'] : [];
+    final sectionKey = _sections[sectionIndex].key;
+    if (sectionIndex == 1) {
+      return _tablesChairsCategories
+          .expand((category) => category.cards)
+          .where(_canAccessTablesCard)
+          .toList(growable: false);
+    }
+    final sectionSubcards = _allSectionCards(sectionIndex);
     if (widget.role == 'admin' ||
         widget.grantedPermissions.contains('$sectionKey:*')) {
       return sectionSubcards;
@@ -4864,7 +4871,7 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     final section = _StaffDashboardPageState._sections[sectionIndex];
     final selected = selectedPermissions[section.key] ?? <String>{};
     final allSelected = selected.contains('*');
-    final subcards = _StaffDashboardPageState._subcards[sectionIndex];
+    final subcards = _allSectionCards(sectionIndex);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 0,
@@ -6063,6 +6070,26 @@ class _StaffDashboardPageState extends State<StaffDashboardPage> {
     if (index == 2 && const {'Receive Payment','Payment History','Refunds & Voids'}.contains(card)) {
       return CafeOperationsWorkspace(key: ValueKey('payments-$card'), source:'table', payments:true,
         canCreate:allowed(2,'Receive Payment'), canRefund:allowed(2,'Refunds & Voids'), rpc:rpc);
+    }
+    final orderView = switch ((index, card)) {
+      (4, 'Kitchen Orders') => (source:'all', status:'All', history:true, required:'Live Kitchen Orders'),
+      (4, 'Order Details') => (source:'all', status:'All', history:true, required:'Live Kitchen Orders'),
+      (4, 'Kitchen Preparation') => (source:'all', status:'preparing', history:false, required:'Live Kitchen Orders'),
+      (4, 'Ready for Delivery') => (source:'all', status:'ready', history:false, required:'Live Kitchen Orders'),
+      (4, 'Kitchen Handover') => (source:'all', status:'ready', history:false, required:'Live Kitchen Orders'),
+      (5, 'Room Orders') => (source:'motel', status:'All', history:false, required:'Motel Orders'),
+      (5, 'Ready for Pickup') => (source:'walk_in', status:'ready', history:false, required:'Active Walk-In Orders'),
+      (5, 'Walk-In Order History') => (source:'walk_in', status:'All', history:true, required:'Active Walk-In Orders'),
+      _ => null,
+    };
+    if(orderView != null) {
+      if(!allowed(index,orderView.required)) {
+        return Card(child:Padding(padding:const EdgeInsets.all(20),
+          child:Text('Ask an administrator to assign ${orderView.required} access to use this order workflow.')));
+      }
+      return CafeOperationsWorkspace(key:ValueKey('order-view-$index-$card'),
+        source:orderView.source, canCreate:false, rpc:rpc,
+        title:card, initialHistory:orderView.history, initialStatus:orderView.status);
     }
     String? source;
     if(index==1 && card=='Table Ordering') source='table';
