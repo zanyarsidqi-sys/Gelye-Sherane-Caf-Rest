@@ -94,7 +94,7 @@ DO $$ DECLARE r jsonb; duplicate jsonb; fid uuid; aid uuid; req uuid; day date:=
 END $$;
 
 -- Check Baghdad midnight clipping without changing production data.
-DO $ DECLARE crossing uuid:=gen_random_uuid(); boundary uuid:=gen_random_uuid(); workspace jsonb; seconds bigint; BEGIN
+DO $$ DECLARE crossing uuid:=gen_random_uuid(); boundary uuid:=gen_random_uuid(); workspace jsonb; seconds bigint; BEGIN
  INSERT INTO public.cafe_staff_attendance(id,staff_id,clocked_in_at,clocked_out_at) VALUES
   (crossing,'00000000-0000-0000-0000-000000000001','2026-10-16T20:30:00Z','2026-10-16T22:30:00Z'),
   (boundary,'00000000-0000-0000-0000-000000000001','2026-10-16T19:00:00Z','2026-10-16T21:00:00Z');
@@ -107,7 +107,7 @@ DO $ DECLARE crossing uuid:=gen_random_uuid(); boundary uuid:=gen_random_uuid();
  workspace:=public.get_cafe_people_workspace('feedback','2030-01-01','2030-01-01');
  IF workspace->'truncated'<>'true'::jsonb OR workspace->>'total_count'<>'501' OR jsonb_array_length(workspace->'rows')<>500 THEN
   RAISE EXCEPTION 'Bounded list or coverage indicator failed'; END IF;
-END $;
+END $$;
 
 -- Also execute the public invoker wrapper as the application role.
 SET ROLE authenticated;
